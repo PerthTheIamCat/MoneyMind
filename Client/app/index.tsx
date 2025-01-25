@@ -10,6 +10,7 @@ export default function Index() {
       }}
     >
       <Text>Edit app/index.tsx to edit this screen.</Text>
+      <Text className="bg-red-500"> TEST EIEIEIEIEIEI </Text>
     </View>
   );
 }
