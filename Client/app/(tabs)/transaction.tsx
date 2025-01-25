@@ -1,16 +1,11 @@
-import { Text, View } from "react-native";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
 
-export default function Transaction() {
+export default function Index() {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
-      <Text className="bg-red-500"> Transaction </Text>
-    </View>
+    <ThemedView >
+      <ThemedText>Edit app/Transaction.tsx to edit this screen.</ThemedText>
+      <ThemedText> This is Transaction page </ThemedText>
+    </ThemedView>
   );
 }

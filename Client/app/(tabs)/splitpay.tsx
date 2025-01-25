@@ -1,16 +1,11 @@
-import { Text, View } from "react-native";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
 
-export default function SplitPay() {
+export default function Index() {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
-      <Text className="bg-red-500"> SPLITPAY </Text>
-    </View>
+    <ThemedView >
+      <ThemedText>Edit app/splitpay.tsx to edit this screen.</ThemedText>
+      <ThemedText> This is splitpay page </ThemedText>
+    </ThemedView>
   );
 }
