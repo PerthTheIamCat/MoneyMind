@@ -1,11 +1,12 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { Link } from "expo-router";
 
 export default function Index() {
   return (
-    <ThemedView>
-      <ThemedText>Edit app/index.tsx to edit this screen.</ThemedText>
-      <ThemedText> TEST EIEIEIEIEIEI </ThemedText>
+    <ThemedView >
+      <ThemedText>WELCOME SCREEN</ThemedText>
+      <Link href={"/SignUp"}>Sign Up</Link>
     </ThemedView>
   );
 }
