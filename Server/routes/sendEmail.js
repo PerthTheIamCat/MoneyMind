@@ -1,6 +1,7 @@
 const express = require('express')
 const nodemailer = require("nodemailer")
 const router = express.Router()
+require('dotenv').config();
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: false }))
@@ -8,17 +9,17 @@ router.use(express.urlencoded({ extended: false }))
 router.post('/', async (req, res) => {
     const { email, subject, text, html } = req.body;
     const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
+        host: process.env.MAIL_HOST,
+        port: process.env.MAIL_PORT,
         secure: true,
         auth:{
-            user: 'nakrobpanejohn@gmail.com',
-            pass: 'xkgd alam gjvj gwzc'
+            user: process.env.MAIL_USER,
+            pass: process.env.MAIL_PASS
         }
     })
 
     const msg = {
-        from: '"MoneyMind" <no-reply@gmail.com>',
+        from: '"MoneyMind" <nakrobpanejohn@gmail.com>',
         to: `${email}`,
         subject: `${subject}`,
         text: `${text}`,
