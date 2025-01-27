@@ -1,17 +1,24 @@
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Localization from 'expo-localization';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import '../global.css';
+import '@/global.css';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    'SpaceMono': require('@/assets/fonts/SpaceMono-Regular.ttf'),
+    'Prompt': require('@/assets/fonts/Prompt-Regular.ttf'),
+    'NotoSansThai': require('@/assets/fonts/NotoSansThai-VariableFont_wdth,wght.ttf'),
   });
+  const locales = Localization.getLocales();
+  const currentLanguage = locales[0]?.languageCode;
+
+  const fontFamily = currentLanguage === 'th' ? 'NotoSansThai' : 'Prompt';
 
   useEffect(() => {
     if (loaded) {
