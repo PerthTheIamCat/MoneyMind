@@ -5,7 +5,7 @@ export default function Index() {
   return (
     <ThemedView >
       <ThemedText>SignUp SCREEN</ThemedText>
-      <Link href={"/(tabs)"}>Sign In</Link>
+      <Link href={"/(tabs)"}>Sign In</Link>  
     </ThemedView>
   );
 }
