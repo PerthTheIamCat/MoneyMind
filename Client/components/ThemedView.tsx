@@ -1,13 +1,13 @@
 import { View, useColorScheme } from "react-native";
 import { ReactNode } from "react";
 
-type ThemedTextProps = {
-  children: ReactNode;
+type ThemedViewProps = {
+  children?: ReactNode;
   className?: string;
   [key: string]: any;
 };
 
-export function ThemedView({ children, className, ...props }: ThemedTextProps) {
+export function ThemedView({ children, className, ...props }: ThemedViewProps) {
   // const { theme } = useTheme();
   const theme = useColorScheme();
   // console.log("theme: ",theme);

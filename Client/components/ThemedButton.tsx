@@ -1,12 +1,16 @@
-import { TouchableOpacity, useColorScheme } from "react-native";
+import { Pressable, useColorScheme } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ReactNode } from "react";
 import * as Localization from "expo-localization";
+import { ThemedView } from "./ThemedView";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 type ThemedTextProps = {
   mode?: "normal" | "cancel" | "confirm";
   children: ReactNode;
   className?: string;
+  isLoading?: boolean;
+  onPress?: () => void;
   [key: string]: any;
 };
 
@@ -14,6 +18,8 @@ export function ThemedButton({
   mode = "normal",
   children,
   className,
+  isLoading,
+  onPress,
   ...props
 }: ThemedTextProps) {
   // const { theme } = useTheme();
@@ -25,10 +31,11 @@ export function ThemedButton({
   const fontFamily = currentLanguage === "th" ? "NotoSansThai" : "Prompt";
 
   return (
-    <TouchableOpacity
-      // style={{ fontFamily }}
+    <Pressable
+      onPress={onPress}
+      disabled={isLoading}
       className={
-        ` ${
+        `${
           mode === "normal"
             ? "bg-[#B1A7A6]"
             : mode === "cancel"
@@ -36,17 +43,23 @@ export function ThemedButton({
             : mode === "confirm"
             ? "bg-[#2B9348]"
             : ""
-        }` +
-        ` min-w-[150px] max-w-[200px] w-[25%] p-5 rounded-[25px]` +
-        (className ? ` ${className}` : "")
+        } min-w-[150px] max-w-[200px] w-[25%] p-5 rounded-[25px] active:scale-110 transition-all duration-75 ease-out flex-row justify-center items-center ${
+          isLoading ? "opacity-50" : ""
+        }` + (className ? ` ${className}` : "")
       }
       {...props}
     >
       <ThemedText
-        className={`text-center font-bold ${mode === "normal" ? "!text-[#2F2F2F]" : " "}`}
+        // style={{ fontFamily }}
+        className={`text-center font-bold`}
       >
         {children}
       </ThemedText>
-    </TouchableOpacity>
+      {isLoading && (
+        <ThemedView className="animate-spin-ease w-fit h-fit bg-transparent">
+          <AntDesign name="loading2" size={24} color={`${theme === "dark" ? "#F2F2F2" : "#2F2F2F"}`} />
+        </ThemedView>
+      )}
+    </Pressable>
   );
 }
