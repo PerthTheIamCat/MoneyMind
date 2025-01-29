@@ -41,9 +41,9 @@ export function ThemedInput({
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   return (
-    <ThemedView className="w-full h-fit">
-      <ThemedText className="self-start pl-[10%] pb-4">{title}</ThemedText>
-      <ThemedView className="!justify-start rounded-xl w-[80%] max-h-10 bg-[#D9D9D9] flex-row">
+    <ThemedView className= {`!justify-start !items-start w-full ${error?"max-h-[95px]":"max-h-20"} mb-5  ` }>
+      <ThemedText className="self-start pb-4">{title}</ThemedText>
+      <ThemedView className="!justify-start rounded-xl w-[80%] max-h-10 !bg-[#D9D9D9] flex-row ">
         <TextInput
           keyboardType={keyboardType}
           secureTextEntry={isPasswordVisible}
@@ -72,9 +72,11 @@ export function ThemedInput({
           />
         ) : null}
       </ThemedView>
-      <ThemedText className="self-start pl-[12%] pt-4 text-[#FF0000]">
-        {error}
-      </ThemedText>
+      {error && (
+        <ThemedText className="self-start pl-[2%] pt-4 text-[#FF0000] ">
+          {error}
+        </ThemedText>
+      )}
     </ThemedView>
   );
 }

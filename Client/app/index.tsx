@@ -17,7 +17,7 @@ export default function Index() {
         }}
         contentFit="contain"
       />
-      <ThemedView className="!justify-start !items-start mt-[10%] w-full pl-20">
+      <ThemedView className="!justify-start !items-start mt-[10%] w-full pl-10">
         <ThemedText className="!text-[#55A630] text-[40px] sm:text-[48px] max-w-[80%] font-bold">
           MoneyMind
         </ThemedText>
