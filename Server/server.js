@@ -13,6 +13,11 @@ const db = mysql.createConnection({
     database: process.env.DB_NAME
 })
 
+db.connect((err) => {
+    if (err) throw err
+    console.log('Connected to database')
+})
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
@@ -31,12 +36,77 @@ app.get('/users', (req, res) => {
 
 app.get('/users/:id', (req, res) => {
     db.query(
-        'SELECT * FROM users WHERE UserID = ?',
-        [req.params.id],
-        function(err, result) {
-            res.json(result)
+        'SELECT * FROM users WHERE UserID = ?', [req.params.id], (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Database query failed', error: err.message });
+            }
+
+            if (result.length === 0) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            res.status(200).json(result);
         }
     )
+})
+
+app.post('/auth/register', (req, res) => {
+    const { username, email, password, password2 } = req.body
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.com$/
+    if (!emailRegex.test(`${email}`)) {
+        return res.status(400).json({
+            message: 'Invalid email format'
+        })
+    }
+
+    db.query('SELECT * FROM users WHERE username = ?', [username], async (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: 'Database query failed', error: err.message });
+        }
+
+        if (result.length > 0) {
+            return res.status(409).json({ message: 'Username already exists' });
+        }
+
+        db.query('SELECT * FROM users WHERE email = ?', [email], async (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Database query failed', error: err.message });
+            }
+
+            if (result.length > 0) {
+                return res.status(409).json({ message: 'Email already exists' });
+            }
+
+            if (password !== password2) {
+                return res.status(400).json({ message: 'Passwords do not match' });
+            }
+
+            bcrypt.hash(password, 10, (err, hash) => {
+                if (err) {
+                    console.error('Error hashing password:', err)
+                    return res.status(500).json({ message: 'Password hashing failed', error: err.message });
+                }
+
+                db.query('INSERT INTO users (username, email, passwordhash) VALUES (?, ?, ?)', [username, email, hash], (err, result) => {
+                    if (err) {
+                        return res.status(500).json({ message: 'Database query failed', error: err.message });
+                    }
+
+                    res.status(201).json({ message: 'User created' });
+                })
+            })
+        })
+    })
+
+})
+
+app.post('/auth/login', (req, res) => {
+
+})
+
+app.post('/auth/refresh', (req, res) => {
+
 })
 
 const sendEmailRouter = require('./routes/sendEmail')
