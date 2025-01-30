@@ -101,18 +101,18 @@ export default function Index() {
                 <ThemedText className="text-xl font-bold w-full">
                   Password
                 </ThemedText>
-                <ThemedView className="flex-row h-10 bg-[#D9D9D9] rounded-xl p-2 w-full">
+                <ThemedView className="flex-row  bg-[#D9D9D9] rounded-xl p-2 w-full">
                   <TextInput
                     className="flex-1 "
-                    secureTextEntry={!showPassword} // ใช้สถานะ showPassword เพื่อกำหนดการแสดงรหัสผ่าน
+                    secureTextEntry={!showPassword} 
                     onChangeText={setPassword}
                   />
                   <Entypo
                     className="px-2"
-                    name={showPassword ? "eye-with-line" : "eye"} // เปลี่ยนไอคอนตามสถานะการแสดงรหัสผ่าน
-                    size={24}
+                    name={showPassword ? "eye-with-line" : "eye"} 
+                    size={20}
                     color="black"
-                    onPress={() => setShowPassword(!showPassword)} // คลิกเพื่อสลับการแสดงรหัสผ่าน
+                    onPress={() => setShowPassword(!showPassword)} 
                   />
                 </ThemedView>
                 {errorPassword && (
@@ -125,7 +125,7 @@ export default function Index() {
               <ThemedButton
                 mode="confirm"
                 onPress={handleSignUp}
-                className="mt-96 w-[300px]"
+                className="mt-80 w-[300px]"
               >
                 Sign In
               </ThemedButton>
