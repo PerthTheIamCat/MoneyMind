@@ -5,7 +5,7 @@ import * as Localization from "expo-localization";
 import { ThemedView } from "./ThemedView";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
-type ThemedTextProps = {
+type ThemedButtonProps = {
   mode?: "normal" | "cancel" | "confirm";
   children: ReactNode;
   className?: string;
@@ -21,7 +21,7 @@ export function ThemedButton({
   isLoading,
   onPress,
   ...props
-}: ThemedTextProps) {
+}: ThemedButtonProps) {
   // const { theme } = useTheme();
   const theme = useColorScheme();
   // console.log("theme: ",theme);
@@ -43,7 +43,7 @@ export function ThemedButton({
             : mode === "confirm"
             ? "bg-[#2B9348]"
             : ""
-        } min-w-[150px] max-w-[200px] w-[25%] p-5 rounded-[25px] active:scale-110 transition-all duration-75 ease-out flex-row justify-center items-center ${
+        } rounded-[25px] active:scale-110 transition-all duration-75 ease-out flex-row justify-center items-center ${
           isLoading ? "opacity-50" : ""
         }` + (className ? ` ${className}` : "")
       }
