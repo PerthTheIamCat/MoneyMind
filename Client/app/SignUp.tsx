@@ -17,7 +17,7 @@ export default function Index() {
         }}
         contentFit="contain"
       />
-      <ThemedView className="!justify-start !items-start mt-[7%] w-full pl-24">
+      <ThemedView className="!justify-start !items-start mt-[7%] w-full pl-24 " >
         <ThemedText className="text-[28px] sm:text-[34px] max-w-[80%] font-bold mb-8 ">
           Sign Up
         </ThemedText>
@@ -41,7 +41,7 @@ export default function Index() {
           autoComplete="password"
           keyboardType="visible-password"
         />
-        <ThemedText className="text-[12px] sm:text-[16px] max-w-[80%] font-bold mb-8 ">
+        <ThemedText className="text-[12px] sm:text-[16px] max-w-[80%] font-bold mb-4 ">
           Sagree our term of service
         </ThemedText>
         <ThemedText className="text-[12px] sm:text-[16px] max-w-[80%] font-bold ">
@@ -49,10 +49,10 @@ export default function Index() {
         </ThemedText>
       </ThemedView>
       <ThemedView className="flex-col w-full max-h-[10%] gap-4 mb-10">
-        <ThemedButton mode="normal" onPress={() => router.push("/SignIn")}>
+        <ThemedButton mode="normal" onPress={() => router.push("/SignIn")} className="max-w-[250px] w-[50%]">
           Sign In
         </ThemedButton>
-        <ThemedButton mode="confirm" onPress={() => router.push("/SignUp")}>
+        <ThemedButton mode="confirm" onPress={() => router.push("/SignUp")}className="max-w-[250px] w-[50%] ">
           Sign Up
         </ThemedButton>
       </ThemedView>
