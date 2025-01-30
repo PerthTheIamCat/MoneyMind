@@ -125,7 +125,7 @@ export default function Index() {
               <ThemedButton
                 mode="confirm"
                 onPress={handleSignUp}
-                className="mt-72 w-[300px]"
+                className="mt-96 w-[300px]"
               >
                 Sign In
               </ThemedButton>
