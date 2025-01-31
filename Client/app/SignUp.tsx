@@ -6,6 +6,7 @@ import { useState } from "react";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedInput } from "@/components/ThemedInput";
 import { ThemedCheckBox } from "@/components/ThemedCheckBox";
+import { router } from "expo-router";
 
 export default function Index() {
   const theme = useColorScheme();
@@ -62,11 +63,11 @@ export default function Index() {
             receive notification on email
           </ThemedCheckBox>
         </ThemedView>
-        <ThemedView className="mt-10">
-          <ThemedButton mode="confirm" className="w-96 mt-5 h-14">
+        <ThemedView className="mt-7 w-full">
+          <ThemedButton mode="confirm" className="w-[60%]  h-14">
             Sign Up
           </ThemedButton>
-          <ThemedButton mode="normal" className="w-96 mt-5 h-14">
+          <ThemedButton mode="normal" onPress={() => router.push("/SignIn")} className="w-[60%] mt-5 h-14">
             Sign In
           </ThemedButton>
         </ThemedView>
