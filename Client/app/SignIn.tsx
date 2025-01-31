@@ -96,7 +96,7 @@ export default function Index() {
                 <ThemedText className="text-xl font-bold w-full">
                   Password
                 </ThemedText>
-                <ThemedView className="flex-row h-10 bg-[#D9D9D9] rounded-xl p-2 w-full">
+                <ThemedView className="flex-row h-10 !bg-[#D9D9D9] rounded-xl p-2 w-full">
                   <TextInput
                     className="flex-1 h-10 py-1"
                     secureTextEntry={!showPassword}
