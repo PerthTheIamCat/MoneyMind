@@ -5,14 +5,13 @@ import { ReactNode, useState } from "react";
 import * as Localization from "expo-localization";
 
 type ThemedCheckBoxProps = {
-  children: ReactNode;
+  
   className?: string;
   onValueChange?: (value: boolean) => void;
   [key: string]: any;
 };
 
 export function ThemedCheckBox({
-  children,
   className,
   ...props
 }: ThemedCheckBoxProps) {
