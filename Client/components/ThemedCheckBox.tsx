@@ -3,18 +3,17 @@ import { ThemedView } from "./ThemedView";
 import CheckBox from "expo-checkbox";
 import { ReactNode, useState } from "react";
 import * as Localization from "expo-localization";
+import { ThemedText } from "./ThemedText";
 
 type ThemedCheckBoxProps = {
-  
   className?: string;
   onValueChange?: (value: boolean) => void;
+  children?: ReactNode;
+  color?: string;
   [key: string]: any;
 };
 
-export function ThemedCheckBox({
-  className,
-  ...props
-}: ThemedCheckBoxProps) {
+export function ThemedCheckBox({ className, color, onValueChange, children, ...props }: ThemedCheckBoxProps) {
   // const { theme } = useTheme();
   const theme = useColorScheme();
   const [isChecked, setChecked] = useState<boolean>(false);
@@ -25,17 +24,22 @@ export function ThemedCheckBox({
   const fontFamily = currentLanguage === "th" ? "NotoSansThai" : "Prompt";
 
   return (
-    <CheckBox
-      color={"#2B9348"}
-      style={{
-        borderColor: `${theme === "dark" ? "#F2F2F2" : "#2F2F2F"}`,
-        borderRadius: 5,
-      }}
-      value={isChecked}
-      onValueChange={(value) => {
-        setChecked(value);
-        props.onValueChange && props.onValueChange(value);
-      }}
-    />
+    <ThemedView className={`flex-row w-full !justify-start gap-2 ${ className ? ` ${className}` : "" }`}>
+      <CheckBox
+        color={color}
+        style={{
+          borderColor: `${theme === "dark" ? "#F2F2F2" : "#2F2F2F"}`,
+          borderRadius: 5,
+        }}
+        value={isChecked}
+        onValueChange={(value) => {
+          setChecked(value);
+          props.onValueChange && props.onValueChange(value);
+        }}
+      />
+      <ThemedText>
+        {children}
+      </ThemedText>
+    </ThemedView>
   );
 }

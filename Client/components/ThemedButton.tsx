@@ -9,6 +9,7 @@ type ThemedButtonProps = {
   mode?: "normal" | "cancel" | "confirm";
   children: ReactNode;
   className?: string;
+  textClassName?: string;
   isLoading?: boolean;
   onPress?: () => void;
   [key: string]: any;
@@ -18,6 +19,7 @@ export function ThemedButton({
   mode = "normal",
   children,
   className,
+  textClassName,
   isLoading,
   onPress,
   ...props
@@ -51,7 +53,7 @@ export function ThemedButton({
     >
       <ThemedText
         // style={{ fontFamily }}
-        className={`text-center font-bold`}
+        className={`text-center font-bold ${textClassName}`}
       >
         {children}
       </ThemedText>
