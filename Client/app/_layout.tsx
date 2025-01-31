@@ -1,4 +1,5 @@
 import { useFonts } from 'expo-font';
+import React from 'react';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Localization from 'expo-localization';
@@ -54,7 +55,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
-        <Stack.Screen name="SignUp"/>
+        <Stack.Screen name="SignUp" options={{ headerShown: false }}/>
         <Stack.Screen name="SignIn"/>
       </Stack>
       <StatusBar style="auto" />
