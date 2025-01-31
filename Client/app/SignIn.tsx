@@ -12,6 +12,7 @@ import {
 import { useColorScheme } from "react-native";
 import { useState } from "react";
 import Entypo from "@expo/vector-icons/Entypo";
+import { router } from "expo-router";
 
 export default function Index() {
   const theme = useColorScheme();
@@ -31,39 +32,33 @@ export default function Index() {
   const validateInputs = () => {
     let valid = true;
     setErrorUsername("");
-    setErrorEmail("");
     setErrorPassword("");
-    setErrorPasswordConfirmation("");
 
-    if (username.trim().length < 3) {
-      setErrorUsername("Username ต้องมีอย่างน้อย 3 ตัวอักษร");
+    // Check if username and password are empty
+    if (username.trim().length === 0) {
+      setErrorUsername("Please fill in all fields");
+      valid = false;
+    } else if (username.trim().length < 3) {
+      setErrorUsername("Username must be at least 3 characters");
       valid = false;
     }
-    if (password.length < 6) {
-      setErrorPassword("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร");
+
+    if (password.trim().length === 0) {
+      setErrorPassword("Please fill in all fields");
+      valid = false;
+    } else if (password.length < 6) {
+      setErrorPassword("Password must be at least 6 characters");
       valid = false;
     }
-
     return valid;
   };
 
-  const handleSignUp = () => {
-    if (validateInputs()) {
-      console.log("Sign Up สำเร็จ");
-      // ดำเนินการสมัครสมาชิก
-    }
-  };
-
   const handleSignIn = () => {
-    if (username.trim() === "" || password.trim() === "") {
-      setErrorUsername(username.trim() === "" ? "กรุณากรอก Username" : "");
-      setErrorPassword(password.trim() === "" ? "กรุณากรอกรหัสผ่าน" : "");
+    if (!validateInputs()) {
       return;
     }
-    console.log("Sign In สำเร็จ");
-    // ดำเนินการเข้าสู่ระบบ
+    router.push("/SignIn");
   };
-
   return (
     <SafeAreaView
       className={`flex-1 ${theme === "dark" ? "bg-[#2F2F2F]" : "bg-[#F2F2F2]"}`}
@@ -101,18 +96,18 @@ export default function Index() {
                 <ThemedText className="text-xl font-bold w-full">
                   Password
                 </ThemedText>
-                <ThemedView className="flex-row  bg-[#D9D9D9] rounded-xl p-2 w-full">
+                <ThemedView className="flex-row h-10 bg-[#D9D9D9] rounded-xl p-2 w-full">
                   <TextInput
-                    className="flex-1 "
-                    secureTextEntry={!showPassword} 
+                    className="flex-1 h-10 py-1"
+                    secureTextEntry={!showPassword}
                     onChangeText={setPassword}
                   />
                   <Entypo
                     className="px-2"
-                    name={showPassword ? "eye-with-line" : "eye"} 
+                    name={showPassword ? "eye-with-line" : "eye"}
                     size={20}
                     color="black"
-                    onPress={() => setShowPassword(!showPassword)} 
+                    onPress={() => setShowPassword(!showPassword)}
                   />
                 </ThemedView>
                 {errorPassword && (
@@ -124,19 +119,22 @@ export default function Index() {
 
               <ThemedButton
                 mode="confirm"
-                onPress={handleSignUp}
-                className="mt-80 w-[300px]"
+                onPress={() => {
+                  router.push("/SignIn");
+                  handleSignIn();
+                }}
+                className="mt-56 w-[300px]"
               >
                 Sign In
               </ThemedButton>
               <ThemedButton
                 mode="normal"
-                onPress={handleSignIn}
-                className="mt-2 w-[300px]"
+                onPress={() => router.push("/SignUp")}
+                className=" w-[300px]"
               >
                 Sign Up
               </ThemedButton>
-              <ThemedText className="text-center text-[#969393] w-full mt-2">
+              <ThemedText className="text-center text-[#969393] w-full mt-0">
                 Forgot Password?
               </ThemedText>
             </ThemedView>
