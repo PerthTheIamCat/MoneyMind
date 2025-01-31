@@ -56,10 +56,10 @@ export default function Index() {
             error="adawdaw"
             className="w-full"
           />
-          <ThemedCheckBox color="#2B9348">
+          <ThemedCheckBox color="#2B9348" textClassName="!text-[12px]">
             accecept terms and conditions
           </ThemedCheckBox>
-          <ThemedCheckBox color="#2B9348">
+          <ThemedCheckBox color="#2B9348" textClassName="!text-[12px]">
             receive notification on email
           </ThemedCheckBox>
         </ThemedView>
