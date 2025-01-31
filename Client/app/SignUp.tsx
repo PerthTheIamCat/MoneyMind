@@ -31,7 +31,7 @@ export default function Index() {
             marginTop: 20,
           }}
         />
-        <ThemedView className="w-96 mt-5 px-5 gap-5">
+        <ThemedView className="w-[80%] mt-5 px-5 gap-5">
           <ThemedInput
             autoComplete="username"
             title="Username"
@@ -67,7 +67,7 @@ export default function Index() {
           <ThemedButton mode="confirm" className="w-[60%]  h-14">
             Sign Up
           </ThemedButton>
-          <ThemedButton mode="normal" onPress={() => router.push("/SignIn")} className="w-[60%] mt-5 h-14">
+          <ThemedButton mode="normal" onPress={() => router.push("/SignIn")} className="w-[60%] mt-5 h-14 mb-5">
             Sign In
           </ThemedButton>
         </ThemedView>
