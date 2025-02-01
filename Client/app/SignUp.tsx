@@ -28,7 +28,7 @@ export default function Index() {
   const [errorPasswordConfirmation, setErrorPasswordConfirmation] = useState<string>("");
 
   // Use the useContext hook to get the setIsAccepted function from the TermsContext
-  const { HOST, PORT, setUsername, setEmail, username, email } = useContext(ServerContext);
+  const { URL, setUsername, setEmail, username, email } = useContext(ServerContext);
   const { isAccepted, setIsAccepted } = useContext(TermsContext);
   const [isCheckedNotification, setIsCheckedNotification] = useState<boolean>(false);
 
@@ -68,11 +68,12 @@ export default function Index() {
         router.push("/terms_and_con");
         return;
       }
-      SignUpHandler(HOST, PORT, { username: username!, email: email!, password }).then((response) => {
+      SignUpHandler(URL, { username: username!, email: email!, password:password, password2: passwordConfirmation}).then((response) => {
         if (response.success) {
-          router.push("/SignIn");
+          console.log(response);
+          router.push("/(tabs)");
         } else {
-          console.error(response.message);
+          console.error(response);
         }
       });
     } catch (error) {
@@ -145,7 +146,7 @@ export default function Index() {
           </ThemedCheckBox>
         </ThemedView>
         <ThemedView className="mt-7 w-full">
-          <ThemedButton mode="confirm" className="w-[60%] h-14" onPress={()=>router.push("/OTP")}>
+          <ThemedButton mode="confirm" className="w-[60%] h-14" onPress={handleSignUp}>
             Sign Up
           </ThemedButton>
           <ThemedButton

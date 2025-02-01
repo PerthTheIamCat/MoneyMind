@@ -1,28 +1,26 @@
 import React, { createContext, useState, ReactNode, useContext } from "react";
 
 type ServerContextType = {
-  HOST: string;
-  PORT: number;
+  URL: string;
   username?: string;
   email?: string;
   setUsername: (value: string) => void;
   setEmail: (value: string) => void;
 }
 export const ServerContext = createContext<ServerContextType>({
-    HOST: "http://localhost",
-    PORT: 3000,
+    URL: "http//localhost:3000/auth/register",
     setUsername: () => {},
     setEmail: () => {},
 });
 
 export const ServerProvider = ({ children }: { children: ReactNode }) => {
-  const { HOST, PORT } = useContext(ServerContext);
+  const { URL } = useContext(ServerContext);
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
 
 
   return (
-    <ServerContext.Provider value={{ HOST, PORT, setUsername, setEmail, username, email }}>
+    <ServerContext.Provider value={{ URL, setUsername, setEmail, username, email }}>
       {children}
     </ServerContext.Provider>
   );
