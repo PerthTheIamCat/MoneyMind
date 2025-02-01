@@ -50,6 +50,7 @@ export default function RootLayout() {
         headerTitleStyle: {
           fontFamily,
         },
+        animation: 'slide_from_right',
         headerBackTitle : "back",
       }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
