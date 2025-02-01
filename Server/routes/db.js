@@ -10,7 +10,7 @@ const db = mysql.createConnection({
     port: 3306,
     ssl: {
         rejectUnauthorized: true,
-        ca: [fs.readFileSync("C:/Users/ampam/Downloads/DigiCertGlobalRootCA.crt.pem", "utf8")]
+        ca: [fs.readFileSync("/Users/perth/mobile_app/MoneyMind/Server/DigiCertGlobalRootCA.crt.pem", "utf8")]
     }
 });
 
