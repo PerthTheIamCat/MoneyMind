@@ -23,27 +23,31 @@ export default function Index() {
       </ThemedView>
 
       <ThemedView className="mt-3">
-        <ThemedView className="w-4/5 h-40 p-8 bg-[#8f8f8f] rounded-[20] justify-center items-start">
-          <ThemedText className="text-[#f2f2f2] font-bold">
+        <ThemedView className="w-4/5 h-40 bg-[#8f8f8f] rounded-[20]">
+          <ThemedText className="font-bold">
             Your Monthly Save Goal
           </ThemedText>
           <AntDesign name="filetext1" size={50} color="#f2f2f2" className="m-3"/>
-          <ThemedText className="text-[#f2f2f2] text-center font-bold">
-            Let’s get started with your first retirement plan!
+          <ThemedText className="mx-5 text-center font-bold">
+            Let’s get started with your first 
+            retirement plan!
           </ThemedText>
         </ThemedView>
       </ThemedView>
 
-      <ThemedView className="ml-4 mt-4 w-1/4 items-start">
+      <ThemedView className="ml-4 mt-4 w-1/4">
         <ThemedText className="text-xl font-bold pl-5">Account</ThemedText>
       </ThemedView>
 
-      <ThemedView className="bg-[#8f8f8f] w-4/5 h-40 p-8 rounded-[20] justify-center items-center">
-        <AntDesign name="filetext1" size={50} color="#f2f2f2" />
-        <ThemedText className="text-[#f2f2f2] text-center font-bold mt-4">
-          Let’s get started with your first Money Account plan!
-        </ThemedText>
+      <ThemedView className="mt-3">
+        <ThemedView className="w-4/5 h-40 bg-[#8f8f8f] rounded-[20]">
+          <AntDesign name="filetext1" size={50} color="#f2f2f2" className="m-3"/>
+          <ThemedText className="mx-5 text-center font-bold">
+            Let’s get started with your first Money Account plan!
+          </ThemedText>
+        </ThemedView>
       </ThemedView>
+      
     </ThemedSafeAreaView>
   );
 }
