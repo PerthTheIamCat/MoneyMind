@@ -6,6 +6,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { ThemedButton } from "@/components/ThemedButton";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { View, Text } from "react-native";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Index() {
   return (
@@ -32,10 +33,17 @@ export default function Index() {
         <ThemedText className=" text-[18px]">Connected</ThemedText>
         <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
       </ThemedView>
-      <ThemedView className="bg-blue-400 h-[150px] !items-start">
+      <ThemedView className="bg-blue-400 h-[170px] !items-start">
         <View className="flex flex-row justify-center items-center rounded-xl -rotate-90  w-[150px] h-[40px] bg-gray-400 -ml-5 active:scale-105">
           <AntDesign name="plus" size={20} color="black" className="" />
           <Text>Add Account</Text>
+        </View>
+      </ThemedView>
+      <ThemedView className="flex-row items-center bg-red-400 justify-between px-4">
+        <ThemedText className="text-[18px] pl-[5%] font-bold">Transaction</ThemedText>
+        <View className="font-bold flex flex-row">
+          <Text className="font-bold items-center mt-1">All</Text>
+          <MaterialIcons name="arrow-drop-down" size={24} color="black" />
         </View>
       </ThemedView>
     </ThemedSafeAreaView>
