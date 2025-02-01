@@ -21,28 +21,28 @@ app.use('/auth', authRouter)
 const port = process.env.PORT || 3000
 
 //routes
-app.get('/', jwtValidate, (req, res) => {
+app.get('/', (req, res) => {
     res.send('Hello World')
 })
 
-app.get('/users', (req, res) => {
+app.get('/users', jwtValidate, (req, res) => {
     db.query('SELECT * FROM users', (err, result) => {
         if (err) {
-            return res.status(500).json({ message: 'Database query failed', error: err.message });
+            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
         }
         res.status(200).json(result);
     });
 });
 
-app.get('/users/:id', (req, res) => {
+app.get('/users/:id', jwtValidate, (req, res) => {
     db.query(
         'SELECT * FROM users WHERE id = ?', [req.params.id], (err, result) => {
             if (err) {
-                return res.status(500).json({ message: 'Database query failed', error: err.message });
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
             }
 
             if (result.length === 0) {
-                return res.status(404).json({ message: 'User not found' });
+                return res.status(404).json({ message: 'User not found', success: false });
             }
 
             res.status(200).json(result);
