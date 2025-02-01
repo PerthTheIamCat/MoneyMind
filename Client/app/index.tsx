@@ -28,7 +28,7 @@ export default function Index() {
         </ThemedText>
       </ThemedView>
       <ThemedView className="flex-row gap-5 h-fit absolute bottom-10 w-full">
-        <ThemedButton className="w-[45%] h-14" mode="normal" onPress={() => router.push("/(tabs)")}>
+        <ThemedButton className="w-[45%] h-14" mode="normal" onPress={() => router.push("/SignIn")}>
           Sign In
         </ThemedButton>
         <ThemedButton className="w-[40%] h-14" mode="confirm" onPress={() => router.push("/SignUp")}>
