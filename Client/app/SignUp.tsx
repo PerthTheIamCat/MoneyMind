@@ -5,11 +5,12 @@ import { ThemedInput } from "@/components/ThemedInput";
 import { ThemedCheckBox } from "@/components/ThemedCheckBox";
 import { useColorScheme } from "react-native";
 import { useContext, useState } from "react";
-import { TermsContext } from "@/components/TermsConText";
-import { ServerContext } from "@/components/ServerConText";
+import { TermsContext } from "@/hooks/auth/TermsConText";
+import { ServerContext } from "@/hooks/auth/ServerConText";
 import { router } from "expo-router";
 import { Image } from "expo-image";
 import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
+import { ThemedText } from "@/components/ThemedText";
 
 export default function Index() {
 
@@ -17,8 +18,6 @@ export default function Index() {
   const theme = useColorScheme();
   
   // Use the useState hook to create state variables
-  const [username, setUsername] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
  
@@ -29,7 +28,7 @@ export default function Index() {
   const [errorPasswordConfirmation, setErrorPasswordConfirmation] = useState<string>("");
 
   // Use the useContext hook to get the setIsAccepted function from the TermsContext
-  const { HOST, PORT } = useContext(ServerContext);
+  const { HOST, PORT, setUsername, setEmail, username, email } = useContext(ServerContext);
   const { isAccepted, setIsAccepted } = useContext(TermsContext);
   const [isCheckedNotification, setIsCheckedNotification] = useState<boolean>(false);
 
@@ -69,7 +68,7 @@ export default function Index() {
         router.push("/terms_and_con");
         return;
       }
-      SignUpHandler(HOST, PORT, { username, email, password }).then((response) => {
+      SignUpHandler(HOST, PORT, { username: username!, email: email!, password }).then((response) => {
         if (response.success) {
           router.push("/SignIn");
         } else {
@@ -93,6 +92,9 @@ export default function Index() {
           }}
         />
         <ThemedView className="w-[80%] mt-5 px-5 gap-5">
+          <ThemedText className="text-2xl font-bold w-full">
+            Sign Up
+          </ThemedText>
           <ThemedInput
             autoComplete="username"
             title="Username"
@@ -143,7 +145,7 @@ export default function Index() {
           </ThemedCheckBox>
         </ThemedView>
         <ThemedView className="mt-7 w-full">
-          <ThemedButton mode="confirm" className="w-[60%] h-14" onPress={handleSignUp}>
+          <ThemedButton mode="confirm" className="w-[60%] h-14" onPress={()=>router.push("/OTP")}>
             Sign Up
           </ThemedButton>
           <ThemedButton

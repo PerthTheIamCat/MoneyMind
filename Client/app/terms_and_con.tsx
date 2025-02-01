@@ -3,7 +3,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedButton } from "@/components/ThemedButton";
-import { TermsContext } from "@/components/TermsConText"; 
+import { TermsContext } from "@/hooks/auth/TermsConText"; 
 import { router } from "expo-router";
 
 export default function terms_and_con() {

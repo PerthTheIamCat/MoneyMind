@@ -5,8 +5,8 @@ import * as SplashScreen from "expo-splash-screen";
 import * as Localization from "expo-localization";
 import { useColorScheme } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { TermsProvider } from "@/components/TermsConText";
-import { ServerProvider } from "@/components/ServerConText";
+import { TermsProvider } from "@/hooks/auth/TermsConText";
+import { ServerProvider } from "@/hooks/auth/ServerConText";
 import "@/global.css";
 import {
   configureReanimatedLogger,
