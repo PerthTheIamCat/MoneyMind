@@ -7,6 +7,7 @@ import { ThemedText } from "./ThemedText";
 
 type ThemedCheckBoxProps = {
   className?: string;
+  value? : boolean;
   textClassName?: string;
   onValueChange?: (value: boolean) => void;
   children?: ReactNode;
@@ -14,10 +15,9 @@ type ThemedCheckBoxProps = {
   [key: string]: any;
 };
 
-export function ThemedCheckBox({ className, color, textClassName, onValueChange, children, ...props }: ThemedCheckBoxProps) {
+export function ThemedCheckBox({ className, color, textClassName, value, onValueChange, children, ...props }: ThemedCheckBoxProps) {
   // const { theme } = useTheme();
   const theme = useColorScheme();
-  const [isChecked, setChecked] = useState<boolean>(false);
   // console.log("theme: ",theme);
 
   const locales = Localization.getLocales();
@@ -34,10 +34,9 @@ export function ThemedCheckBox({ className, color, textClassName, onValueChange,
 
         }}
         
-        value={isChecked}
+        value={value}
         onValueChange={(value) => {
-          setChecked(value);
-          props.onValueChange && props.onValueChange(value);
+          onValueChange?.(value);
         }}
       />
       <ThemedText className={`text-[10px] ${textClassName || ""}`}>

@@ -22,7 +22,7 @@ export function ThemedInput({
   title,
   className,
   autoComplete,
-  secureTextEntry = true,
+  secureTextEntry = false,
   onChangeText,
   ...props
 }: ThemedInputProps) {
