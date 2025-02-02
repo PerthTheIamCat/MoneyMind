@@ -9,6 +9,7 @@ type ThemedInputProps = {
   className?: string;
   error?: string;
   title: string;
+  placeholder?: string;
   keyboardType?: KeyboardTypeOptions;
   autoComplete?: TextInputProps["autoComplete"];
   secureTextEntry?: boolean;
@@ -22,7 +23,8 @@ export function ThemedInput({
   title,
   className,
   autoComplete,
-  secureTextEntry = true,
+  placeholder,
+  secureTextEntry = false,
   onChangeText,
   ...props
 }: ThemedInputProps) {
@@ -36,6 +38,7 @@ export function ThemedInput({
       <ThemedText className="text-xl font-bold w-full">{title}</ThemedText>
       <ThemedView className="w-full flex-row">
         <TextInput
+          placeholder={placeholder}
           keyboardType={keyboardType}
           secureTextEntry={isPasswordVisible}
           autoComplete={autoComplete}

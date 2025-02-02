@@ -45,7 +45,6 @@ export default function Index() {
             error="adawdaw"
             className="w-full "
           />
-        
         </ThemedView>
         <ThemedView className=" w-full  mt-[65%]">
           <ThemedButton mode="confirm" className="w-[60%] mt-5 h-14 ">

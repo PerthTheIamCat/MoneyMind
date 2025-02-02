@@ -53,7 +53,7 @@ export function ThemedButton({
     >
       <ThemedText
         // style={{ fontFamily }}
-        className={`text-center font-bold ${textClassName}`}
+        className={`text-center font-bold text-[#F2F2F2] ${textClassName}`}
       >
         {children}
       </ThemedText>
