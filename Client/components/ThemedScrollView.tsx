@@ -1,6 +1,5 @@
 import { ScrollView } from "react-native";
 import { useColorScheme } from "react-native";
-import { red } from "react-native-reanimated/lib/typescript/Colors";
 
 type ThemedScrollViewProps = {
   children?: React.ReactNode;
