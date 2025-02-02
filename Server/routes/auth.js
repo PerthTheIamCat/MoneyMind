@@ -1,5 +1,4 @@
 const express = require('express')  // Import express
-const mysql = require('mysql')      // Import mysql
 const router = express.Router()     // Create express app
 const bcrypt = require('bcrypt')    // Import bcrypt for password hashing
 const jwt = require('jsonwebtoken') // Import jsonwebtoken for token generation
