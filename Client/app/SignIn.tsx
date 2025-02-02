@@ -58,6 +58,9 @@ export default function Index() {
           }}
         />
         <ThemedView className="w-[80%] mt-5 px-5 gap-5">
+          <ThemedText className="text-2xl font-bold w-full">
+              Sign In
+          </ThemedText>
           <ThemedInput
             autoComplete="username"
             title="Username/Email"
