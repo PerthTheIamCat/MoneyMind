@@ -32,10 +32,10 @@ router.post('/', async (req, res) => {
 
         console.log('Email sent!');
         console.log("Message sent: %s", info.messageId);
-        res.status(200).json({ message: "Email sent successfully!", messageId: info.messageId });
+        return res.status(200).json({ message: "Email sent successfully!", messageId: info.messageId, success: true});
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Failed to send email", error: error.message });
+        return res.status(500).json({ message: "Failed to send email", error: error.message, success: false });
     }
 
 })
