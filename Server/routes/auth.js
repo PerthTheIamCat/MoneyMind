@@ -1,5 +1,4 @@
 const express = require('express')  // Import express
-const mysql = require('mysql')      // Import mysql
 const router = express.Router()     // Create express app
 const bcrypt = require('bcrypt')    // Import bcrypt for password hashing
 const jwt = require('jsonwebtoken') // Import jsonwebtoken for token generation
@@ -55,7 +54,7 @@ const jwtValidate = (req, res, next) => {
     try {
         if (!req.headers['authorization']) {
             console.log('No token provided');
-            return res.status(401).json({ message: 'No token provided' });
+            return res.status(401).json({ message: 'No token provided', success: false });
         }
 
         const token = req.headers['authorization'].replace('Bearer ', '');
@@ -63,14 +62,14 @@ const jwtValidate = (req, res, next) => {
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
             if (err) {
                 console.error('Invalid token:', err.message);
-                return res.status(403).json({ message: 'Invalid token' });
+                return res.status(403).json({ message: 'Invalid token', success: false });
             }
             console.log(decoded);
             next();
         });
     } catch (err) {
         console.error('Unexpected error:', err.message);
-        return res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error', success: false });
     }
 };
 
@@ -79,42 +78,40 @@ router.post('/register', (req, res) => {
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.com$/
     if (!emailRegex.test(`${email}`)) {
-        return res.status(400).json({
-            message: 'Invalid email format'
-        })
+        return res.status(400).json({message: 'Invalid email format', success: false})
     }
 
     db.query('SELECT * FROM users WHERE username = ?', [username], async (err, result) => {
         if (err) {
-            return res.status(500).json({ message: 'Database query failed', error: err.message });
+            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false});
         }
 
         if (result.length > 0) {
-            return res.status(409).json({ message: 'Username already exists' });
+            return res.status(409).json({ message: 'Username already exists', success: false});
         }
 
         db.query('SELECT * FROM users WHERE email = ?', [email], async (err, result) => {
             if (err) {
-                return res.status(500).json({ message: 'Database query failed', error: err.message });
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false});
             }
 
             if (result.length > 0) {
-                return res.status(409).json({ message: 'Email already exists' });
+                return res.status(409).json({ message: 'Email already exists', success: false});
             }
 
             if (password !== password2) {
-                return res.status(400).json({ message: 'Passwords do not match' });
+                return res.status(400).json({ message: 'Passwords do not match', success: false});
             }
 
             bcrypt.hash(password, 10, (err, hash) => {
                 if (err) {
                     console.error('Error hashing password:', err)
-                    return res.status(500).json({ message: 'Password hashing failed', error: err.message });
+                    return res.status(500).json({ message: 'Password hashing failed', error: err.message, success: false});
                 }
 
                 db.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [username, email, hash], async (err, result) => {
                     if (err) {
-                        return res.status(500).json({ message: 'Database query failed', error: err.message });
+                        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false});
                     }
                     
                     const UserID = await getUserIDbyusername(username)
@@ -124,7 +121,7 @@ router.post('/register', (req, res) => {
                     const accessToken = jwtAccessTokenGenrate(UserID, username, email)
 
                     console.log('User created')
-                    return res.status(201).json({ accessToken, message: 'User created'})
+                    return res.status(201).json({ accessToken, message: 'User created', success: true})
                 })
             })
         })
@@ -145,11 +142,11 @@ router.post('/login', (req, res) => {
     
     db.query(`SELECT * FROM users WHERE ${userOrEmail} = ?`, [input], (err, result) => {
         if (err) {
-            return res.status(500).json({ message: 'Database query failed', error: err.message });
+            return res.status(500).json({ message: 'Database query failed', error: err.message , success: false});
         }
 
         if (result.length === 0) {
-            return res.status(404).json({ message: 'User or Email not found' });
+            return res.status(404).json({ message: 'User or Email not found', success: false });
         }
 
         const user = result[0]
@@ -157,17 +154,17 @@ router.post('/login', (req, res) => {
 
         bcrypt.compare(password, user.password, async (err, match) => {
             if (err) {
-                return res.status(500).json({ message: 'Password comparison failed', error: err.message });
+                return res.status(500).json({ message: 'Password comparison failed', error: err.message, success: false });
             }
 
             if (!match) {
-                return res.status(401).json({ message: 'Invalid password' });
+                return res.status(401).json({ message: 'Invalid password', success: false });
             }
 
             const UserID = userOrEmail === "email" ? await getUserIDbyemail(input) : await getUserIDbyusername(input);
 
             const accessToken = jwtAccessTokenGenrate(UserID, user.username, user.email)
-            return res.status(200).json({ accessToken, message: 'Login successful' });
+            return res.status(200).json({ accessToken, message: 'Login successful', success: true });
         });
     });
 })

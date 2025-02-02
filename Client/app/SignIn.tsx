@@ -1,29 +1,54 @@
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedButton } from "@/components/ThemedButton";
-import { Image } from "expo-image";
-import { useColorScheme } from "react-native";
-import { useState } from "react";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedInput } from "@/components/ThemedInput";
-import { ThemedCheckBox } from "@/components/ThemedCheckBox";
 import { ThemedText } from "@/components/ThemedText";
+import { SignInHandler } from "@/hooks/auth/SignInHandler";
+import { Image } from "expo-image";
+import { useState, useContext } from "react";
 import { router } from "expo-router";
+import { ServerContext } from "@/hooks/conText/ServerConText";
 
 export default function Index() {
-  const theme = useColorScheme();
-  const [username, setUsername] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
+  const [usernameEmail, setUsernameEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
-  const [errorUsername, setErrorUsername] = useState<string>("awdawdadw");
-  const [errorEmail, setErrorEmail] = useState<string>("awdawd");
-  const [errorPassword, setErrorPassword] = useState<string>("awdawd");
-  const [errorPasswordConfirmation, setErrorPasswordConfirmation] =
-    useState<string>("awdawd");
+  const [errorUsernameEmail, setErrorUsernameEmail] = useState<string>("");
+  const [errorPassword, setErrorPassword] = useState<string>("");
+
+  const { URL } = useContext(ServerContext);
+
+  const handleSignIn = () => {
+    try {
+      if (usernameEmail === "") {
+        setErrorUsernameEmail("Username/Email is required");
+        return;
+      } else {
+        setErrorUsernameEmail("");
+      }
+      if (password === "") {
+        setErrorPassword("Password is required");
+        return;
+      } else {
+        setErrorPassword("");
+      }
+      SignInHandler(URL, { input: usernameEmail, password: password }).then((response) => {
+        console.log(response);
+        if (response.success) {
+          router.push("/(tabs)");
+        } else {
+          setErrorUsernameEmail(response.message);
+        }
+      });
+      
+      
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <ThemedSafeAreaView>
-      <ThemedView >
+      <ThemedView>
         <Image
           source={require("@/assets/logos/LOGO.png")}
           style={{
@@ -35,28 +60,31 @@ export default function Index() {
         <ThemedView className="w-[80%] mt-5 px-5 gap-5">
           <ThemedInput
             autoComplete="username"
-            title="Username"
-            error="adawdaw"
+            title="Username/Email"
+            error={errorUsernameEmail}
             className="w-full"
+            onChangeText={setUsernameEmail}
           />
           <ThemedInput
             autoComplete="password"
             title="Password"
-            error="adawdaw"
+            error={errorPassword}
             className="w-full "
+            onChangeText={setPassword}
           />
-        
         </ThemedView>
         <ThemedView className=" w-full  mt-[65%]">
-          <ThemedButton mode="confirm" className="w-[60%] mt-5 h-14 ">
+          <ThemedButton mode="confirm" className="w-[60%] mt-5 h-14 " onPress={handleSignIn}>
             Sign In
           </ThemedButton>
-          <ThemedButton mode="normal" onPress={() => router.push("/SignUp")} className="w-[60%] mt-5 h-14">
+          <ThemedButton
+            mode="normal"
+            onPress={() => router.push("/SignUp")}
+            className="w-[60%] mt-5 h-14"
+          >
             Sign Up
           </ThemedButton>
-          <ThemedText className="mt-3 mb-5">
-            Forgot Password?
-          </ThemedText>
+          <ThemedText className="mt-3 mb-5">Forgot Password?</ThemedText>
         </ThemedView>
       </ThemedView>
     </ThemedSafeAreaView>
