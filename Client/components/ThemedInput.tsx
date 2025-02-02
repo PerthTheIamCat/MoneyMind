@@ -8,7 +8,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 type ThemedInputProps = {
   className?: string;
   error?: string;
-  title: string;
+  title?: string;
   placeholder?: string;
   keyboardType?: KeyboardTypeOptions;
   autoComplete?: TextInputProps["autoComplete"];
@@ -35,7 +35,11 @@ export function ThemedInput({
 
   return (
     <ThemedView className="w-full">
-      <ThemedText className="text-xl font-bold w-full">{title}</ThemedText>
+      {
+        title ? (
+          <ThemedText className="text-xl font-bold w-full">{title}</ThemedText>
+        ) : null
+      }
       <ThemedView className="w-full flex-row">
         <TextInput
           placeholder={placeholder}

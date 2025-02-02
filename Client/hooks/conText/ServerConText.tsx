@@ -8,7 +8,7 @@ type ServerContextType = {
   setEmail: (value: string) => void;
 }
 export const ServerContext = createContext<ServerContextType>({
-    URL: "http//localhost:3000/auth/register",
+    URL: "https://3s4hhl2z-3000.asse.devtunnels.ms",
     setUsername: () => {},
     setEmail: () => {},
 });
