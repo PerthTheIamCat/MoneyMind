@@ -8,6 +8,7 @@ import { useColorScheme } from "react-native";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedInput } from "@/components/ThemedInput";
 import { router } from "expo-router";
+import { ThemedScrollViewCenter } from "@/components/ThemedScrollViewCenter";
 export default function Index() {
   const theme = useColorScheme();
   return (
@@ -20,12 +21,12 @@ export default function Index() {
           </ThemedView>
 
           <ThemedView className="!items-center w-full ">
-            <ThemedScrollView
+            <ThemedScrollViewCenter
               vertical={false}
               horizontal={true}
               className="w-full"
             >
-              <ThemedView className="w-full overflow-x-scroll flex-row snap-x px-12">
+              <ThemedView className="w-full overflow-x-scroll flex-row snap-x px-4">
                 <ThemedCard
                   mode="large"
                   name="Wallet"
@@ -48,7 +49,7 @@ export default function Index() {
                   className="snap-center"
                 />
               </ThemedView>
-            </ThemedScrollView>
+            </ThemedScrollViewCenter>
           </ThemedView>
 
           <ThemedScrollView
