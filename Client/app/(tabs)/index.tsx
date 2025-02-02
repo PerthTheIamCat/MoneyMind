@@ -11,7 +11,6 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { useState } from "react";
 
 export default function Index() {
-
   const theme = useColorScheme();
   const componentcolor = theme === "dark" ? "!bg-[#8f8f8f]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
@@ -84,7 +83,7 @@ export default function Index() {
           </ThemedView>
         </ThemedButton>
       </ThemedView>
-
+      
     </ThemedSafeAreaView>
   );
 }
