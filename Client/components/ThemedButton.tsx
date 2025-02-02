@@ -45,7 +45,7 @@ export function ThemedButton({
             : mode === "confirm"
             ? "bg-[#2B9348]"
             : ""
-        } rounded-[25px] active:scale-110 transition-all duration-75 ease-out flex-row justify-center items-center ${
+        } rounded-[25px] active:scale-110 transition-all duration-75 ease-out justify-center items-center ${
           isLoading ? "opacity-50" : ""
         }` + (className ? ` ${className}` : "")
       }
@@ -53,7 +53,7 @@ export function ThemedButton({
     >
       <ThemedText
         // style={{ fontFamily }}
-        className={`text-center font-bold ${textClassName}`}
+        className={`text-center font-bold text-[#F2F2F2] ${textClassName}`}
       >
         {children}
       </ThemedText>
