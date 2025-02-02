@@ -25,11 +25,28 @@ export default function Index() {
 
       
 
-      <ThemedView className={`${theme==="dark" ?"bg-[#000000]" : "bg-[#ffffff]"} mt-3 w-full h-full rounded-t-[30px]`}>
-        <ThemedView className="px-14 w-full flex-row justify-between bg-transparent">
-          <ThemedButton className="w-[120px] h-8 bg-green-500">TEXT</ThemedButton>
-          <ThemedButton className="w-[120px] h-8 bg-red-400">Exprenx</ThemedButton>
+      <ThemedView className={`${theme==="dark" ?"bg-[#000000]" : "bg-[#ffffff]"} mt-3 px-10 !justify-start w-full h-full rounded-t-[30px]`}>
+        <ThemedView className="mt-8 w-full flex-row justify-between bg-transparent">
+          <ThemedButton className="w-[140px] h-8 bg-green-500">Income</ThemedButton>
+          <ThemedButton className="w-[140px] h-8 bg-red-400">Expense</ThemedButton>
         </ThemedView>
+
+        <ThemedView className="mt-3 w-full justify-center !items-start bg-transparent">
+          <ThemedText className="font-bold text-[16px]">Category</ThemedText>  
+
+          <ThemedScrollView vertical={false} horizontal={true} className="bg-transparent">
+            <ThemedView className="h-11 w-full flex-row !items-center bg-transparent">
+              <ThemedButton className="w-[140px] h-8 bg-green-500">Income</ThemedButton>
+              <ThemedButton className="w-[140px] h-8 bg-green-500">Income</ThemedButton>
+              <ThemedButton className="w-[140px] h-8 bg-green-500">Income</ThemedButton>
+              <ThemedButton className="w-[140px] h-8 bg-green-500">Income</ThemedButton>
+            </ThemedView>
+          </ThemedScrollView>
+
+          <ThemedText className="mt-3 font-bold text-[16px]">Enter Amount</ThemedText>  
+
+        </ThemedView>
+
       </ThemedView>
 
     </ThemedSafeAreaView>
