@@ -26,10 +26,9 @@ export function ThemedCard({
   const currentLanguage = locales[0]?.languageCode;
   const fontFamily = currentLanguage === "th" ? "NotoSansThai" : "Prompt";
   return (
-      <ThemedScrollView vertical = {false} horizontal = {true}>
         <ThemedView
-            className={` !rounded-lg !p-5 flex-row justify-start gap-5 items-start px-10 bg-blue-500 ${
-              mode === "small" ? "w-[170px] h-[170px]" : "w-[240px] h-[200px]"
+            className={` !rounded-2xl  !flex-row !justify-start  !items-start mr-8 bg-blue-500 ${
+              mode === "small" ? "w-[150px] h-[150px]" : "w-[240px] h-[200px]"
             } ${color} ${className}`}
         >
         <Image
@@ -39,7 +38,7 @@ export function ThemedCard({
           
         </ThemedView>
       
-      </ThemedScrollView>
+     
    
 
   );
