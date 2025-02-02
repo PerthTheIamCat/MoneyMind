@@ -11,6 +11,7 @@ import {
   Platform,
   View,
   TouchableWithoutFeedback,
+  Animated,
 } from "react-native";
 import { useColorScheme, StyleSheet } from "react-native";
 import { useState } from "react";
@@ -18,6 +19,7 @@ import { router } from "expo-router";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { TouchableOpacity, Text } from 'react-native';
+
 
 const CircleSize = 40;
 const CircleRingSize = 2;
@@ -168,81 +170,127 @@ export default function Index() {
         return valid;
     };
     return (
-        <ThemedSafeAreaView>
-            <ThemedView >
-                <ThemedView className="w-96 mt-5 px-5 gap-5">
-                    <ThemedInput
-                        autoComplete="AccountName"
-                        title="Account Name"
-                        error="Please fill in all fields"
-                        className="w-full"
-                    />
-                    <ThemedScrollView horizontal={true} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingLeft: 5 ,paddingRight: 5 ,paddingTop: 5 ,paddingBottom: 0 }} showsHorizontalScrollIndicator={false}>
-                        <ThemedView className="flex-row gap-10">
-                            <View style={styles.group}>
-                            {AccountIconSize.map((item, index) => {
-                            const isActive = selectedIcon === index;
-                            return (
-                                <View key={item.source}>
-                                <TouchableWithoutFeedback
-                                    onPress={() => {
-                                        setSelectedIcon(index);
-                                    }}>
-                                    <ThemedView
-                                         style={[
-                                            styles.square, 
-                                            { borderColor: isActive ? '#AACC00' : 'transparent' }
-                                         ]} 
-                                        >
-                                        <Image source={item.source} style={{ width: 100,  height: 100,transform: [{ translateY: 3 }] , margin: 10}} />
-                                    </ThemedView>
-                                </TouchableWithoutFeedback>
-                                </View>
-                            );
-                            })}
-                            </View>
-                        </ThemedView>
-                    </ThemedScrollView>
-                    <ThemedInput
-                        autoComplete="AccountBalance"
-                        title="Account Balance"
-                        error="Please fill in all fields"
-                        className="w-full"
-                    />
-                    <ThemedText className="text-center font-bold w-full" style={{ fontSize: 20 }}>
-                        Select a color for the account
-                    </ThemedText>
-                    <ThemedScrollView horizontal={true} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 5 }}>
-                        <ThemedView className="flex-row gap-10">
-                            <View style={styles.group}>
-                            {colors.map((item, index) => {
-                            const isActive = value === index;
-                            return (
-                                <View key={item}>
-                                <TouchableWithoutFeedback
-                                    onPress={() => {
-                                        setValue(index);
-                                    }}>
-                                    <ThemedView
-                                    style={[
-                                        styles.circle,isActive && { borderColor: item },
-                                    ]}>
-                                    <View
-                                        style={[styles.circleInside, { backgroundColor: item }]}
-                                    />
-                                    </ThemedView>
-                                </TouchableWithoutFeedback>
-                                </View>
-                            );
-                            })}
-                        </View>
-                        </ThemedView>
-                    </ThemedScrollView>
-                        <ThemedButton className="w-40 h-14" mode="confirm" onPress={() => router.push("/(tabs)")}>
-                            Add Account
-                        </ThemedButton>
-                    </ThemedView>
-                </ThemedView>
-            </ThemedSafeAreaView>
+      <ThemedSafeAreaView>
+        <ThemedView>
+          <ThemedView className="w-96 mt-5 px-5 gap-5">
+            <ThemedInput
+              title="Account Name"
+              error="Please fill in all fields"
+              className="w-full"
+            />
+            <ThemedScrollView
+              horizontal={true}
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                paddingLeft: 5,
+                paddingRight: 5,
+                paddingTop: 5,
+                paddingBottom: 0,
+              }}
+              showsHorizontalScrollIndicator={false}
+            >
+              <ThemedView className="flex-row gap-10">
+                <View style={styles.group}>
+                  {AccountIconSize.map((item, index) => {
+                    const isActive = selectedIcon === index;
+                    return (
+                      <View key={item.source}>
+                        <TouchableWithoutFeedback
+                          onPress={() => {
+                            setSelectedIcon(index);
+                          }}
+                        >
+                          <ThemedView
+                            style={[
+                              styles.square,
+                              {
+                                borderColor: isActive
+                                  ? "#AACC00"
+                                  : "transparent",
+                              },
+                            ]}
+                          >
+                            <Image
+                              source={item.source}
+                              style={{
+                                width: 100,
+                                height: 100,
+                                transform: [{ translateY: 3 }],
+                                margin: 10,
+                              }}
+                            />
+                          </ThemedView>
+                        </TouchableWithoutFeedback>
+                      </View>
+                    );
+                  })}
+                </View>
+              </ThemedView>
+            </ThemedScrollView>
+            <ThemedInput
+              
+              title="Account Balance"
+              error="Please fill in all fields"
+              className="w-full"
+            />
+            <ThemedText
+              className="text-center font-bold w-full"
+              style={{ fontSize: 20 }}
+            >
+              Select a color for the account
+            </ThemedText>
+            <ThemedScrollView
+              horizontal={true}
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                padding: 5,
+              }}
+              showHorizonIndicator={false}
+            >
+              <ThemedView className="flex-row gap-10">
+                <View style={styles.group}>
+                  {colors.map((item, index) => {
+                    const isActive = value === index;
+                    return (
+                      <View key={item}>
+                        <TouchableWithoutFeedback
+                          onPress={() => {
+                            setValue(index);
+                          }}
+                        >
+                          <ThemedView
+                            style={[
+                              styles.circle,
+                              isActive && { borderColor: item },
+                            ]}
+                          >
+                            <View
+                              style={[
+                                styles.circleInside,
+                                { backgroundColor: item },
+                              ]}
+                            />
+                          </ThemedView>
+                        </TouchableWithoutFeedback>
+                      </View>
+                    );
+                  })}
+                </View>
+              </ThemedView>
+            </ThemedScrollView>
+            <ThemedButton
+              className="w-40 h-14"
+              mode="confirm"
+              onPress={() => router.push("/Add_Transaction")}
+            >
+              Add Account
+            </ThemedButton>
+          </ThemedView>
+        </ThemedView>
+      </ThemedSafeAreaView>
     );
 }
