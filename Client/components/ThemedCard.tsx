@@ -31,7 +31,7 @@ export function ThemedCard({
   return (
     <ThemedView
       className={`rounded-2xl  flex-row justify-start  items-start ${
-        mode === "small" ? "w-[150px] h-[150px] ml-4 mr-0" : "w-[280px] h-[180px] ml-6"
+        mode === "small" ? "w-[150px] h-[150px] ml-4 mr-0" : "w-[280px] h-[180px] mx-[8px]"
       } ${color} ${className}`}
     >
       <Image
