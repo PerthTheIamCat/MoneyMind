@@ -17,6 +17,7 @@ export default function Index() {
             marginTop: 60,
           }}
           contentFit="contain"
+          onTouchStart={() => router.push("/(tabs)")}
         />
         <ThemedView className="!items-start pl-10 w-full font-bold">
           <ThemedText className="text-5xl my-10 !text-[#55A630]">
