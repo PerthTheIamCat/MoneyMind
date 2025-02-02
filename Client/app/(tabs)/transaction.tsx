@@ -5,10 +5,77 @@ import { Image } from "expo-image";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ThemedButton } from "@/components/ThemedButton";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { View, Text } from "react-native";
+import { View, Text, FlatList } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedCard } from "@/components/ThemedCard";
+
+interface Transaction {
+  id: string;
+  logo: any;
+  transaction_type: "income" | "expense";
+  amount: string;
+  category: string;
+  description: string;
+}
+
+const transactions: Transaction[] = [
+  {
+    id: "1",
+    logo: require("@/assets/logos/LOGO.png"), // เปลี่ยนเป็นโลโก้ที่ต้องการ
+    transaction_type: "expense",
+    amount: "-฿250.00",
+    category: "Food & Drinks",
+    description: "Lunch at McDonald's",
+  },
+  {
+    id: "2",
+    logo: require("@/assets/logos/LOGO.png"),
+    transaction_type: "expense",
+    amount: "-฿1,200.00",
+    category: "Shopping",
+    description: "Bought new shoes",
+  },
+  {
+    id: "3",
+    logo: require("@/assets/logos/LOGO.png"),
+    transaction_type: "income",
+    amount: "+฿20,000.00",
+    category: "Salary",
+    description: "Monthly paycheck",
+  },
+];
+
+const TransactionItem = ({ transaction }: { transaction: Transaction }) => (
+  <View className="flex-row items-center justify-center w-10/12 bg-white p-4 rounded-lg mb-2 shadow-md">
+    <Image
+      source={transaction.logo}
+      style={{ width: 40, height: 40, borderRadius: 20, marginRight: 16 }}
+    />
+
+    <View className="flex-1">
+      <Text className="font-bold text-lg">{transaction.category}</Text>
+      <Text className="text-gray-500">{transaction.description}</Text>
+    </View>
+
+    <Text
+      className={`font-bold ${
+        transaction.transaction_type === "income"
+          ? "text-green-500"
+          : "text-red-500"
+      }`}
+    >
+      {transaction.amount}
+    </Text>
+
+    {transaction.transaction_type === "income" && (
+      <Image
+        source={transaction.logo}
+        className="w-10 h-10 rounded-full ml-4"
+      />
+    )}
+  </View>
+);
 
 export default function Index() {
   return (
@@ -36,22 +103,22 @@ export default function Index() {
         <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
       </ThemedView>
       <ThemedView className="bg-blue-400 h-[154px] !items-center flex flex-row ">
-        <View className="flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[40px] bg-gray-400 -ml-2 active:scale-105">
+        <View className="flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] bg-gray-400 -ml-2 active:scale-105">
           <AntDesign name="plus" size={20} color="black" />
-          <Text>Add Account</Text>
+          <Text className="font-bold">Add Account</Text>
         </View>
         <ThemedScrollView
           horizontal={true}
           className=" bg-yellow-600 pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
         >
           <View className="mt-0.5 mb-1 flex-row space-x-1">
-            <ThemedCard name="K-Push" balance="฿0.00" color="bg-[#653044]" />
-            <ThemedCard name="Wallet" balance="฿0.00" color="bg-[#225566]" />
-            <ThemedCard name="Bank" balance="฿0.00" color="bg-[#000000]" />
+            <ThemedCard name="K-Push" balance="฿0.00" className="bg-[#7a2a49]" />
+            <ThemedCard name="Wallet" balance="฿0.00" className="bg-[#1c5366]" />
+            <ThemedCard name="Bank" balance="฿0.00" className="bg-[#706767]" />
             <ThemedCard
               name="Credit Card"
               balance="฿0.00"
-              color="bg-[#ff0000]"
+              className="bg-[#ff0000]"
             />
           </View>
         </ThemedScrollView>
@@ -68,6 +135,15 @@ export default function Index() {
             color="black"
             className="mt-1"
           />
+        </View>
+      </ThemedView>
+
+      <ThemedView className="bg-green-500 !justify-start h-full py-2">
+        <Text className="w-full pl-10 text-left font-bold text-1xl py-1">25/12/67</Text>
+        <View className="w-full items-center">
+          {transactions.map((transaction) => (
+            <TransactionItem key={transaction.id} transaction={transaction} />
+          ))}
         </View>
       </ThemedView>
     </ThemedSafeAreaView>
