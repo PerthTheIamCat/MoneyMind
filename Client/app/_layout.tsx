@@ -59,6 +59,7 @@ export default function RootLayout() {
         <Stack.Screen name="SignUp" options={{ headerShown: false }}/>
         <Stack.Screen name="SignIn"options={{ headerShown: false }}/>
         <Stack.Screen name="Add_Transaction" options={{ title: "Add Your Transaction"}}/>
+        <Stack.Screen name="AddAccount" options={{ headerTitle: "Add Account" }}/>
       </Stack>
       <StatusBar style="auto" />
     </>
