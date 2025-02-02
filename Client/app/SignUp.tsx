@@ -5,8 +5,8 @@ import { ThemedInput } from "@/components/ThemedInput";
 import { ThemedCheckBox } from "@/components/ThemedCheckBox";
 import { useColorScheme } from "react-native";
 import { useContext, useState } from "react";
-import { TermsContext } from "@/hooks/auth/TermsConText";
-import { ServerContext } from "@/hooks/auth/ServerConText";
+import { TermsContext } from "@/hooks/conText/TermsConText";
+import { ServerContext } from "@/hooks/conText/ServerConText";
 import { router } from "expo-router";
 import { Image } from "expo-image";
 import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
@@ -28,7 +28,7 @@ export default function Index() {
   const [errorPasswordConfirmation, setErrorPasswordConfirmation] = useState<string>("");
 
   // Use the useContext hook to get the setIsAccepted function from the TermsContext
-  const { URL, setUsername, setEmail, username, email } = useContext(ServerContext);
+  const { URL , setUsername, setEmail, username, email } = useContext(ServerContext);
   const { isAccepted, setIsAccepted } = useContext(TermsContext);
   const [isCheckedNotification, setIsCheckedNotification] = useState<boolean>(false);
 
@@ -68,7 +68,7 @@ export default function Index() {
         router.push("/terms_and_con");
         return;
       }
-      SignUpHandler(URL, { username: username!, email: email!, password:password, password2: passwordConfirmation}).then((response) => {
+      SignUpHandler(URL,{ username: username!, email: email!, password:password!, password2: passwordConfirmation!}).then((response) => {
         if (response.success) {
           console.log(response);
           router.push("/(tabs)");

@@ -5,7 +5,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedInput } from "@/components/ThemedInput";
 import { ThemedButton } from "@/components/ThemedButton";
-import { ServerContext } from "@/hooks/auth/ServerConText";
+import { ServerContext } from "@/hooks/conText/ServerConText";
 
 export default function OTP() {
   const { email } = useContext(ServerContext);
