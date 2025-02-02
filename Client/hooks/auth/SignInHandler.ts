@@ -6,6 +6,7 @@ interface SignInData {
 }
 
 interface SignInResponse {
+  accessToken: string;
   success: boolean;
   message: string;
 }
@@ -13,6 +14,7 @@ interface SignInResponse {
 interface SignInError {
   response: {
     data: {
+      accessToken: string;
       success: boolean;
       message: string;
     };
@@ -28,7 +30,6 @@ export const SignInHandler = async (
       `${url}/auth/login`,
       data
     );
-
     return response.data;
   } catch (error) {
     return (error as SignInError).response.data;

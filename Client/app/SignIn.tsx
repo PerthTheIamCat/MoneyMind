@@ -8,6 +8,7 @@ import { Image } from "expo-image";
 import { useState, useContext } from "react";
 import { router } from "expo-router";
 import { ServerContext } from "@/hooks/conText/ServerConText";
+import { AuthContext } from "@/hooks/conText/AuthContext";
 
 export default function Index() {
   const [usernameEmail, setUsernameEmail] = useState<string>("");
@@ -16,6 +17,7 @@ export default function Index() {
   const [errorPassword, setErrorPassword] = useState<string>("");
 
   const { URL } = useContext(ServerContext);
+  const auth = useContext(AuthContext);
 
   const handleSignIn = () => {
     try {
@@ -34,7 +36,8 @@ export default function Index() {
       SignInHandler(URL, { input: usernameEmail, password: password }).then((response) => {
         console.log(response);
         if (response.success) {
-          router.push("/(tabs)");
+          auth?.setToken(response.accessToken);
+          router.replace("/(tabs)");
         } else {
           setErrorUsernameEmail(response.message);
         }
@@ -58,6 +61,9 @@ export default function Index() {
           }}
         />
         <ThemedView className="w-[80%] mt-5 px-5 gap-5">
+          <ThemedText className="text-2xl font-bold w-full">
+              Sign In
+          </ThemedText>
           <ThemedInput
             autoComplete="username"
             title="Username/Email"

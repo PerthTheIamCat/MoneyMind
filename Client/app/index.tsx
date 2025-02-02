@@ -3,9 +3,37 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedButton } from "@/components/ThemedButton";
 import { Image } from "expo-image";
 import { router } from "expo-router";
+import React, { useContext, useEffect, useState } from "react";
+import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 
 export default function Index() {
+  const auth = useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    if (auth?.token || !auth?.authLoading) {
+      router.replace("/(tabs)");
+    } else {
+      setIsLoading(false);
+    }
+  }, [auth?.token]);
+
+  // setTimeout(() => {
+  //   setIsLoading(false);
+  //   router.push("/(tabs)");
+  // }, 3000);
+
+  if (isLoading || auth?.authLoading) {
+    return (
+      <ThemedSafeAreaView>
+        <ThemedView className="flex-1 !justify-center !items-center">
+          <ThemedText>Loading...</ThemedText>
+        </ThemedView>
+      </ThemedSafeAreaView>
+    );
+  }
+  
   return (
       <ThemedView className="flex-1 !justify-start h-full">
         <Image
@@ -17,7 +45,7 @@ export default function Index() {
             marginTop: 60,
           }}
           contentFit="contain"
-          onTouchStart={() => router.push("/(tabs)")}
+          onTouchStart={() => router.replace("/(tabs)")}
         />
         <ThemedView className="!items-start pl-10 w-full font-bold">
           <ThemedText className="text-5xl my-10 !text-[#55A630]">
@@ -28,7 +56,7 @@ export default function Index() {
             Freedom
           </ThemedText>
         </ThemedView>
-        <ThemedView className="flex-row gap-5 h-fit w-full mt-[40%]">
+        <ThemedView className="flex-row gap-5 h-fit w-full mt-[30%]">
           <ThemedButton
             className="w-[45%] h-14"
             mode="normal"
