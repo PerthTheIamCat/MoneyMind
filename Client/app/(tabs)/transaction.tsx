@@ -8,6 +8,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { View, Text } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
+import { router } from "expo-router";
 
 export default function Index() {
   
@@ -25,6 +26,7 @@ export default function Index() {
           }}
         />
         <Ionicons
+          onPress={() => router.push("/Add_Transaction")}
           name="notifications-outline"
           size={32}
           color="black"
