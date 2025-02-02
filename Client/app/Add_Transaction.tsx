@@ -7,15 +7,16 @@ export default function Index() {
   return (
     <ThemedSafeAreaView >
       <ThemedView className="!items-start pl-10 w-full mt-5">
-        <ThemedText className="text-[20px] font-bold mb-6">Account</ThemedText>
+        <ThemedText className="text-[20px] font-bold mb-2">Account</ThemedText>
       </ThemedView>
-      <ThemedView className="!items-start pl-10 w-full ">
-        <ThemedScrollView vertical = {false} horizontal = {true}>
-        <ThemedCard name="Wallet" balance="฿0.00" color="bg-[#F9A826]" />
-        <ThemedCard name="Bank" balance="฿0.00" color="bg-[#2B9348]" />
-        <ThemedCard name="Credit Card" balance="฿0.00" color="bg-[#C93540]" />
+      <ThemedView className="!items-center w-full ">
+        <ThemedScrollView vertical = {false} horizontal = {true} className="w-full">
+          <ThemedView className="w-full overflow-x-scroll flex-row snap-x px-12">
+            <ThemedCard mode="large" name="Wallet" balance="0.00" color="bg-red-500" className="snap-center"/>
+            <ThemedCard mode="large" name="Bank" balance="0.00" color="bg-blue-500" className="snap-center" />
+            <ThemedCard mode="large" name="Credit Card" balance="0.00" color="bg-orange-500" className="snap-center" />
+          </ThemedView>
         </ThemedScrollView>
-
       </ThemedView>
     </ThemedSafeAreaView>
   );
