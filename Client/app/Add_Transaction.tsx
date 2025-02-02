@@ -26,7 +26,7 @@ export default function Index() {
               horizontal={true}
               className="w-full"
             >
-              <ThemedView className="w-full overflow-x-scroll flex-row snap-x px-4">
+              <ThemedView className="w-full  flex-row ">
                 <ThemedCard
                   mode="large"
                   name="Wallet"
