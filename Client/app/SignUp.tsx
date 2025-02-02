@@ -71,7 +71,7 @@ export default function Index() {
       SignUpHandler(URL,{ username: username!, email: email!, password:password!, password2: passwordConfirmation!}).then((response) => {
         if (response.success) {
           console.log(response);
-          router.push("/(tabs)");
+          router.replace("/(tabs)");
         } else {
           console.error(response);
         }
