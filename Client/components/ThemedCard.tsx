@@ -27,7 +27,7 @@ export function ThemedCard({
   const fontFamily = currentLanguage === "th" ? "NotoSansThai" : "Prompt";
   return (
         <ThemedView
-            className={` !rounded-2xl  !flex-row !justify-start  !items-start mr-8 bg-blue-500 ${
+            className={` !rounded-2xl  !flex-row !justify-start  !items-start mr-3 ${
               mode === "small" ? "w-[150px] h-[150px]" : "w-[240px] h-[200px]"
             } ${color} ${className}`}
         >
