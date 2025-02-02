@@ -27,14 +27,12 @@ export function ThemedSafeAreaView({
         setKeyboardHeight(event.endCoordinates.height);
       }
     );
-
     const keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidHide",
       () => {
         setKeyboardHeight(0);
       }
     );
-
     return () => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
