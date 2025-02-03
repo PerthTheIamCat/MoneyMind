@@ -6,6 +6,35 @@ require('dotenv').config();
 router.use(express.json());
 router.use(express.urlencoded({ extended: false }))
 
+const sendEmail = async ({ email, subject, text, html }) => {
+    const transporter = nodemailer.createTransport({
+        host: process.env.MAIL_HOST,
+        port: process.env.MAIL_PORT,
+        secure: true,
+        auth: {
+            user: process.env.MAIL_USER,
+            pass: process.env.MAIL_PASS,
+        },
+    });
+
+    const msg = {
+        from: '"MoneyMind" <nakrobpanejohn@gmail.com>',
+        to: email,
+        subject,
+        text,
+        html,
+    };
+
+    try {
+        const info = await transporter.sendMail(msg);
+        console.log('Message sent: %s', info.messageId);
+        return { messageId: info.messageId, success: true };
+    } catch (error) {
+        console.error('Error sending email:', error);
+        return { messageId: 'Error sending email', success: false };
+    }
+};
+
 router.post('/', async (req, res) => {
     const { email, subject, text, html } = req.body;
     const transporter = nodemailer.createTransport({
@@ -40,4 +69,7 @@ router.post('/', async (req, res) => {
 
 })
 
-module.exports = router
+module.exports = {
+    router,
+    sendEmail
+}

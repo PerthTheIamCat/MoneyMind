@@ -29,12 +29,13 @@ export function ThemedCard({
   const currentLanguage = locales[0]?.languageCode;
   const fontFamily = currentLanguage === "th" ? "NotoSansThai" : "Prompt";
   return (
-    <ThemedView
-      className={`rounded-2xl  flex-row justify-start  items-start ${
-        mode === "small" ? "w-[150px] h-[150px] ml-4 mr-0" : "w-[280px] h-[180px] ml-6"
-      } ${color} ${className}`}
-    >
-      <Image
+        <ThemedView
+            className={` !rounded-2xl  !flex-row !justify-start  !items-start mr-3 ${
+              mode === "small" ? "w-[150px] h-[150px]" : "w-[240px] h-[200px]"
+            } ${color} ${className}`}
+        >
+        <Image
+
         source={require("@/assets/logos/LOGO.png")}
         className={` !rounded-full absolute top-4 left-4 ${
           mode === "small" ? "w-12 h-12" : "w-16 h-16"

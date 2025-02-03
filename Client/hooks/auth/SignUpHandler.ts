@@ -10,6 +10,7 @@ interface SignUpData {
 }
 
 interface SignUpResponse {
+  accessToken: string;
   success: boolean;
   message: string;
 }
@@ -17,6 +18,7 @@ interface SignUpResponse {
 interface SignUpError {
   response: {
     data: {
+      accessToken: string;
       success: boolean;
       message: string;
     };

@@ -5,7 +5,7 @@ require('dotenv').config();        // Import dotenv for environment variables
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-const sendEmailRouter = require('./routes/sendEmail')
+const {router: sendEmailRouter} = require('./routes/sendEmail')
 const {router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail} = require('./routes/auth')
 const db = require('./routes/db');
 const ocrRouter = require('./routes/ocr')
