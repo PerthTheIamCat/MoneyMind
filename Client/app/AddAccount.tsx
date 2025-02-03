@@ -172,7 +172,6 @@ export default function Index() {
             <ThemedView >
                 <ThemedView className="w-96 mt-5 px-5 gap-5">
                     <ThemedInput
-                        autoComplete="AccountName"
                         title="Account Name"
                         error="Please fill in all fields"
                         className="w-full"
@@ -204,7 +203,6 @@ export default function Index() {
                         </ThemedView>
                     </ThemedScrollView>
                     <ThemedInput
-                        autoComplete="AccountBalance"
                         title="Account Balance"
                         error="Please fill in all fields"
                         className="w-full"
