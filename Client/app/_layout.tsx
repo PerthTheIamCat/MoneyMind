@@ -76,6 +76,7 @@ export default function RootLayout() {
           <Stack.Screen name="OTP" options={{ headerShown: false }} />
           <Stack.Screen name="Add_Transaction" options={{ title: "Add Your Transaction"}}/>
           <Stack.Screen name="AddAccount" options={{ headerTitle: "Add Account" }}/>
+          <Stack.Screen name="PinPage" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="auto" />
       </TermsProvider>

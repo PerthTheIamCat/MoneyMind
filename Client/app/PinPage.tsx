@@ -4,9 +4,12 @@ import PINCode from '@haskkor/react-native-pincode'
 import {hasUserSetPinCode} from '@haskkor/react-native-pincode'
 import { Image } from "expo-image";
 import { useEffect, useState } from "react";
-import { StyleSheet, useColorScheme } from 'react-native';
+import { StyleSheet, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, useColorScheme } from 'react-native';
 import { router, useRouter } from "expo-router";
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
+import { ThemedButton } from '@/components/ThemedButton';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import Feather from '@expo/vector-icons/Feather';
 
 const styles = StyleSheet.create({
     logo: {
@@ -15,9 +18,9 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     greetings: {
-        fontSize: 24,
+        fontSize: 32,
         fontWeight: 'bold',
-        marginBottom: 40,
+        marginBottom: 20,
         alignSelf: 'center',
     },
     codeView: {
@@ -25,18 +28,18 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 20,
-        marginVertical: 100,
+        marginVertical: 50,
     },
     codeEmpty: { 
-        width: 40,
-        height: 40,
+        width: 20,
+        height: 20,
         borderRadius: 20,
         borderWidth: 2,
         borderColor: '#AACC00',
     },
-    codeEnterd: { 
-        width: 35,
-        height: 35,
+    codeEntered: { 
+        width: 20,
+        height: 20,
         borderRadius: 20,
         backgroundColor: '#AACC00',
     },
@@ -48,19 +51,37 @@ const styles = StyleSheet.create({
         fontSize: 32,
         fontWeight: 'bold',
     },
-    bold: {fontWeight: 'bold'},
+    forgot: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        alignSelf: 'center'
+
+    },
     italic: {fontStyle: 'italic'},
     underline: {textDecorationLine: 'underline'},
+    roundButton1: {
+        width: 65,
+        height: 65,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 5,
+        borderRadius: 50,
+        backgroundColor: '#f1f1f1',
+      },
 });
 
 
 export default function index(){
     const[code,setCode] = useState<number[]>([]);
-    const router = useRouter();
+    const route = useRouter();
+    const [pressed, setPressed] = useState(false);
     const codeLength = Array(6).fill(0);
+    const codeCheck = Array(6)
     useEffect(() => {
         if(code.length === 6){
             //TODO: Check if the code is correct
+            setCode([]);
+            alert('PIN Does not match')
         }
     }, [code]);
     return (
@@ -68,20 +89,69 @@ export default function index(){
             <ThemedView className='flex-1 justify-center h-full mb-10'>
                 <Image source={require('../assets/logos/LOGO.png')} style={styles.logo} />
             </ThemedView>
-            <ThemedView>
-                <ThemedText className="font-bold">Enter your PIN code</ThemedText>
-            </ThemedView>
-            <ThemedView style={styles.codeView} className='gap-5'>
+            <ThemedText style={styles.greetings}>Enter your PIN code</ThemedText>
+            <ThemedView style={styles.codeView}>
                 {codeLength.map((_, index) => (
-                    <ThemedView key={index} style={[styles.codeEmpty,
-                    {   
-                        backgroundColor: code[index] ? '#AACC00' : 'transparent',
-                    }
-                ]}/>
+                    <ThemedView 
+                    key={index} 
+                    style={[
+                        styles.codeEmpty, 
+                        code[index] ? styles.codeEntered : null
+                    ]}
+                    />
                 ))}
             </ThemedView>
-            <ThemedView style={styles.numbersView} className='flex-row justify-center gap-5'>
-                <ThemedText style={[styles.underline,styles.bold]}>Forgot PIN?</ThemedText>
+                    <ThemedView style={styles.numbersView} className='flex-row justify-center gap-5 my-10'>
+                        <ThemedText style={[styles.underline,styles.forgot]}>Forgot PIN?</ThemedText>
+                    </ThemedView>
+                      
+                    <ThemedView style={styles.numbersView} className='flex-row alignItems-center my-7 justify-center'>
+                        <TouchableOpacity style = {[styles.roundButton1]}  onPress={ () => setCode([...code,1])}>
+                            <ThemedText style = {[styles.number]}>1</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity style = {styles.roundButton1} onPress={() => setCode([...code,1])}>
+                            <ThemedText style = {styles.number}>2</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity style = {styles.roundButton1} onPress={() => setCode([...code,1])}>
+                            <ThemedText style = {styles.number}>3</ThemedText>
+                        </TouchableOpacity>
+                    </ThemedView>
+                    <ThemedView style={styles.numbersView} className='flex-row alignItems-center mb-7 justify-center'>
+                        <TouchableOpacity style = {styles.roundButton1}  onPress={ () => setCode([...code,1])}>
+                            <ThemedText style = {[styles.number]}>4</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity style = {styles.roundButton1} onPress={() => setCode([...code,1])}>
+                            <ThemedText style = {styles.number}>5</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity style = {styles.roundButton1} onPress={() => setCode([...code,1])}>
+                            <ThemedText style = {styles.number}>6</ThemedText>
+                        </TouchableOpacity>
+                    </ThemedView>
+                    <ThemedView style={styles.numbersView} className='flex-row alignItems-center mb-7 justify-center'>
+                        <TouchableOpacity style = {styles.roundButton1}  onPress={ () => setCode([...code,1])}>
+                            <ThemedText style = {[styles.number]}>7</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity style = {styles.roundButton1} onPress={() => setCode([...code,1])}>
+                            <ThemedText style = {styles.number}>8</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity style = {styles.roundButton1} onPress={() => setCode([...code,1])}>
+                            <ThemedText style = {styles.number}>9</ThemedText>
+                        </TouchableOpacity>
+                    </ThemedView>
+                    <ThemedView style={styles.numbersView} className='flex-row justify-center alignItems-center '>
+                        //ตัวอ่านลายนิ้วมือ
+                        <TouchableOpacity style = {styles.roundButton1} > 
+                            <FontAwesome5 name="fingerprint" size={32} color="black" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style = {styles.roundButton1} onPress={() => setCode([...code,-1])}>
+                            <ThemedText style={styles.number}>0</ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity style = {styles.roundButton1} onPress={() => setCode(code => code.slice(0,-1))}>
+                            <Feather name="delete" size={32} color="black" />
+                        </TouchableOpacity>
+                    </ThemedView>
+            
+                <ThemedView>
             </ThemedView>
         </ThemedSafeAreaView>
     );
