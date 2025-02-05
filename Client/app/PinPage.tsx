@@ -12,6 +12,8 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Feather from '@expo/vector-icons/Feather';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { title } from 'process';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { goBack } from 'expo-router/build/global-state/routing';
 
 const styles = StyleSheet.create({
     logo: {
@@ -89,7 +91,7 @@ export default function index(){
         [
             {
                 text: "OK",
-                onPress: () => router.replace('/(tabs)'),
+                onPress: () => router.replace('/(tabs)'), // Redirect to home page after successful login
                 style: 'cancel',
             },
             {
@@ -140,6 +142,9 @@ export default function index(){
 
     return (
         <ThemedSafeAreaView>
+            <ThemedView className='flex-row justify-between px-5 mt-5'>
+                <Ionicons name="arrow-back-outline" size={32} color="black" onPress={() => router.back()}/>
+            </ThemedView>
             <ThemedView className='flex-1 justify-center h-full mb-10'>
                 <Image source={require('../assets/logos/LOGO.png')} style={styles.logo} />
             </ThemedView>
@@ -155,8 +160,8 @@ export default function index(){
                     />
                 ))}
             </ThemedView>
-                    <ThemedView style={styles.numbersView} className='flex-row justify-center gap-5 my-10'>
-                        <ThemedText style={[styles.underline,styles.forgot]}>Forgot PIN?</ThemedText>
+                    <ThemedView style={styles.numbersView} className='flex-row justify-center gap-5 my-5'>
+                        <ThemedText style={[styles.underline,styles.forgot]} onPress = {() => router.replace('/PinRecover')}>Forgot PIN?</ThemedText>
                     </ThemedView>
                       
                     <ThemedView style={styles.numbersView} className='flex-row alignItems-center my-7 justify-center'>
@@ -193,7 +198,6 @@ export default function index(){
                         </TouchableOpacity>
                     </ThemedView>
                     <ThemedView style={styles.numbersView} className='flex-row justify-center alignItems-center '>
-                        //ตัวอ่านลายนิ้วมือ
                         <TouchableOpacity style = {styles.roundButton1} onPress={handleBiometric}> 
                             <FontAwesome5 name="fingerprint" size={32} color="black" />
                         </TouchableOpacity>
