@@ -4,12 +4,14 @@ import PINCode from '@haskkor/react-native-pincode'
 import {hasUserSetPinCode} from '@haskkor/react-native-pincode'
 import { Image } from "expo-image";
 import { useEffect, useState } from "react";
-import { StyleSheet, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, useColorScheme } from 'react-native';
+import { Alert, StyleSheet, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, useColorScheme } from 'react-native';
 import { router, useRouter } from "expo-router";
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
 import { ThemedButton } from '@/components/ThemedButton';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Feather from '@expo/vector-icons/Feather';
+import * as LocalAuthentication from 'expo-local-authentication';
+import { title } from 'process';
 
 const styles = StyleSheet.create({
     logo: {
@@ -72,18 +74,70 @@ const styles = StyleSheet.create({
 
 
 export default function index(){
+    
     const[code,setCode] = useState<number[]>([]);
     const route = useRouter();
+    const theme = useColorScheme();
+    const [isBiometricSupported, setIsBiometricSupported] = useState(false);
     const [pressed, setPressed] = useState(false);
     const codeLength = Array(6).fill(0);
     const codeCheck = Array(6)
+
+    const showAlert = () => Alert.alert(
+        "You are now logged in",
+        "",
+        [
+            {
+                text: "OK",
+                onPress: () => router.replace('/(tabs)'),
+                style: 'cancel',
+            },
+            {
+                text: "Proceed",
+                onPress: () => console.log('Proceed')
+            },
+        ]
+    );
+
     useEffect(() => {
-        if(code.length === 6){
-            //TODO: Check if the code is correct
+        if (code.length === 6) {
             setCode([]);
-            alert('PIN Does not match')
+            Alert.alert('PIN does not match');
         }
     }, [code]);
+
+    useEffect(() => {
+        (async () => {
+            const compatible = await LocalAuthentication.hasHardwareAsync();
+            setIsBiometricSupported(compatible);
+        })();
+    }, []);
+
+    const handleBiometric = async () => {
+        const isBiometricAvailable = await LocalAuthentication.hasHardwareAsync();
+
+        if (!isBiometricAvailable) {
+            return Alert.alert('Biometric Authentication Unavailable', 'Your device does not support biometrics.', [{ text: 'OK' }]);
+        }
+
+        const biometricRecords = await LocalAuthentication.isEnrolledAsync();
+        if (!biometricRecords) {
+            return Alert.alert('Biometric Authentication Unavailable', 'No biometric records found. Please set up biometrics in your device settings.', [{ text: 'OK' }]);
+        }
+
+        const biometricAuth = await LocalAuthentication.authenticateAsync({
+            promptMessage: 'Authenticate to continue',
+            cancelLabel: 'Cancel',
+        });
+
+        if (biometricAuth.success) {
+            console.log('Biometric Authentication Success');
+            showAlert();
+        } else {
+            Alert.alert('Authentication Failed', 'Try again or use PIN.', [{ text: 'OK' }]);
+        }
+    };
+
     return (
         <ThemedSafeAreaView>
             <ThemedView className='flex-1 justify-center h-full mb-10'>
@@ -140,7 +194,7 @@ export default function index(){
                     </ThemedView>
                     <ThemedView style={styles.numbersView} className='flex-row justify-center alignItems-center '>
                         //ตัวอ่านลายนิ้วมือ
-                        <TouchableOpacity style = {styles.roundButton1} > 
+                        <TouchableOpacity style = {styles.roundButton1} onPress={handleBiometric}> 
                             <FontAwesome5 name="fingerprint" size={32} color="black" />
                         </TouchableOpacity>
                         <TouchableOpacity style = {styles.roundButton1} onPress={() => setCode([...code,-1])}>
@@ -156,4 +210,3 @@ export default function index(){
         </ThemedSafeAreaView>
     );
 }
-
