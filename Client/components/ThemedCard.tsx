@@ -31,14 +31,14 @@ export function ThemedCard({
   return (
         <ThemedView
             className={` !rounded-2xl  !flex-row !justify-start  !items-start mr-3 ${
-              mode === "small" ? "w-[150px] h-[150px]" : "w-[240px] h-[200px]"
+              mode === "small" ? "w-[125px] h-[125px]" : "w-[240px] h-[200px]"
             } ${color} ${className}`}
         >
         <Image
 
         source={require("@/assets/logos/LOGO.png")}
         className={` !rounded-full absolute top-4 left-4 ${
-          mode === "small" ? "w-12 h-12" : "w-16 h-16"
+          mode === "small" ? "w-10 h-10" : "w-16 h-16"
         }
           contentFit="contain"
           `}
@@ -53,8 +53,8 @@ export function ThemedCard({
       )}
 
       {mode === "small" ? (
-        <ThemedView className="absolute top-20 left-4 bg-transparent">
-          <ThemedText className="text-[18px] !text-[#f2f2f2] font-bold">
+        <ThemedView className="absolute top-16 left-4 bg-transparent">
+          <ThemedText className=" text-[16px] !text-[#f2f2f2] font-bold">
             {name}
           </ThemedText>
         </ThemedView>
@@ -69,7 +69,7 @@ export function ThemedCard({
       {/* Balance แยกตำแหน่งตาม mode */}
       {mode === "small" ? (
         <ThemedView className="absolute bottom-4 right-4 bg-transparent">
-          <ThemedText className="text-[20px] !text-[#f2f2f2] font-semibold">
+          <ThemedText className="text-[18px] !text-[#f2f2f2] font-semibold">
             {balance}
           </ThemedText>
         </ThemedView>
