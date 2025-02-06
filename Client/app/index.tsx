@@ -1,11 +1,8 @@
-import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { ThemedButton } from "@/components/ThemedButton";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/hooks/conText/AuthContext";
-import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 
 export default function Index() {
   const auth = useContext(AuthContext);

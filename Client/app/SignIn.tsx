@@ -9,7 +9,6 @@ import { useState, useContext } from "react";
 import { router } from "expo-router";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
-import axios from "axios";
 
 export default function Index() {
   const [usernameEmail, setUsernameEmail] = useState<string>("");

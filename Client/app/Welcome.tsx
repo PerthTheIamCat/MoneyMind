@@ -3,7 +3,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedButton } from "@/components/ThemedButton";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 
 export default function Welcome() {
