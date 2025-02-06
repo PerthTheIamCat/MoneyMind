@@ -89,6 +89,7 @@ export default function RootLayout() {
               options={{ headerTitle: "Add Account" }}
             />
             <Stack.Screen name="PinPage" options={{ headerShown: false }} />
+            <Stack.Screen name="CreatePinPage" options={{ headerShown: false }} />
             <Stack.Screen name="Welcome" options={{ headerShown: false, animation:"none" }} />
           </Stack>
           <StatusBar style="auto" />
