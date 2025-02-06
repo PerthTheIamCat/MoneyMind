@@ -18,7 +18,6 @@ export default function TabLayout() {
           borderTopColor: theme === "dark" ? "#F2F2F2" : "#2F2F2F",
           borderTopWidth: 1,
         },
-        gestureEnabled: false,
       }}
     >
       <Tabs.Screen
