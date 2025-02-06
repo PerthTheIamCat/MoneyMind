@@ -8,8 +8,8 @@ type ThemedScrollViewProps = {
 };
 
 const { width } = Dimensions.get("window");
-const ITEM_WIDTH = width * 0.8 + 8; // ขนาดของแต่ละ item
-const SPACING = (width - ITEM_WIDTH) / 2; // เว้นระยะให้ item อยู่ตรงกลาง
+const ITEM_WIDTH = 280+8; // ขนาดของแต่ละ item
+const SPACING = width*0.08 ; // เว้นระยะให้ item อยู่ตรงกลาง
 
 export function ThemedScrollViewCenter({ children, className, ...props }: ThemedScrollViewProps) {
   const theme = useColorScheme();
