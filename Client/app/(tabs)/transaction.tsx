@@ -18,6 +18,7 @@ interface Transaction {
   amount: string;
   category: string;
   description: string;
+  date: string;
 }
 
 const transactions: Transaction[] = [
@@ -28,6 +29,7 @@ const transactions: Transaction[] = [
     amount: "-฿250.00",
     category: "Food & Drinks",
     description: "Lunch at McDonald's",
+    date: "25/12/67",
   },
   {
     id: "2",
@@ -36,6 +38,7 @@ const transactions: Transaction[] = [
     amount: "-฿1,200.00",
     category: "Shopping",
     description: "Bought new shoes",
+    date: "25/12/67",
   },
   {
     id: "3",
@@ -44,6 +47,7 @@ const transactions: Transaction[] = [
     amount: "+฿20,000.00",
     category: "Salary",
     description: "Monthly paycheck",
+    date: "26/12/67",
   },
 ];
 
@@ -69,16 +73,11 @@ const TransactionItem = ({ transaction }: { transaction: Transaction }) => (
       {transaction.amount}
     </Text>
 
-    {transaction.transaction_type === "income" && (
-      <Image
-        source={transaction.logo}
-        className="w-10 h-10 rounded-full ml-4"
-      />
-    )}
   </View>
 );
 
 export default function Index() {
+  let lastDate = "";
   return (
     <ThemedSafeAreaView>
       <ThemedView className="flex-row items-center justify-between bg-red-500 px-4">
@@ -140,15 +139,24 @@ export default function Index() {
         </View>
       </ThemedView>
 
-      <ThemedView className="bg-green-500 !justify-start h-fit py-2">
+      <ThemedView className="bg-green-500 !justify-start h-full py-2">
         
-        <View className="w-full items-center">
-        <Text className="w-full pl-10 text-left font-bold text-1xl py-1">25/12/67</Text>
-          {transactions.map((transaction) => (
-            <TransactionItem key={transaction.id} transaction={transaction} />
-          ))}
+        <View className="w-full !items-center">
+          {transactions.map((transaction) => {
+            const showDateHeader = transaction.date !== lastDate;
+            lastDate = transaction.date;
+            return (
+              <View key={transaction.id} className="w-full items-center">
+                {showDateHeader && (
+                  <Text className="w-full pl-10 text-left font-bold text-1xl py-1">{transaction.date}</Text>
+                )}
+                <TransactionItem transaction={transaction} />
+              </View>
+            );
+          })}
         </View>
       </ThemedView>
+
       <ThemedView className="absolute !justify-end !items-end w-full mt-[170%] bg-slate-500">
           <View className="items-center justify-center bg-[#aacc00] w-16 h-16 rounded-full mr-6">
             <AntDesign name="plus" size={32} color="#ffffff" />
