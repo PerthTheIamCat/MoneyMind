@@ -114,9 +114,9 @@ export default function Index() {
           className=" bg-yellow-600 pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
         >
           <View className="mt-0.5 mb-1 flex-row space-x-1">
-            <ThemedCard name="K-Push" balance="฿0.00" className="bg-[#7a2a49]" />
-            <ThemedCard name="Wallet" balance="฿0.00" className="bg-[#1c5366]" />
-            <ThemedCard name="Bank" balance="฿0.00" className="bg-[#706767]" />
+            <ThemedCard name="K-Push" balance="฿0.00" className="bg-[#fd0061]" />
+            <ThemedCard name="Wallet" balance="฿0.00" className="bg-[#0000ff]" />
+            <ThemedCard name="Bank" balance="฿0.00" className="bg-[#00ff00]" />
             <ThemedCard
               name="Credit Card"
               balance="฿0.00"
@@ -140,13 +140,19 @@ export default function Index() {
         </View>
       </ThemedView>
 
-      <ThemedView className="bg-green-500 !justify-start h-full py-2">
-        <Text className="w-full pl-10 text-left font-bold text-1xl py-1">25/12/67</Text>
+      <ThemedView className="bg-green-500 !justify-start h-fit py-2">
+        
         <View className="w-full items-center">
+        <Text className="w-full pl-10 text-left font-bold text-1xl py-1">25/12/67</Text>
           {transactions.map((transaction) => (
             <TransactionItem key={transaction.id} transaction={transaction} />
           ))}
         </View>
+      </ThemedView>
+      <ThemedView className="absolute !justify-end !items-end w-full mt-[170%] bg-slate-500">
+          <View className="items-center justify-center bg-[#aacc00] w-16 h-16 rounded-full mr-6">
+            <AntDesign name="plus" size={32} color="#ffffff" />
+          </View>
       </ThemedView>
     </ThemedSafeAreaView>
   );
