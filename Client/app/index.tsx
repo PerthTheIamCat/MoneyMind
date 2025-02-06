@@ -14,7 +14,7 @@ export default function Index() {
       }, 1000);
     } else if (!auth?.authLoading && auth?.token) {
       setTimeout(() => {
-        router.replace("/(tabs)");
+        router.replace("/PinPage");
       }, 1000);
     }
   }, [auth?.authLoading]);

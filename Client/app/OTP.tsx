@@ -56,7 +56,7 @@ export default function OTP() {
       if (response.success) {
         setIsVerifying(false);
         clearTimeout(timeout);
-        router.replace("/(tabs)");
+        router.replace("/CreatePinPage");
       } else {
         setIsVerifying(false);
         clearTimeout(timeout);
