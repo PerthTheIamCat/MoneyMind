@@ -26,7 +26,7 @@ export default function Index() {
   const [errorPasswordConfirmation, setErrorPasswordConfirmation] = useState<string>("");
 
   // Use the useContext hook to get the setIsAccepted function from the TermsContext
-  const { URL , setUsername, setEmail, setPassword, setPasswordConfirmation, setOtp, username, email, password, passwordConfirmation, otp } = useContext(ServerContext);
+  const { URL , setUsername, setEmail, setPassword, setPasswordConfirmation, setOtp, username, email, password, passwordConfirmation } = useContext(ServerContext);
   const { isAccepted, setIsAccepted } = useContext(TermsContext);
   const [isCheckedNotification, setIsCheckedNotification] = useState<boolean>(false);
 
@@ -104,6 +104,7 @@ export default function Index() {
             Sign Up
           </ThemedText>
           <ThemedInput
+            value={username}
             autoComplete="username"
             title="Username"
             error={errorUsername}
@@ -111,6 +112,7 @@ export default function Index() {
             onChangeText={(text) => setUsername(text)}
           />
           <ThemedInput
+            value={email}
             autoComplete="email"
             title="Email"
             error={errorEmail}

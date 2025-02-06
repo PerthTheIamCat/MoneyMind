@@ -75,6 +75,7 @@ export default function Index() {
               Sign In
           </ThemedText>
           <ThemedInput
+            value={usernameEmail}
             autoComplete="username"
             title="Username/Email"
             error={errorUsernameEmail}
