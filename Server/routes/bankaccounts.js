@@ -15,20 +15,20 @@ router.post('/create', jwtValidate, (req, res) => {
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
-    if (!user_id || !account_name || !balance || !color_code || !icon_id) {
+    if (!user_id || !account_name || !balance || !color_code) {
         return res.status(400).json({ message: 'Please fill all fields', success: false });
     }
 
     db.query(
         'INSERT INTO bankaccounts (user_id, account_name, balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?)',
-        [user_id, account_name, balance, color_code, icon_id],
+        [user_id, account_name, balance, color_code, icon_id || null],
         (err, result) => {
             if (err) {
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
             }
 
             console.log("Bank account created")
-            res.status(201).json({ message: 'Bank account created', success: true });
+            return res.status(201).json({ message: 'Bank account created', success: true });
         }
     )
 })
@@ -48,7 +48,7 @@ router.get('/:id', jwtValidate, (req, res) => {
                 return res.status(404).json({ message: 'User not found', success: false });
             }
 
-            res.status(200).json(result);
+            return res.status(200).json({result, success: true});
         }
     )
 })
@@ -76,7 +76,7 @@ router.put('/:id', jwtValidate, (req, res) => {
                         return res.status(404).json({ message: 'Bank Account not found', success: false });
                     }
         
-                    res.status(200).json({ message: 'Bank Account updated', success: true });
+                    return res.status(200).json({ message: 'Bank Account updated', success: true });
                 }
             )
         }
@@ -106,7 +106,7 @@ router.delete('/:id', jwtValidate, (req, res) => {
                     return res.status(404).json({ message: 'Bank Account deleted', success: false });
                 }
     
-                res.status(200).json({ message: 'Bank Account deleted', success: true });
+                return res.status(200).json({ message: 'Bank Account deleted', success: true });
             })
         }
     )
