@@ -10,6 +10,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { router } from "expo-router";
 import { ThemedCard } from "@/components/ThemedCard";
+import Entypo from '@expo/vector-icons/Entypo';
 
 interface Transaction {
   id: string;
@@ -72,12 +73,13 @@ const TransactionItem = ({ transaction }: { transaction: Transaction }) => (
     >
       {transaction.amount}
     </Text>
-
+    <Entypo name="dots-three-vertical" size={20} color="black" className="ml-2"/>
   </View>
 );
 
 export default function Index() {
   let lastDate = "";
+
   return (
     <ThemedSafeAreaView>
       <ThemedView className="flex-row items-center justify-between bg-red-500 px-4">
@@ -113,8 +115,16 @@ export default function Index() {
           className=" bg-yellow-600 pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
         >
           <View className="mt-0.5 mb-1 flex-row space-x-1">
-            <ThemedCard name="K-Push" balance="฿0.00" className="bg-[#fd0061]" />
-            <ThemedCard name="Wallet" balance="฿0.00" className="bg-[#0000ff]" />
+            <ThemedCard
+              name="K-Push"
+              balance="฿0.00"
+              className="bg-[#fd0061]"
+            />
+            <ThemedCard
+              name="Wallet"
+              balance="฿0.00"
+              className="bg-[#0000ff]"
+            />
             <ThemedCard name="Bank" balance="฿0.00" className="bg-[#00ff00]" />
             <ThemedCard
               name="Credit Card"
@@ -140,7 +150,6 @@ export default function Index() {
       </ThemedView>
 
       <ThemedView className="bg-green-500 !justify-start h-full py-2">
-        
         <View className="w-full !items-center">
           {transactions.map((transaction) => {
             const showDateHeader = transaction.date !== lastDate;
@@ -148,7 +157,9 @@ export default function Index() {
             return (
               <View key={transaction.id} className="w-full items-center">
                 {showDateHeader && (
-                  <Text className="w-full pl-10 text-left font-bold text-1xl py-1">{transaction.date}</Text>
+                  <Text className="w-full pl-10 text-left font-bold text-1xl py-1">
+                    {transaction.date}
+                  </Text>
                 )}
                 <TransactionItem transaction={transaction} />
               </View>
@@ -158,9 +169,9 @@ export default function Index() {
       </ThemedView>
 
       <ThemedView className="absolute !justify-end !items-end w-full mt-[170%] bg-slate-500">
-          <View className="items-center justify-center bg-[#aacc00] w-16 h-16 rounded-full mr-6">
-            <AntDesign name="plus" size={32} color="#ffffff" />
-          </View>
+        <View className="items-center justify-center bg-[#aacc00] w-16 h-16 rounded-full mr-6">
+          <AntDesign name="plus" size={32} color="#ffffff" />
+        </View>
       </ThemedView>
     </ThemedSafeAreaView>
   );
