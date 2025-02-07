@@ -98,40 +98,39 @@ const transactions: Transaction[] = [
   },
 ];
 
-const TransactionItem = ({ transaction }: { transaction: Transaction }) => (
-  <View className="flex-row items-center justify-center w-10/12 bg-white p-4 rounded-lg mb-2 shadow-md">
-    <Image
-      source={transaction.logo}
-      style={{ width: 40, height: 40, borderRadius: 20, marginRight: 16 }}
-    />
+const TransactionItem = ({ transaction, theme }: { transaction: Transaction, theme: string | null }) => {
+  const componentcolor = theme === "dark" ? "!bg-[#282828]" : "!bg-[#d8d8d8]";
+  const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
 
-    <View className="flex-1">
-      <Text className="font-bold text-lg">{transaction.category}</Text>
-      <Text className="text-gray-500">{transaction.description}</Text>
+  return (
+    <View className={`flex-row items-center justify-center w-10/12 ${componentcolor} p-4 rounded-lg mb-2 shadow-md`}>
+      <Image
+        source={transaction.logo}
+        style={{ width: 40, height: 40, borderRadius: 20, marginRight: 16 }}
+      />
+
+      <View className="flex-1">
+        <ThemedText className={`font-bold text-lg `}>
+          {transaction.category}
+        </ThemedText>
+        <ThemedText className={``}>
+          {transaction.description}
+        </ThemedText>
+      </View>
+
+      <Text className={`font-bold text-[16px] ${transaction.transaction_type === "income" ? "text-green-500" : "text-red-500"}`}>
+        {transaction.amount}
+      </Text>
+      <Entypo name="dots-three-vertical" size={20} color={componenticon} className="ml-2" />
     </View>
+  );
+};
 
-    <Text
-      className={`font-bold ${
-        transaction.transaction_type === "income"
-          ? "text-green-500"
-          : "text-red-500"
-      }`}
-    >
-      {transaction.amount}
-    </Text>
-    <Entypo
-      name="dots-three-vertical"
-      size={20}
-      color="black"
-      className="ml-2"
-    />
-  </View>
-);
 
 export default function Index() {
   let lastDate = "";
   const theme = useColorScheme();
-  const componentcolor = theme === "dark" ? "!bg-[#8f8f8f]" : "!bg-[#d8d8d8]";
+  const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
 
   return (
@@ -168,9 +167,9 @@ export default function Index() {
             <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
           </ThemedView>
           <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
-            <View className="flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] bg-[#fefefe] -ml-2 active:scale-105">
-              <AntDesign name="plus" size={20} color="black" />
-              <Text className="font-bold">Add Account</Text>
+            <View className={`flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] ${componentcolor} -ml-2 active:scale-105`}>
+              <AntDesign name="plus" size={20} color={`${componenticon}`} />
+              <ThemedText className="font-bold">Add Account</ThemedText>
             </View>
             <ThemedScrollView
               horizontal={true}
@@ -190,7 +189,7 @@ export default function Index() {
                 <ThemedCard
                   name="Bank"
                   balance="0.00"
-                  className="bg-[#1f5cde]"
+                  className="bg-[#414e6a]"
                 />
                 <ThemedCard
                   name="Credit Card"
@@ -228,7 +227,7 @@ export default function Index() {
                         {transaction.date}
                       </ThemedText>
                     )}
-                    <TransactionItem transaction={transaction} />
+                    <TransactionItem transaction={transaction} theme={theme}/>
                   </View>
                 );
               })}
