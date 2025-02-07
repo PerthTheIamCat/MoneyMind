@@ -76,7 +76,7 @@ export default function PinPage() {
           />
         </ThemedView>
         <ThemedText style={styles.greetings}>
-          {pin === "" ? "Create your PIN code" : "Enter your PIN again"}
+          Enter your PIN to continue
         </ThemedText>
         <ThemedView style={styles.codeView}>
           {codeLength.map((_, index) => (

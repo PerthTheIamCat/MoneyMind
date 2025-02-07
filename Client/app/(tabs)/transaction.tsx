@@ -3,14 +3,15 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { Image } from "expo-image";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { ThemedButton } from "@/components/ThemedButton";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { View, Text, FlatList } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { router } from "expo-router";
 import { ThemedCard } from "@/components/ThemedCard";
 import Entypo from "@expo/vector-icons/Entypo";
+import { UserContext } from "@/hooks/conText/UserContext";
+import { useContext } from "react";
 
 interface Transaction {
   id: string;
@@ -25,7 +26,7 @@ interface Transaction {
 const transactions: Transaction[] = [
   {
     id: "1",
-    logo: require("@/assets/logos/LOGO.png"), // เปลี่ยนเป็นโลโก้ที่ต้องการ
+    logo: require("@/assets/logos/LOGO.png"),
     transaction_type: "expense",
     amount: "-฿250.00",
     category: "Food & Drinks",
@@ -83,8 +84,9 @@ const TransactionItem = ({ transaction }: { transaction: Transaction }) => (
 );
 
 export default function Index() {
+  const { bank } = useContext(UserContext);
   let lastDate = "";
-
+  console.log(bank);
   return (
     <ThemedSafeAreaView color="E5E5E5">
       <ThemedView className="flex-row items-center justify-between bg-[E5E5E5] px-4">
@@ -111,7 +113,7 @@ export default function Index() {
         <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
       </ThemedView>
       <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
-        <View className="flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] bg-[#fefefe] -ml-2 active:scale-105">
+        <View onTouchEnd={()=>{router.push("/AddAccount")}} className="flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] bg-[#fefefe] -ml-2 active:scale-105">
           <AntDesign name="plus" size={20} color="black" />
           <Text className="font-bold">Add Account</Text>
         </View>
@@ -120,22 +122,18 @@ export default function Index() {
           className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
         >
           <View className="mt-0.5 mb-1 flex-row space-x-1">
-            <ThemedCard
-              name="K-Push"
-              balance="฿0.00"
-              className="bg-[#fd0061]"
-            />
-            <ThemedCard
-              name="Wallet"
-              balance="฿0.00"
-              className="bg-blue-700"
-            />
-            <ThemedCard name="Bank" balance="฿0.00" className="bg-[#1f5cde]" />
-            <ThemedCard
-              name="Credit Card"
-              balance="฿0.00"
-              className="bg-[#ff0000]"
-            />
+            {bank?.map((account) => (
+              <ThemedCard
+                name={account.account_name}
+                color={account.color_code}
+                balance={account.balance.toString()}
+                mode="small"
+                onEdit={() => {}}
+                key={account.id}
+                // image={account.icon_id}
+                className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+              />
+            ))}
           </View>
         </ThemedScrollView>
       </ThemedView>
