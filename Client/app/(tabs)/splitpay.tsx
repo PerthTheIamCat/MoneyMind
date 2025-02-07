@@ -9,6 +9,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 export default function splitpay() {
   return (
     <ThemedSafeAreaView>
+      
       {/*Header*/}
       <ThemedView className="flex-row items-center justify-between px-4">
       <Image
@@ -41,6 +42,13 @@ export default function splitpay() {
         <ThemedText>  </ThemedText>
         <ThemedText>  </ThemedText>
       </ThemedView>
+
+      {/* States proceed transaction */}
+      <ThemedView >
+        <ThemedText>  </ThemedText>
+        <ThemedText>  </ThemedText>
+      </ThemedView>
+
     </ThemedSafeAreaView>
   );
 }
