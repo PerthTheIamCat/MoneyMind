@@ -47,7 +47,7 @@ const jwtAccessTokenGenrate = (UserID, username, email) => {
     const accessToken = jwt.sign(
         { UserID, username, email },
         process.env.ACCESS_TOKEN_SECRET, 
-        { expiresIn: '10s', algorithm: 'HS256' })
+        { expiresIn: '30m', algorithm: 'HS256' })
     
     return accessToken
 }
@@ -66,7 +66,15 @@ const jwtValidate = (req, res, next) => {
                 console.error('Invalid token:', err.message);
                 return res.status(403).json({ message: 'Invalid token', success: false });
             }
-            console.log(decoded);
+
+            console.log('Decoded JWT:', decoded);
+
+            req.user = {
+                UserID: decoded.UserID,
+                username: decoded.username,
+                email: decoded.email
+            };
+
             next();
         });
     } catch (err) {
