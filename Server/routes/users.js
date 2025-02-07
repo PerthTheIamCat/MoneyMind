@@ -10,7 +10,7 @@ const {router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail} =
 const db = require('./db');
 
 router.get('/', jwtValidate, (req, res) => {
-    if (req.user.UserID !== user_id) {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) {
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
@@ -23,7 +23,7 @@ router.get('/', jwtValidate, (req, res) => {
 });
 
 router.get('/:id', jwtValidate, (req, res) => {
-    if (req.user.UserID !== user_id) {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) {
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
@@ -43,7 +43,7 @@ router.get('/:id', jwtValidate, (req, res) => {
 })
 
 router.put('/:id', jwtValidate, (req, res) => {
-    if (req.user.UserID !== user_id) {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) {
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
@@ -63,10 +63,10 @@ router.put('/:id', jwtValidate, (req, res) => {
 })
 
 router.delete('/:id', jwtValidate, (req, res) => {
-    if (req.user.UserID !== user_id) {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) {
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
-    
+
     db.query(
         'DELETE FROM users WHERE id = ?', [req.params.id], (err, result) => {
             if (err) {
