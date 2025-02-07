@@ -45,7 +45,7 @@ export function ThemedButton({
             : mode === "confirm"
             ? "bg-[#2B9348]"
             : ""
-        } rounded-[25px] active:scale-110 transition-all duration-75 ease-out justify-center items-center ${
+        } rounded-[25px] active:scale-110 transition-all duration-75 ease-out justify-center items-center flex-row ${
           isLoading ? "opacity-50" : ""
         }` + (className ? ` ${className}` : "")
       }
@@ -53,13 +53,13 @@ export function ThemedButton({
     >
       <ThemedText
         // style={{ fontFamily }}
-        className={`text-center font-bold text-[#F2F2F2] ${textClassName}`}
+        className={`text-center font-bold text-[#F2F2F2] ${textClassName} ${isLoading? "mr-2" : ""}`}
       >
         {children}
       </ThemedText>
       {isLoading && (
         <ThemedView className="animate-spin-ease w-fit h-fit bg-transparent">
-          <AntDesign name="loading2" size={24} color={`${theme === "dark" ? "#F2F2F2" : "#2F2F2F"}`} />
+          <AntDesign name="loading2" size={24} color={"#F2F2F2"} />
         </ThemedView>
       )}
     </Pressable>

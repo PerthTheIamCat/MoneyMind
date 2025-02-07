@@ -6,10 +6,12 @@ interface SignUpData {
   password: string;
   password2: string;
   email: string;
-  name?: string;
+  name: string;
+  otp: string;
 }
 
 interface SignUpResponse {
+  accessToken: string;
   success: boolean;
   message: string;
 }
@@ -17,6 +19,7 @@ interface SignUpResponse {
 interface SignUpError {
   response: {
     data: {
+      accessToken: string;
       success: boolean;
       message: string;
     };
