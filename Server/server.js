@@ -8,9 +8,10 @@ app.use(express.urlencoded({ extended: false }))
 const {router: sendEmailRouter} = require('./routes/sendEmail')
 const {router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail} = require('./routes/auth')
 const {router: usersRouter} = require('./routes/users')
+const {router: bankaccountsRouter} = require('./routes/bankaccounts')
 const ocrRouter = require('./routes/ocr')
-const db = require('./routes/db');
 
+app.use('/bankaccounts', bankaccountsRouter)
 app.use('/sendEmail', sendEmailRouter)
 app.use('/users', usersRouter)
 app.use('/auth', authRouter)
