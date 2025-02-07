@@ -80,25 +80,25 @@ router.post('/create', jwtValidate, (req, res) => {
     )
 })
 
-// router.get('/:id', jwtValidate, (req, res) => {
-//     if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
-//         return res.status(403).json({ message: 'Unauthorized user', success: false });
-//     }
+router.get('/:id', jwtValidate, (req, res) => {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
+        return res.status(403).json({ message: 'Unauthorized user', success: false });
+    }
 
-//     db.query(
-//         'SELECT * FROM bankaccounts WHERE user_id = ?', [req.params.id], (err, result) => {
-//             if (err) {
-//                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
-//             }
+    db.query(
+        'SELECT * FROM transactions WHERE user_id = ?', [req.params.id], (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+            }
 
-//             if (result.length === 0) {
-//                 return res.status(404).json({ message: 'User not found', success: false });
-//             }
+            if (result.length === 0) {
+                return res.status(404).json({ message: 'User not found', success: false });
+            }
 
-//             return res.status(200).json(result);
-//         }
-//     )
-// })
+            return res.status(200).json({result, success: true});
+        }
+    )
+})
 
 // router.put('/:id', jwtValidate, (req, res) => {
 //     const bankID = req.params.id;
