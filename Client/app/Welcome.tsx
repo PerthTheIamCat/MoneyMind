@@ -12,6 +12,8 @@ import { useWindowDimensions } from "react-native";
 export default function Welcome() {
   const auth = useContext(AuthContext);
   const { width } = useWindowDimensions();
+  
+  const isLargeScreen = width > 500; // ตรวจสอบว่าจอใหญ่กว่า 600px หรือไม่
 
   return (
     <ThemedSafeAreaView>
@@ -28,9 +30,8 @@ export default function Welcome() {
           <Image
             source={require("@/assets/logos/LOGO.png")}
             style={{
-              width: width < 400 ? 200 : 300,
-              height: width < 400 ? 300 : 400,
-              marginTop: width < 400 ? 0 : 20,
+              width: isLargeScreen ? 400 : width < 380 ? 200 : 250,
+              height: isLargeScreen ? 500 : width < 380 ? 300 : 350,
             }}
             contentFit="contain"
             onTouchStart={() => router.replace("/(tabs)")}
@@ -38,27 +39,26 @@ export default function Welcome() {
           <ThemedView className="!items-start w-full px-6 text-center pl-10">
             <ThemedText
               className="text-5xl mb-10 !text-[#55A630]"
-              style={{ fontSize: width < 400 ? 36 : 48 }}
+              style={{ fontSize: isLargeScreen ? 56 : width < 380 ? 32 : 46 }}
             >
               MoneyMind
             </ThemedText>
             <ThemedText
               className="text-wrap font-bold !text-[#AACC00]"
               style={{
-                fontSize: width < 400 ? 19 : 24,
-                maxWidth: width < 400 ? 180 : 200,
+                fontSize: isLargeScreen ? 30 : width < 380 ? 16: 24,
+                maxWidth: isLargeScreen ? 250 : width < 380 ? 160 : 200,
               }}
             >
-              Unlock Your Financial Dreams Empowering Your Journey to Wealth and
-              Freedom
+              Unlock Your Financial Dreams Empowering Your Journey to Wealth and Freedom
             </ThemedText>
           </ThemedView>
 
           <ThemedView className="flex-row gap-5 w-full justify-center mt-28 mb-10">
             <ThemedButton
               style={{
-                width: width < 400 ? 150 : 180,
-                height: width < 400 ? 45 : 55,
+                width: isLargeScreen ? 200 : width < 380 ? 140 : 160,
+                height: isLargeScreen ? 60 : width < 380 ? 40 : 50,
               }}
               mode="normal"
               onPress={() => router.push("/SignIn")}
@@ -67,8 +67,8 @@ export default function Welcome() {
             </ThemedButton>
             <ThemedButton
               style={{
-                width: width < 400 ? 150 : 180,
-                height: width < 400 ? 45 : 55,
+                width: isLargeScreen ? 170 : width < 380 ? 140 : 160,
+                height: isLargeScreen ? 60 : width < 380 ? 40 : 50,
               }}
               mode="confirm"
               onPress={() => router.push("/SignUp")}
