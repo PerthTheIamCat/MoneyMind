@@ -12,7 +12,7 @@ export default function splitpay() {
     <ThemedSafeAreaView>
 
       {/*Header*/}
-      <ThemedView className="flex-row items-center justify-between px-4 bg-red-300">
+      <ThemedView className="flex-row items-center justify-between px-4">
       <Image
           className="ml-[10%]"
           source={require("@/assets/logos/LOGO.png")}
@@ -33,20 +33,24 @@ export default function splitpay() {
       </ThemedView>
 
       {/* Decision Menu */}
-      <ThemedView className="flex-row items-center pt-[4%] bg-blue-300">
-        <View className="flex flex-row justify-center items-center rounded-full w-[200px] h-[39px] bg-gray-300 ml-2">
+      <ThemedView className="flex-row items-center pt-[4%]">
+        <View className="flex flex-row justify-center items-center rounded-full w-[200px] h-[39px] bg-gray-200 ml-2">
           
         </View>
       </ThemedView>
       
       {/* Add Account Box */}
-      <ThemedView className="flex-row items-center pt-[20%]">
-        <ThemedText> Add Account </ThemedText>
+      <ThemedView className="flex-row items-center pt-[5%]">
+        <View className="flex flex-row justify-center items-center rounded-[5vw] w-[200px] h-[130px] bg-gray-300 ml-2">
+          
+        </View>
       </ThemedView>
 
       {/* States proceed transaction */}
-      <ThemedView className="flex-row items-center pt-[50%]">
-        <ThemedText> Please create an account to proceed with your transaction </ThemedText>
+      <ThemedView className="flex-row items-center pt-[15%]">
+        <View className="flex flex-row justify-center items-center rounded-[10vw] w-[300px] h-[200px] bg-gray-300 ml-2">
+          
+        </View>
       </ThemedView>
 
     </ThemedSafeAreaView>
