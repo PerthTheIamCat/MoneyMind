@@ -9,7 +9,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 export default function splitpay() {
   return (
     <ThemedSafeAreaView>
-      
+
       {/*Header*/}
       <ThemedView className="flex-row items-center justify-between px-4">
       <Image
@@ -32,21 +32,18 @@ export default function splitpay() {
       </ThemedView>
 
       {/* Decision Menu */}
-      <ThemedView >
-        <ThemedText>  </ThemedText>
-        <ThemedText>  </ThemedText>
+      <ThemedView className="flex-row items-center">
+        <ThemedText> Budget || retire </ThemedText>
       </ThemedView>
       
       {/* Add Account Box */}
       <ThemedView >
-        <ThemedText>  </ThemedText>
-        <ThemedText>  </ThemedText>
+        <ThemedText> Add Account </ThemedText>
       </ThemedView>
 
       {/* States proceed transaction */}
       <ThemedView >
-        <ThemedText>  </ThemedText>
-        <ThemedText>  </ThemedText>
+        <ThemedText> Please create an account to proceed with your transaction </ThemedText>
       </ThemedView>
 
     </ThemedSafeAreaView>
