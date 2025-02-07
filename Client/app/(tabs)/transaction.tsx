@@ -11,6 +11,7 @@ import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { router } from "expo-router";
 import { ThemedCard } from "@/components/ThemedCard";
 import Entypo from "@expo/vector-icons/Entypo";
+import { useColorScheme } from "react-native";
 
 interface Transaction {
   id: string;
@@ -27,7 +28,7 @@ const transactions: Transaction[] = [
     id: "1",
     logo: require("@/assets/logos/LOGO.png"), // เปลี่ยนเป็นโลโก้ที่ต้องการ
     transaction_type: "expense",
-    amount: "-฿250.00",
+    amount: "250.00",
     category: "Food & Drinks",
     description: "Lunch at McDonald's",
     date: "25/12/67",
@@ -36,7 +37,7 @@ const transactions: Transaction[] = [
     id: "2",
     logo: require("@/assets/logos/LOGO.png"),
     transaction_type: "expense",
-    amount: "-฿1,200.00",
+    amount: "1,200.00",
     category: "Shopping",
     description: "Bought new shoes",
     date: "25/12/67",
@@ -45,7 +46,52 @@ const transactions: Transaction[] = [
     id: "3",
     logo: require("@/assets/logos/LOGO.png"),
     transaction_type: "income",
-    amount: "+฿20,000.00",
+    amount: "20,000.00",
+    category: "Salary",
+    description: "Monthly paycheck",
+    date: "26/12/67",
+  },
+  {
+    id: "4",
+    logo: require("@/assets/logos/LOGO.png"),
+    transaction_type: "income",
+    amount: "20,000.00",
+    category: "Salary",
+    description: "Monthly paycheck",
+    date: "26/12/67",
+  },
+  {
+    id: "5",
+    logo: require("@/assets/logos/LOGO.png"),
+    transaction_type: "income",
+    amount: "20,000.00",
+    category: "Salary",
+    description: "Monthly paycheck",
+    date: "26/12/67",
+  },
+  {
+    id: "6",
+    logo: require("@/assets/logos/LOGO.png"),
+    transaction_type: "income",
+    amount: "20,000.00",
+    category: "Salary",
+    description: "Monthly paycheck",
+    date: "26/12/67",
+  },
+  {
+    id: "7",
+    logo: require("@/assets/logos/LOGO.png"),
+    transaction_type: "income",
+    amount: "20,000.00",
+    category: "Salary",
+    description: "Monthly paycheck",
+    date: "26/12/67",
+  },
+  {
+    id: "8",
+    logo: require("@/assets/logos/LOGO.png"),
+    transaction_type: "income",
+    amount: "20,000.00",
     category: "Salary",
     description: "Monthly paycheck",
     date: "26/12/67",
@@ -84,98 +130,117 @@ const TransactionItem = ({ transaction }: { transaction: Transaction }) => (
 
 export default function Index() {
   let lastDate = "";
+  const theme = useColorScheme();
+  const componentcolor = theme === "dark" ? "!bg-[#8f8f8f]" : "!bg-[#d8d8d8]";
+  const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
 
   return (
-    <ThemedSafeAreaView color="E5E5E5">
-      <ThemedView className="flex-row items-center justify-between bg-[E5E5E5] px-4">
-        <Image
-          className="ml-[10%]"
-          source={require("@/assets/logos/LOGO.png")}
-          style={{
-            width: 79,
-            height: 70,
-            marginTop: "2%",
-            marginLeft: "5%",
-          }}
-        />
-        <Ionicons
-          onPress={() => router.push("/Add_Transaction")}
-          name="notifications-outline"
-          size={32}
-          color="black"
-          style={{ alignSelf: "center", marginTop: "5%", marginRight: "5%" }}
-        />
-      </ThemedView>
-      <ThemedView className="!items-start pl-[10%] pt-[2%] bg-[E5E5E5]">
-        <ThemedText className=" text-[18px]">Connected</ThemedText>
-        <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
-      </ThemedView>
-      <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
-        <View className="flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] bg-[#fefefe] -ml-2 active:scale-105">
-          <AntDesign name="plus" size={20} color="black" />
-          <Text className="font-bold">Add Account</Text>
-        </View>
-        <ThemedScrollView
-          horizontal={true}
-          className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
-        >
-          <View className="mt-0.5 mb-1 flex-row space-x-1">
-            <ThemedCard
-              name="K-Push"
-              balance="฿0.00"
-              className="bg-[#fd0061]"
+    <>
+      <ThemedSafeAreaView>
+        <ThemedScrollView>
+          <ThemedView
+            className={`${componenticon} flex-row items-center justify-between px-4`}
+          >
+            <Image
+              className="ml-[10%]"
+              source={require("@/assets/logos/LOGO.png")}
+              style={{
+                width: 79,
+                height: 70,
+                marginTop: "2%",
+                marginLeft: "5%",
+              }}
             />
-            <ThemedCard
-              name="Wallet"
-              balance="฿0.00"
-              className="bg-blue-700"
+            <Ionicons
+              onPress={() => router.push("/Add_Transaction")}
+              name="notifications-outline"
+              size={32}
+              color={`${componenticon}`}
+              style={{
+                alignSelf: "center",
+                marginTop: "5%",
+                marginRight: "5%",
+              }}
             />
-            <ThemedCard name="Bank" balance="฿0.00" className="bg-[#1f5cde]" />
-            <ThemedCard
-              name="Credit Card"
-              balance="฿0.00"
-              className="bg-[#ff0000]"
-            />
-          </View>
-        </ThemedScrollView>
-      </ThemedView>
-      <ThemedView className="flex-row items-center bg-[E5E5E5] justify-between px-4">
-        <ThemedText className="text-[20px] pl-[5%] font-bold">
-          Transaction
-        </ThemedText>
-        <View className="font-bold flex flex-row mr-6">
-          <Text className="font-bold items-center mt-1 text-[18px]">All</Text>
-          <MaterialIcons
-            name="arrow-drop-down"
-            size={26}
-            color="black"
-            className="mt-1"
-          />
-        </View>
-      </ThemedView>
-
-      <ThemedView className="bg-[E5E5E5] !justify-start h-full py-2">
-        <View className="w-full !items-center">
-          {transactions.map((transaction) => {
-            const showDateHeader = transaction.date !== lastDate;
-            lastDate = transaction.date;
-            return (
-              <View key={transaction.id} className="w-full items-center bg-">
-                {showDateHeader && (
-                  <Text className="w-full pl-10 text-left font-bold text-1xl py-1">
-                    {transaction.date}
-                  </Text>
-                )}
-                <TransactionItem transaction={transaction} />
+          </ThemedView>
+          <ThemedView className="!items-start pl-[10%] pt-[2%] bg-[E5E5E5]">
+            <ThemedText className=" text-[18px]">Connected</ThemedText>
+            <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
+          </ThemedView>
+          <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
+            <View className="flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] bg-[#fefefe] -ml-2 active:scale-105">
+              <AntDesign name="plus" size={20} color="black" />
+              <Text className="font-bold">Add Account</Text>
+            </View>
+            <ThemedScrollView
+              horizontal={true}
+              className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
+            >
+              <View className="mt-0.5 mb-1 flex-row space-x-1">
+                <ThemedCard
+                  name="K-Push"
+                  balance="0.00"
+                  className="bg-[#fd0061]"
+                />
+                <ThemedCard
+                  name="Wallet"
+                  balance="0.00"
+                  className="bg-blue-700"
+                />
+                <ThemedCard
+                  name="Bank"
+                  balance="0.00"
+                  className="bg-[#1f5cde]"
+                />
+                <ThemedCard
+                  name="Credit Card"
+                  balance="0.00"
+                  className="bg-[#ff0000]"
+                />
               </View>
-            );
-          })}
+            </ThemedScrollView>
+          </ThemedView>
+          <ThemedView className="flex-row items-center bg-[E5E5E5] justify-between px-4">
+            <ThemedText className="text-[20px] pl-[5%] font-bold">
+              Transaction
+            </ThemedText>
+            <View className="font-bold flex flex-row mr-6">
+              <ThemedText className="font-bold items-center mt-1 text-[18px]">
+                All
+              </ThemedText>
+              <MaterialIcons
+                name="arrow-drop-down"
+                size={26}
+                color={`${componenticon}`}
+                className="mt-1"
+              />
+            </View>
+          </ThemedView>
+          <ThemedView className="bg-[E5E5E5] !justify-start h-full py-2">
+            <View className="w-full !items-center">
+              {transactions.map((transaction) => {
+                const showDateHeader = transaction.date !== lastDate;
+                lastDate = transaction.date;
+                return (
+                  <View key={transaction.id} className="w-full items-center ">
+                    {showDateHeader && (
+                      <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
+                        {transaction.date}
+                      </ThemedText>
+                    )}
+                    <TransactionItem transaction={transaction} />
+                  </View>
+                );
+              })}
+            </View>
+          </ThemedView>
+        </ThemedScrollView>
+      </ThemedSafeAreaView>
+      <View className="!absolute bottom-8 right-8 bg-transparent">
+        <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16 rounded-full ">
+          <AntDesign name="plus" size={32} color="#ffffff" />
         </View>
-      </ThemedView>
-
-      <View className="absolute !items-center !justify-center mt-[170%] bg-[#aacc00] w-16 h-16 rounded-full ml-96">
-        <AntDesign name="plus" size={32} color="#ffffff" />
       </View>
-    </ThemedSafeAreaView>
+    </>
   );
 }
