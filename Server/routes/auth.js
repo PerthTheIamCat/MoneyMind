@@ -264,6 +264,29 @@ router.post('/otpSend', (req, res) => {
     })
 })
 
+router.post('/otpVerify', (req, res) => {
+    const { email, otp } = req.body
+
+    db.query('SELECT * FROM otp WHERE email = ?', [email], async (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false});
+        }
+
+        const otpData = result[0]
+
+
+        if (otpData.otp_code === otp) {
+            if (otpData.expires_at < new Date()) {
+                return res.status(400).json({ message: 'OTP expired', success: false });
+            }else{
+                return res.status(200).json({ message: 'OTP verified', success: true });
+            }
+        }else{
+            return res.status(400).json({ message: 'Invalid OTP', success: false });
+        }
+    })
+})
+
 module.exports = {
     router,
     jwtValidate,
