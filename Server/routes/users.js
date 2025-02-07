@@ -10,20 +10,17 @@ const {router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail} =
 const db = require('./db');
 
 router.get('/', jwtValidate, (req, res) => {
-    if (req.user.UserID !== parseInt(req.params.id, 10)) {
-        return res.status(403).json({ message: 'Unauthorized user', success: false });
-    }
 
     db.query('SELECT * FROM users', (err, result) => {
         if (err) {
             return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
         }
-        res.status(200).json(result);
+        return res.status(200).json(result);
     });
 });
 
 router.get('/:id', jwtValidate, (req, res) => {
-    if (req.user.UserID !== parseInt(req.params.id, 10)) {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
@@ -37,13 +34,13 @@ router.get('/:id', jwtValidate, (req, res) => {
                 return res.status(404).json({ message: 'User not found', success: false });
             }
 
-            res.status(200).json(result);
+            return res.status(200).json({result, success: true});
         }
     )
 })
 
 router.put('/:id', jwtValidate, (req, res) => {
-    if (req.user.UserID !== parseInt(req.params.id, 10)) {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
@@ -57,13 +54,13 @@ router.put('/:id', jwtValidate, (req, res) => {
                 return res.status(404).json({ message: 'User not found', success: false });
             }
 
-            res.status(200).json({ message: 'User updated', success: true });
+            return res.status(200).json({ message: 'User updated', success: true });
         }
     )
 })
 
 router.delete('/:id', jwtValidate, (req, res) => {
-    if (req.user.UserID !== parseInt(req.params.id, 10)) {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
