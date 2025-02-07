@@ -216,7 +216,7 @@ export default function Index() {
               />
             </View>
           </ThemedView>
-          <ThemedView className="bg-[E5E5E5] !justify-start h-full py-2">
+          <ThemedView className="bg-[E5E5E5] !justify-start h-full py-2 pb-12">
             <View className="w-full !items-center">
               {transactions.map((transaction) => {
                 const showDateHeader = transaction.date !== lastDate;
@@ -236,7 +236,7 @@ export default function Index() {
           </ThemedView>
         </ThemedScrollView>
       </ThemedSafeAreaView>
-      <View className="!absolute bottom-8 right-8 bg-transparent">
+      <View className="!absolute bottom-6 right-6 bg-transparent">
         <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16 rounded-full ">
           <AntDesign name="plus" size={32} color="#ffffff" />
         </View>
