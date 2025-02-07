@@ -63,7 +63,7 @@ export default function splitpay() {
 
       {/* States proceed transaction */}
       <ThemedView>
-        <ThemedView className="flex-row items-center pt-[15%] bg-transparent">
+        <ThemedView className="flex-row items-center pt-[10%] bg-transparent">
             <ThemedView className="justify-center items-center rounded-[10vw] w-[300px] h-[200px] bg-gray-300 ml-2">
               <AntDesign name="filetext1" size={70} color={`${componenticon}`} className="m-3"/>
               <ThemedText className="mx-5 text-center font-bold">
