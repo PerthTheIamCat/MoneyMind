@@ -3,11 +3,19 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
 import { router } from "expo-router";
 import { Image } from "expo-image";
-import { View, Text,} from "react-native";
+import { View,} from "react-native";
+import { useColorScheme } from "react-native";
+import { ThemedButton } from "@/components/ThemedButton";
+
 import Ionicons from "@expo/vector-icons/Ionicons";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 
 export default function splitpay() {
+  const theme = useColorScheme();
+  const componentcolor = theme === "dark" ? "!bg-[#8f8f8f]" : "!bg-[#d8d8d8]";
+  const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
+
   return (
     <ThemedSafeAreaView>
 
@@ -40,17 +48,30 @@ export default function splitpay() {
       </ThemedView>
       
       {/* Add Account Box */}
-      <ThemedView className="flex-row items-center pt-[5%]">
-        <View className="flex flex-row justify-center items-center rounded-[5vw] w-[200px] h-[130px] bg-gray-300 ml-2">
-          
-        </View>
+      <ThemedView>
+        <ThemedView className="flex flex-row justify-center items-center pt-[10%] ml-2">
+          <ThemedButton className={`${componentcolor}`} onPress={() => {() => router.push("/AddAccount")}}>
+            <ThemedView className="w-[200px] h-[100px] bg-gray-300 rounded-[5vw]">
+              <AntDesign name="plus" size={25} color={`${componenticon}`} className="m-3 justify-center items-center"/>
+              <ThemedText className="mx-5 text-center font-bold">
+                Add Account
+              </ThemedText>
+            </ThemedView>
+          </ThemedButton>
+        </ThemedView>
       </ThemedView>
 
       {/* States proceed transaction */}
-      <ThemedView className="flex-row items-center pt-[15%]">
-        <View className="flex flex-row justify-center items-center rounded-[10vw] w-[300px] h-[200px] bg-gray-300 ml-2">
-          
-        </View>
+      <ThemedView>
+        <ThemedView className="flex-row items-center pt-[15%] bg-transparent">
+            <ThemedView className="justify-center items-center rounded-[10vw] w-[300px] h-[200px] bg-gray-300 ml-2">
+              <AntDesign name="filetext1" size={70} color={`${componenticon}`} className="m-3"/>
+              <ThemedText className="mx-5 text-center font-bold">
+                Please create an account
+                to proceed with your transaction.
+              </ThemedText>
+            </ThemedView>
+        </ThemedView>
       </ThemedView>
 
     </ThemedSafeAreaView>
