@@ -17,6 +17,7 @@ export default function Index() {
 
   
   const [checkretireData,setCheckRetireData]=useState(false);
+  const [username,setUsername]=useState("USERNAME:)");
   const [retire,setretire]=useState(5000);
 
   return (
@@ -29,10 +30,10 @@ export default function Index() {
         </ThemedButton>
       </ThemedView>
 
-      <ThemedView className="ml-4 mt-4 w-1/2 flex-row">
+      <ThemedView className="ml-11 mt-4 flex-row !justify-start">
         <Feather name="circle" size={40} color={`${componenticon}`} />
         <ThemedText className="text-xl font-bold pl-3">
-          Astrex Destineth
+          {username}
         </ThemedText>
       </ThemedView>
 
