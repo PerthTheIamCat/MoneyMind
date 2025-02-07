@@ -31,11 +31,10 @@ export function ThemedCard({
   return (
         <ThemedView
             className={` !rounded-2xl  !flex-row !justify-start  !items-start mr-3 ${
-              mode === "small" ? "w-[125px] h-[125px]" : "w-[240px] h-[200px]"
+              mode === "small" ? "w-[125px] h-[125px]" : "w-[280px] h-[180px] mx-[8px] "
             } ${color} ${className}`}
         >
         <Image
-
         source={require("@/assets/logos/LOGO.png")}
         className={` !rounded-full absolute top-4 left-4 ${
           mode === "small" ? "w-10 h-10" : "w-16 h-16"

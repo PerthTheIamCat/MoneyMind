@@ -6,7 +6,8 @@ interface SignUpData {
   password: string;
   password2: string;
   email: string;
-  name?: string;
+  name: string;
+  otp: string;
 }
 
 interface SignUpResponse {

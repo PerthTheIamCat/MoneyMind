@@ -40,7 +40,7 @@ export default function RootLayout() {
   const theme = useColorScheme();
 
   useEffect(() => {
-    if (loaded || auth?.authLoading) {
+    if (loaded) {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
@@ -64,10 +64,9 @@ export default function RootLayout() {
               },
               animation: "slide_from_right",
               headerBackTitle: "back",
-              gestureEnabled: false,
             }}
           >
-            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="index" options={{ headerShown: false, animation:"none" }}/>
             <Stack.Screen name="(tabs)" options={{ headerShown: false, animation:"none" , gestureEnabled: false}} />
             <Stack.Screen name="+not-found" />
             <Stack.Screen name="SignUp" options={{ headerShown: false }} />
@@ -90,6 +89,8 @@ export default function RootLayout() {
               options={{ headerTitle: "Add Account" }}
             />
             <Stack.Screen name="PinPage" options={{ headerShown: false }} />
+            <Stack.Screen name="CreatePinPage" options={{ headerShown: false }} />
+            <Stack.Screen name="Welcome" options={{ headerShown: false, animation:"none" }} />
           </Stack>
           <StatusBar style="auto" />
         </TermsProvider>
