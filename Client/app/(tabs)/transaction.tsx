@@ -10,6 +10,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { router } from "expo-router";
 import { ThemedCard } from "@/components/ThemedCard";
+import Entypo from "@expo/vector-icons/Entypo";
 
 interface Transaction {
   id: string;
@@ -18,6 +19,7 @@ interface Transaction {
   amount: string;
   category: string;
   description: string;
+  date: string;
 }
 
 const transactions: Transaction[] = [
@@ -28,6 +30,7 @@ const transactions: Transaction[] = [
     amount: "-฿250.00",
     category: "Food & Drinks",
     description: "Lunch at McDonald's",
+    date: "25/12/67",
   },
   {
     id: "2",
@@ -36,6 +39,7 @@ const transactions: Transaction[] = [
     amount: "-฿1,200.00",
     category: "Shopping",
     description: "Bought new shoes",
+    date: "25/12/67",
   },
   {
     id: "3",
@@ -44,6 +48,7 @@ const transactions: Transaction[] = [
     amount: "+฿20,000.00",
     category: "Salary",
     description: "Monthly paycheck",
+    date: "26/12/67",
   },
 ];
 
@@ -68,20 +73,21 @@ const TransactionItem = ({ transaction }: { transaction: Transaction }) => (
     >
       {transaction.amount}
     </Text>
-
-    {transaction.transaction_type === "income" && (
-      <Image
-        source={transaction.logo}
-        className="w-10 h-10 rounded-full ml-4"
-      />
-    )}
+    <Entypo
+      name="dots-three-vertical"
+      size={20}
+      color="black"
+      className="ml-2"
+    />
   </View>
 );
 
 export default function Index() {
+  let lastDate = "";
+
   return (
-    <ThemedSafeAreaView>
-      <ThemedView className="flex-row items-center justify-between bg-red-500 px-4">
+    <ThemedSafeAreaView color="E5E5E5">
+      <ThemedView className="flex-row items-center justify-between bg-[E5E5E5] px-4">
         <Image
           className="ml-[10%]"
           source={require("@/assets/logos/LOGO.png")}
@@ -100,23 +106,31 @@ export default function Index() {
           style={{ alignSelf: "center", marginTop: "5%", marginRight: "5%" }}
         />
       </ThemedView>
-      <ThemedView className="!items-start pl-[10%] pt-[2%] bg-yellow-700">
+      <ThemedView className="!items-start pl-[10%] pt-[2%] bg-[E5E5E5]">
         <ThemedText className=" text-[18px]">Connected</ThemedText>
         <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
       </ThemedView>
-      <ThemedView className="bg-blue-400 h-[154px] !items-center flex flex-row ">
-        <View className="flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] bg-gray-400 -ml-2 active:scale-105">
+      <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
+        <View className="flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] bg-[#fefefe] -ml-2 active:scale-105">
           <AntDesign name="plus" size={20} color="black" />
           <Text className="font-bold">Add Account</Text>
         </View>
         <ThemedScrollView
           horizontal={true}
-          className=" bg-yellow-600 pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
+          className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
         >
           <View className="mt-0.5 mb-1 flex-row space-x-1">
-            <ThemedCard name="K-Push" balance="฿0.00" className="bg-[#7a2a49]" />
-            <ThemedCard name="Wallet" balance="฿0.00" className="bg-[#1c5366]" />
-            <ThemedCard name="Bank" balance="฿0.00" className="bg-[#706767]" />
+            <ThemedCard
+              name="K-Push"
+              balance="฿0.00"
+              className="bg-[#fd0061]"
+            />
+            <ThemedCard
+              name="Wallet"
+              balance="฿0.00"
+              className="bg-blue-700"
+            />
+            <ThemedCard name="Bank" balance="฿0.00" className="bg-[#1f5cde]" />
             <ThemedCard
               name="Credit Card"
               balance="฿0.00"
@@ -125,7 +139,7 @@ export default function Index() {
           </View>
         </ThemedScrollView>
       </ThemedView>
-      <ThemedView className="flex-row items-center bg-red-400 justify-between px-4">
+      <ThemedView className="flex-row items-center bg-[E5E5E5] justify-between px-4">
         <ThemedText className="text-[20px] pl-[5%] font-bold">
           Transaction
         </ThemedText>
@@ -140,14 +154,28 @@ export default function Index() {
         </View>
       </ThemedView>
 
-      <ThemedView className="bg-green-500 !justify-start h-full py-2">
-        <Text className="w-full pl-10 text-left font-bold text-1xl py-1">25/12/67</Text>
-        <View className="w-full items-center">
-          {transactions.map((transaction) => (
-            <TransactionItem key={transaction.id} transaction={transaction} />
-          ))}
+      <ThemedView className="bg-[E5E5E5] !justify-start h-full py-2">
+        <View className="w-full !items-center">
+          {transactions.map((transaction) => {
+            const showDateHeader = transaction.date !== lastDate;
+            lastDate = transaction.date;
+            return (
+              <View key={transaction.id} className="w-full items-center bg-">
+                {showDateHeader && (
+                  <Text className="w-full pl-10 text-left font-bold text-1xl py-1">
+                    {transaction.date}
+                  </Text>
+                )}
+                <TransactionItem transaction={transaction} />
+              </View>
+            );
+          })}
         </View>
       </ThemedView>
+
+      <View className="absolute !items-center !justify-center mt-[170%] bg-[#aacc00] w-16 h-16 rounded-full ml-96">
+        <AntDesign name="plus" size={32} color="#ffffff" />
+      </View>
     </ThemedSafeAreaView>
   );
 }
