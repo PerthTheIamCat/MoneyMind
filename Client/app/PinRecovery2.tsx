@@ -9,66 +9,108 @@ import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ThemedButton } from "@/components/ThemedButton";
 import { Image } from "expo-image";
 import { TouchableOpacity } from "react-native";
-
+import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
+import { ServerContext } from "@/hooks/conText/ServerConText";
+import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
 
 const OTP_LENGTH = 6;
 
 export default function PinRecovery() {
   const theme = useColorScheme();
-  const [email, setEmail] = useState<string>("");
+  const { email, URL, password, passwordConfirmation, username } = useContext(ServerContext);
   const auth = useContext(AuthContext);
 
-  const OTPInput: React.FC = () => {
-    const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
-    const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-    const inputRefs = useRef<TextInput[]>([]);
+  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const inputRefs = useRef<TextInput[]>([]);
+  const [resendTimeout, setResendTimeout] = useState<number | null>(null);
+  const [isVerifying, setIsVerifying] = useState<boolean>(false);
+  const [isSending, setIsSending] = useState<"success" | "sending" | "fail" | null>("success");
 
-    const handleChange = (text: string, index: number) => {
-      if (/^\d$/.test(text)) {
-        const newOtp = [...otp];
-        newOtp[index] = text;
-        setOtp(newOtp);
+  const handleChange = (text: string, index: number) => {
+    if (/^\d$/.test(text)) {
+      const newOtp = [...otp];
+      newOtp[index] = text;
+      setOtp(newOtp);
 
-        // Move to next input
-        if (index < OTP_LENGTH - 1) {
-          inputRefs.current[index + 1]?.focus();
-        }
-      } else if (text === "") {
-        // Handle backspace
-        const newOtp = [...otp];
-        newOtp[index] = "";
-        setOtp(newOtp);
-
-        if (index > 0) {
-          inputRefs.current[index - 1]?.focus();
-        }
+      // Move to next input
+      if (index < OTP_LENGTH - 1) {
+        inputRefs.current[index + 1]?.focus();
       }
-    };
+    } else if (text === "") {
+      // Handle backspace
+      const newOtp = [...otp];
+      newOtp[index] = "";
+      setOtp(newOtp);
 
-    return (
-      <ThemedView style={styles.container}>
-        {Array.from({ length: OTP_LENGTH }).map((_, index) => (
-          <TextInput
-            key={index}
-            ref={(ref) => (inputRefs.current[index] = ref!)}
-            style={[
-              styles.otpInput,
-              { borderColor: otp[index] !== "" || focusedIndex === index ? "#4CAF50" : "grey" },
-            ]}
-            keyboardType="numeric"
-            maxLength={1}
-            value={otp[index]}
-            onChangeText={(text) => handleChange(text, index)}
-            onFocus={() => setFocusedIndex(index)}
-            onBlur={() => setFocusedIndex(null)}
-          />
-        ))}
-      </ThemedView>
-    );
+      if (index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
+    }
   };
 
+  const resendOTPHandler = () => {
+    setIsSending("sending");
+    const timeout = setTimeout(() => {
+      setIsSending("fail");
+      alert("Failed to send OTP please try again later");
+    }, 5000);
+    SendOTPHandler(URL, { email: email! }).then((response) => {
+      if (response.success) {
+        clearTimeout(timeout);
+        setIsSending("success");
+      } else {
+        clearTimeout(timeout);
+        setIsSending("fail");
+        alert("Failed to send OTP please try again later");
+        console.error(response.message);
+      }
+    });
+  };
 
+  const VerifyHandler = () => {
+    const timeout = setTimeout(() => {
+      setIsVerifying(false);
+      alert("Failed to verify OTP please try again later");
+    }, 5000);
 
+    setIsVerifying(true);
+    SignUpHandler(URL, {
+      email: email!,
+      username: username!,
+      password: password!,
+      password2: passwordConfirmation!,
+      name: username!,
+      otp: otp.join(""),
+    }).then((response) => {
+      if (response.success) {
+        setIsVerifying(false);
+        clearTimeout(timeout);
+        router.replace("/CreatePinPage");
+      } else {
+        setIsVerifying(false);
+        clearTimeout(timeout);
+        alert(response.message);
+        console.error(response.message);
+      }
+    });
+  };
+
+  const setTimer = () => {
+    setResendTimeout(60);
+    const timer = setInterval(() => {
+      setResendTimeout((prev) => (prev !== null ? prev - 1 : 0));
+      if (resendTimeout === 0) {
+        clearInterval(timer);
+      }
+    }, 1000);
+  };
+
+  useEffect(() => {
+    if (resendTimeout === null) {
+      setTimer();
+    }
+  }, []);
 
   return (
     <ThemedSafeAreaView>
@@ -93,28 +135,48 @@ export default function PinRecovery() {
           </ThemedText>
         </ThemedView>
         <ThemedView className="w-[80%] mt-5 px-5 gap-5">
-          <OTPInput />
+          <ThemedView style={styles.container}>
+            {Array.from({ length: OTP_LENGTH }).map((_, index) => (
+              <TextInput
+                key={index}
+                ref={(ref) => (inputRefs.current[index] = ref!)}
+                style={[
+                  styles.otpInput,
+                  { borderBottomColor: focusedIndex === index || otp[index] !== "" ? "#4CAF50" : "grey" },
+                ]}
+                keyboardType="numeric"
+                maxLength={1}
+                value={otp[index]}
+                onChangeText={(text) => handleChange(text, index)}
+                onFocus={() => setFocusedIndex(index)}
+                onBlur={() => setFocusedIndex(null)}
+              />
+            ))}
+          </ThemedView>
         </ThemedView>
         <ThemedView className="flex-row mt-5 w-[80%] h-10">
           <ThemedButton
             className="w-[90%] h-10 mt-10"
             mode="confirm"
-            onPress={() => router.push("/")}
+            onPress={VerifyHandler}
+            isLoading={isVerifying}
           >
             Verify OTP
           </ThemedButton>
         </ThemedView>
-        <ThemedView className="mt-10 flex-row gap-32">
-            <ThemedText>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <ThemedText style={[styles.edit]}>Edit email address?</ThemedText>
-                </TouchableOpacity>
-            </ThemedText>
-            <ThemedText>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <ThemedText style={[styles.resend]}>Resend</ThemedText>
-                </TouchableOpacity>
-            </ThemedText>
+        <ThemedView className="mt-10 flex-row gap-10">
+          <ThemedText>
+            <TouchableOpacity onPress={() => router.back()}>
+              <ThemedText style={[styles.edit]}>Edit email address?</ThemedText>
+            </TouchableOpacity>
+          </ThemedText>
+          <ThemedText>
+            <TouchableOpacity onPress={resendOTPHandler} disabled={(resendTimeout ?? 0) > 0}>
+              <ThemedText style={[styles.resend]}>
+                Resend OTP {(resendTimeout ?? 0) > 0 ? `in ${resendTimeout} seconds` : ""}
+              </ThemedText>
+            </TouchableOpacity>
+          </ThemedText>
         </ThemedView>
       </ThemedView>
     </ThemedSafeAreaView>
@@ -152,13 +214,13 @@ const styles = StyleSheet.create({
   edit: {
     textDecorationLine: "underline",
     textAlign: "left",
-    fontSize : 13
+    fontSize: 13,
   },
   resend: {
     textDecorationLine: "underline",
-    textAlign : "right",
-    fontSize : 13 ,
-    color : "#4CAF50"
-  }
+    textAlign: "right",
+    fontSize: 13,
+    color: "#4CAF50",
+  },
 });
 
