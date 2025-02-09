@@ -61,10 +61,10 @@ export default function splitpay() {
           <TouchableOpacity
             onPress={() => setSelected("retire")}
             className={`flex-1 justify-center items-center rounded-full ${
-              selected === "retire" ? "bg-gray-400" : "bg-gray-300"
+              selected === "retire" ? "bg-green-600" : "bg-gray-300"
             }`}
           >
-            <ThemedText className={`font-bold ${selected === "retire" ? "text-black" : "text-gray-600"}`}>
+            <ThemedText className={`font-bold ${selected === "retire" ? "text-white" : "text-gray-600"}`}>
               retire
             </ThemedText>
           </TouchableOpacity>
@@ -73,7 +73,7 @@ export default function splitpay() {
 
       {/* Add Account Box */}
       <ThemedView>
-        <ThemedView className="flex flex-row justify-center items-center pt-[10%] ml-2">
+        <ThemedView className="flex flex-row justify-center items-center pt-[10%] ml-2 bg-transparent">
           <ThemedButton className={`${componentcolor}`} onPress={() => {() => router.push("/AddAccount")}}>
             <ThemedView className="w-[200px] h-[100px] bg-gray-300 rounded-[5vw]">
               <AntDesign name="plus" size={25} color={`${componenticon}`} className="m-3 justify-center items-center"/>
@@ -87,7 +87,7 @@ export default function splitpay() {
 
       {/* States proceed transaction */}
       <ThemedView>
-        <ThemedView className="flex-row items-center pt-[10%] bg-transparent">
+        <ThemedView className="flex-row items-center pt-[10%]">
             <ThemedView className="justify-center items-center rounded-[10vw] w-[300px] h-[200px] bg-gray-300 ml-2">
               <AntDesign name="filetext1" size={70} color={`${componenticon}`} className="m-3"/>
               <ThemedText className="mx-5 text-center font-bold">
