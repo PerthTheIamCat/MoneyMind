@@ -10,6 +10,7 @@ const {router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail} =
 const {router: usersRouter} = require('./routes/users')
 const {router: bankaccountsRouter} = require('./routes/bankaccounts')
 const {router: transactionsRouter} = require('./routes/transactions')
+const {router: notifications} = require('./routes/notifications')
 const {router: notificationsRouter} = require('./routes/notifications')
 const {router: splitpaymentsRouter} = require('./routes/splitpayments')
 const ocrRouter = require('./routes/ocr')
@@ -22,6 +23,7 @@ app.use('/sendEmail', sendEmailRouter)
 app.use('/users', usersRouter)
 app.use('/auth', authRouter)
 app.use('/ocr', ocrRouter)
+app.use('/notifications',notifications)
 
 const port = process.env.PORT || 3000
 

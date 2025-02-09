@@ -108,6 +108,9 @@ export default function RootLayout() {
                 name="Welcome"
                 options={{ headerShown: false, animation: "none" }}
               />
+              <Stack.Screen name="PinRecovery" options={{ headerShown: false }} />
+              <Stack.Screen name="PinRecovery2" options={{ headerShown: false }} />
+              <Stack.Screen name="NoticePage" options={{ headerShown: false }} />
             </Stack>
             <StatusBar style="auto" />
           </TermsProvider>

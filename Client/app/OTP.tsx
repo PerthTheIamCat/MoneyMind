@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { router } from "expo-router";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedView } from "@/components/ThemedView";
@@ -8,16 +8,45 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
 import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
+import { TextInput, TouchableOpacity, Image, StyleSheet } from "react-native";
+
+const OTP_LENGTH = 6;
 
 export default function OTP() {
   const { email, URL, password, passwordConfirmation, username } =
     useContext(ServerContext);
-  const [otp, setOtp] = useState<string>("");
+  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [isSending, setIsSending] = useState<
     "success" | "sending" | "fail" | null
   >("success");
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
   const [resendTimeout, setResendTimeout] = useState<number | null>(null);
+  const inputRefs = useRef<TextInput[]>([]);
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+
+  
+  const handleChange = (text: string, index: number) => {
+    if (/^\d$/.test(text)) {
+      const newOtp = [...otp];
+      newOtp[index] = text;
+      setOtp(newOtp);
+
+      // Move to next input
+      if (index < OTP_LENGTH - 1) {
+        inputRefs.current[index + 1]?.focus();
+      }
+    } else if (text === "") {
+      // Handle backspace
+      const newOtp = [...otp];
+      newOtp[index] = "";
+      setOtp(newOtp);
+
+      if (index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
+    }
+  };
+
 
   const resendOTPHandler = () => {
     setIsSending("sending");
@@ -51,7 +80,7 @@ export default function OTP() {
       password: password!,
       password2: passwordConfirmation!,
       name: username!,
-      otp: otp,
+      otp: otp.join(""),
     }).then((response) => {
       if (response.success) {
         setIsVerifying(false);
@@ -83,94 +112,110 @@ export default function OTP() {
   }, []);
 
   return (
-    <ThemedSafeAreaView>
-      <ThemedView>
-        <ThemedText className="text-2xl font-bold pt-10">
-          Verify Your Email
-        </ThemedText>
-        <ThemedView className="h-28 w-[80%] !bg-[#D9D9D9] rounded-xl mt-5">
-          {isSending === "sending" ? (
-            <ThemedView className="flex flex-row bg-transparent">
-              <ThemedText className="text-lg !text-[#2F2F2F]">
-                Status :
-              </ThemedText>
-              <ThemedText
-                key="SendingOTP"
-                className="bg-[#ffa33e] p-2 rounded-xl transition-all animate-pulse !text-[#2F2F2F]"
-              >
-                Sending...
-              </ThemedText>
-            </ThemedView>
-          ) : isSending === "success" ? (
-            <ThemedView className="flex flex-row bg-transparent">
-              <ThemedText className="text-lg !text-[#2F2F2F]">
-                Status :
-              </ThemedText>
-              <ThemedText
-                key="SendingOTPSuccess"
-                className="bg-[#2B9348] p-2 rounded-xl !text-[#F2F2F2]"
-              >
-                success
-              </ThemedText>
-            </ThemedView>
-          ) : isSending === "fail" ? (
-            <ThemedView className="flex flex-row bg-transparent">
-              <ThemedText className="text-lg !text-[#2F2F2F]">
-                Status :
-              </ThemedText>
-              <ThemedText
-                key="SendingOTPFail"
-                className="bg-[#C93540] p-2 rounded-xl !text-[#F2F2F2]"
-              >
-                Failed
-              </ThemedText>
-            </ThemedView>
-          ) : null}
-          <ThemedText className="text-lg !text-[#2F2F2F]">{email}</ThemedText>
-        </ThemedView>
-        <ThemedButton
-          mode={(resendTimeout ?? 0) > 0 ? "normal" : "confirm"}
-          className="mt-5 w-[80%] h-14"
-          onPress={() => {
-            resendOTPHandler();
-            setTimer();
+<ThemedSafeAreaView>
+      <ThemedView className="my-5">
+        <Image
+          source={require("@/assets/logos/LOGO.png")}
+          style={{
+            width: 200,
+            height: 200,
+            marginTop: 40,
           }}
-          isLoading={isSending === "sending"}
-          disabled={(resendTimeout ?? 0) > 0}
-        >
-          Resend OTP{" "}
-          {resendTimeout && resendTimeout > 0
-            ? `in ${resendTimeout} seconds`
-            : ""}
-        </ThemedButton>
-        <ThemedView className="w-[80%] h-60 mt-5 border-2 border-[#D9D9D9] rounded-xl">
-          <ThemedText className="text-lg font-bold mt-5">
-            Enter the OTP
+        />
+        <ThemedView className="flex-column mt-5 w-[75%]">
+          <ThemedText style={styles.greetings}>
+            Email Verification
           </ThemedText>
-          <ThemedInput
-            placeholder="Enter the OTP"
-            value={otp}
-            onChangeText={setOtp}
-            keyboardType="numeric"
-            className="w-[80%] h-10 mt-5 border-2 border-[#D9D9D9] rounded-xl"
-          />
+          <ThemedText style={styles.explain} className="justify-center">
+            OTP will be sent to your email address. Please check your email to proceed.
+          </ThemedText>
         </ThemedView>
-        <ThemedView className="w-[80%] h-60 mt-5 flex-row gap-5">
+        <ThemedView className="w-[80%] mt-5 px-5 gap-5">
+          <ThemedView style={styles.container}>
+            {Array.from({ length: OTP_LENGTH }).map((_, index) => (
+              <TextInput
+                key={index}
+                ref={(ref) => (inputRefs.current[index] = ref!)}
+                style={[
+                  styles.otpInput,
+                  { borderBottomColor: focusedIndex === index || otp[index] !== "" ? "#4CAF50" : "grey" },
+                ]}
+                keyboardType="numeric"
+                maxLength={1}
+                value={otp[index]}
+                onChangeText={(text) => handleChange(text, index)}
+                onFocus={() => setFocusedIndex(index)}
+                onBlur={() => setFocusedIndex(null)}
+              />
+            ))}
+          </ThemedView>
+        </ThemedView>
+        <ThemedView className="flex-row mt-5 w-[80%] h-10">
           <ThemedButton
-            className="mt-5 w-[50%] h-14"
-            onPress={() => router.back()}
-          >
-            back
-          </ThemedButton>
-          <ThemedButton
+            className="w-[90%] h-10 mt-10"
             mode="confirm"
-            className="mt-5 w-[50%] h-14"
             onPress={VerifyHandler}
+            isLoading={isVerifying}
           >
-            Verify
+            Verify OTP
           </ThemedButton>
+        </ThemedView>
+        <ThemedView className="mt-10 flex-row gap-24">
+          <ThemedText>
+            <TouchableOpacity onPress={() => router.back()}>
+              <ThemedText style={[styles.edit]}>Edit email address?</ThemedText>
+            </TouchableOpacity>
+          </ThemedText>
+          <ThemedText>
+            <TouchableOpacity onPress={resendOTPHandler} disabled={(resendTimeout ?? 0) > 0}>
+              <ThemedText style={[styles.resend]}>
+                Resend OTP {(resendTimeout ?? 0) > 0 ? `in ${resendTimeout} seconds` : ""}
+              </ThemedText>
+            </TouchableOpacity>
+          </ThemedText>
         </ThemedView>
       </ThemedView>
     </ThemedSafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  greetings: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 10,
+    marginTop: 10,
+    alignSelf: "center",
+  },
+  explain: {
+    fontSize: 14,
+    textAlign: "center",
+  },
+  container: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 20,
+  },
+  otpInput: {
+    width: 40,
+    height: 50,
+    borderBottomWidth: 2,
+    borderRadius: 5,
+    textAlign: "center",
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#4CAF50",
+  },
+  edit: {
+    textDecorationLine: "underline",
+    textAlign: "left",
+    fontSize: 13,
+  },
+  resend: {
+    textDecorationLine: "underline",
+    textAlign: "right",
+    fontSize: 13,
+    color: "#4CAF50",
+  },
+});
