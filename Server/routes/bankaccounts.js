@@ -11,6 +11,8 @@ const db = require('./db');
 router.post('/create', jwtValidate, (req, res) => {
     const { user_id, account_name, balance, color_code, icon_id } = req.body;
 
+    const remaining = balance
+
     if (req.user.UserID !== user_id) { //user_id
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
@@ -47,7 +49,7 @@ router.get('/:id', jwtValidate, (req, res) => {
             }
 
             if (result.length === 0) {
-                return res.status(404).json({ message: 'User not found', success: false });
+                return res.status(404).json({ message: 'Bank Account or User not found', success: false });
             }
 
             return res.status(200).json({result, success: true});
