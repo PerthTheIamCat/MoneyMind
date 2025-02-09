@@ -31,7 +31,7 @@ export const SignUpHandler = async (
   data: SignUpData
 ): Promise<SignUpResponse | SignUpError["response"]["data"]> => {
 
-  console.log("From auth:",data);
+  // console.log("From auth:",data);
   try {
     const response = await axios.post<SignUpResponse>(
       `${url}/auth/register`,

@@ -97,7 +97,7 @@ export default function RootLayout() {
               />
               <Stack.Screen
                 name="AddAccount"
-                options={{ headerTitle: "Add Account" }}
+                options={{ headerTitle: "Add Account", presentation: "modal" }}
               />
               <Stack.Screen name="PinPage" options={{ headerShown: false }} />
               <Stack.Screen
