@@ -100,12 +100,20 @@ const transactions: Transaction[] = [
   },
 ];
 
-const TransactionItem = ({ transaction, theme }: { transaction: Transaction, theme: string | null }) => {
+const TransactionItem = ({
+  transaction,
+  theme,
+}: {
+  transaction: Transaction;
+  theme: string | null;
+}) => {
   const componentcolor = theme === "dark" ? "!bg-[#282828]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
 
   return (
-    <View className={`flex-row items-center justify-center w-10/12 ${componentcolor} p-4 rounded-lg mb-2 shadow-md`}>
+    <View
+      className={`flex-row items-center justify-center w-10/12 ${componentcolor} p-4 rounded-lg mb-2 shadow-md`}
+    >
       <Image
         source={transaction.logo}
         style={{ width: 40, height: 40, borderRadius: 20, marginRight: 16 }}
@@ -115,19 +123,27 @@ const TransactionItem = ({ transaction, theme }: { transaction: Transaction, the
         <ThemedText className={`font-bold text-lg `}>
           {transaction.category}
         </ThemedText>
-        <ThemedText className={``}>
-          {transaction.description}
-        </ThemedText>
+        <ThemedText className={``}>{transaction.description}</ThemedText>
       </View>
 
-      <Text className={`font-bold text-[16px] ${transaction.transaction_type === "income" ? "text-green-500" : "text-red-500"}`}>
+      <Text
+        className={`font-bold text-[16px] ${
+          transaction.transaction_type === "income"
+            ? "text-green-500"
+            : "text-red-500"
+        }`}
+      >
         {transaction.amount}
       </Text>
-      <Entypo name="dots-three-vertical" size={20} color={componenticon} className="ml-2" />
+      <Entypo
+        name="dots-three-vertical"
+        size={20}
+        color={componenticon}
+        className="ml-2"
+      />
     </View>
   );
 };
-
 
 export default function Index() {
   const { bank } = useContext(UserContext);
@@ -171,27 +187,30 @@ export default function Index() {
             <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
           </ThemedView>
           <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
-            <View className={`flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] ${componentcolor} -ml-2 active:scale-105`}>
+            <Pressable
+              className={`flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] ${componentcolor} -ml-2 active:scale-105`}
+              onPress={() => router.push("/AddAccount")}
+            >
               <AntDesign name="plus" size={20} color={`${componenticon}`} />
               <ThemedText className="font-bold">Add Account</ThemedText>
-            </View>
+            </Pressable>
             <ThemedScrollView
               horizontal={true}
               className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
             >
-          <View className="mt-0.5 mb-1 flex-row space-x-1">
-            {bank?.map((account) => (
-              <ThemedCard
-                name={account.account_name}
-                color={account.color_code}
-                balance={account.balance.toString()}
-                mode="small"
-                onEdit={() => {}}
-                key={account.id}
-                // image={account.icon_id}
-                className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
-              />
-            ))}
+              <View className="mt-0.5 mb-1 flex-row space-x-1">
+                {bank?.map((account) => (
+                  <ThemedCard
+                    name={account.account_name}
+                    color={account.color_code}
+                    balance={account.balance.toString()}
+                    mode="small"
+                    onEdit={() => {}}
+                    key={account.id}
+                    // image={account.icon_id}
+                    className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+                  />
+                ))}
               </View>
             </ThemedScrollView>
           </ThemedView>
@@ -223,7 +242,7 @@ export default function Index() {
                         {transaction.date}
                       </ThemedText>
                     )}
-                    <TransactionItem transaction={transaction} theme={theme}/>
+                    <TransactionItem transaction={transaction} theme={theme} />
                   </View>
                 );
               })}
