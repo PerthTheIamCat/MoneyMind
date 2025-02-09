@@ -49,7 +49,7 @@ router.post('/create', jwtValidate, (req, res) => {
                 console.log(balance)
             }else {
                 console.log('Invalid transaction type')
-                return res.status(404).json({message: 'Invalid transaction type'})
+                return res.status(404).json({message: 'Invalid transaction type', success: false})
             }
 
             db.query(
@@ -71,7 +71,7 @@ router.post('/create', jwtValidate, (req, res) => {
                             }
                 
                             console.log("Transaction created and update Bank accout")
-                            return res.status(200).json({updateResult, message: 'Transaction created and update Bank accout'});
+                            return res.status(200).json({updateResult, message: 'Transaction created and update Bank accout', success: true});
                         }
                     )
                 }

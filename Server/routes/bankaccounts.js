@@ -28,7 +28,7 @@ router.post('/create', jwtValidate, (req, res) => {
             }
 
             console.log("Bank account created")
-            res.status(201).json({ message: 'Bank account created', success: true });
+            return res.status(201).json({ message: 'Bank account created', success: true });
         }
     )
 })
@@ -48,7 +48,7 @@ router.get('/:id', jwtValidate, (req, res) => {
                 return res.status(404).json({ message: 'User not found', success: false });
             }
 
-            res.status(200).json(result);
+            return res.status(200).json({result, success: true});
         }
     )
 })
@@ -76,7 +76,7 @@ router.put('/:id', jwtValidate, (req, res) => {
                         return res.status(404).json({ message: 'Bank Account not found', success: false });
                     }
         
-                    res.status(200).json({ message: 'Bank Account updated', success: true });
+                    return res.status(200).json({ message: 'Bank Account updated', success: true });
                 }
             )
         }
@@ -96,7 +96,6 @@ router.delete('/:id', jwtValidate, (req, res) => {
                 return res.status(403).json({ message: 'Unauthorized user or account not found', success: false });
             }
 
-            // Proceed to delete the bank account
             db.query('DELETE FROM bankaccounts WHERE id = ?', [bankID], (err, deleteResult) => {
                 if (err) {
                     return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
@@ -106,7 +105,7 @@ router.delete('/:id', jwtValidate, (req, res) => {
                     return res.status(404).json({ message: 'Bank Account deleted', success: false });
                 }
     
-                res.status(200).json({ message: 'Bank Account deleted', success: true });
+                return res.status(200).json({ message: 'Bank Account deleted', success: true });
             })
         }
     )
