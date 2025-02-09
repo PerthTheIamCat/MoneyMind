@@ -21,9 +21,11 @@ router.post('/create', jwtValidate, (req, res) => {
         return res.status(400).json({ message: 'Please fill all fields', success: false });
     }
 
+    let remaining = balance
+
     db.query(
         'INSERT INTO bankaccounts (user_id, account_name, balance, remaining, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)',
-        [user_id, account_name, balance, color_code, icon_id || null],
+        [user_id, account_name, balance, remaining, color_code, icon_id || null],
         (err, result) => {
             if (err) {
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
