@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Image, TouchableOpacity } from "react-native";
+import { useState, useEffect } from "react";
+import { Image, TouchableOpacity, View, Modal, Button } from "react-native";
 import * as Localization from "expo-localization";
 import { FontAwesome } from "@expo/vector-icons";
 import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
-
+import { useNavigation } from '@react-navigation/native';
 
 const images = [
   require("../assets/logos/LOGO.png"),
@@ -35,12 +35,45 @@ export function ThemedCard({
   onDelete,
 }: ThemedCardProps) {
   const [isOptionsVisible, setOptionsVisible] = useState(false);
-  const [overlayVisible, setOverlayVisible] = useState(false);
+  const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+  const [isCountdownActive, setCountdownActive] = useState(false);
 
   const locales = Localization.getLocales();
   const currentLanguage = locales[0]?.languageCode;
   const selectedImage = images[imageIndex] || images[0];
 
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isCountdownActive && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    if (countdown === 0) {
+      setCountdownActive(false);
+    }
+    return () => clearInterval(timer);
+  }, [isCountdownActive, countdown]);
+
+  const handleEdit = () => {
+    // ไปหน้าที่ใช้แก้ไขข้อมูล
+    navigation.navigate("EditPage", { name, balance }); // สามารถเพิ่ม props ที่ต้องการส่งไปได้
+  };
+
+  const handleDelete = () => {
+    setDeleteModalVisible(true);
+    setCountdown(5);
+    setCountdownActive(true);
+  };
+
+  const confirmDelete = () => {
+    // การลบข้อมูล
+    onDelete?.();
+    setDeleteModalVisible(false);
+  };
 
   return (
     <ThemedView
@@ -88,13 +121,13 @@ export function ThemedCard({
           style={{
             top: 40,
             right: 4,
-            width : 75,
+            width: 75,
           }}
         >
           <TouchableOpacity
             onPress={() => {
               setOptionsVisible(false);
-              onEdit?.();
+              handleEdit();
             }}
           >
             <ThemedText className="text-[16px] text-blue-600 mb-2">Edit</ThemedText>
@@ -102,6 +135,7 @@ export function ThemedCard({
           <TouchableOpacity
             onPress={() => {
               setOptionsVisible(false);
+              handleDelete();
             }}
           >
             <ThemedText className="text-[16px] text-red-600">Delete</ThemedText>
@@ -128,6 +162,32 @@ export function ThemedCard({
           <ThemedText className="text-[26px] !text-[#f2f2f2] font-semibold">{balance}</ThemedText>
         </ThemedView>
       )}
+
+      <Modal
+        transparent={true}
+        visible={isDeleteModalVisible}
+        animationType="fade"
+        onRequestClose={() => setDeleteModalVisible(false)}
+      >
+        <ThemedView style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+          <ThemedView
+            className="w-3/4 p-4 bg-white rounded-lg"
+            style={{ alignItems: "center", justifyContent: "center" }}
+          >
+            <ThemedText className="text-xl font-bold mb-4">Are you sure you want to delete?</ThemedText>
+            <ThemedText className="text-lg mb-4">You can cancel or confirm the action.</ThemedText>
+            <Button
+              title={countdown === 0 ? "Confirm" : `Confirm (${countdown}s)`}
+              onPress={confirmDelete}
+              disabled={countdown > 0}
+            />
+            <Button
+              title="Cancel"
+              onPress={() => setDeleteModalVisible(false)}
+            />
+          </ThemedView>
+        </ThemedView>
+      </Modal>
     </ThemedView>
   );
 }
