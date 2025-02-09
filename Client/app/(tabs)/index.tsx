@@ -1,6 +1,8 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
+import { ThemedCard } from "@/components/ThemedCard";
+import { ThemedScrollView } from "@/components/ThemedScrollView";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -10,6 +12,7 @@ import { useColorScheme } from "react-native";
 import { ThemedButton } from "@/components/ThemedButton";
 import { useState } from "react";
 
+
 export default function Index() {
   const theme = useColorScheme();
   const componentcolor = theme === "dark" ? "!bg-[#8f8f8f]" : "!bg-[#d8d8d8]";
@@ -17,7 +20,10 @@ export default function Index() {
 
   
   const [checkretireData,setCheckRetireData]=useState(false);
-  const [retire,setretire]=useState(5000);
+  const [AccountData,setAccountData]=useState(false);
+  const [username,setUsername]=useState("USERNAME:)");
+  const [retireAmount,setretire]=useState(5000);
+  const [retireGoal,setretireGoal]=useState(10000);
 
   return (
     <ThemedSafeAreaView>
@@ -29,10 +35,10 @@ export default function Index() {
         </ThemedButton>
       </ThemedView>
 
-      <ThemedView className="ml-4 mt-4 w-1/2 flex-row">
+      <ThemedView className="ml-5 mt-4 flex-row !justify-start">
         <Feather name="circle" size={40} color={`${componenticon}`} />
         <ThemedText className="text-xl font-bold pl-3">
-          Astrex Destineth
+          {username}
         </ThemedText>
       </ThemedView>
 
@@ -58,23 +64,23 @@ export default function Index() {
           <ThemedText className="font-bold">
             Your Monthly Save Goal
           </ThemedText>
-          <ThemedText className="h-1/2 w-10 align-middle font-bold">{retire}</ThemedText>
+          <ThemedText className="h-1/2 w-10 align-middle font-bold">{retireAmount}</ThemedText>
           <ThemedText className="mx-5 text-center font-bold">
-           Goal 9.0k
+           Goal {retireGoal}.-
           </ThemedText>
         </ThemedView>
       </ThemedView>
       
       )}
       
-
-      <ThemedView className="ml-4 mt-4 w-1/4">
+      <ThemedView className="ml-5 mt-4 flex-row !justify-start">
         <ThemedText className="text-xl font-bold pl-5">Account</ThemedText>
       </ThemedView>
 
 
+      {!AccountData ? (
       <ThemedView className="mt-3">
-        <ThemedButton className={`${componentcolor} w-4/5 h-40 rounded-[20]`}>
+        <ThemedButton className={`${componentcolor} w-4/5 h-40 rounded-[20]`} onPress={() => setAccountData(true)}>
           <ThemedView className="bg-transparent">  
             <AntDesign name="filetext1" size={50} color={`${componenticon}`} className="m-3"/>
             <ThemedText className="mx-5 text-center font-bold">
@@ -83,7 +89,20 @@ export default function Index() {
           </ThemedView>
         </ThemedButton>
       </ThemedView>
-      
+      ):(
+      <ThemedView className="mt-3 ">
+        <ThemedScrollView vertical={false}  horizontal={true} className="w-full" showsHorizontalScrollIndicator={false} >  
+          <ThemedView className="w-full  flex-row px-20">
+              <ThemedCard mode="small" name="Wallet" balance="0.00" color="bg-red-500" className="snap-center"/>
+              <ThemedCard mode="small" name="Bank" balance="0.00" color="bg-blue-500" className="snap-center"/>
+              <ThemedCard mode="small" name="Credit Card" balance="0.00" color="bg-orange-500" className="snap-center"/>
+          </ThemedView>
+        </ThemedScrollView>
+      </ThemedView>
+      )}
+      <ThemedView className="ml-5 mt-4 flex-row !justify-start">
+        <ThemedText className="text-xl font-bold pl-5">Transaction</ThemedText>
+      </ThemedView>
     </ThemedSafeAreaView>
   );
 }
