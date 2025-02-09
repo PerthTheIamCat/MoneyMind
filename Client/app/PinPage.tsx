@@ -28,9 +28,12 @@ export default function PinPage() {
     }
   };
 
-  const handleVerifyPin = () => {
-    if (auth?.verifyPin(pin)) {
+  const handleVerifyPin = async () => {
+    if ((await auth?.isPinSet) && (await auth?.verifyPin(pin))) {
       router.replace("/(tabs)");
+    } else if (await !auth?.isPinSet) {
+      alert("Please set your PIN first");
+      router.replace("/CreatePinPage");
     } else {
       setPin("");
       setCode([]);
@@ -76,7 +79,7 @@ export default function PinPage() {
           />
         </ThemedView>
         <ThemedText style={styles.greetings}>
-          {pin === "" ? "Create your PIN code" : "Enter your PIN again"}
+          Enter your PIN to continue
         </ThemedText>
         <ThemedView style={styles.codeView}>
           {codeLength.map((_, index) => (

@@ -3,15 +3,17 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { Image } from "expo-image";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { ThemedButton } from "@/components/ThemedButton";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { View, Text, FlatList } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { router } from "expo-router";
 import { ThemedCard } from "@/components/ThemedCard";
 import Entypo from "@expo/vector-icons/Entypo";
+
 import { useColorScheme } from "react-native";
+import { UserContext } from "@/hooks/conText/UserContext";
+import { useContext } from "react";
 
 interface Transaction {
   id: string;
@@ -26,7 +28,7 @@ interface Transaction {
 const transactions: Transaction[] = [
   {
     id: "1",
-    logo: require("@/assets/logos/LOGO.png"), // เปลี่ยนเป็นโลโก้ที่ต้องการ
+    logo: require("@/assets/logos/LOGO.png"),
     transaction_type: "expense",
     amount: "250.00",
     category: "Food & Drinks",
@@ -128,11 +130,13 @@ const TransactionItem = ({ transaction, theme }: { transaction: Transaction, the
 
 
 export default function Index() {
+  const { bank } = useContext(UserContext);
   let lastDate = "";
+
   const theme = useColorScheme();
   const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
-
+  console.log(bank);
   return (
     <>
       <ThemedSafeAreaView>
@@ -175,27 +179,19 @@ export default function Index() {
               horizontal={true}
               className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
             >
-              <View className="mt-0.5 mb-1 flex-row space-x-1">
-                <ThemedCard
-                  name="K-Push"
-                  balance="0.00"
-                  className="bg-[#fd0061]"
-                />
-                <ThemedCard
-                  name="Wallet"
-                  balance="0.00"
-                  className="bg-blue-700"
-                />
-                <ThemedCard
-                  name="Bank"
-                  balance="0.00"
-                  className="bg-[#414e6a]"
-                />
-                <ThemedCard
-                  name="Credit Card"
-                  balance="0.00"
-                  className="bg-[#ff0000]"
-                />
+          <View className="mt-0.5 mb-1 flex-row space-x-1">
+            {bank?.map((account) => (
+              <ThemedCard
+                name={account.account_name}
+                color={account.color_code}
+                balance={account.balance.toString()}
+                mode="small"
+                onEdit={() => {}}
+                key={account.id}
+                // image={account.icon_id}
+                className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+              />
+            ))}
               </View>
             </ThemedScrollView>
           </ThemedView>

@@ -13,6 +13,7 @@ type AuthContextType = {
   logout: () => void;
   checkAuthenticateWithBiometrics: () => Promise<boolean>;
   useAuthenticationWithBiometrics: () => Promise<boolean>;
+  decodeToken: (token: string) => any;
   canUseBiometrics: boolean;
 };
 
@@ -34,6 +35,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error saving token:", error);
     }
   };
+
+  const decodeToken = (token: string) => {
+    try {
+      const decoded: any = jwtDecode(token);
+      // console.log("Decoded token:", decoded);
+      return decoded;
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return null;
+    }
+  }
 
   const loadToken = async () => {
     setAuthLoading(true);
@@ -142,6 +154,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         checkAuthenticateWithBiometrics,
         useAuthenticationWithBiometrics,
+        decodeToken,
       }}
     >
       {children}

@@ -47,7 +47,7 @@ const jwtAccessTokenGenrate = (UserID, username, email) => {
     const accessToken = jwt.sign(
         { UserID, username, email },
         process.env.ACCESS_TOKEN_SECRET, 
-        { expiresIn: '10s', algorithm: 'HS256' })
+        { expiresIn: '30m', algorithm: 'HS256' })
     
     return accessToken
 }
@@ -66,7 +66,15 @@ const jwtValidate = (req, res, next) => {
                 console.error('Invalid token:', err.message);
                 return res.status(403).json({ message: 'Invalid token', success: false });
             }
-            console.log(decoded);
+
+            console.log('Decoded JWT:', decoded);
+
+            req.user = {
+                UserID: decoded.UserID,
+                username: decoded.username,
+                email: decoded.email
+            };
+
             next();
         });
     } catch (err) {
@@ -77,6 +85,11 @@ const jwtValidate = (req, res, next) => {
 
 router.post('/register', (req, res) => {
     const { username, email, password, password2, otp} = req.body
+
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+        return res.status(400).json({message: 'Username cannot contain whitespace or special characters', success: false});
+    }
     
     const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
     if (!emailRegex.test(`${email}`)) {
@@ -99,6 +112,10 @@ router.post('/register', (req, res) => {
 
             if (result.length > 0) {
                 return res.status(409).json({ message: 'Email already exists', success: false});
+            }
+
+            if (password.length < 8) {
+                return res.status(400).json({ message: 'Password must be at least 8 characters', success: false});
             }
 
             if (password !== password2) {
@@ -148,7 +165,6 @@ router.post('/register', (req, res) => {
             })
         })
     })
-
 })
 
 router.post('/login', (req, res) => {
@@ -252,6 +268,29 @@ router.post('/otpSend', (req, res) => {
         } catch (error) {
             console.error('Error sending OTP email:', error)
             return res.status(500).json({ message: 'Failed to send OTP email', error: error.message, success: false })
+        }
+    })
+})
+
+router.post('/otpVerify', (req, res) => {
+    const { email, otp } = req.body
+
+    db.query('SELECT * FROM otp WHERE email = ?', [email], async (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false});
+        }
+
+        const otpData = result[0]
+
+
+        if (otpData.otp_code === otp) {
+            if (otpData.expires_at < new Date()) {
+                return res.status(400).json({ message: 'OTP expired', success: false });
+            }else{
+                return res.status(200).json({ message: 'OTP verified', success: true });
+            }
+        }else{
+            return res.status(400).json({ message: 'Invalid OTP', success: false });
         }
     })
 })

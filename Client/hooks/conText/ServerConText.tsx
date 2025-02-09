@@ -14,7 +14,7 @@ type ServerContextType = {
   setOtp: (value: string) => void;
 }
 export const ServerContext = createContext<ServerContextType>({
-    URL: "http://192.168.74.190:3000",
+    URL: "http://localhost:3000",
     setUsername: () => {},
     setEmail: () => {},
     setPassword: () => {},
@@ -29,7 +29,6 @@ export const ServerProvider = ({ children }: { children: ReactNode }) => {
   const [password, setPassword] = useState<string>("");
   const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
   const [otp, setOtp] = useState<string>("");
-
 
   return (
     <ServerContext.Provider value={{ URL, setUsername, setEmail, setPassword, setPasswordConfirmation, setOtp, username, email, password, passwordConfirmation, otp }}>
