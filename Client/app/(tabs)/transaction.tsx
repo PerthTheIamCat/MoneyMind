@@ -10,10 +10,13 @@ import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { router } from "expo-router";
 import { ThemedCard } from "@/components/ThemedCard";
 import Entypo from "@expo/vector-icons/Entypo";
-
 import { useColorScheme } from "react-native";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { useContext } from "react";
+import { useState, useEffect } from "react";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { TouchableWithoutFeedback } from "react-native";
+import { Animated, Easing } from "react-native";
 
 interface Transaction {
   id: string;
@@ -101,7 +104,7 @@ const transactions: Transaction[] = [
 ];
 
 const TransactionItem = ({ transaction, theme }: { transaction: Transaction, theme: string | null }) => {
-  const componentcolor = theme === "dark" ? "!bg-[#282828]" : "!bg-[#d8d8d8]";
+  const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
 
   return (
@@ -132,13 +135,28 @@ const TransactionItem = ({ transaction, theme }: { transaction: Transaction, the
 export default function Index() {
   const { bank } = useContext(UserContext);
   let lastDate = "";
+  const [isOverlayVisible, setIsOverlayVisible] = useState(false);
 
-  const theme = useColorScheme();
+  const theme = useColorScheme() || "light";
   const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
   console.log(bank);
+  const [slideAnim] = useState(new Animated.Value(300));
+
+  useEffect(() => {
+    if (isOverlayVisible) {
+      // เมื่อ overlay เปิด, เลื่อนขึ้น
+      Animated.timing(slideAnim, {
+        toValue: 0, // เลื่อนขึ้นมา
+        duration: 300,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isOverlayVisible]);
+
   return (
-    <>
+    <>   
       <ThemedSafeAreaView>
         <ThemedScrollView>
           <ThemedView
@@ -231,11 +249,52 @@ export default function Index() {
           </ThemedView>
         </ThemedScrollView>
       </ThemedSafeAreaView>
-      <View className="!absolute bottom-6 right-6 bg-transparent">
+
+      {isOverlayVisible && (
+        <TouchableWithoutFeedback onPress={() => {
+          // เริ่มอนิเมชันเลื่อนลง
+          Animated.timing(slideAnim, {
+            toValue: 300, // เลื่อนลง
+            duration: 300,
+            easing: Easing.ease,
+            useNativeDriver: true,
+          }).start(() => {
+            // เมื่ออนิเมชันเลื่อนลงเสร็จแล้ว
+            setIsOverlayVisible(false);
+          });
+        }}
+      >
+        <View className="absolute inset-0 bg-[#00000055] flex items-center justify-end pb-16">
+        <Animated.View
+        style={{
+          transform: [{ translateY: slideAnim }], // ใช้ slideAnim เพื่อเลื่อนขึ้น
+          width: '80%',
+        }}
+        className="p-6 rounded-lg"
+      >
+         <ThemedView className=" p-6 rounded-lg w-full ">
+            <ThemedText className="text-3xl font-bold ">Insert Type</ThemedText>
+            <View className="flex flex-row gap-6 mt-2 rounded-lg">
+              <View className={`${componentcolor}  p-1 rounded-lg mx-2`}>
+                <MaterialCommunityIcons name="notebook" size={54} color="black" className="bg-[#AACC00] m-2 mr-11 rounded-lg"/>
+                <ThemedText className="font-bold">Add By Yourself</ThemedText>
+              </View>
+              <View className={`${componentcolor}  p-1 rounded-lg mx-2`}>
+                <Ionicons name="camera-sharp" size={54} color="black" className="bg-[#AACC00] w-fit m-2 mr-11 rounded-lg"/>
+                <ThemedText className="font-bold">Add By Camera</ThemedText>
+              </View>
+            </View>
+            </ThemedView>
+          </Animated.View>
+        </View>
+        </TouchableWithoutFeedback>
+      )}
+
+      <Pressable onPress={() => setIsOverlayVisible(true)} className="!absolute bottom-6 right-6 bg-transparent">
         <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16 rounded-full ">
           <AntDesign name="plus" size={32} color="#ffffff" />
         </View>
-      </View>
+      </Pressable>
     </>
   );
 }
