@@ -12,12 +12,11 @@ export default function Index(){
     const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
   
     const [data, setData] = useState([
-        { Headers: "Hello_WORLD", Discription: "H2" },
-        { Headers: "Hello_WORLD1", Discription: "H3" },
-        { Headers: "Hello_WORLD2", Discription: "H4" },
-        { Headers: "Hello_WORLD3", Discription: "H5" },
-        { Headers: "Hello_WORLD4", Discription: "H6" },
-        { Headers: "Hello_WORLD5", Discription: "H6" },
+        { Headers: "Toppic1", Discription: "H3" },
+        { Headers: "Toppic2", Discription: "H4" },
+        { Headers: "Toppic3", Discription: "H5" },
+        { Headers: "Toppic4", Discription: "H6" },
+        { Headers: "Toppic5", Discription: "H6" },
     ]);
 
     return(
@@ -25,7 +24,7 @@ export default function Index(){
             <FlatList className="w-5/6"
                 data={data}
                 renderItem={({ item }) => (
-                    <ThemedView className="mt-5 rounded-xl h-20">
+                    <ThemedView className="mt-5 rounded-xl h-20 pl-10 !items-start">
                         <ThemedText className="text-lg font-bold !justify-start">{item.Headers}</ThemedText>
                         <ThemedText className="text-sm">{item.Discription}</ThemedText>
                     </ThemedView>
