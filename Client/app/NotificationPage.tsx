@@ -8,20 +8,20 @@ import { FlatList } from "react-native";
 export default function Index(){
     const [data, setData] = useState([
         { Headers: "Hello_WORLD", Discription: "H2" },
-        { Headers: "Hello_WORLD", Discription: "H3" },
-        { Headers: "Hello_WORLD", Discription: "H4" },
-        { Headers: "Hello_WORLD", Discription: "H5" },
-        { Headers: "Hello_WORLD", Discription: "H6" },
-        { Headers: "Hello_WORLD", Discription: "H6" },
+        { Headers: "Hello_WORLD1", Discription: "H3" },
+        { Headers: "Hello_WORLD2", Discription: "H4" },
+        { Headers: "Hello_WORLD3", Discription: "H5" },
+        { Headers: "Hello_WORLD4", Discription: "H6" },
+        { Headers: "Hello_WORLD5", Discription: "H6" },
     ]);
 
     return(
         <ThemedView className=" bg-red-500 h-full justify-start items-start ">
-            <FlatList className="w-6/12"
+            <FlatList className="w-5/6"
                 data={data}
                 renderItem={({ item }) => (
-                    <ThemedView className="mt-4 bg-white ">
-                        <ThemedText className="text-lg font-bold">{item.Headers}</ThemedText>
+                    <ThemedView className="mt-5 rounded-xl h-20">
+                        <ThemedText className="text-lg font-bold !justify-start">{item.Headers}</ThemedText>
                         <ThemedText className="text-sm">{item.Discription}</ThemedText>
                     </ThemedView>
                 )}
