@@ -18,7 +18,8 @@ export default function Index() {
   
   const [checkretireData,setCheckRetireData]=useState(false);
   const [username,setUsername]=useState("USERNAME:)");
-  const [retire,setretire]=useState(5000);
+  const [retireAmount,setretire]=useState(5000);
+  const [retireGoal,setretireGoal]=useState(10000);
 
   return (
     <ThemedSafeAreaView>
@@ -30,7 +31,7 @@ export default function Index() {
         </ThemedButton>
       </ThemedView>
 
-      <ThemedView className="ml-11 mt-4 flex-row !justify-start">
+      <ThemedView className="ml-5 mt-4 flex-row !justify-start">
         <Feather name="circle" size={40} color={`${componenticon}`} />
         <ThemedText className="text-xl font-bold pl-3">
           {username}
@@ -59,9 +60,9 @@ export default function Index() {
           <ThemedText className="font-bold">
             Your Monthly Save Goal
           </ThemedText>
-          <ThemedText className="h-1/2 w-10 align-middle font-bold">{retire}</ThemedText>
+          <ThemedText className="h-1/2 w-10 align-middle font-bold">{retireAmount}</ThemedText>
           <ThemedText className="mx-5 text-center font-bold">
-           Goal 9.0k
+           Goal {retireGoal}.-
           </ThemedText>
         </ThemedView>
       </ThemedView>
