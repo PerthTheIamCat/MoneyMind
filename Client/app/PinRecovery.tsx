@@ -6,7 +6,6 @@ import { router } from "expo-router";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { AuthContext } from "@/hooks/conText/AuthContext";
-import { ThemedNumPad } from "@/components/ThemedNumPad";
 import { Image } from "expo-image";
 import { ThemedInput } from "@/components/ThemedInput";
 import { ThemedButton } from "@/components/ThemedButton";
@@ -21,6 +20,8 @@ export default function PinRecovery() {
   const auth = useContext(AuthContext);
   const [email, setEmail] = useState<string>("");
   const [isSending, setIsSending] = useState<"success" | "sending" | "fail" | null>(null);
+
+  
 
   const handleSendOTP = () => {
     setIsSending("sending");
@@ -58,10 +59,10 @@ export default function PinRecovery() {
           }}
         />
         <ThemedView className="flex-column mt-5 w-[75%]">
-          <ThemedText style={[styles.greetings]}>
+          <ThemedText style={theme === "dark" ? styles.greetingsDark : styles.greeetingsLight}>
             Email Verification
           </ThemedText>
-          <ThemedText style={styles.explain} className="justify-center">
+          <ThemedText style={theme === "dark" ? styles.explainDark : styles.explainLight} className="justify-center">
             OTP will be sent to your email address. Please check your email to proceed.
           </ThemedText>
         </ThemedView>
@@ -94,15 +95,30 @@ export default function PinRecovery() {
 }
 
 const styles = StyleSheet.create({
-  greetings: {
+  greetingsDark: {
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 10,
     marginTop: 10,
     alignSelf: "center",
+    color: "white",
   },
-  explain: {
+  explainDark: {
     fontSize: 14,
     textAlign: "center",
+    color: "white",
+  },
+  greeetingsLight: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 10,
+    marginTop: 10,
+    alignSelf: "center",
+    color: "black",
+  },
+  explainLight: {
+    fontSize: 14,
+    textAlign: "center",
+    color: "black",
   },
 });

@@ -12,6 +12,7 @@ import { TouchableOpacity } from "react-native";
 import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
+import { VerifyOTPHandler } from "@/hooks/auth/VerifyOTP";
 
 const OTP_LENGTH = 6;
 
@@ -47,6 +48,7 @@ export default function PinRecovery() {
         inputRefs.current[index - 1]?.focus();
       }
     }
+    console.log(otp);
   };
 
   const resendOTPHandler = () => {
@@ -73,17 +75,14 @@ export default function PinRecovery() {
       setIsVerifying(false);
       alert("Failed to verify OTP please try again later");
     }, 5000);
-
+    console.log("otp:",otp.join(""));
     setIsVerifying(true);
-    SignUpHandler(URL, {
+    VerifyOTPHandler(URL, {
       email: email!,
-      username: username!,
-      password: password!,
-      password2: passwordConfirmation!,
-      name: username!,
       otp: otp.join(""),
     }).then((response) => {
       if (response.success) {
+        console.log(response);
         setIsVerifying(false);
         clearTimeout(timeout);
         router.replace("/CreatePinPage");
