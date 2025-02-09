@@ -108,6 +108,7 @@ export default function RootLayout() {
                 name="Welcome"
                 options={{ headerShown: false, animation: "none" }}
               />
+              <Stack.Screen name="NotificationPage" options={{ headerTitle: "Notification" , presentation: "modal"}} />
             </Stack>
             <StatusBar style="auto" />
           </TermsProvider>

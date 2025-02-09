@@ -171,7 +171,7 @@ export default function Index() {
               }}
             />
             <Ionicons
-              onPress={() => router.push("/Add_Transaction")}
+              onPress={() => router.push("/NotificationPage")}
               name="notifications-outline"
               size={32}
               color={`${componenticon}`}
