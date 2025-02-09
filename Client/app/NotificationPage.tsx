@@ -1,6 +1,7 @@
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
+import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { useState } from "react";
 import { FlatList } from "react-native";
