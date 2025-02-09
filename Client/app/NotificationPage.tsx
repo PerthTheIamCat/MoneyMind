@@ -4,8 +4,13 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedText } from "@/components/ThemedText";
 import { useState } from "react";
 import { FlatList } from "react-native";
+import { useColorScheme } from "react-native";
 
 export default function Index(){
+    const theme = useColorScheme();
+    const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
+    const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
+  
     const [data, setData] = useState([
         { Headers: "Hello_WORLD", Discription: "H2" },
         { Headers: "Hello_WORLD1", Discription: "H3" },
@@ -16,7 +21,7 @@ export default function Index(){
     ]);
 
     return(
-        <ThemedView className=" bg-red-500 h-full justify-start items-start ">
+        <ThemedView className={`${componentcolor} h-full justify-start items-start `}>
             <FlatList className="w-5/6"
                 data={data}
                 renderItem={({ item }) => (
