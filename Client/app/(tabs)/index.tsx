@@ -36,7 +36,6 @@ export default function Index() {
   const [retire, setRetire] = useState<number | null>(null);
   const [transaction, setTransaction] = useState<boolean | null>(true);
 
-  const [checkretireData,setCheckRetireData]=useState(false);
   const [AccountData,setAccountData]=useState(false);
   const [username,setUsername]=useState("USERNAME:)");
   const [retireAmount,setretire]=useState(5000);
