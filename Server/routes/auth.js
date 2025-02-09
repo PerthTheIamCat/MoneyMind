@@ -85,6 +85,11 @@ const jwtValidate = (req, res, next) => {
 
 router.post('/register', (req, res) => {
     const { username, email, password, password2, otp} = req.body
+
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+        return res.status(400).json({message: 'Username cannot contain whitespace or special characters', success: false});
+    }
     
     const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
     if (!emailRegex.test(`${email}`)) {
@@ -107,6 +112,10 @@ router.post('/register', (req, res) => {
 
             if (result.length > 0) {
                 return res.status(409).json({ message: 'Email already exists', success: false});
+            }
+
+            if (password.length < 8) {
+                return res.status(400).json({ message: 'Password must be at least 8 characters', success: false});
             }
 
             if (password !== password2) {
@@ -156,7 +165,6 @@ router.post('/register', (req, res) => {
             })
         })
     })
-
 })
 
 router.post('/login', (req, res) => {

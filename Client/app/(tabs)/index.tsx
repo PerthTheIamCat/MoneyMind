@@ -26,6 +26,7 @@ interface Transaction {
   date: string;
 }
 
+
 export default function Index() {
   const theme = useColorScheme();
   const componentColor = theme === "dark" ? "!bg-[#8f8f8f]" : "!bg-[#d8d8d8]";
@@ -35,6 +36,12 @@ export default function Index() {
   const [retire, setRetire] = useState<number | null>(null);
   const [transaction, setTransaction] = useState<boolean | null>(true);
 
+  const [checkretireData,setCheckRetireData]=useState(false);
+  const [AccountData,setAccountData]=useState(false);
+  const [username,setUsername]=useState("USERNAME:)");
+  const [retireAmount,setretire]=useState(5000);
+  const [retireGoal,setretireGoal]=useState(10000);
+    
   const { fullname, bank } = useContext(UserContext);
 
   const transactions: Transaction[] = [
@@ -66,6 +73,7 @@ export default function Index() {
       date: "26/12/67",
     },
   ];
+
 
   return (
     <ThemedSafeAreaView>
