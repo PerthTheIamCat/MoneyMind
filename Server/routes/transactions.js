@@ -92,7 +92,7 @@ router.get('/:id', jwtValidate, (req, res) => {
             }
 
             if (result.length === 0) {
-                return res.status(404).json({ message: 'User not found', success: false });
+                return res.status(404).json({ message: 'Transactions not found', success: false });
             }
 
             return res.status(200).json({result, success: true});
@@ -101,10 +101,11 @@ router.get('/:id', jwtValidate, (req, res) => {
 })
 
 // router.put('/:id', jwtValidate, (req, res) => {
-//     const bankID = req.params.id;
+//     const transactionID = req.params.id;
+
 
 //     db.query(
-//         'SELECT * FROM bankaccounts WHERE id = ? AND user_id = ?', [bankID, req.user.UserID], (err, result) => {
+//         'SELECT * FROM transactions WHERE id = ? AND user_id = ?', [transactionID, req.user.UserID], (err, result) => {
 //             if (err) {
 //                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
 //             }
@@ -113,8 +114,19 @@ router.get('/:id', jwtValidate, (req, res) => {
 //                 return res.status(403).json({ message: 'Unauthorized user or account not found', success: false });
 //             }
 
+//             let transactionData = result[0]
+//             console.log(transactionData)
+
+//             if(transactionData.split_payment_id){
+//                 db.query(
+//                     'SELECT * FROM splitpayments WHERE id = ?', [transactionData.split_payment_id], (err, splitpayResult) => {
+
+//                     }
+//                 )
+//             }
+
 //             db.query(
-//                 'UPDATE bankaccounts SET ? WHERE id = ?', [req.body, req.params.id], (err, updateResult) => {
+//                 'UPDATE transactionID SET ? WHERE id = ?', [req.body, req.params.id], (err, updateResult) => {
 //                     if (err) {
 //                         return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
 //                     }
@@ -143,7 +155,6 @@ router.get('/:id', jwtValidate, (req, res) => {
 //                 return res.status(403).json({ message: 'Unauthorized user or account not found', success: false });
 //             }
 
-//             // Proceed to delete the bank account
 //             db.query('DELETE FROM bankaccounts WHERE id = ?', [bankID], (err, deleteResult) => {
 //                 if (err) {
 //                     return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
