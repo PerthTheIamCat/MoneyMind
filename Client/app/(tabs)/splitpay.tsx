@@ -41,12 +41,24 @@ export default function splitpay() {
       </ThemedView>
 
       {/* Decision Menu */}
-      <ThemedView className="flex-row items-center pt-[4%]">
-        <View className="flex flex-row justify-center items-center rounded-full w-[200px] h-[39px] bg-gray-200 ml-2">
-          
-        </View>
+      <ThemedView>
+        <ThemedView className="flex-row items-center pt-[4%]">
+          <ThemedView className="flex-row justify-center items-center rounded-full w-[200px] h-[39px] bg-gray-200 ml-2">
+            <ThemedButton className="flex-row justify-start ">
+              <ThemedText className="mx-5 text-center font-bold">
+                BUDGET
+              </ThemedText>
+            </ThemedButton>
+
+            <ThemedButton className="flex-row justify-start">
+              <ThemedText className="mx-5 text-center font-bold">
+                retire
+              </ThemedText>
+            </ThemedButton>
+          </ThemedView>
       </ThemedView>
-      
+      </ThemedView>
+
       {/* Add Account Box */}
       <ThemedView>
         <ThemedView className="flex flex-row justify-center items-center pt-[10%] ml-2">
