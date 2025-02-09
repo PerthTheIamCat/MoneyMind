@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
+import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { router } from "expo-router";
 import { Image } from "expo-image";
-import { View,} from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import { useColorScheme } from "react-native";
 import { ThemedButton } from "@/components/ThemedButton";
 
@@ -15,6 +16,7 @@ export default function splitpay() {
   const theme = useColorScheme();
   const componentcolor = theme === "dark" ? "!bg-[#8f8f8f]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
+  const [selected, setSelected] = useState("budget"); // เก็บสถานะปุ่มที่เลือก
 
   return (
     <ThemedSafeAreaView>
@@ -41,22 +43,32 @@ export default function splitpay() {
       </ThemedView>
 
       {/* Decision Menu */}
-      <ThemedView>
-        <ThemedView className="flex-row items-center pt-[4%]">
-          <ThemedView className="flex-row justify-center items-center rounded-full w-[200px] h-[39px] bg-gray-200 ml-2">
-            <ThemedButton className="flex-row justify-start ">
-              <ThemedText className="mx-5 text-center font-bold">
-                BUDGET
-              </ThemedText>
-            </ThemedButton>
+      <ThemedView className="flex-row items-center pt-[4%] justify-center">
+        <View className="flex-row bg-gray-300 rounded-full w-[220px] h-[40px]">
+          {/* Budget Button */}
+          <TouchableOpacity
+            onPress={() => setSelected("budget")}
+            className={`flex-1 justify-center items-center rounded-full ${
+              selected === "budget" ? "bg-green-600" : "bg-gray-300"
+            }`}
+          >
+            <ThemedText className={`font-bold ${selected === "budget" ? "text-white" : "text-black"}`}>
+              BUDGET
+            </ThemedText>
+          </TouchableOpacity>
 
-            <ThemedButton className="flex-row justify-start">
-              <ThemedText className="mx-5 text-center font-bold">
-                retire
-              </ThemedText>
-            </ThemedButton>
-          </ThemedView>
-      </ThemedView>
+          {/* Retire Button */}
+          <TouchableOpacity
+            onPress={() => setSelected("retire")}
+            className={`flex-1 justify-center items-center rounded-full ${
+              selected === "retire" ? "bg-gray-400" : "bg-gray-300"
+            }`}
+          >
+            <ThemedText className={`font-bold ${selected === "retire" ? "text-black" : "text-gray-600"}`}>
+              retire
+            </ThemedText>
+          </TouchableOpacity>
+        </View>
       </ThemedView>
 
       {/* Add Account Box */}
