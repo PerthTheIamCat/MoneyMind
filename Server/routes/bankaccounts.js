@@ -21,8 +21,6 @@ router.post('/create', jwtValidate, (req, res) => {
         return res.status(400).json({ message: 'Please fill all fields', success: false });
     }
 
-    let remaining = balance
-
     db.query(
         'INSERT INTO bankaccounts (user_id, account_name, balance, remaining, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)',
         [user_id, account_name, balance, remaining, color_code, icon_id || null],
