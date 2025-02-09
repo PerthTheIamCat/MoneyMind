@@ -24,15 +24,15 @@ export function ThemedNumPad({
   const textClassName =
     "text-center text-4xl font-bold " +
     (theme === "dark" ? "text-[#F2F2F2]" : "text-[#2F2F2F]");
-  const rowClassName = "py-[5%]";
-  const colClassName = "items-center";
+  const rowClassName = `py-[5%] border-b-2 rounded-b-2xl ${theme === "dark" ? "border-[#F2F2F2]" : "border-[#2F2F2F]"}`;
+  const colClassName = `border-r-2 ${theme === "dark" ? "border-[#F2F2F2]" : "border-[#2F2F2F]"}`;
   const pressableClassName = "active:scale-150";
 
   return (
     <ThemedView className="flex flex-wrap flex-row justify-center">
       <Container>
         <Row className={rowClassName}>
-          <Col>
+          <Col className={colClassName}>
             <Pressable
               className={pressableClassName}
               onPress={() => onPress("1")}
@@ -40,7 +40,7 @@ export function ThemedNumPad({
               <ThemedText className={textClassName}>1</ThemedText>
             </Pressable>
           </Col>
-          <Col>
+          <Col className={colClassName}>
             <Pressable
               className={pressableClassName}
               onPress={() => onPress("2")}
@@ -48,7 +48,7 @@ export function ThemedNumPad({
               <ThemedText className={textClassName}>2</ThemedText>
             </Pressable>
           </Col>
-          <Col>
+          <Col className={`${colClassName} !border-r-0`}>
             <Pressable
               className={pressableClassName}
               onPress={() => onPress("3")}
@@ -58,7 +58,7 @@ export function ThemedNumPad({
           </Col>
         </Row>
         <Row className={rowClassName}>
-          <Col>
+          <Col className={colClassName}>
             <Pressable
               className={pressableClassName}
               onPress={() => onPress("4")}
@@ -66,7 +66,7 @@ export function ThemedNumPad({
               <ThemedText className={textClassName}>4</ThemedText>
             </Pressable>
           </Col>
-          <Col>
+          <Col className={colClassName}>
             <Pressable
               className={pressableClassName}
               onPress={() => onPress("5")}
@@ -74,7 +74,7 @@ export function ThemedNumPad({
               <ThemedText className={textClassName}>5</ThemedText>
             </Pressable>
           </Col>
-          <Col>
+          <Col className={`${colClassName} !border-r-0`}>
             <Pressable
               className={pressableClassName}
               onPress={() => onPress("6")}
@@ -84,7 +84,7 @@ export function ThemedNumPad({
           </Col>
         </Row>
         <Row className={rowClassName}>
-          <Col>
+          <Col className={colClassName}>
             <Pressable
               className={pressableClassName}
               onPress={() => onPress("7")}
@@ -92,7 +92,7 @@ export function ThemedNumPad({
               <ThemedText className={textClassName}>7</ThemedText>
             </Pressable>
           </Col>
-          <Col>
+          <Col className={colClassName}>
             <Pressable
               className={pressableClassName}
               onPress={() => onPress("8")}
@@ -100,7 +100,7 @@ export function ThemedNumPad({
               <ThemedText className={textClassName}>8</ThemedText>
             </Pressable>
           </Col>
-          <Col>
+          <Col className={`${colClassName} !border-r-0`}>
             <Pressable
               className={pressableClassName}
               onPress={() => onPress("9")}
@@ -109,8 +109,8 @@ export function ThemedNumPad({
             </Pressable>
           </Col>
         </Row>
-        <Row className={rowClassName}>
-          <Col className="items-center">
+        <Row className={`${rowClassName} border-b-0`}>
+          <Col className={`${colClassName} items-center`}>
             {haveBiometric && (
               <Pressable
                 className={pressableClassName}
@@ -124,7 +124,7 @@ export function ThemedNumPad({
               </Pressable>
             )}
           </Col>
-          <Col>
+          <Col className={colClassName}>
             <Pressable
               className={pressableClassName}
               onPress={() => onPress("0")}
@@ -132,7 +132,7 @@ export function ThemedNumPad({
               <ThemedText className={textClassName}>0</ThemedText>
             </Pressable>
           </Col>
-          <Col className="items-center">
+          <Col className={`${colClassName} items-center !border-r-0`}>
             <Pressable className={pressableClassName} onPress={onPressBack}>
               <FontAwesome5
                 name="backspace"
