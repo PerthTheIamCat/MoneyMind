@@ -5,10 +5,14 @@ import { ThemedInput } from "@/components/ThemedInput";
 import { Image } from "expo-image";
 import { View, TouchableWithoutFeedback } from "react-native";
 import { useColorScheme, StyleSheet } from "react-native";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { router } from "expo-router";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
+import { CreateUserBank } from "@/hooks/auth/CreateUserBank";
+import { ServerContext } from "@/hooks/conText/ServerConText";
+import { UserContext } from "@/hooks/conText/UserContext";
+import { AuthContext } from "@/hooks/conText/AuthContext";
 
 const CircleSize = 40;
 const CircleRingSize = 2;
@@ -35,6 +39,9 @@ const colors = [
 ];
 
 export default function Index() {
+  const { URL } = useContext(ServerContext);
+  const { userID } = useContext(UserContext);
+  const auth = useContext(AuthContext);
   const theme = useColorScheme();
 
   const [AccountName, setAccountName] = useState<string>("");
@@ -82,8 +89,19 @@ export default function Index() {
 
   const addAccount = () => {
     if (validateInputs()) {
-      
-
+      CreateUserBank( URL , {
+        user_id: userID!,
+        account_name: AccountName,
+        balance: parseFloat(AccountBalance),
+        color_code: colors[selectedColor!],
+        icon_id: AccountIconSize[selectedIcon!].source,
+      }, auth?.token!).then((response) => {
+        if (response.success) {
+          router.replace("/(tabs)/transaction");
+        } else {
+          console.log(response.message);
+        }
+      });
     }
   }
 
