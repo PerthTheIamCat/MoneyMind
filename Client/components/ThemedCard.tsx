@@ -38,7 +38,7 @@ export function ThemedCard({
   const currentLanguage = locales[0]?.languageCode;
   const fontFamily = currentLanguage === "th" ? "NotoSansThai" : "Prompt";
   const selectedImage = images[imageIndex] || images[0];
-  console.log(color);
+  // console.log(color);
   return (
     <ThemedView
       className={` !rounded-2xl  !flex-row !justify-start  !items-start mr-3 ${
