@@ -10,8 +10,12 @@ const {router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail} =
 const {router: usersRouter} = require('./routes/users')
 const {router: bankaccountsRouter} = require('./routes/bankaccounts')
 const {router: transactionsRouter} = require('./routes/transactions')
+const {router: notificationsRouter} = require('./routes/notifications')
+const {router: splitpaymentsRouter} = require('./routes/splitpayments')
 const ocrRouter = require('./routes/ocr')
 
+app.use('/splitpayments', splitpaymentsRouter)
+app.use('/notifications', notificationsRouter)
 app.use('/bankaccounts', bankaccountsRouter)
 app.use('/transactions', transactionsRouter)
 app.use('/sendEmail', sendEmailRouter)
