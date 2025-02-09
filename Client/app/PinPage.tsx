@@ -98,7 +98,7 @@ export default function PinPage() {
         >
           <ThemedText
             style={[styles.underline, styles.forgot]}
-            onPress={() => router.replace("/PinPage")}
+            onPress={() => router.replace("/PinRecovery")}
           >
             Forgot PIN?
           </ThemedText>
