@@ -37,48 +37,75 @@ router.post('/create', jwtValidate, (req, res) => {
                 return res.status(403).json({ message: 'Unauthorized user or account not found', success: false });
             }
 
-            let bankData = result[0]
-            let balance
-            console.log(bankData.balance)
+            let bankData = result[0];
+            let balance = bankData.balance;
 
-            if (transaction_type === 'income') {
-                balance = bankData.balance+amount
-                console.log(balance)
-            }else if (transaction_type === 'expense') {
-                balance = bankData.balance-amount
-                console.log(balance)
-            }else {
-                console.log('Invalid transaction type')
-                return res.status(404).json({message: 'Invalid transaction type', success: false})
-            }
-
-            db.query(
-                'INSERT INTO transactions (user_id, account_id, split_payment_id, transaction_name, amount, transaction_type, note, color_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                [user_id, account_id, split_payment_id || null, transaction_name, amount, transaction_type, note || null, color_code],
-                (err, result) => {
+            if (split_payment_id) {
+                db.query('SELECT * FROM splitpayments WHERE id = ? AND account_id = ?', [split_payment_id, account_id], (err, splitResult) => {
                     if (err) {
                         return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
                     }
+                    if (splitResult.length === 0) {
+                        return res.status(404).json({ message: 'Split payment not found', success: false });
+                    }
 
-                    db.query(
-                        'UPDATE bankaccounts SET balance = ? WHERE id = ?', [balance, account_id], (err, updateResult) => {
+                    let splitPayment = splitResult[0];
+                    if (transaction_type === 'expense' && splitPayment.remaining_balance < amount) {
+                        return res.status(400).json({ message: 'Insufficient split payment balance', success: false });
+                    }
+
+                    processTransaction();
+                });
+            } else {
+                processTransaction();
+            }
+
+            function processTransaction() {
+                if (transaction_type === 'income') {
+                    balance += amount;
+                } else if (transaction_type === 'expense') {
+                    balance -= amount;
+                    if (balance < 0) {
+                        return res.status(400).json({ message: 'Insufficient bank account balance', success: false });
+                    }
+                } else {
+                    return res.status(404).json({ message: 'Invalid transaction type', success: false });
+                }
+
+                db.query(
+                    'INSERT INTO transactions (user_id, account_id, split_payment_id, transaction_name, amount, transaction_type, note, color_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                    [user_id, account_id, split_payment_id || null, transaction_name, amount, transaction_type, note || null, color_code],
+                    (err, result) => {
+                        if (err) {
+                            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                        }
+
+                        db.query('UPDATE bankaccounts SET balance = ? WHERE id = ?', [balance, account_id], (err) => {
                             if (err) {
                                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
                             }
-                
-                            if (updateResult.length === 0) {
-                                return res.status(404).json({ message: 'Bank Account not found', success: false });
+                            
+                            if (split_payment_id) {
+                                let splitUpdateQuery = transaction_type === 'expense' 
+                                    ? 'UPDATE splitpayments SET remaining_balance = remaining_balance - ? WHERE id = ?' 
+                                    : 'UPDATE splitpayments SET remaining_balance = remaining_balance + ? WHERE id = ?';
+                                
+                                db.query(splitUpdateQuery, [amount, split_payment_id], (err) => {
+                                    if (err) {
+                                        return res.status(500).json({ message: 'Failed to update split payment', error: err.message, success: false });
+                                    }
+                                    return res.status(200).json({ message: 'Transaction and split payment updated successfully', success: true });
+                                });
+                            } else {
+                                return res.status(200).json({ message: 'Transaction created successfully', success: true });
                             }
-                
-                            console.log("Transaction created and update Bank accout")
-                            return res.status(200).json({updateResult, message: 'Transaction created and update Bank accout', success: true});
-                        }
-                    )
-                }
-            )
-        } 
-    )
-})
+                        });
+                    }
+                );
+            }
+        }
+    );
+});
 
 router.get('/:id', jwtValidate, (req, res) => {
     if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
@@ -100,75 +127,152 @@ router.get('/:id', jwtValidate, (req, res) => {
     )
 })
 
-// router.put('/:id', jwtValidate, (req, res) => {
-//     const transactionID = req.params.id;
+router.put('/:id', jwtValidate, (req, res) => {
+    const transactionId = req.params.id;
+    const { account_id, split_payment_id, transaction_name, amount, transaction_type, note, color_code } = req.body;
 
+    db.query(
+        'SELECT * FROM transactions WHERE id = ? AND user_id = ?',
+        [transactionId, req.user.UserID],
+        (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+            }
+            if (result.length === 0) {
+                return res.status(403).json({ message: 'Unauthorized user or transaction not found', success: false });
+            }
 
-//     db.query(
-//         'SELECT * FROM transactions WHERE id = ? AND user_id = ?', [transactionID, req.user.UserID], (err, result) => {
-//             if (err) {
-//                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
-//             }
+            const oldTransaction = result[0];
 
-//             if (result.length === 0) {
-//                 return res.status(403).json({ message: 'Unauthorized user or account not found', success: false });
-//             }
+            db.query(
+                'SELECT balance FROM bankaccounts WHERE id = ?',
+                [account_id],
+                (err, bankResult) => {
+                    if (err) {
+                        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                    }
+                    if (bankResult.length === 0) {
+                        return res.status(404).json({ message: 'Bank account not found', success: false });
+                    }
 
-//             let transactionData = result[0]
-//             console.log(transactionData)
+                    let balance = bankResult[0].balance;
 
-//             if(transactionData.split_payment_id){
-//                 db.query(
-//                     'SELECT * FROM splitpayments WHERE id = ?', [transactionData.split_payment_id], (err, splitpayResult) => {
+                    if (oldTransaction.transaction_type === 'income') {
+                        balance -= oldTransaction.amount;
+                    } else if (oldTransaction.transaction_type === 'expense') {
+                        balance += oldTransaction.amount;
+                    }
 
-//                     }
-//                 )
-//             }
+                    if (transaction_type === 'income') {
+                        balance += amount;
+                    } else if (transaction_type === 'expense') {
+                        balance -= amount;
+                    }
 
-//             db.query(
-//                 'UPDATE transactionID SET ? WHERE id = ?', [req.body, req.params.id], (err, updateResult) => {
-//                     if (err) {
-//                         return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
-//                     }
-        
-//                     if (updateResult.length === 0) {
-//                         return res.status(404).json({ message: 'Bank Account not found', success: false });
-//                     }
-        
-//                     return res.status(200).json({ message: 'Bank Account updated', success: true });
-//                 }
-//             )
-//         }
-//     )
-// })
+                    if (balance < 0) {
+                        return res.status(400).json({ message: 'Insufficient balance in the account', success: false });
+                    }
 
-// router.delete('/:id', jwtValidate, (req, res) => {
-//     const bankID = req.params.id;
+                    db.query(
+                        'UPDATE transactions SET account_id = ?, split_payment_id = ?, transaction_name = ?, amount = ?, transaction_type = ?, note = ?, color_code = ? WHERE id = ?',
+                        [account_id, split_payment_id || null, transaction_name, amount, transaction_type, note || null, color_code, transactionId],
+                        (err, updateResult) => {
+                            if (err) {
+                                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                            }
 
-//     db.query(
-//         'SELECT * FROM bankaccounts WHERE id = ? AND user_id = ?', [bankID, req.user.UserID], (err, result) => {
-//             if (err) {
-//                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
-//             }
+                            db.query(
+                                'UPDATE bankaccounts SET balance = ? WHERE id = ?',
+                                [balance, account_id],
+                                (err) => {
+                                    if (err) {
+                                        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                                    }
+                                    
+                                    if (split_payment_id) {
+                                        let splitUpdateQuery = transaction_type === 'expense' 
+                                            ? 'UPDATE splitpayments SET remaining_balance = remaining_balance - ? WHERE id = ?' 
+                                            : 'UPDATE splitpayments SET remaining_balance = remaining_balance + ? WHERE id = ?';
+                                        
+                                        db.query(
+                                            splitUpdateQuery,
+                                            [amount, split_payment_id],
+                                            (err) => {
+                                                if (err) {
+                                                    return res.status(500).json({ message: 'Failed to update split payment', error: err.message, success: false });
+                                                }
+                                                return res.status(200).json({ message: 'Transaction and split payment updated successfully', success: true });
+                                            }
+                                        );
+                                    } else {
+                                        return res.status(200).json({ message: 'Transaction updated successfully', success: true });
+                                    }
+                                }
+                            );
+                        }
+                    );
+                }
+            );
+        }
+    );
+});
 
-//             if (result.length === 0) {
-//                 return res.status(403).json({ message: 'Unauthorized user or account not found', success: false });
-//             }
+router.delete('/:id', jwtValidate, (req, res) => {
+    const transactionId = req.params.id;
 
-//             db.query('DELETE FROM bankaccounts WHERE id = ?', [bankID], (err, deleteResult) => {
-//                 if (err) {
-//                     return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
-//                 }
-    
-//                 if (deleteResult.length === 0) {
-//                     return res.status(404).json({ message: 'Bank Account deleted', success: false });
-//                 }
-    
-//                 return res.status(200).json({ message: 'Bank Account deleted', success: true });
-//             })
-//         }
-//     )
-// })
+    db.query(
+        'SELECT * FROM transactions WHERE id = ? AND user_id = ?',
+        [transactionId, req.user.UserID],
+        (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+            }
+            if (result.length === 0) {
+                return res.status(403).json({ message: 'Unauthorized user or transaction not found', success: false });
+            }
+
+            const transaction = result[0];
+
+            db.query(
+                'SELECT balance FROM bankaccounts WHERE id = ?',
+                [transaction.account_id],
+                (err, bankResult) => {
+                    if (err) {
+                        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                    }
+                    if (bankResult.length === 0) {
+                        return res.status(404).json({ message: 'Bank account not found', success: false });
+                    }
+
+                    let balance = bankResult[0].balance;
+
+                    if (transaction.transaction_type === 'income') {
+                        balance -= transaction.amount;
+                    } else if (transaction.transaction_type === 'expense') {
+                        balance += transaction.amount;
+                    }
+
+                    db.query(
+                        'UPDATE bankaccounts SET balance = ? WHERE id = ?',
+                        [balance, transaction.account_id],
+                        (err) => {
+                            if (err) {
+                                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                            }
+
+                            db.query('DELETE FROM transactions WHERE id = ?', [transactionId], (err) => {
+                                if (err) {
+                                    return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                                }
+                                return res.status(200).json({ message: 'Transaction deleted successfully', success: true });
+                            });
+                        }
+                    );
+                }
+            );
+        }
+    );
+});
 
 module.exports = {
     router
