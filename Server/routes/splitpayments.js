@@ -28,7 +28,9 @@ router.post('/create', jwtValidate, (req, res) => {
     }
 
     db.query(
-        'SELECT b.balance, SUM(s.amount_allocated) AS sumAmount FROM bankaccounts b LEFT JOIN splitpayments s ON b.id = s.account_id WHERE b.id = ? and b.user_id = ? GROUP BY b.id, b.balance', [account_id, user_id], (err, result) => {
+        'SELECT ba.balance, SUM(sp.amount_allocated) AS sumAmount FROM bankaccounts ba LEFT JOIN splitpayments sp ON ba.id = sp.account_id WHERE ba.id = ? and ba.user_id = ? GROUP BY ba.id, ba.balance', 
+        [account_id, user_id], 
+        (err, result) => {
             if (err) {
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
             }
@@ -64,7 +66,9 @@ router.post('/create', jwtValidate, (req, res) => {
 
 router.get('/:id', jwtValidate, (req, res) => {
     db.query(
-        'SELECT * FROM splitpayments WHERE account_id = ?', [req.params.id], (err, result) => {
+        'SELECT * FROM splitpayments WHERE account_id = ?', 
+        [req.params.id], 
+        (err, result) => {
             if (err) {
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
             }
@@ -79,25 +83,66 @@ router.get('/:id', jwtValidate, (req, res) => {
 })
 
 router.put('/:id', jwtValidate, (req, res) => {
-    const bankID = req.params.id;
-
+    const splitPaymentId = req.params.id;
+    const { split_name, amount_allocated, color_code, icon_id } = req.body;
+    
     db.query(
-        'SELECT * FROM bankaccounts WHERE id = ? AND user_id = ?', [account_id, user_id], (err, result) => {
+        'SELECT sp.account_id, ba.user_id FROM splitpayments sp JOIN bankaccounts ba ON sp.account_id = ba.id WHERE sp.id = ? AND ba.user_id = ?',
+        [splitPaymentId, req.user.UserID],
+        (err, result) => {
             if (err) {
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
             }
-
             if (result.length === 0) {
-                return res.status(403).json({ message: 'Unauthorized user or account not found', success: false });
+                return res.status(403).json({ message: 'Unauthorized user or split payment not found', success: false });
             }
 
-            
+            db.query(
+                'UPDATE splitpayments SET split_name = ?, amount_allocated = ?, color_code = ?, icon_id = ? WHERE id = ?',
+                [split_name, amount_allocated, color_code, icon_id || null, splitPaymentId],
+                (err, updateResult) => {
+                    if (err) {
+                        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                    }
+                    return res.status(200).json({ message: 'Split Payment updated successfully', success: true });
+                }
+            );
         }
-    )
+    );
 })
 
 router.delete('/:id', jwtValidate, (req, res) => {
-    
+    const splitPaymentId = req.params.id;
+
+    db.query(
+        'SELECT sp.account_id, ba.user_id FROM splitpayments sp JOIN bankaccounts ba ON sp.account_id = ba.id WHERE sp.id = ? AND ba.user_id = ?',
+        [splitPaymentId, req.user.UserID],
+        (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+            }
+            if (result.length === 0) {
+                return res.status(403).json({ message: 'Unauthorized user or split payment not found', success: false });
+            }
+
+            db.query(
+                'UPDATE transactions SET split_payment_id = NULL WHERE split_payment_id = ?',
+                [splitPaymentId],
+                (err, updateResult) => {
+                    if (err) {
+                        return res.status(500).json({ message: 'Failed to update transactions', error: err.message, success: false });
+                    }
+
+                    db.query('DELETE FROM splitpayments WHERE id = ?', [splitPaymentId], (err, deleteResult) => {
+                        if (err) {
+                            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                        }
+                        return res.status(200).json({ message: 'Split Payment deleted successfully and related transactions updated', success: true });
+                    });
+                }
+            );
+        }
+    );
 })
 
 
