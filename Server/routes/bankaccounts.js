@@ -45,7 +45,7 @@ router.get('/:id', jwtValidate, (req, res) => {
             }
 
             if (result.length === 0) {
-                return res.status(404).json({ message: 'User not found', success: false });
+                return res.status(404).json({ message: 'Bank Account or User not found', success: false });
             }
 
             return res.status(200).json({result, success: true});
@@ -96,7 +96,6 @@ router.delete('/:id', jwtValidate, (req, res) => {
                 return res.status(403).json({ message: 'Unauthorized user or account not found', success: false });
             }
 
-            // Proceed to delete the bank account
             db.query('DELETE FROM bankaccounts WHERE id = ?', [bankID], (err, deleteResult) => {
                 if (err) {
                     return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });

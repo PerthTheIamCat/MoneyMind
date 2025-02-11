@@ -64,7 +64,7 @@ const jwtValidate = (req, res, next) => {
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
             if (err) {
                 console.error('Invalid token:', err.message);
-                return res.status(403).json({ message: 'Invalid token', success: false });
+                return res.status(403).json({ message: `Invalid token: ${err.message}`, success: false });
             }
 
             console.log('Decoded JWT:', decoded);

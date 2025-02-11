@@ -21,8 +21,6 @@ export default function PinRecovery() {
   const [email, setEmail] = useState<string>("");
   const [isSending, setIsSending] = useState<"success" | "sending" | "fail" | null>(null);
 
-  
-
   const handleSendOTP = () => {
     setIsSending("sending");
     SendOTPHandler(URL, { email })
@@ -30,7 +28,10 @@ export default function PinRecovery() {
         if (response.success) {
           setIsSending("success");
           Alert.alert("Success", "OTP sent to your email address.");
-          router.push("/PinRecovery2");
+          router.push({
+            pathname: "/PinRecovery2",
+            params: { email },
+          });
         } else {
           setIsSending("fail");
           Alert.alert("Error", "Failed to send OTP. Please try again.");
@@ -79,10 +80,7 @@ export default function PinRecovery() {
           <ThemedButton
             className="w-[90%] h-10"
             mode="confirm"
-            onPress={() => {
-              handleSendOTP();
-              router.push("/PinRecovery2");
-            }}
+            onPress={handleSendOTP}
             isLoading={isSending === "sending"}
             disabled={isSending === "sending"}
           >
