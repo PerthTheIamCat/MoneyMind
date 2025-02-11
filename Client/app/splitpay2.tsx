@@ -73,7 +73,7 @@ export default function SplitPay2() {
           </View>
         </ThemedView>
   
-        {/*  */}
+        {/* Added Card Account */}
         <ThemedView>
           
         </ThemedView>
@@ -81,13 +81,13 @@ export default function SplitPay2() {
         {/* States proceed transaction */}
         <ThemedView>
           <ThemedView className="flex-row items-center pt-[10%]">
-            <ThemedView className={`justify-center items-center rounded-[10vw] w-[300px] h-[200px] ${componentColor} ml-2`}>
+            <ThemedView className={`justify-center items-center rounded-[10vw] w-[300px] h-[400px] ${componentColor} ml-2`}>
               <AntDesign name="filetext1" size={70} color={`${componentIcon}`} className="m-3"/>
               <ThemedText className={`mx-5 text-center font-bold ${textColor}`}>
                 Please create an account
                 to proceed with your transaction.
               </ThemedText>
-              <ThemedView className="w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center">
+              <ThemedView className="w-[50px] h-[50px] rounded-full flex justify-center items-center ">
                 <AntDesign name="plus" size={25} color={`${componentIcon}`} />
               </ThemedView>
             </ThemedView>
