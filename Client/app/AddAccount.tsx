@@ -236,7 +236,7 @@ export default function Index() {
                         </View>
                         </ThemedView>
                     </ThemedScrollView>
-                        <ThemedButton className="w-40 h-14" mode="confirm" onPress={() => router.push("/splitpay2")}>
+                        <ThemedButton className="w-40 h-14" mode="confirm" onPress={() => router.push("/(tabs)")}>
                             Add Account
                         </ThemedButton>
                     </ThemedView>
