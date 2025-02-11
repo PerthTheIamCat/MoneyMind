@@ -3,7 +3,8 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedView } from "@/components/ThemedView";
-
+import { useContext } from "react";
+import { UserContext } from "@/hooks/conText/UserContext";
 import { useColorScheme } from "react-native";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedInput } from "@/components/ThemedInput";
@@ -11,6 +12,7 @@ import { router } from "expo-router";
 import { ThemedScrollViewCenter } from "@/components/ThemedScrollViewCenter";
 export default function Index() {
   const theme = useColorScheme();
+  const { bank } = useContext(UserContext);
   return (
     <ThemedSafeAreaView>
       <ThemedView className="w-full h-full flex-1 ">
@@ -27,27 +29,18 @@ export default function Index() {
               className="w-full"
             >
               <ThemedView className="w-full  flex-row ">
-                <ThemedCard
-                  mode="large"
-                  name="Wallet"
-                  balance="0.00"
-                  color="bg-red-500"
-                  className="snap-center"
-                />
-                <ThemedCard
-                  mode="large"
-                  name="Bank"
-                  balance="0.00"
-                  color="bg-blue-500"
-                  className="snap-center"
-                />
-                <ThemedCard
-                  mode="large"
-                  name="Credit Card"
-                  balance="0.00"
-                  color="bg-orange-500"
-                  className="snap-center"
-                />
+            {bank?.map((account) => (
+              <ThemedCard
+                name={account.account_name}
+                color={account.color_code}
+                balance={account.balance.toString()}
+                mode="large"
+                onEdit={() => {}}
+                key={account.id}
+                // image={account.icon_id}
+                className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+              />
+            ))}
               </ThemedView>
             </ThemedScrollViewCenter>
           </ThemedView>
