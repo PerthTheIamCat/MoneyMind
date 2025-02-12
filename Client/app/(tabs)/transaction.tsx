@@ -152,6 +152,7 @@ export default function Index() {
   const { bank } = useContext(UserContext);
   let lastDate = "";
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
+  const [isButtonVisible, setIsButtonVisible] = useState(true);
 
   const theme = useColorScheme() || "light";
   const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
@@ -280,14 +281,15 @@ export default function Index() {
             }).start(() => {
               // เมื่ออนิเมชันเลื่อนลงเสร็จแล้ว
               setIsOverlayVisible(false);
+              setIsButtonVisible(true);
             });
           }}
         >
-          <View className="absolute inset-0 bg-[#00000055] flex items-center justify-end pb-16">
+          <View className="absolute inset-0 bg-[#00000055] flex items-center justify-end pb-1">
             <Animated.View
               style={{
                 transform: [{ translateY: slideAnim }], // ใช้ slideAnim เพื่อเลื่อนขึ้น
-                width: "80%",
+                width: "100%",
               }}
               className="p-6 rounded-lg"
             >
@@ -296,7 +298,7 @@ export default function Index() {
                   Insert Type
                 </ThemedText>
                 <View className="flex flex-row gap-6 mt-2 rounded-lg">
-                  <View className={`${componentcolor}  p-1 rounded-lg mx-2`}>
+                  <View className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}>
                     <MaterialCommunityIcons
                       name="notebook"
                       size={54}
@@ -307,7 +309,7 @@ export default function Index() {
                       Add By Yourself
                     </ThemedText>
                   </View>
-                  <View className={`${componentcolor}  p-1 rounded-lg mx-2`}>
+                  <View className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}>
                     <Ionicons
                       name="camera-sharp"
                       size={54}
@@ -323,14 +325,19 @@ export default function Index() {
         </TouchableWithoutFeedback>
       )}
 
-      <Pressable
-        onPress={() => setIsOverlayVisible(true)}
-        className="!absolute bottom-6 right-6 bg-transparent"
-      >
-        <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16 rounded-full ">
-          <AntDesign name="plus" size={32} color="#ffffff" />
-        </View>
-      </Pressable>
+      {isButtonVisible && (
+        <Pressable
+          onPress={() => {
+            setIsOverlayVisible(true);
+            setIsButtonVisible(false);
+          }}
+          className="!absolute bottom-6 right-6 bg-transparent"
+        >
+          <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16 rounded-full ">
+            <AntDesign name="plus" size={32} color="#ffffff" />
+          </View>
+        </Pressable>
+      )}
     </>
   );
 }
