@@ -11,7 +11,7 @@ import { ThemedButton } from "@/components/ThemedButton";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
-export default function SplitPay() {
+export default function SplitPay2() {
   const theme = useColorScheme();
   const isDarkMode = theme === "dark";
 
