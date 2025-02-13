@@ -4,16 +4,19 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { Image } from "expo-image";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, ScrollView } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { router } from "expo-router";
 import { ThemedCard } from "@/components/ThemedCard";
 import Entypo from "@expo/vector-icons/Entypo";
-
 import { useColorScheme } from "react-native";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { useContext } from "react";
+import { useState, useEffect } from "react";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { TouchableWithoutFeedback } from "react-native";
+import { Animated, Easing } from "react-native";
 
 interface Transaction {
   id: string;
@@ -107,7 +110,8 @@ const TransactionItem = ({
   transaction: Transaction;
   theme: string | null;
 }) => {
-  const componentcolor = theme === "dark" ? "!bg-[#282828]" : "!bg-[#d8d8d8]";
+  const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
+
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
 
   return (
@@ -148,19 +152,34 @@ const TransactionItem = ({
 export default function Index() {
   const { bank } = useContext(UserContext);
   let lastDate = "";
+  const [isOverlayVisible, setIsOverlayVisible] = useState(false);
+  const [isButtonVisible, setIsButtonVisible] = useState(true);
 
-  const theme = useColorScheme();
+  const theme = useColorScheme() || "light";
   const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
   console.log(bank);
+  const [slideAnim] = useState(new Animated.Value(300));
+
+  useEffect(() => {
+    if (isOverlayVisible) {
+      // เมื่อ overlay เปิด, เลื่อนขึ้น
+      Animated.timing(slideAnim, {
+        toValue: 0, // เลื่อนขึ้นมา
+        duration: 300,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isOverlayVisible]);
+
   return (
     <>
       <ThemedSafeAreaView>
-        <ThemedScrollView>
-          <ThemedView
-            className={`${componenticon} flex-row items-center justify-between px-4`}
-          >
-            <Image
+        <ThemedView
+          className={`${componenticon} flex-row items-center justify-between px-4`}
+        >
+           <Image
               className="ml-[10%]"
               source={require("@/assets/logos/LOGO.png")}
               style={{
@@ -214,23 +233,24 @@ export default function Index() {
               </View>
             </ThemedScrollView>
           </ThemedView>
-          <ThemedView className="flex-row items-center bg-[E5E5E5] justify-between px-4">
-            <ThemedText className="text-[20px] pl-[5%] font-bold">
-              Transaction
+        <ThemedView className="flex-row items-center bg-[E5E5E5] justify-between px-4">
+          <ThemedText className="text-[20px] pl-[5%] font-bold">
+            Transaction
+          </ThemedText>
+          <View className="font-bold flex flex-row mr-6">
+            <ThemedText className="font-bold items-center mt-1 text-[18px]">
+              All
             </ThemedText>
-            <View className="font-bold flex flex-row mr-6">
-              <ThemedText className="font-bold items-center mt-1 text-[18px]">
-                All
-              </ThemedText>
-              <MaterialIcons
-                name="arrow-drop-down"
-                size={26}
-                color={`${componenticon}`}
-                className="mt-1"
-              />
-            </View>
-          </ThemedView>
-          <ThemedView className="bg-[E5E5E5] !justify-start h-full py-2 pb-12">
+            <MaterialIcons
+              name="arrow-drop-down"
+              size={26}
+              color={`${componenticon}`}
+              className="mt-1"
+            />
+          </View>
+        </ThemedView>
+        <ScrollView className="h-[450px] py-2">
+          <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12 ">
             <View className="w-full !items-center">
               {transactions.map((transaction) => {
                 const showDateHeader = transaction.date !== lastDate;
@@ -248,13 +268,78 @@ export default function Index() {
               })}
             </View>
           </ThemedView>
-        </ThemedScrollView>
+        </ScrollView>
       </ThemedSafeAreaView>
-      <View className="!absolute bottom-6 right-6 bg-transparent">
-        <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16 rounded-full ">
-          <AntDesign name="plus" size={32} color="#ffffff" />
-        </View>
-      </View>
+
+      {isOverlayVisible && (
+        <TouchableWithoutFeedback
+          onPress={() => {
+            // เริ่มอนิเมชันเลื่อนลง
+            Animated.timing(slideAnim, {
+              toValue: 300, // เลื่อนลง
+              duration: 300,
+              easing: Easing.ease,
+              useNativeDriver: true,
+            }).start(() => {
+              // เมื่ออนิเมชันเลื่อนลงเสร็จแล้ว
+              setIsOverlayVisible(false);
+              setIsButtonVisible(true);
+            });
+          }}
+        >
+          <View className="absolute inset-0 bg-[#00000055] flex items-center justify-end pb-1">
+            <Animated.View
+              style={{
+                transform: [{ translateY: slideAnim }], // ใช้ slideAnim เพื่อเลื่อนขึ้น
+                width: "100%",
+              }}
+              className="p-6 rounded-lg"
+            >
+              <ThemedView className=" p-6 rounded-lg w-full ">
+                <ThemedText className="text-3xl font-bold ">
+                  Insert Type
+                </ThemedText>
+                <View className="flex flex-row gap-6 mt-2 rounded-lg">
+                  <View className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}>
+                    <MaterialCommunityIcons
+                      name="notebook"
+                      size={54}
+                      color="black"
+                      className="bg-[#AACC00] m-2 mr-11 rounded-lg"
+                    />
+                    <ThemedText className="font-bold">
+                      Add By Yourself
+                    </ThemedText>
+                  </View>
+                  <View className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}>
+                    <Ionicons
+                      name="camera-sharp"
+                      size={54}
+                      color="black"
+                      className="bg-[#AACC00] w-fit m-2 mr-11 rounded-lg"
+                    />
+                    <ThemedText className="font-bold">Add By Camera</ThemedText>
+                  </View>
+                </View>
+              </ThemedView>
+            </Animated.View>
+          </View>
+        </TouchableWithoutFeedback>
+      )}
+
+      {isButtonVisible && (
+        <Pressable
+          onPress={() => {
+            setIsOverlayVisible(true);
+            setIsButtonVisible(false);
+          }}
+          className="!absolute bottom-6 right-6 bg-transparent"
+        >
+          <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16 rounded-full ">
+            <AntDesign name="plus" size={32} color="#ffffff" />
+          </View>
+        </Pressable>
+      )}
     </>
   );
 }
