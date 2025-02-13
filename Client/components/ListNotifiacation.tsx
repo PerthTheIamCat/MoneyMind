@@ -20,14 +20,14 @@ export function ListNotification({data=[]}: ListNotificationProps){
                 data={data}
                 keyExtractor={(_,index) => index.toString()}
                 renderItem={({ item }) => {
-                    const bgColor = item.mode === "red" ? "bg-red-400" : 
+                    const bgColor = item.mode ==="red" ? "bg-red-400" : 
                                     item.mode==="yellow"? "bg-yellow-400": 
                                     item.mode==="green"? "bg-green-400":
                                     "bg-black-500";
                     
                     return (
                         <ThemedButton className={`mt-2 bg-transparent w-full`}>
-                            <ThemedView className={`flex-row rounded-3xl h-24 w-[95%] pl-5 pr-20 !justify-start ${bgColor}`}>
+                            <ThemedView className={`flex-row rounded-3xl h-24 w-[95%] pl-5 pr-20 !justify-start ${bgColor}`}> {/* image icon */}
                                 <ThemedView className="bg-white w-16 h-16 rounded-full"/>
                                 <ThemedView className={`ml-5  bg-transparent !items-start`}>
                                     <ThemedText className="text-lg font-bold">{item.Header}</ThemedText>
