@@ -114,6 +114,7 @@ export default function RootLayout() {
               <Stack.Screen name="PinRecovery" options={{ headerShown: false }} />
               <Stack.Screen name="PinRecovery2" options={{ headerShown: false }} />
               <Stack.Screen name="NoticePage" options={{ headerShown: false }} />
+              <Stack.Screen name="Edit_Transaction" options={{ headerTitle: "Edit Transaction" , presentation: "modal" }} />
 
             </Stack>
             <StatusBar style="auto" />
