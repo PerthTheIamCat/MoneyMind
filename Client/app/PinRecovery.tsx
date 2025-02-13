@@ -6,7 +6,6 @@ import { router } from "expo-router";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { AuthContext } from "@/hooks/conText/AuthContext";
-import { ThemedNumPad } from "@/components/ThemedNumPad";
 import { Image } from "expo-image";
 import { ThemedInput } from "@/components/ThemedInput";
 import { ThemedButton } from "@/components/ThemedButton";
@@ -29,7 +28,10 @@ export default function PinRecovery() {
         if (response.success) {
           setIsSending("success");
           Alert.alert("Success", "OTP sent to your email address.");
-          router.push("/PinRecovery2");
+          router.push({
+            pathname: "/PinRecovery2",
+            params: { email },
+          });
         } else {
           setIsSending("fail");
           Alert.alert("Error", "Failed to send OTP. Please try again.");
@@ -58,10 +60,10 @@ export default function PinRecovery() {
           }}
         />
         <ThemedView className="flex-column mt-5 w-[75%]">
-          <ThemedText style={[styles.greetings]}>
+          <ThemedText style={theme === "dark" ? styles.greetingsDark : styles.greeetingsLight}>
             Email Verification
           </ThemedText>
-          <ThemedText style={styles.explain} className="justify-center">
+          <ThemedText style={theme === "dark" ? styles.explainDark : styles.explainLight} className="justify-center">
             OTP will be sent to your email address. Please check your email to proceed.
           </ThemedText>
         </ThemedView>
@@ -78,10 +80,7 @@ export default function PinRecovery() {
           <ThemedButton
             className="w-[90%] h-10"
             mode="confirm"
-            onPress={() => {
-              handleSendOTP();
-              router.push("/PinRecovery2");
-            }}
+            onPress={handleSendOTP}
             isLoading={isSending === "sending"}
             disabled={isSending === "sending"}
           >
@@ -94,15 +93,30 @@ export default function PinRecovery() {
 }
 
 const styles = StyleSheet.create({
-  greetings: {
+  greetingsDark: {
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 10,
     marginTop: 10,
     alignSelf: "center",
+    color: "white",
   },
-  explain: {
+  explainDark: {
     fontSize: 14,
     textAlign: "center",
+    color: "white",
+  },
+  greeetingsLight: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 10,
+    marginTop: 10,
+    alignSelf: "center",
+    color: "black",
+  },
+  explainLight: {
+    fontSize: 14,
+    textAlign: "center",
+    color: "black",
   },
 });

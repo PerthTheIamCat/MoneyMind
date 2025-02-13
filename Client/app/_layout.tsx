@@ -57,9 +57,10 @@ export default function RootLayout() {
             <Stack
               screenOptions={{
                 headerStyle: {
-                  backgroundColor: theme === "dark" ? "#E5E5E5" : "#E5E5E5",
+                  
+                  backgroundColor: theme === "dark" ? "#2F2F2F" : "#E5E5E5",
                 },
-                headerTintColor: theme === "dark" ? "#F2F2F2" : "#2F2F2F",
+                headerTintColor: theme === "dark" ? "#E5E5E5" : "#2F2F2F",
                 headerTitleStyle: {
                   fontFamily,
                 },
@@ -97,7 +98,7 @@ export default function RootLayout() {
               />
               <Stack.Screen
                 name="AddAccount"
-                options={{ headerTitle: "Add Account" }}
+                options={{ headerTitle: "Add Account", presentation: "modal" }}
               />
               <Stack.Screen name="PinPage" options={{ headerShown: false }} />
               <Stack.Screen
@@ -108,6 +109,12 @@ export default function RootLayout() {
                 name="Welcome"
                 options={{ headerShown: false, animation: "none" }}
               />
+
+              <Stack.Screen name="NotificationPage" options={{ headerTitle: "Notification" , presentation: "modal"}} />
+              <Stack.Screen name="PinRecovery" options={{ headerShown: false }} />
+              <Stack.Screen name="PinRecovery2" options={{ headerShown: false }} />
+              <Stack.Screen name="NoticePage" options={{ headerShown: false }} />
+
             </Stack>
             <StatusBar style="auto" />
           </TermsProvider>

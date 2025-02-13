@@ -29,22 +29,42 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen name="splitpay" options={{ title: "SplitPay",
+      <Tabs.Screen
+        name="splitpay"
+        options={{
+          title: "SplitPay",
           tabBarIcon: ({ color }) => (
             <FontAwesome5 name="home" size={24} color={color} />
-          ), }} />
-      <Tabs.Screen name="transaction" options={{ title: "Transaction",
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="transaction"
+        options={{
+          title: "Transaction",
           tabBarIcon: ({ color }) => (
             <FontAwesome5 name="home" size={24} color={color} />
-          ),}} />
-      <Tabs.Screen name="retire" options={{ title: "Retire",
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="retire"
+        options={{
+          title: "Retire",
           tabBarIcon: ({ color }) => (
             <FontAwesome5 name="home" size={24} color={color} />
-          ), }} />
-      <Tabs.Screen name="me" options={{ title: "Me",
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="me"
+        options={{
+          title: "Me",
           tabBarIcon: ({ color }) => (
             <FontAwesome5 name="home" size={24} color={color} />
-          ), }} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
 import { Alert, StyleSheet, TextInput, useColorScheme } from "react-native";
-import { router } from "expo-router";
+import { useRouter, SearchParams } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -12,20 +12,24 @@ import { TouchableOpacity } from "react-native";
 import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
+import { useSearchParams } from "expo-router/build/hooks";
+import { VerifyOTPHandler } from "@/hooks/auth/VerifyOTP";
 
 const OTP_LENGTH = 6;
 
-export default function PinRecovery() {
+export default function PinRecovery2() {
   const theme = useColorScheme();
-  const { email, URL, password, passwordConfirmation, username } = useContext(ServerContext);
+  const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
+  const router = useRouter();
+  const email = useSearchParams().get("email");
 
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const inputRefs = useRef<TextInput[]>([]);
   const [resendTimeout, setResendTimeout] = useState<number | null>(null);
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
-  const [isSending, setIsSending] = useState<"success" | "sending" | "fail" | null>("success");
+  const [isSending, setIsSending] = useState<"success" | "sending" | "fail" | null>(null);
 
   const handleChange = (text: string, index: number) => {
     if (/^\d$/.test(text)) {
@@ -75,13 +79,9 @@ export default function PinRecovery() {
     }, 5000);
 
     setIsVerifying(true);
-    SignUpHandler(URL, {
+    VerifyOTPHandler(URL, {
       email: email!,
-      username: username!,
-      password: password!,
-      password2: passwordConfirmation!,
-      name: username!,
-      otp: otp.join(""),
+      otp: otp.join("")
     }).then((response) => {
       if (response.success) {
         setIsVerifying(false);
@@ -131,7 +131,7 @@ export default function PinRecovery() {
             Email Verification
           </ThemedText>
           <ThemedText style={styles.explain} className="justify-center">
-            OTP will send into your email address please go check your email to proceed.
+            OTP will be sent to your email address. Please check your email to proceed.
           </ThemedText>
         </ThemedView>
         <ThemedView className="w-[80%] mt-5 px-5 gap-5">
@@ -164,7 +164,7 @@ export default function PinRecovery() {
             Verify OTP
           </ThemedButton>
         </ThemedView>
-        <ThemedView className="mt-10 flex-row gap-10">
+        <ThemedView className="mt-10 flex-row gap-24">
           <ThemedText>
             <TouchableOpacity onPress={() => router.back()}>
               <ThemedText style={[styles.edit]}>Edit email address?</ThemedText>
@@ -223,4 +223,3 @@ const styles = StyleSheet.create({
     color: "#4CAF50",
   },
 });
-

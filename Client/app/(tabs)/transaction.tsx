@@ -111,6 +111,7 @@ const TransactionItem = ({
   theme: string | null;
 }) => {
   const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
+
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
 
   return (
@@ -178,59 +179,60 @@ export default function Index() {
         <ThemedView
           className={`${componenticon} flex-row items-center justify-between px-4`}
         >
-          <Image
-            className="ml-[10%]"
-            source={require("@/assets/logos/LOGO.png")}
-            style={{
-              width: 79,
-              height: 70,
-              marginTop: "2%",
-              marginLeft: "5%",
-            }}
-          />
-          <Ionicons
-            onPress={() => router.push("/Add_Transaction")}
-            name="notifications-outline"
-            size={32}
-            color={`${componenticon}`}
-            style={{
-              alignSelf: "center",
-              marginTop: "5%",
-              marginRight: "5%",
-            }}
-          />
-        </ThemedView>
-        <ThemedView className="!items-start pl-[10%] pt-[2%] bg-[E5E5E5]">
-          <ThemedText className=" text-[18px]">Connected</ThemedText>
-          <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
-        </ThemedView>
-        <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
-          <View
-            className={`flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] ${componentcolor} -ml-2 active:scale-105`}
-          >
-            <AntDesign name="plus" size={20} color={`${componenticon}`} />
-            <ThemedText className="font-bold">Add Account</ThemedText>
-          </View>
-          <ThemedScrollView
-            horizontal={true}
-            className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
-          >
-            <View className="mt-0.5 mb-1 flex-row space-x-1">
-              {bank?.map((account) => (
-                <ThemedCard
-                  name={account.account_name}
-                  color={account.color_code}
-                  balance={account.balance.toString()}
-                  mode="small"
-                  onEdit={() => {}}
-                  key={account.id}
-                  // image={account.icon_id}
-                  className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
-                />
-              ))}
-            </View>
-          </ThemedScrollView>
-        </ThemedView>
+           <Image
+              className="ml-[10%]"
+              source={require("@/assets/logos/LOGO.png")}
+              style={{
+                width: 79,
+                height: 70,
+                marginTop: "2%",
+                marginLeft: "5%",
+              }}
+            />
+            <Ionicons
+              onPress={() => router.push("/NotificationPage")}
+              name="notifications-outline"
+              size={32}
+              color={`${componenticon}`}
+              style={{
+                alignSelf: "center",
+                marginTop: "5%",
+                marginRight: "5%",
+              }}
+            />
+          </ThemedView>
+          <ThemedView className="!items-start pl-[10%] pt-[2%] bg-[E5E5E5]">
+            <ThemedText className=" text-[18px]">Connected</ThemedText>
+            <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
+          </ThemedView>
+          <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
+            <Pressable
+              className={`flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] ${componentcolor} -ml-2 active:scale-105`}
+              onPress={() => router.push("/AddAccount")}
+            >
+              <AntDesign name="plus" size={20} color={`${componenticon}`} />
+              <ThemedText className="font-bold">Add Account</ThemedText>
+            </Pressable>
+            <ThemedScrollView
+              horizontal={true}
+              className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
+            >
+              <View className="mt-0.5 mb-1 flex-row space-x-1">
+                {bank?.map((account) => (
+                  <ThemedCard
+                    name={account.account_name}
+                    color={account.color_code}
+                    balance={account.balance.toString()}
+                    mode="small"
+                    onEdit={() => {}}
+                    key={account.id}
+                    // image={account.icon_id}
+                    className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+                  />
+                ))}
+              </View>
+            </ThemedScrollView>
+          </ThemedView>
         <ThemedView className="flex-row items-center bg-[E5E5E5] justify-between px-4">
           <ThemedText className="text-[20px] pl-[5%] font-bold">
             Transaction
