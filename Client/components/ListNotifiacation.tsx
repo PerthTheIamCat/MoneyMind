@@ -15,7 +15,7 @@ interface ListNotificationProps{
 
 export function ListNotification({data=[]}: ListNotificationProps){
     return (
-        <ThemedView className="bg-transparent ">
+        <ThemedView className="bg-transparent">
             <FlatList
                 data={data}
                 keyExtractor={(_,index) => index.toString()}
@@ -26,11 +26,13 @@ export function ListNotification({data=[]}: ListNotificationProps){
                                     "bg-black-500";
                     
                     return (
-                        <ThemedButton className={`mt-1 ${bgColor} w-full`}>
-                          
-                            <ThemedView className={`mt-5 rounded-xl h-20 w-4/5 pl-10 !items-start ${bgColor}`}>
-                                <ThemedText className="text-lg font-bold">{item.Header}</ThemedText>
-                                <ThemedText className="text-sm">{item.Description}</ThemedText>
+                        <ThemedButton className={`mt-2 w-full bg-transparent`}>
+                            <ThemedView className={`flex-row rounded-3xl h-24 w-[95%] pl-5 !justify-start ${bgColor}`}>
+                                <ThemedView className="bg-white w-16 h-16 rounded-full"/>
+                                <ThemedView className={`ml-5  bg-transparent !items-start`}>
+                                    <ThemedText className="text-lg font-bold">{item.Header}</ThemedText>
+                                    <ThemedText className="text-sm ">{item.Description}</ThemedText>
+                                </ThemedView>
                             </ThemedView>
                         </ThemedButton>
                     );
