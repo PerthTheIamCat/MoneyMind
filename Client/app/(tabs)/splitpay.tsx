@@ -79,7 +79,7 @@ export default function SplitPay() {
           <ThemedButton className={`w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center ${componentColor}`}
           onPress={() => router.push("/AddAccount")}
           >
-            <ThemedView className="w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center bg-gray-700">
+            <ThemedView className={`w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center ${bgColor}`}>
               <AntDesign name="plus" size={25} color={`${componentIcon}`} />
               <ThemedText className={`mx-5 text-center font-bold ${textColor}`}>
                 Add Account
