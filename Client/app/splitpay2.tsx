@@ -11,7 +11,7 @@ import { ThemedButton } from "@/components/ThemedButton";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
-export default function SplitPay() {
+export default function SplitPay2() {
   const theme = useColorScheme();
   const isDarkMode = theme === "dark";
 
@@ -74,33 +74,32 @@ export default function SplitPay() {
       </ThemedView>
 
       {/* Add Account Box */}
-      <ThemedView>
-        <ThemedView className="flex flex-row justify-center items-center pt-[10%] ml-2 bg-transparent">
-          <ThemedButton className={`w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center ${componentColor}`}
-          onPress={() => router.push("/AddAccount")}
-          >
-            <ThemedView className={`w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center ${bgColor}`}>
-              <AntDesign name="plus" size={25} color={`${componentIcon}`} />
-              <ThemedText className={`mx-5 text-center font-bold ${textColor}`}>
-                Add Account
-              </ThemedText>
-            </ThemedView>
-          </ThemedButton>
-        </ThemedView>
-      </ThemedView>
+      
 
       {/* States proceed transaction */}
       <ThemedView>
         <ThemedView className="flex-row items-center pt-[10%]">
-          <ThemedView className={`justify-center items-center rounded-[10vw] w-[300px] h-[200px] ${componentColor} ml-2`}>
+          <ThemedView className={`justify-center items-center rounded-[10vw] w-[255px] h-[350px] ${componentColor} ml-2`}>
             <AntDesign name="filetext1" size={70} color={`${componentIcon}`} className="m-3"/>
-            <ThemedText className={`mx-5 text-center font-bold ${textColor}`}>
-              Please create an account
-              to proceed with your transaction.
+            <ThemedText className={`mx-5 text-center items-center font-bold ${textColor}`}>
+              Let's get started with your
+              first budget plan!
             </ThemedText>
+            <ThemedView className="flex flex-row justify-center items-center pt-[10%] ml-2 bg-transparent">
+                <ThemedButton className={`w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center ${componentColor}`}
+                onPress={() => router.push("/AddAccount")}
+                >
+                    <ThemedView className={` rounded-[5vw] flex justify-center items-center ${bgColor}`}>
+                        <AntDesign name="plus" size={25} color={`${componentIcon}`} />
+                    </ThemedView>
+                </ThemedButton>
+            </ThemedView>
           </ThemedView>
         </ThemedView>
       </ThemedView>
+
+      {/* */}
+      
 
     </ThemedSafeAreaView>
   );
