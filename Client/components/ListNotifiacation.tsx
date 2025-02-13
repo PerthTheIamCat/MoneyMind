@@ -26,8 +26,8 @@ export function ListNotification({data=[]}: ListNotificationProps){
                                     "bg-black-500";
                     
                     return (
-                        <ThemedButton className={`mt-2 w-full bg-transparent`}>
-                            <ThemedView className={`flex-row rounded-3xl h-24 w-[95%] pl-5 !justify-start ${bgColor}`}>
+                        <ThemedButton className={`mt-2 bg-transparent w-full`}>
+                            <ThemedView className={`flex-row rounded-3xl h-24 w-[95%] pl-5 pr-20 !justify-start ${bgColor}`}>
                                 <ThemedView className="bg-white w-16 h-16 rounded-full"/>
                                 <ThemedView className={`ml-5  bg-transparent !items-start`}>
                                     <ThemedText className="text-lg font-bold">{item.Header}</ThemedText>
