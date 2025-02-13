@@ -133,7 +133,7 @@ const TransactionItem = ({ transaction, theme }: { transaction: Transaction, the
 
 
 export default function Index() {
-  const theme = useColorScheme();
+  const theme = useColorScheme() || "light";
   const componentColor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
   const componentIcon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
   
@@ -285,18 +285,26 @@ export default function Index() {
           </ThemedView>
         ) : (
           <ThemedView className="!items-center w-full ">
+              <ThemedScrollViewCenter
+              vertical={false}
+              horizontal={true}
+              className="w-full"
+            >
               <ThemedView className="w-full  flex-row ">
-                {bank.map((item, index) => (
-                  <ThemedCard
-                    key={index}
-                    mode="large"
-                    name={item.account_name}
-                    balance={item.balance.toString()}
-                    color={item.color_code}
-                    className="snap-center"
-                  />
-                ))}
+            {bank?.map((account) => (
+              <ThemedCard
+                name={account.account_name}
+                color={account.color_code}
+                balance={account.balance.toString()}
+                mode="large"
+                onEdit={() => {}}
+                key={account.id}
+                // image={account.icon_id}
+                className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+              />
+            ))}
               </ThemedView>
+            </ThemedScrollViewCenter>
           </ThemedView>
         )}
         </ThemedView>
