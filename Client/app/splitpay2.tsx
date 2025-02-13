@@ -73,13 +73,13 @@ export default function SplitPay2() {
         </View>
       </ThemedView>
 
-      {/* Add Account Box */}
+      {/* Account Card Box */}
       
 
       {/* States proceed transaction */}
       <ThemedView>
         <ThemedView className="flex-row items-center pt-[10%]">
-          <ThemedView className={`justify-center items-center rounded-[10vw] w-[255px] h-[350px] ${componentColor} ml-2`}>
+          <ThemedView className={`justify-center items-center rounded-[10vw] w-[255px] h-[350px] ${componentColor}`}>
             <AntDesign name="filetext1" size={70} color={`${componentIcon}`} className="m-3"/>
             <ThemedText className={`mx-5 text-center items-center font-bold ${textColor}`}>
               Let's get started with your
@@ -97,9 +97,7 @@ export default function SplitPay2() {
           </ThemedView>
         </ThemedView>
       </ThemedView>
-
-      {/* */}
-      
+     
 
     </ThemedSafeAreaView>
   );
