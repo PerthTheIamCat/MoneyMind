@@ -1,39 +1,25 @@
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedScrollView } from "@/components/ThemedScrollView";
-import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import { ThemedButton } from "@/components/ThemedButton";
-import { ThemedText } from "@/components/ThemedText";
 import { useState } from "react";
-import { FlatList } from "react-native";
 import { useColorScheme } from "react-native";
 
-export default function Index(){
+import { ThemedView } from "@/components/ThemedView";
+import { ListNotification } from "@/components/ListNotifiacation";
+
+export default function Index() {
     const theme = useColorScheme();
     const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
-    const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
-  
+
     const [data, setData] = useState([
-        { Headers: "Toppic1", Discription: "H3" },
-        { Headers: "Toppic2", Discription: "H4" },
-        { Headers: "Toppic3", Discription: "H5" },
-        { Headers: "Toppic4", Discription: "H6" },
-        { Headers: "Toppic5", Discription: "H6" },
+        { Header: "Topic1", Description: "H3" },
+        { Header: "Topic2", Description: "H4" },
+        { Header: "Topic3", Description: "H5" },
+        { Header: "Topic4", Description: "H6" },
+        { Header: "Topic5", Description: "H6" },
     ]);
 
-    return(
-        <ThemedView className={`${componentcolor} h-full justify-start items-start `}>
-            <FlatList className="w-5/6"
-                data={data}
-                renderItem={({ item }) => (
-                    <ThemedView className="mt-5 rounded-xl h-20 pl-10 !items-start">
-                        <ThemedText className="text-lg font-bold !justify-start">{item.Headers}</ThemedText>
-                        <ThemedText className="text-sm">{item.Discription}</ThemedText>
-                    </ThemedView>
-                )}
-                keyExtractor={(item)=>item.Headers}
-                ListEmptyComponent={<ThemedText style={{alignSelf:"center", fontSize:15, marginTop:20}}> Empty List</ThemedText>}
-            />
-            
+    return (
+        
+        <ThemedView className={`${componentcolor} h-full justify-center items-start`}>
+            <ListNotification data={data} />
         </ThemedView>
-    )
+    );
 }
