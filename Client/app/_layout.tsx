@@ -14,6 +14,7 @@ import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from "react-native-reanimated";
+import { UserProvider } from "@/hooks/conText/UserContext";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -35,12 +36,11 @@ export default function RootLayout() {
   const fontFamily = currentLanguage === "th" ? "NotoSansThai" : "Prompt";
 
   const auth = useContext(AuthContext);
-  
 
   const theme = useColorScheme();
 
   useEffect(() => {
-    if (loaded || auth?.authLoading) {
+    if (loaded) {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
@@ -51,49 +51,75 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <ServerProvider>
-        <TermsProvider>
-          <Stack
-            screenOptions={{
-              headerStyle: {
-                backgroundColor: theme === "dark" ? "#2F2F2F" : "#F2F2F2",
-              },
-              headerTintColor: theme === "dark" ? "#F2F2F2" : "#2F2F2F",
-              headerTitleStyle: {
-                fontFamily,
-              },
-              animation: "slide_from_right",
-              headerBackTitle: "back",
-              gestureEnabled: false,
-            }}
-          >
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false, animation:"none" , gestureEnabled: false}} />
-            <Stack.Screen name="+not-found" />
-            <Stack.Screen name="SignUp" options={{ headerShown: false }} />
-            <Stack.Screen name="SignIn" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="terms_and_con"
-              options={{
-                presentation: "modal",
-                animation: "slide_from_bottom",
-                headerTitle: "Terms and Conditions",
+      <UserProvider>
+        <ServerProvider>
+          <TermsProvider>
+            <Stack
+              screenOptions={{
+                headerStyle: {
+                  
+                  backgroundColor: theme === "dark" ? "#2F2F2F" : "#E5E5E5",
+                },
+                headerTintColor: theme === "dark" ? "#E5E5E5" : "#2F2F2F",
+                headerTitleStyle: {
+                  fontFamily,
+                },
+                animation: "slide_from_right",
+                headerBackTitle: "back",
               }}
-            />
-            <Stack.Screen name="OTP" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="Add_Transaction"
-              options={{ title: "Add Your Transaction" }}
-            />
-            <Stack.Screen
-              name="AddAccount"
-              options={{ headerTitle: "Add Account" }}
-            />
-            <Stack.Screen name="PinPage" options={{ headerShown: false }} />
-          </Stack>
-          <StatusBar style="auto" />
-        </TermsProvider>
-      </ServerProvider>
+            >
+              <Stack.Screen
+                name="index"
+                options={{ headerShown: false, animation: "none" }}
+              />
+              <Stack.Screen
+                name="(tabs)"
+                options={{
+                  headerShown: false,
+                  animation: "none",
+                  gestureEnabled: false,
+                }}
+              />
+              <Stack.Screen name="+not-found" />
+              <Stack.Screen name="SignUp" options={{ headerShown: false }} />
+              <Stack.Screen name="SignIn" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="terms_and_con"
+                options={{
+                  presentation: "modal",
+                  animation: "slide_from_bottom",
+                  headerTitle: "Terms and Conditions",
+                }}
+              />
+              <Stack.Screen name="OTP" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="Add_Transaction"
+                options={{ title: "Add Your Transaction" }}
+              />
+              <Stack.Screen
+                name="AddAccount"
+                options={{ headerTitle: "Add Account", presentation: "modal" }}
+              />
+              <Stack.Screen name="PinPage" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="CreatePinPage"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Welcome"
+                options={{ headerShown: false, animation: "none" }}
+              />
+
+              <Stack.Screen name="NotificationPage" options={{ headerTitle: "Notification" , presentation: "modal"}} />
+              <Stack.Screen name="PinRecovery" options={{ headerShown: false }} />
+              <Stack.Screen name="PinRecovery2" options={{ headerShown: false }} />
+              <Stack.Screen name="NoticePage" options={{ headerShown: false }} />
+
+            </Stack>
+            <StatusBar style="auto" />
+          </TermsProvider>
+        </ServerProvider>
+      </UserProvider>
     </AuthProvider>
   );
 }

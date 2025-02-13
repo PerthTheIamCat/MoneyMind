@@ -26,6 +26,7 @@ export const SignInHandler = async (
   data: SignInData
 ): Promise<SignInResponse | SignInError["response"]["data"]> => {
   try {
+    // console.log("Sign In (in Handler): ", data.input, data.password);
     const response = await axios.post<SignInResponse>(
       `${url}/auth/login`,
       data

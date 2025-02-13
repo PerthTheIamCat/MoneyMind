@@ -9,17 +9,15 @@ import { TermsContext } from "@/hooks/conText/TermsConText";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { router } from "expo-router";
 import { Image } from "expo-image";
-import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
+import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
 import { ThemedText } from "@/components/ThemedText";
 
 export default function Index() {
 
   // Use the useColorScheme hook to get the current color scheme
   const theme = useColorScheme();
-  
-  // Use the useState hook to create state variables
-  const [password, setPassword] = useState<string>("");
-  const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
+
+  const [isSending, setIsSending] = useState<boolean>(false);
  
   // Create state variables for error messages
   const [errorUsername, setErrorUsername] = useState<string>("");
@@ -28,7 +26,7 @@ export default function Index() {
   const [errorPasswordConfirmation, setErrorPasswordConfirmation] = useState<string>("");
 
   // Use the useContext hook to get the setIsAccepted function from the TermsContext
-  const { URL , setUsername, setEmail, username, email } = useContext(ServerContext);
+  const { URL , setUsername, setEmail, setPassword, setPasswordConfirmation, setOtp, username, email, password, passwordConfirmation } = useContext(ServerContext);
   const { isAccepted, setIsAccepted } = useContext(TermsContext);
   const [isCheckedNotification, setIsCheckedNotification] = useState<boolean>(false);
 
@@ -68,14 +66,23 @@ export default function Index() {
         router.push("/terms_and_con");
         return;
       }
-      SignUpHandler(URL,{ username: username!, email: email!, password:password!, password2: passwordConfirmation!}).then((response) => {
+      setIsSending(true);
+      const timeoutId = setTimeout(()=> {
+        setIsSending(false);
+        alert("Sign Up is taking too long. Please try again later.");
+      }, 5000);
+      SendOTPHandler(URL, { email: email! }).then((response) => {
         if (response.success) {
-          console.log(response);
-          router.replace("/(tabs)");
+          clearTimeout(timeoutId);
+          setIsSending(false);
+          setOtp(response.message);
+          router.push("/OTP");
         } else {
-          console.error(response);
+          clearTimeout(timeoutId);
+          setIsSending(false);
+          console.error(response.message);
         }
-      });
+      })
     } catch (error) {
       console.error(error);
     }
@@ -97,6 +104,7 @@ export default function Index() {
             Sign Up
           </ThemedText>
           <ThemedInput
+            value={username}
             autoComplete="username"
             title="Username"
             error={errorUsername}
@@ -104,6 +112,7 @@ export default function Index() {
             onChangeText={(text) => setUsername(text)}
           />
           <ThemedInput
+            value={email}
             autoComplete="email"
             title="Email"
             error={errorEmail}
@@ -146,7 +155,7 @@ export default function Index() {
           </ThemedCheckBox>
         </ThemedView>
         <ThemedView className="mt-7 w-full">
-          <ThemedButton mode="confirm" className="w-[60%] h-14" onPress={handleSignUp}>
+          <ThemedButton mode="confirm" className="w-[60%] h-14" onPress={handleSignUp} isLoading={isSending}>
             Sign Up
           </ThemedButton>
           <ThemedButton

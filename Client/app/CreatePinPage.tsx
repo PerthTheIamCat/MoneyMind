@@ -2,23 +2,41 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Image } from "expo-image";
 import { useEffect, useState, useContext } from "react";
-import { Alert, StyleSheet, useColorScheme } from "react-native";
+import {
+  Alert,
+  StyleSheet,
+  TouchableOpacity,
+  useColorScheme,
+} from "react-native";
 import { router } from "expo-router";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ThemedNumPad } from "@/components/ThemedNumPad";
 
-export default function PinPage() {
+export default function CreatePinPage() {
   const auth = useContext(AuthContext);
   const [pin, setPin] = useState<string>("");
+  const [confirmPin, setConfirmPin] = useState<string>("");
   const [code, setCode] = useState<number[]>([]);
   const theme = useColorScheme();
   const codeLength = Array(6).fill(0);
 
+  const handleSetPin = () => {
+    if (confirmPin === pin) {
+      auth?.setPinCode(pin);
+      router.replace("/(tabs)");
+    } else {
+      setPin("");
+      setConfirmPin("");
+      setCode([]);
+      Alert.alert("PIN does not match");
+    }
+  }
+
   const handlePress = (value: string) => {
     if (code.length < 6) {
-      setCode((prevCode) => [...prevCode, parseInt(value)]);
+      setCode(prevCode => [...prevCode, parseInt(value)]);
     }
   };
 
@@ -28,50 +46,47 @@ export default function PinPage() {
     }
   };
 
-  const handleVerifyPin = async () => {
-    if ((await auth?.isPinSet) && (await auth?.verifyPin(pin))) {
-      router.replace("/(tabs)");
-    } else if (await !auth?.isPinSet) {
-      alert("Please set your PIN first");
-      router.replace("/CreatePinPage");
-    } else {
-      setPin("");
-      setCode([]);
-      Alert.alert("Invalid PIN");
-    }
-  };
-
-  useEffect(() => {
-    if (auth?.canUseBiometrics) {
-      auth?.useAuthenticationWithBiometrics().then((result) => {
-        if (result) {
-          router.replace("/(tabs)");
-        }
-      });
-    }
-  }, []);
-
   useEffect(() => {
     if (code.length === 6) {
       if (pin === "") {
         setPin(code.join(""));
         setCode([]);
+      } else {
+        setConfirmPin(code.join(""));
       }
     }
   }, [code]);
 
   useEffect(() => {
-    if (pin.length === 6) {
-      handleVerifyPin();
+    if (confirmPin !== "" && pin !== "" && confirmPin === pin) {
+      handleSetPin();
     }
-  }, [pin]);
+  }, [confirmPin, pin]);
 
   return (
     <ThemedSafeAreaView>
       <ThemedView>
-        <ThemedView className="!justify-start !items-start w-full px-5 mt-5">
-          <Ionicons name="arrow-back-outline" size={32} color="transparent" />
-        </ThemedView>
+        {pin !== "" ? (
+          <ThemedView className="!justify-start !items-start w-full px-5 mt-5">
+            <Ionicons
+              name="arrow-back-outline"
+              size={32}
+              color={theme === "dark" ? "#F2F2F2" : "#2F2F2F"}
+              onPress={() => {
+                setPin("");
+                setConfirmPin("");
+              }}
+            />
+          </ThemedView>
+        ) : (
+          <ThemedView className="!justify-start !items-start w-full px-5 mt-5">
+            <Ionicons
+              name="arrow-back-outline"
+              size={32}
+              color="transparent"
+            />
+          </ThemedView>
+        )}
         <ThemedView className="flex-1 justify-center h-full mb-10">
           <Image
             source={require("@/assets/logos/LOGO.png")}
@@ -79,7 +94,7 @@ export default function PinPage() {
           />
         </ThemedView>
         <ThemedText style={styles.greetings}>
-          Enter your PIN to continue
+          {pin === "" ? "Create your PIN code" : "Enter your PIN again"}
         </ThemedText>
         <ThemedView style={styles.codeView}>
           {codeLength.map((_, index) => (
@@ -98,12 +113,16 @@ export default function PinPage() {
         >
           <ThemedText
             style={[styles.underline, styles.forgot]}
-            onPress={() => router.replace("/PinRecovery")}
+            onPress={() => router.replace("/PinPage")}
           >
             Forgot PIN?
           </ThemedText>
         </ThemedView>
-        <ThemedNumPad onPress={handlePress} onPressBack={handlePressBack} />
+        <ThemedNumPad
+          haveBiometric={false}
+          onPress={handlePress}
+          onPressBack={handlePressBack}
+        />
       </ThemedView>
     </ThemedSafeAreaView>
   );

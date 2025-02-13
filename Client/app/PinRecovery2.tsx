@@ -1,30 +1,36 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
-import { router } from "expo-router";
-import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import { ThemedView } from "@/components/ThemedView";
+import React, { useEffect, useState, useContext, useRef } from "react";
+import { Alert, StyleSheet, TextInput, useColorScheme } from "react-native";
+import { useRouter, SearchParams } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedInput } from "@/components/ThemedInput";
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
+import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ThemedButton } from "@/components/ThemedButton";
+import { Image } from "expo-image";
+import { TouchableOpacity } from "react-native";
+import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
-import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
-import { TextInput, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { useSearchParams } from "expo-router/build/hooks";
+import { VerifyOTPHandler } from "@/hooks/auth/VerifyOTP";
 
 const OTP_LENGTH = 6;
 
-export default function OTP() {
-  const { email, URL, password, passwordConfirmation, username } =
-    useContext(ServerContext);
-  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
-  const [isSending, setIsSending] = useState<
-    "success" | "sending" | "fail" | null
-  >("success");
-  const [isVerifying, setIsVerifying] = useState<boolean>(false);
-  const [resendTimeout, setResendTimeout] = useState<number | null>(null);
-  const inputRefs = useRef<TextInput[]>([]);
-  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+export default function PinRecovery2() {
+  const theme = useColorScheme();
+  const { URL } = useContext(ServerContext);
+  const auth = useContext(AuthContext);
+  const router = useRouter();
+  const email = useSearchParams().get("email");
 
-  
+  const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const inputRefs = useRef<TextInput[]>([]);
+  const [resendTimeout, setResendTimeout] = useState<number | null>(null);
+  const [isVerifying, setIsVerifying] = useState<boolean>(false);
+  const [isSending, setIsSending] = useState<"success" | "sending" | "fail" | null>(null);
+
   const handleChange = (text: string, index: number) => {
     if (/^\d$/.test(text)) {
       const newOtp = [...otp];
@@ -46,7 +52,6 @@ export default function OTP() {
       }
     }
   };
-
 
   const resendOTPHandler = () => {
     setIsSending("sending");
@@ -74,13 +79,9 @@ export default function OTP() {
     }, 5000);
 
     setIsVerifying(true);
-    SignUpHandler(URL, {
+    VerifyOTPHandler(URL, {
       email: email!,
-      username: username!,
-      password: password!,
-      password2: passwordConfirmation!,
-      name: username!,
-      otp: otp.join(""),
+      otp: otp.join("")
     }).then((response) => {
       if (response.success) {
         setIsVerifying(false);
@@ -112,7 +113,10 @@ export default function OTP() {
   }, []);
 
   return (
-<ThemedSafeAreaView>
+    <ThemedSafeAreaView>
+      <ThemedView className="!justify-start !items-start w-full px-5 mt-5">
+        <Ionicons name="arrow-back-outline" size={32} color="black" onPress={() => router.back()} />
+      </ThemedView>
       <ThemedView className="my-5">
         <Image
           source={require("@/assets/logos/LOGO.png")}

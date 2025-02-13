@@ -6,7 +6,8 @@ interface SignUpData {
   password: string;
   password2: string;
   email: string;
-  name?: string;
+  name: string;
+  otp: string;
 }
 
 interface SignUpResponse {
@@ -30,7 +31,7 @@ export const SignUpHandler = async (
   data: SignUpData
 ): Promise<SignUpResponse | SignUpError["response"]["data"]> => {
 
-  console.log("From auth:",data);
+  // console.log("From auth:",data);
   try {
     const response = await axios.post<SignUpResponse>(
       `${url}/auth/register`,

@@ -15,11 +15,13 @@ export default function Index() {
   const [password, setPassword] = useState<string>("");
   const [errorUsernameEmail, setErrorUsernameEmail] = useState<string>("");
   const [errorPassword, setErrorPassword] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
+    console.log("Sign In :",usernameEmail, password);
     try {
       if (usernameEmail === "") {
         setErrorUsernameEmail("Username/Email is required");
@@ -33,17 +35,24 @@ export default function Index() {
       } else {
         setErrorPassword("");
       }
+      const timeoutId = setTimeout(()=> {
+        setIsLoading(false);
+        alert("Sign In is taking too long. Please try again later.");
+      }, 5000);
+      setIsLoading(true);
       SignInHandler(URL, { input: usernameEmail, password: password }).then((response) => {
         console.log(response);
         if (response.success) {
+          clearTimeout(timeoutId);
           auth?.setToken(response.accessToken);
+          setIsLoading(false);
           router.replace("/(tabs)");
         } else {
+          clearTimeout(timeoutId);
+          setIsLoading(false);
           setErrorUsernameEmail(response.message);
         }
       });
-      
-      
     } catch (error) {
       console.log(error);
     }
@@ -65,6 +74,7 @@ export default function Index() {
               Sign In
           </ThemedText>
           <ThemedInput
+            value={usernameEmail}
             autoComplete="username"
             title="Username/Email"
             error={errorUsernameEmail}
@@ -75,12 +85,13 @@ export default function Index() {
             autoComplete="password"
             title="Password"
             error={errorPassword}
+            secureTextEntry={true}
             className="w-full "
             onChangeText={setPassword}
           />
         </ThemedView>
         <ThemedView className=" w-full  mt-[65%]">
-          <ThemedButton mode="confirm" className="w-[60%] mt-5 h-14 " onPress={handleSignIn}>
+          <ThemedButton mode="confirm" className="w-[60%] mt-5 h-14 " onPress={handleSignIn} isLoading={isLoading}>
             Sign In
           </ThemedButton>
           <ThemedButton
