@@ -1,39 +1,26 @@
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedScrollView } from "@/components/ThemedScrollView";
-import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import { ThemedButton } from "@/components/ThemedButton";
-import { ThemedText } from "@/components/ThemedText";
 import { useState } from "react";
-import { FlatList } from "react-native";
 import { useColorScheme } from "react-native";
 
-export default function Index(){
+import { ThemedView } from "@/components/ThemedView";
+import { ListNotification } from "@/components/ListNotifiacation";
+
+export default function Index() {
     const theme = useColorScheme();
     const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
-    const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
-  
+
     const [data, setData] = useState([
-        { Headers: "Toppic1", Discription: "H3" },
-        { Headers: "Toppic2", Discription: "H4" },
-        { Headers: "Toppic3", Discription: "H5" },
-        { Headers: "Toppic4", Discription: "H6" },
-        { Headers: "Toppic5", Discription: "H6" },
+        { mode: "red" ,Header: "Monthly Summary", Description: "You didn't save enough money last month try to be better next month." },
+        { mode: "green" ,Header: "Monthly Summary", Description: "You save enough money last month keep it up in next month." },
+        { mode: "red" ,Header: "Nearly out of money", Description: "Your funds are running low. Spend wisely before it all slips away." },
+        { mode: "red" ,Header: "Out of money", Description: "Your funds are depleted. NOw is th time to rely on practice and careful planning to start anew.  " },
+        { mode: "yellow" ,Header: "New device logged in", Description: "New device logged in on 11/01/2025 11:10 . If this not you please go to setting and change your password" },
+        { mode: "yellow" ,Header: "Password changed", Description: "Password change successfully." },
     ]);
 
-    return(
-        <ThemedView className={`${componentcolor} h-full justify-start items-start `}>
-            <FlatList className="w-5/6"
-                data={data}
-                renderItem={({ item }) => (
-                    <ThemedView className="mt-5 rounded-xl h-20 pl-10 !items-start">
-                        <ThemedText className="text-lg font-bold !justify-start">{item.Headers}</ThemedText>
-                        <ThemedText className="text-sm">{item.Discription}</ThemedText>
-                    </ThemedView>
-                )}
-                keyExtractor={(item)=>item.Headers}
-                ListEmptyComponent={<ThemedText style={{alignSelf:"center", fontSize:15, marginTop:20}}> Empty List</ThemedText>}
-            />
-            
+    return (
+        
+        <ThemedView className={`${componentcolor} h-full w-full items-start`}>
+            <ListNotification data={data} />
         </ThemedView>
-    )
+    );
 }
