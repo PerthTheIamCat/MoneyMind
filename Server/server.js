@@ -22,7 +22,6 @@ app.use('/sendEmail', sendEmailRouter)
 app.use('/users', usersRouter)
 app.use('/auth', authRouter)
 app.use('/ocr', ocrRouter)
-app.use('/notifications',notifications)
 
 const port = process.env.PORT || 3000
 
