@@ -46,3 +46,27 @@ export const GetUserBank = async (
     return (error as GetUserBankError).response.data;
   }
 };
+
+export const UpdateUserBank = async (
+  url: string,
+  userID: number,
+  data: resultObject,
+  token: string
+): Promise<GetUserBankResponse | GetUserBankError["response"]["data"]> => {
+  try {
+    console.log("UserID:",userID);
+    const response = await axios.put<GetUserBankResponse>(
+      `${url}/bankaccounts/${userID}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    return (error as GetUserBankError).response.data;
+  }
+};

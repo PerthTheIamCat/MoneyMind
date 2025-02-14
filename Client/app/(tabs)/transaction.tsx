@@ -17,97 +17,29 @@ import { useState, useEffect } from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { TouchableWithoutFeedback } from "react-native";
 import { Animated, Easing } from "react-native";
+import { UserTransaction } from "@/hooks/auth/GetAllTransaction";
 
-interface Transaction {
-  id: string;
-  logo: any;
-  transaction_type: "income" | "expense";
-  amount: string;
-  category: string;
-  description: string;
-  date: string;
-}
-
-const transactions: Transaction[] = [
+const transactions: UserTransaction[] = [
   {
-    id: "1",
-    logo: require("@/assets/logos/LOGO.png"),
+    id: 1,
+    user_id: 1,
+    account_id: 1,
+    split_payment_id: null,
     transaction_type: "expense",
-    amount: "250.00",
-    category: "Food & Drinks",
-    description: "Lunch at McDonald's",
-    date: "25/12/67",
+    amount: 250.00,
+    color_code : "#FF0000",
+    transaction_date: "2022-01-01",
+    transaction_name: "Food",
+    note: "Lunch",
   },
-  {
-    id: "2",
-    logo: require("@/assets/logos/LOGO.png"),
-    transaction_type: "expense",
-    amount: "1,200.00",
-    category: "Shopping",
-    description: "Bought new shoes",
-    date: "25/12/67",
-  },
-  {
-    id: "3",
-    logo: require("@/assets/logos/LOGO.png"),
-    transaction_type: "income",
-    amount: "20,000.00",
-    category: "Salary",
-    description: "Monthly paycheck",
-    date: "26/12/67",
-  },
-  {
-    id: "4",
-    logo: require("@/assets/logos/LOGO.png"),
-    transaction_type: "income",
-    amount: "20,000.00",
-    category: "Salary",
-    description: "Monthly paycheck",
-    date: "26/12/67",
-  },
-  {
-    id: "5",
-    logo: require("@/assets/logos/LOGO.png"),
-    transaction_type: "income",
-    amount: "20,000.00",
-    category: "Salary",
-    description: "Monthly paycheck",
-    date: "26/12/67",
-  },
-  {
-    id: "6",
-    logo: require("@/assets/logos/LOGO.png"),
-    transaction_type: "income",
-    amount: "20,000.00",
-    category: "Salary",
-    description: "Monthly paycheck",
-    date: "26/12/67",
-  },
-  {
-    id: "7",
-    logo: require("@/assets/logos/LOGO.png"),
-    transaction_type: "income",
-    amount: "20,000.00",
-    category: "Salary",
-    description: "Monthly paycheck",
-    date: "26/12/67",
-  },
-  {
-    id: "8",
-    logo: require("@/assets/logos/LOGO.png"),
-    transaction_type: "income",
-    amount: "20,000.00",
-    category: "Salary",
-    description: "Monthly paycheck",
-    date: "26/12/67",
-  },
+  
 ];
 
 const TransactionItem = ({
   transaction,
   theme,
 }: {
-  transaction: Transaction;
+  transaction: UserTransaction;
   theme: string | null;
 }) => {
   const [showOverlay, setShowOverlay] = useState(false);
@@ -151,12 +83,12 @@ const TransactionItem = ({
     <>
       <View className={`flex-row items-center justify-center w-10/12 ${componentcolor} p-4 rounded-lg mb-2 shadow-md`}>
         <Image
-          source={transaction.logo}
+          source={require("@/assets/logos/LOGO.png")}
           style={{ width: 40, height: 40, borderRadius: 20, marginRight: 16 }}
         />
         <View className="flex-1">
-          <ThemedText className={`font-bold text-lg `}>{transaction.category}</ThemedText>
-          <ThemedText>{transaction.description}</ThemedText>
+          <ThemedText className={`font-bold text-lg `}>{transaction.transaction_name}</ThemedText>
+          <ThemedText>{transaction.note}</ThemedText>
         </View>
         <Text className={`font-bold text-[16px] ${transaction.transaction_type === "income" ? "text-green-500" : "text-red-500"}`}>
           {transaction.amount}
@@ -199,7 +131,7 @@ const TransactionItem = ({
 
 
 export default function Index() {
-  const { bank } = useContext(UserContext);
+  const { bank, transaction } = useContext(UserContext);
   let lastDate = "";
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
@@ -301,14 +233,14 @@ export default function Index() {
         <ScrollView className="h-[450px] py-2">
           <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12 ">
             <View className="w-full !items-center">
-              {transactions.map((transaction) => {
-                const showDateHeader = transaction.date !== lastDate;
-                lastDate = transaction.date;
+              {transaction?.map((transaction) => {
+                const showDateHeader = transaction.transaction_date !== lastDate;
+                lastDate = transaction.transaction_date || "";
                 return (
                   <View key={transaction.id} className="w-full items-center ">
                     {showDateHeader && (
                       <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
-                        {transaction.date}
+                        {transaction.transaction_date}
                       </ThemedText>
                     )}
                     <TransactionItem transaction={transaction} theme={theme} />

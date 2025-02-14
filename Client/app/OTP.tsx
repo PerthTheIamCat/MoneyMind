@@ -9,6 +9,8 @@ import { ServerContext } from "@/hooks/conText/ServerConText";
 import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
 import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
 import { TextInput, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { AuthContext } from "@/hooks/conText/AuthContext";
+
 
 const OTP_LENGTH = 6;
 
@@ -23,7 +25,7 @@ export default function OTP() {
   const [resendTimeout, setResendTimeout] = useState<number | null>(null);
   const inputRefs = useRef<TextInput[]>([]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-
+  const auth = useContext(AuthContext);
   
   const handleChange = (text: string, index: number) => {
     if (/^\d$/.test(text)) {
@@ -84,6 +86,7 @@ export default function OTP() {
     }).then((response) => {
       if (response.success) {
         setIsVerifying(false);
+        auth?.setToken(response.accessToken);
         clearTimeout(timeout);
         router.replace("/CreatePinPage");
       } else {
