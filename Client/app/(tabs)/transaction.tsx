@@ -18,7 +18,6 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { TouchableWithoutFeedback } from "react-native";
 import { Animated, Easing } from "react-native";
 import { UserTransaction } from "@/hooks/auth/GetAllTransaction";
-import { Col } from "react-native-flex-grid";
 
 const transactions: UserTransaction[] = [
   {
