@@ -4,6 +4,19 @@ import { AuthContext } from "./AuthContext";
 import { GetUserBank, resultObject } from "../auth/GetUserBank";
 import { ServerContext } from "../conText/ServerConText";
 
+type UserTransaction = {
+  id: number;
+  user_id: number;
+  account_id: number;
+  split_payment_id : number;
+  transaction_name : string;
+  amount : number;
+  transaction_type : "income" | "expense";
+  transaction_date : string;
+  note : string;
+  color_code : string;
+}
+
 type UserContextType = {
   fullname: string | null;
   username: string | null;
@@ -11,11 +24,13 @@ type UserContextType = {
   email: string | null;
   bank: Array<resultObject> | null;
   birthdate: string | null;
+  transaction: Array<UserTransaction> | null;
   setUsername: (user: string) => void;
   setUserID: (id: number) => void;
   setEmail: (email: string) => void;
   setFullname: (name: string) => void;
   setBirthdate: (birthdate: string) => void;
+  setTransaction: (transaction: Array<UserTransaction>) => void;
   loading: boolean;
 };
 
@@ -26,11 +41,13 @@ export const UserContext = React.createContext<UserContextType>({
   email: null,
   bank: null,
   birthdate: null,
+  transaction: null,
   setUsername: () => {},
   setUserID: () => {},
   setEmail: () => {},
   setFullname: () => {},
   setBirthdate: () => {},
+  setTransaction: () => {},
   loading: true,
 });
 
@@ -45,6 +62,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [fullname, setFullname] = useState<string | null>(null);
   const [birthdate, setBirthdate] = useState<string | null>(null);
   const [bank, setBank] = useState<Array<resultObject> | null>(null);
+  const [transaction, setTransaction] = useState<Array<UserTransaction> | null>(null);
 
   useEffect(() => {
     if (auth?.token) {
@@ -85,6 +103,18 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         .catch((error) => {
           console.log(error.message);
         });
+      axios
+        .get(`${URL}/transactions/${userID}`, {
+          headers: {
+            Authorization: `Bearer ${auth.token}`,
+          },
+        })
+        .then((response) => {
+          setTransaction(response.data.result);
+          console.log("Transaction: ", response.data.result);
+        }).catch((error) => {
+          console.log(error.message);
+        });
     }
   }, [fullname, userID, auth?.token]);
 
@@ -97,11 +127,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         email,
         bank,
         birthdate,
+        transaction,
         setUsername,
         setEmail,
         setUserID,
         setFullname,
         setBirthdate,
+        setTransaction,
         loading,
       }}
     >
