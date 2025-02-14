@@ -102,10 +102,20 @@ export default function SplitPay() {
           </ThemedView>
         </ThemedView>
       ) : (
+        // <ThemedView className="w-full  flex-row ">
+        // {bank.map((item, index) => (
+        //   <ThemedCard
+        //     key={index}
+        //     mode="large"
+        //     name={item.account_name}
+        //     balance={item.balance.toString()}
+        //     color={item.color_code}
+        //     className="snap-center"
+        //   />
+        // ))}
+        // </ThemedView> 
         <ThemedView>
-          <ThemedView className="flex flex-row justify-center items-center pt-[10%] ml-2 bg-transparent">
-            
-          </ThemedView>
+          
         </ThemedView>
       )}
 
