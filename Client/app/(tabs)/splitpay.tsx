@@ -35,7 +35,7 @@ export default function SplitPay() {
   const [selected, setSelected] = useState("budget");
   const [accountCheck, setAccount] = useState(false);
   const [statesCheck, setStates] = useState(false);
-
+  const { bank } = useContext(UserContext);
 
   return (
     <ThemedSafeAreaView>
@@ -102,21 +102,20 @@ export default function SplitPay() {
           </ThemedView>
         </ThemedView>
       ) : (
-        // <ThemedView className="w-full  flex-row ">
-        // {bank.map((item, index) => (
-        //   <ThemedCard
-        //     key={index}
-        //     mode="large"
-        //     name={item.account_name}
-        //     balance={item.balance.toString()}
-        //     color={item.color_code}
-        //     className="snap-center"
-        //   />
-        // ))}
-        // </ThemedView> 
-        <ThemedView>
-          
-        </ThemedView>
+        <View className="mt-0.5 mb-1 flex-row space-x-1">
+          {bank?.map((account) => (
+            <ThemedCard
+              name={account.account_name}
+              color={account.color_code}
+              balance={account.balance.toString()}
+              mode="small"
+              onEdit={() => {}}
+              key={account.id}
+              // image={account.icon_id}
+              className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+              />
+          ))}
+        </View>
       )}
 
 
