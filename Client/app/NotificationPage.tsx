@@ -22,7 +22,7 @@ export default function Index() {
     };
     
     return(
-        <ThemedView className={`${componentcolor} h-full w-full  flex-1 items-start`}>
+        <ThemedView className={`${componentcolor}`}>
             <ListNotification data={data} onDelete={deleteNotification} />
         </ThemedView>
     );
