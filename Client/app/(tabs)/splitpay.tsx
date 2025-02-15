@@ -127,8 +127,8 @@ export default function SplitPay() {
               >
                 <ThemedView className={`w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center ${bgColor}`}>
                   <AntDesign name="plus" size={25} color={`${componentIcon}`} />
-              </ThemedView>
-            </ThemedButton>
+                </ThemedView>
+              </ThemedButton>
             </ThemedView>
           </ThemedView>
         </ThemedView>
