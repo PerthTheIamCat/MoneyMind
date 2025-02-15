@@ -13,7 +13,6 @@ import { CreateUserBank } from "@/hooks/auth/CreateUserBank";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { AuthContext } from "@/hooks/conText/AuthContext";
-import { resultObject } from "@/hooks/auth/GetUserBank";
 
 const CircleSize = 40;
 const CircleRingSize = 2;
