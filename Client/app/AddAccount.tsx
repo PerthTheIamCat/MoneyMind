@@ -40,7 +40,7 @@ const colors = [
 
 export default function Index() {
   const { URL } = useContext(ServerContext);
-  const { userID } = useContext(UserContext);
+  const { userID, setBank, bank } = useContext(UserContext);
   const auth = useContext(AuthContext);
   const theme = useColorScheme();
 
@@ -97,6 +97,17 @@ export default function Index() {
         icon_id: AccountIconSize[selectedIcon!].source,
       }, auth?.token!).then((response) => {
         if (response.success) {
+          setBank([
+            ...(bank || []),
+            {
+              id: (bank?.length || 0) + 1,
+              user_id: userID!,
+              account_name: AccountName,
+              balance: parseFloat(AccountBalance),
+              color_code: colors[selectedColor!],
+              icon_id: AccountIconSize[selectedIcon!].source,
+            },
+          ]);
           router.replace("/(tabs)/transaction");
         } else {
           console.log(response.message);

@@ -31,6 +31,7 @@ type UserContextType = {
   setFullname: (name: string) => void;
   setBirthdate: (birthdate: string) => void;
   setTransaction: (transaction: Array<UserTransaction>) => void;
+  setBank: (bank: Array<resultObject>) => void;
   loading: boolean;
 };
 
@@ -48,6 +49,7 @@ export const UserContext = React.createContext<UserContextType>({
   setFullname: () => {},
   setBirthdate: () => {},
   setTransaction: () => {},
+  setBank: () => {},
   loading: true,
 });
 
@@ -134,6 +136,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setFullname,
         setBirthdate,
         setTransaction,
+        setBank,
         loading,
       }}
     >
