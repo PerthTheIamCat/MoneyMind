@@ -10,7 +10,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import Entypo from "@expo/vector-icons/Entypo";
 
-import { useColorScheme,Text,View, } from "react-native";
+import { useColorScheme, Text, View } from "react-native";
 import { useState, useContext } from "react";
 import { Image } from "expo-image";
 
@@ -102,12 +102,20 @@ const transactions: Transaction[] = [
   },
 ];
 
-const TransactionItem = ({ transaction, theme }: { transaction: Transaction, theme: string | null }) => {
+const TransactionItem = ({
+  transaction,
+  theme,
+}: {
+  transaction: Transaction;
+  theme: string | null;
+}) => {
   const componentcolor = theme === "dark" ? "!bg-[#282828]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
 
   return (
-    <View className={`flex-row items-center justify-center w-10/12 ${componentcolor} w-full p-4 rounded-lg mb-2 shadow-md`}>
+    <View
+      className={`flex-row items-center justify-center w-10/12 ${componentcolor} w-full p-4 rounded-lg mb-2 shadow-md`}
+    >
       <Image
         source={transaction.logo}
         style={{ width: 40, height: 40, borderRadius: 20, marginRight: 16 }}
@@ -117,37 +125,47 @@ const TransactionItem = ({ transaction, theme }: { transaction: Transaction, the
         <ThemedText className={`font-bold text-lg `}>
           {transaction.category}
         </ThemedText>
-        <ThemedText className={``}>
-          {transaction.description}
-        </ThemedText>
+        <ThemedText className={``}>{transaction.description}</ThemedText>
       </View>
 
-      <Text className={`font-bold text-[16px] ${transaction.transaction_type === "income" ? "text-green-500" : "text-red-500"}`}>
+      <Text
+        className={`font-bold text-[16px] ${
+          transaction.transaction_type === "income"
+            ? "text-green-500"
+            : "text-red-500"
+        }`}
+      >
         {transaction.amount}
       </Text>
-      <Entypo name="dots-three-vertical" size={20} color={componenticon} className="ml-2" />
+      <Entypo
+        name="dots-three-vertical"
+        size={20}
+        color={componenticon}
+        className="ml-2"
+      />
     </View>
   );
 };
-
 
 export default function Index() {
   const theme = useColorScheme() || "light";
   const componentColor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
   const componentIcon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
-  
+
   const [checkRetireData, setCheckRetireData] = useState(false);
   const [retire, setRetire] = useState<number | null>(null);
-  const [transactioncheack, settransactioncheack] = useState<boolean | null>(true);
-  
-  const [AccountData,setAccountData]=useState(false);
-  const [username,setUsername]=useState("USERNAME:)");
-  const [retireAmount,setretire]=useState(5000);
-  const [retireGoal,setretireGoal]=useState(10000);
-  
+  const [transactioncheack, settransactioncheack] = useState<boolean | null>(
+    true
+  );
+
+  const [AccountData, setAccountData] = useState(false);
+  const [username, setUsername] = useState("USERNAME:)");
+  const [retireAmount, setretire] = useState(5000);
+  const [retireGoal, setretireGoal] = useState(10000);
+
   const { fullname, bank, transaction } = useContext(UserContext);
   let lastDate = "";
-  
+
   const transactions: Transaction[] = [
     {
       id: "1",
@@ -193,7 +211,7 @@ export default function Index() {
       category: "Salary",
       description: "Monthly paycheck",
       date: "26/12/67",
-    }
+    },
   ];
 
   return (
@@ -284,76 +302,77 @@ export default function Index() {
           </ThemedView>
         ) : (
           <ThemedView className="!items-center w-full ">
-              <ThemedScrollViewCenter
+            <ThemedScrollViewCenter
               vertical={false}
               horizontal={true}
               className="w-full"
             >
               <ThemedView className="w-full  flex-row ">
-            {bank?.map((account) => (
-              <ThemedCard
-                name={account.account_name}
-                color={account.color_code}
-                balance={account.balance.toString()}
-                mode="large"
-                onEdit={() => {}}
-                key={account.id}
-                // image={account.icon_id}
-                className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
-              />
-            ))}
+                {bank?.map((account) => (
+                  <ThemedCard
+                    name={account.account_name}
+                    color={account.color_code}
+                    balance={account.balance.toString()}
+                    mode="large"
+                    onEdit={() => {}}
+                    key={account.id}
+                    // image={account.icon_id}
+                    className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+                  />
+                ))}
               </ThemedView>
             </ThemedScrollViewCenter>
           </ThemedView>
         )}
-        </ThemedView>
         <ThemedView
-          className="ml-4 mt-4 w-[80%] flex-row !justify-between"
+          className="ml-4 mt-4 w-[80%]"
           onTouchEnd={() => router.push("/(tabs)/transaction")}
-          >
-          <ThemedText className="text-xl font-bold text-start">
+        >
+          <ThemedText className="text-xl font-bold text-start w-full">
             Transaction
           </ThemedText>
         </ThemedView>
-        
-        {transaction ? (
-          <ThemedScrollView className="h-[450px] py-2">
-                    <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12 ">
-                      <View className="w-full !items-center">
-                        {transaction?.map((userTransaction) => {
-                          const transaction: Transaction = {
-                            id: userTransaction.id.toString(),
-                            logo: require("@/assets/logos/LOGO.png"), // or any default logo
-                            transaction_type: userTransaction.transaction_type,
-                            amount: userTransaction.amount.toString(),
-                            category: userTransaction.transaction_type,
-                            description: userTransaction.note,
-                            date: userTransaction.transaction_date,
-                          };
-                          const showDateHeader = transaction.date !== lastDate;
-                          lastDate = transaction.date || "";
-                          return (
-                            <View key={transaction.id} className="w-full items-center ">
-                              {showDateHeader && (
-                                <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
-                                  {transaction.date}
-                                </ThemedText>
-                              )}
-                              <TransactionItem transaction={transaction} theme={theme} />
-                            </View>
-                          );
-                        })}
-                      </View>
-                    </ThemedView>
-                  </ThemedScrollView>
-          
-        ) : (
-          <ThemedView className="!items-center w-full ">
-            <ThemedText className="text-center font-bold mt-5">
-              no record transaction found
-            </ThemedText>
+      </ThemedView>
+
+      <ThemedView className="max-h-72">
+      {transaction ? (
+        <ThemedScrollView className="h-[450px] py-2  ml-4 mt-4 w-[80%]">
+          <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12 ">
+            <View className="w-full !items-center">
+              {transaction?.map((userTransaction) => {
+                const transaction: Transaction = {
+                  id: userTransaction.id.toString(),
+                  logo: require("@/assets/logos/LOGO.png"), // or any default logo
+                  transaction_type: userTransaction.transaction_type,
+                  amount: userTransaction.amount.toString(),
+                  category: userTransaction.transaction_type,
+                  description: userTransaction.note,
+                  date: userTransaction.transaction_date,
+                };
+                const showDateHeader = transaction.date !== lastDate;
+                lastDate = transaction.date || "";
+                return (
+                  <View key={transaction.id} className="w-full items-center ">
+                    {showDateHeader && (
+                      <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
+                        {transaction.date}
+                      </ThemedText>
+                    )}
+                    <TransactionItem transaction={transaction} theme={theme} />
+                  </View>
+                );
+              })}
+            </View>
           </ThemedView>
-        )}
+        </ThemedScrollView>
+      ) : (
+        <ThemedView className="!items-center w-full ">
+          <ThemedText className="text-center font-bold mt-5">
+            no record transaction found
+          </ThemedText>
+        </ThemedView>
+      )}
+      </ThemedView>
     </ThemedSafeAreaView>
   );
 }

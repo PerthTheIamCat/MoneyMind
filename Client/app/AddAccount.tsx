@@ -13,6 +13,7 @@ import { CreateUserBank } from "@/hooks/auth/CreateUserBank";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { AuthContext } from "@/hooks/conText/AuthContext";
+import { resultObject } from "@/hooks/auth/GetUserBank";
 
 const CircleSize = 40;
 const CircleRingSize = 2;
@@ -40,7 +41,7 @@ const colors = [
 
 export default function Index() {
   const { URL } = useContext(ServerContext);
-  const { userID } = useContext(UserContext);
+  const { userID, setBank, bank } = useContext(UserContext);
   const auth = useContext(AuthContext);
   const theme = useColorScheme();
 
@@ -97,6 +98,17 @@ export default function Index() {
         icon_id: AccountIconSize[selectedIcon!].source,
       }, auth?.token!).then((response) => {
         if (response.success) {
+          setBank([
+            ...(bank || []),
+            {
+              id: (bank?.length || 0) + 1,
+              user_id: userID!,
+              account_name: AccountName,
+              balance: parseFloat(AccountBalance),
+              color_code: colors[selectedColor!],
+              icon_id: AccountIconSize[selectedIcon!].source,
+            },
+          ]);
           router.replace("/(tabs)/transaction");
         } else {
           console.log(response.message);
