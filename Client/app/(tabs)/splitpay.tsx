@@ -85,7 +85,7 @@ export default function SplitPay() {
         </View>
       </ThemedView>
 
-      {/* check Account have Added */}
+      {/* check Splitpay Information have Added */}
       {!accountCheck ? (
         <ThemedView>
           <ThemedView className="flex flex-row justify-center items-center pt-[10%] ml-2 bg-transparent">
@@ -100,28 +100,6 @@ export default function SplitPay() {
               </ThemedView>
             </ThemedButton>
           </ThemedView>
-        </ThemedView>
-      ) : (
-        <View className="mt-0.5 mb-1 flex-row space-x-1">
-          {bank?.map((account) => (
-            <ThemedCard
-              name={account.account_name}
-              color={account.color_code}
-              balance={account.balance.toString()}
-              mode="small"
-              onEdit={() => {}}
-              key={account.id}
-              // image={account.icon_id}
-              className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
-              />
-          ))}
-        </View>
-      )}
-
-
-      {/* Check States proceed transaction */}
-      {!statesCheck ? (
-        <ThemedView>
           <ThemedView className="flex-row items-center pt-[10%]">
             <ThemedView className={`justify-center items-center rounded-[10vw] w-[300px] h-[200px] ${componentColor} ml-2`}>
               <AntDesign name="filetext1" size={70} color={`${componentIcon}`} className="m-3"/>
@@ -134,8 +112,40 @@ export default function SplitPay() {
         </ThemedView>
       ) : (
         <ThemedView>
-          
+          <ThemedView className="flex flex-row justify-center items-center pt-[10%] ml-2 bg-transparent">
+            
+          </ThemedView>
+          <ThemedView className="flex-row items-center pt-[10%]">
+            <ThemedView className={`justify-center items-center rounded-[10vw] w-[300px] h-[200px] ${componentColor} ml-2`}>
+              <AntDesign name="filetext1" size={70} color={`${componentIcon}`} className="m-3"/>
+              <ThemedText className={`mx-5 text-center font-bold ${textColor}`}>
+                Please create an account
+                to proceed with your transaction.
+              </ThemedText>
+              <ThemedButton className={`w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center ${componentColor}`}
+                onPress={() => router.push("/AddAccount")}
+              >
+                <ThemedView className={`w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center ${bgColor}`}>
+                  <AntDesign name="plus" size={25} color={`${componentIcon}`} />
+              </ThemedView>
+            </ThemedButton>
+            </ThemedView>
+          </ThemedView>
         </ThemedView>
+        // <View className="mt-0.5 mb-1 flex-row space-x-1">
+        //   {bank?.map((account) => (
+        //     <ThemedCard
+        //       name={account.account_name}
+        //       color={account.color_code}
+        //       balance={account.balance.toString()}
+        //       mode="small"
+        //       onEdit={() => {}}
+        //       key={account.id}
+        //       // image={account.icon_id}
+        //       className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+        //       />
+        //   ))}
+        // </View>
       )}
 
     </ThemedSafeAreaView>
