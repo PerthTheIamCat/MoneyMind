@@ -65,7 +65,7 @@ export function DonutChart({
             cx="50%"
             cy="50%"
             strokeWidth={STROKE_WIDTH}
-            strokeLinecap="round"
+            //strokeLinecap="round"
             strokeDasharray={CIRCUMFERANCE}
           />
         </G>
