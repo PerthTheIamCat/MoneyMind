@@ -137,7 +137,7 @@ router.delete('/:id', jwtValidate, (req, res) => {
                         if (err) {
                             return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
                         }
-                        return res.status(200).json({ message: 'Split Payment deleted successfully and related transactions updated', success: true });
+                        return res.status(200).json({updateResult, message: 'Split Payment deleted successfully and related transactions updated', success: true });
                     });
                 }
             );
