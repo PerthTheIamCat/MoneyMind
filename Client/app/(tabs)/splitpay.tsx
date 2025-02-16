@@ -113,7 +113,20 @@ export default function SplitPay() {
       ) : (
         <ThemedView>
           <ThemedView className="flex flex-row justify-center items-center pt-[10%] ml-2 bg-transparent">
-            
+            <View className="mt-0.5 mb-1 flex-row space-x-1">
+              {bank?.map((account) => (
+              <ThemedCard
+                name={account.account_name}
+                color={account.color_code}
+                balance={account.balance.toString()}
+                mode="small"
+                onEdit={() => {}}
+                key={account.id}
+                // image={account.icon_id}
+                className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+              />
+              ))}
+            </View>
           </ThemedView>
           <ThemedView className="flex-row items-center pt-[10%]">
             <ThemedView className={`justify-center items-center rounded-[10vw] w-[300px] h-[200px] ${componentColor} ml-2`}>
@@ -122,30 +135,16 @@ export default function SplitPay() {
                 Please create an account
                 to proceed with your transaction.
               </ThemedText>
-              <ThemedButton className={`w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center ${componentColor}`}
+              <ThemedButton className={` rounded-[5vw] flex justify-center items-center ${componentColor}`}
                 onPress={() => router.push("/AddAccount")}
               >
-                <ThemedView className={`w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center ${bgColor}`}>
+                <ThemedView className={`flex justify-center items-center ${bgColor}`}>
                   <AntDesign name="plus" size={25} color={`${componentIcon}`} />
                 </ThemedView>
               </ThemedButton>
             </ThemedView>
           </ThemedView>
         </ThemedView>
-        // <View className="mt-0.5 mb-1 flex-row space-x-1">
-        //   {bank?.map((account) => (
-        //     <ThemedCard
-        //       name={account.account_name}
-        //       color={account.color_code}
-        //       balance={account.balance.toString()}
-        //       mode="small"
-        //       onEdit={() => {}}
-        //       key={account.id}
-        //       // image={account.icon_id}
-        //       className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
-        //       />
-        //   ))}
-        // </View>
       )}
 
     </ThemedSafeAreaView>
