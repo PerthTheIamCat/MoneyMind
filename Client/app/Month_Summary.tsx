@@ -43,7 +43,7 @@ export default function MonthSummary() {
             {mockSummary.monthly_savings_goal}
           </ThemedText>
         </ThemedView>
-        <ThemedText className="text-3xl py-6">กราฟ</ThemedText>
+        <ThemedText className="text-3xl py-3">กราฟ</ThemedText>
       </ThemedView>
 
       <ThemedView className="flex-row gap-3 justify-between mx-auto rounded-lg">
