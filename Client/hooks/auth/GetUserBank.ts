@@ -70,3 +70,25 @@ export const UpdateUserBank = async (
     return (error as GetUserBankError).response.data;
   }
 };
+
+export const DeleteUserBank = async (
+  url: string,
+  id: number,
+  token: string
+): Promise<GetUserBankResponse | GetUserBankError["response"]["data"]> => {
+  try {
+    console.log("BankID:", id);
+    const response = await axios.delete<GetUserBankResponse>(
+      `${url}/bankaccounts/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log("Response:", response.data);
+    return response.data;
+  } catch (error) {
+    return (error as GetUserBankError).response.data;
+  }
+};
