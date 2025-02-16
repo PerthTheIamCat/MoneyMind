@@ -199,12 +199,14 @@ export default function Index() {
             className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
           >
             <View className="mt-0.5 mb-1 flex-row space-x-1">
-              {bank?.map((account) => (
+              {bank?.map((account, index) => (
                 <ThemedCard
+                  CardID={account.id}
                   name={account.account_name}
                   color={account.color_code}
                   balance={account.balance.toString()}
                   mode="small"
+                  imageIndex={Number(account.icon_id)}
                   onEdit={() => {}}
                   key={account.id}
                   // image={account.icon_id}
