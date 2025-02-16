@@ -1,3 +1,4 @@
+import { DonutChart } from "@/components/DonutChart";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedText } from "@/components/ThemedText";
@@ -13,7 +14,7 @@ interface Summary {
   total_savings_goal: number;
   current_savings: number;
   income: number ;
-  expense: number ;
+  expense: number;
 }
 
 const mockSummary: Summary = {
@@ -22,7 +23,7 @@ const mockSummary: Summary = {
   monthly_savings_goal: 2000,
   monthly_current_savings: 2000,
   total_savings_goal: 100000,
-  current_savings: 25000,
+  current_savings: 90000,
   income:200000,
   expense:170000,
 };
@@ -57,7 +58,7 @@ export default function MonthSummary() {
       </ThemedView>
 
       <View className={`items-center flex-col justify-center w-96 my-5 ${componentcolor} mx-auto rounded-lg`}>
-        <ThemedText className="text-[108px]">กราฟ</ThemedText>
+        <DonutChart savings_goal={mockSummary.total_savings_goal} current_savings={mockSummary.current_savings}/>
       </View>
       <View className={`items-center flex-col justify-center w-96 my-1 mx-auto rounded-lg`}>
         <ThemedText className="text-2xl">You Already Saved 0.1 %</ThemedText>
