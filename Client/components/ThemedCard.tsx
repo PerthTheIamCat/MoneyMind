@@ -12,7 +12,7 @@ import { ThemedText } from "./ThemedText";
 import { ThemedButton } from "./ThemedButton";
 import { TouchableWithoutFeedback } from "react-native";
 import { router } from "expo-router";
-import { DeleteUserBank } from "@/hooks/auth/GetUserBank";
+import { DeleteUserBank, GetUserBank } from "@/hooks/auth/GetUserBank";
 import { response } from "express";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
@@ -105,6 +105,7 @@ export function ThemedCard({
   };
 
 const confirmDelete = () => {
+  setDeleteModalVisible(false);
   if (bank && bank.length > 0) {
     DeleteUserBank(URL, CardID, auth?.token!)
       .then((res) => {
@@ -115,6 +116,11 @@ const confirmDelete = () => {
   } else {
     console.error("Bank is null or empty");
   }
+  GetUserBank(URL, userID!, auth?.token!).then((res) => {
+    if (res.success) {
+      setBank(res.result);
+    }
+  });
 };
 
   
