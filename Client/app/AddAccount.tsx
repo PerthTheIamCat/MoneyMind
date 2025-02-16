@@ -28,14 +28,16 @@ const AccountIconSize = [
   },
 ];
 const colors = [
-  "#FF0000",
-  "#00FF00",
-  "#0000FF",
-  "#FFFF00",
-  "#FF00FF",
-  "#00FFFF",
-  "#000000",
-  "#FFFFFF",
+  "#F94144",
+  "#F3722C",
+  "#F8961E",
+  "#F9844A",
+  "#F9C74F",
+  "#90BE6D",
+  "#43AA8B",
+  "#4D908E",
+  "#577590",
+  "#277DA1",
 ];
 
 export default function Index() {
@@ -88,13 +90,14 @@ export default function Index() {
   };
 
   const addAccount = () => {
+    console.log("Add Account", AccountName, AccountBalance, selectedColor, selectedIcon);
     if (validateInputs()) {
       CreateUserBank( URL , {
         user_id: userID!,
         account_name: AccountName,
         balance: parseFloat(AccountBalance),
         color_code: colors[selectedColor!],
-        icon_id: AccountIconSize[selectedIcon!].source,
+        icon_id: selectedIcon?.toString()!,
       }, auth?.token!).then((response) => {
         if (response.success) {
           setBank([
@@ -105,7 +108,7 @@ export default function Index() {
               account_name: AccountName,
               balance: parseFloat(AccountBalance),
               color_code: colors[selectedColor!],
-              icon_id: AccountIconSize[selectedIcon!].source,
+              icon_id: selectedIcon?.toString()!,
             },
           ]);
           router.replace("/(tabs)/transaction");
