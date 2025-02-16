@@ -29,7 +29,7 @@ interface Transaction {
 }
 
 const TransactionItem = ({transaction,theme,}:{transaction: Transaction;theme: string | null;}) => {
-  const componentcolor = theme === "dark" ? "!bg-[#282828]" : "!bg-[#d8d8d8]";
+  const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
   const componentIcon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
 
   return (
