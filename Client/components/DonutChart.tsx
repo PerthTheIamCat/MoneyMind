@@ -7,6 +7,7 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
+import { ThemedText } from "./ThemedText";
 
 export function DonutChart({
   savings_goal,
@@ -42,7 +43,7 @@ export function DonutChart({
   }));
 
   return (
-    <View>
+    <View className="justify-center items-center">
       <Svg
         width={DIAMETER}
         height={DIAMETER}
@@ -70,6 +71,9 @@ export function DonutChart({
           />
         </G>
       </Svg>
+      <ThemedText className=" absolute text-6xl font-bold" >
+      {percentage}%
+      </ThemedText>
     </View>
   );
 }
