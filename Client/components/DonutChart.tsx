@@ -1,6 +1,12 @@
 import { View, Text } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { Circle, G, Svg } from "react-native-svg";
+import Animated, {
+  useAnimatedProps,
+  useSharedValue,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 
 export function DonutChart({
   savings_goal,
@@ -9,6 +15,9 @@ export function DonutChart({
   savings_goal: number;
   current_savings: number;
 }) {
+  const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+  const progressValue = useSharedValue(0);
+
   const percentage =
     savings_goal > 0 ? (current_savings / savings_goal) * 100 : 0;
 
@@ -19,6 +28,19 @@ export function DonutChart({
   const DIAMETER = HALF_CIRCLE * 2;
   const offset = CIRCUMFERANCE * (1 - percentage / 100);
 
+  // อัปเดต Animation เมื่อค่า percentage เปลี่ยน
+  useEffect(() => {
+    progressValue.value = withTiming(offset, {
+      duration: 1000, // ความเร็ว Animation (1 วินาที)
+      easing: Easing.out(Easing.ease), // ทำให้ลื่นขึ้น
+    });
+  }, [offset]);
+
+  // ใช้ Animated Props เพื่ออัปเดต strokeDashoffset
+  const animationProps = useAnimatedProps(() => ({
+    strokeDashoffset: progressValue.value,
+  }));
+
   return (
     <View>
       <Svg
@@ -27,7 +49,7 @@ export function DonutChart({
         viewBox={`0 0 ${DIAMETER} ${DIAMETER}`}
       >
         <G>
-          <Circle
+          <AnimatedCircle
             fill="transparent"
             stroke="lightgray"
             r={R}
@@ -35,7 +57,8 @@ export function DonutChart({
             cy="50%"
             strokeWidth={STROKE_WIDTH}
           />
-          <Circle
+          <AnimatedCircle
+            animatedProps={animationProps}
             fill="transparent"
             stroke="green"
             r={R}
@@ -44,7 +67,6 @@ export function DonutChart({
             strokeWidth={STROKE_WIDTH}
             strokeLinecap="round"
             strokeDasharray={CIRCUMFERANCE}
-            strokeDashoffset={offset}
           />
         </G>
       </Svg>
