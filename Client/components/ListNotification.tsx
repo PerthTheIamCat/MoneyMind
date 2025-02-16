@@ -60,9 +60,11 @@ export function ListNotification({data=[], onDelete}: ListNotificationProps){
                 rightOpenValue={-75} // Swipe left distance
                 disableRightSwipe
                 ListEmptyComponent={
-                    <ThemedText style={{ alignSelf: "center", fontSize: 15, marginTop: 20 }}>
-                        Empty List
-                    </ThemedText>
+                    <ThemedView>
+                        <ThemedText style={{ alignSelf: "center", fontSize: 15, marginTop: 20 }}>
+                            Empty List
+                        </ThemedText>
+                    </ThemedView>
                 }
             />
         </ThemedView>
