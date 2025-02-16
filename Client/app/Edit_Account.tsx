@@ -1,21 +1,5 @@
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedButton } from "@/components/ThemedButton";
-import { ThemedInput } from "@/components/ThemedInput";
-import { Image } from "expo-image";
-import { View, TouchableWithoutFeedback } from "react-native";
-import { useColorScheme, StyleSheet } from "react-native";
-import { useState, useContext } from "react";
-import { router, useLocalSearchParams } from "expo-router";
-import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import { ThemedScrollView } from "@/components/ThemedScrollView";
-import { CreateUserBank } from "@/hooks/auth/CreateUserBank";
-import { ServerContext } from "@/hooks/conText/ServerConText";
-import { UserContext } from "@/hooks/conText/UserContext";
-import { AuthContext } from "@/hooks/conText/AuthContext";
 
-const CircleSize = 40;
-const CircleRingSize = 2;
 const AccountIconSize = [
   {
     source: require("../assets/images/Add_Account_page_image/AccountIcon1.png"),
@@ -27,6 +11,37 @@ const AccountIconSize = [
     source: require("../assets/images/Add_Account_page_image/AccountIcon3.png"),
   },
 ];
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedButton } from "@/components/ThemedButton";
+import { ThemedInput } from "@/components/ThemedInput";
+import { Image } from "expo-image";
+import { View, TouchableWithoutFeedback } from "react-native";
+import { useColorScheme, StyleSheet } from "react-native";
+import { useState, useContext, useEffect } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
+import { ThemedScrollView } from "@/components/ThemedScrollView";
+import { CreateUserBank } from "@/hooks/auth/CreateUserBank";
+import { ServerContext } from "@/hooks/conText/ServerConText";
+import { UserContext } from "@/hooks/conText/UserContext";
+import { AuthContext } from "@/hooks/conText/AuthContext";
+import { GetUserBank, UpdateUserBank } from "@/hooks/auth/GetUserBank";
+
+const CircleSize = 40;
+const CircleRingSize = 2;
+const iconPathToRequire = (iconPath: string) => {
+  switch (iconPath) {
+    case "../assets/images/Add_Account_page_image/AccountIcon1.png":
+      return require("../assets/images/Add_Account_page_image/AccountIcon1.png");
+    case "../assets/images/Add_Account_page_image/AccountIcon2.png":
+      return require("../assets/images/Add_Account_page_image/AccountIcon2.png");
+    case "../assets/images/Add_Account_page_image/AccountIcon3.png":
+      return require("../assets/images/Add_Account_page_image/AccountIcon3.png");
+    default:
+      return null;
+  }
+};
+
 const colors = [
   "#F94144",
   "#F3722C",
@@ -58,7 +73,7 @@ export default function edit_page() {
   const [selectedIcon, setSelectedIcon] = useState<number | null>(null);
 
   const { CardID } = useLocalSearchParams();
-  console.log("Card:",CardID);
+  console.log("Card:", CardID);
 
   const validateInputs = () => {
     let valid = true;
@@ -86,40 +101,77 @@ export default function edit_page() {
     if (selectedIcon === null) {
       setSelectedIndexError(true);
       valid = false;
-      
     }
 
     return valid;
   };
 
-  const addAccount = () => {
-    if (validateInputs()) {
-      CreateUserBank( URL , {
+  const updateAccount = async () => {
+    if (!validateInputs()) return;
+
+    try {
+      const updatedAccount = {
+        id: Number(CardID),
         user_id: userID!,
         account_name: AccountName,
         balance: parseFloat(AccountBalance),
         color_code: colors[selectedColor!],
-        icon_id: AccountIconSize[selectedIcon!].source,
-      }, auth?.token!).then((response) => {
-        if (response.success) {
-          setBank([
-            ...(bank || []),
-            {
-              id: (bank?.length || 0) + 1,
-              user_id: userID!,
-              account_name: AccountName,
-              balance: parseFloat(AccountBalance),
-              color_code: colors[selectedColor!],
-              icon_id: AccountIconSize[selectedIcon!].source,
-            },
-          ]);
-          router.replace("/(tabs)/transaction");
-        } else {
-          console.log(response.message);
+        icon_id: `../assets/images/Add_Account_page_image/AccountIcon${
+          selectedIcon! + 1
+        }.png`,
+      };
+
+      console.log("📤 Updating account with data:", updatedAccount);
+
+      const response = await UpdateUserBank(
+        URL,
+        userID!,
+        updatedAccount,
+        auth?.token!
+      );
+
+      if (response.success) {
+        console.log("✅ Update successful, fetching latest bank data...");
+        const updatedBank = await GetUserBank(URL, userID!, auth?.token!);
+
+        if (updatedBank.success) {
+          console.log("✅ Fetched updated bank data:", updatedBank.result);
+          setBank(updatedBank.result); // 🔄 อัปเดต UI ทันที
         }
-      });
+
+        router.replace("/(tabs)/transaction");
+      } else {
+        console.error("❌ Failed to update account:", response.message);
+      }
+    } catch (error) {
+      console.error("❌ Error updating account:", error);
     }
-  }
+  };
+
+  useEffect(() => {
+    if (!bank || !CardID) return;
+
+    const accountToEdit = bank.find((item) => item.id === Number(CardID));
+
+    if (accountToEdit) {
+      setAccountName(accountToEdit.account_name);
+      setAccountBalance(accountToEdit.balance.toString());
+
+      // ตั้งค่าค่าสีและไอคอนเริ่มต้น
+      setSelectedColor(colors.indexOf(accountToEdit.color_code));
+
+      // 🔍 หาค่าของ Icon ที่ตรงกัน
+      const matchedIconIndex = AccountIconSize.findIndex(
+        (icon) => icon.source === iconPathToRequire(accountToEdit.icon_id)
+      );
+
+      if (matchedIconIndex !== -1) {
+        setSelectedIcon(matchedIconIndex);
+      } else {
+        setSelectedIcon(0); // ถ้าไม่เจอให้ใช้ไอคอนแรก
+      }
+    }
+  }, [CardID, bank]);
 
   return (
     <ThemedSafeAreaView>
@@ -129,11 +181,12 @@ export default function edit_page() {
             title="Account Name"
             error={errorAccountName}
             className="w-full"
-            onChangeText={(text) => setAccountName(text)}
-            value={bank?.find((item) => item.id === Number(CardID))?.account_name}
+            onChangeText={(text) => setAccountName(text)} // ✅ ใช้ useState แทน
+            value={AccountName} // ✅ ใช้ค่าจาก state ที่อัปเดตเสมอ
           />
+
           <ThemedScrollView
-            horizontal={true}
+            horizontal
             contentContainerStyle={{
               flexGrow: 1,
               justifyContent: "center",
@@ -145,33 +198,32 @@ export default function edit_page() {
             }}
             showsHorizontalScrollIndicator={false}
           >
-            <ThemedView className={`flex-row gap-10`}>
-              <View style={styles.group} className={`${selectedIndexError ? "border-red-500 border-2" : ""}`}>
+            <ThemedView className="flex-row gap-10">
+              <View
+                style={styles.group}
+                className={`${
+                  selectedIndexError ? "border-red-500 border-2" : ""
+                }`}
+              >
                 {AccountIconSize.map((item, index) => {
                   const isActive = selectedIcon === index;
                   return (
-                    <View key={item.source}>
+                    <View key={index}>
                       <TouchableWithoutFeedback
-                        onPress={() => {
-                          setSelectedIcon(index);
-                        }}
+                        onPress={() => setSelectedIcon(index)}
                       >
                         <ThemedView
                           style={[
                             styles.square,
                             {
                               borderColor: isActive ? "#AACC00" : "transparent",
+                              borderWidth: isActive ? 3 : 1,
                             },
                           ]}
                         >
                           <Image
                             source={item.source}
-                            style={{
-                              width: 100,
-                              height: 100,
-                              transform: [{ translateY: 3 }],
-                              margin: 10,
-                            }}
+                            style={{ width: 100, height: 100, margin: 10 }}
                           />
                         </ThemedView>
                       </TouchableWithoutFeedback>
@@ -181,12 +233,14 @@ export default function edit_page() {
               </View>
             </ThemedView>
           </ThemedScrollView>
+
           <ThemedInput
             title="Account Balance"
             error={errorAccountBalance}
             className="w-full"
-            onChangeText={(text) => setAccountBalance(text)}
-            value={bank?.find((item) => item.id === Number(CardID))?.balance.toString()}
+            keyboardType="numeric" // ✅ ให้กรอกเฉพาะตัวเลข
+            onChangeText={(text) => setAccountBalance(text)} // ✅ ใช้ `useState` ให้ค่าอัปเดต
+            value={AccountBalance} // ✅ ใช้ค่าจาก `useState`
           />
           <ThemedText
             className="text-center font-bold w-full"
@@ -195,7 +249,7 @@ export default function edit_page() {
             Select a color for the account
           </ThemedText>
           <ThemedScrollView
-            horizontal={true}
+            horizontal
             contentContainerStyle={{
               flexGrow: 1,
               justifyContent: "center",
@@ -204,29 +258,30 @@ export default function edit_page() {
             }}
           >
             <ThemedView className="flex-row gap-10">
-              <View style={styles.group} className={`${selectedColorError ? "border-red-500 border-2" : ""}`}>
-                {colors.map((item, index) => {
+              <View
+                style={styles.group}
+                className={`${
+                  selectedColorError ? "border-red-500 border-2" : ""
+                }`}
+              >
+                {colors.map((color, index) => {
                   const isActive = selectedColor === index;
                   return (
-                    <View key={item}>
+                    <View key={color}>
                       <TouchableWithoutFeedback
-                        onPress={() => {
-                          setSelectedColor(index);
-                        }}
+                        onPress={() => setSelectedColor(index)}
                       >
                         <ThemedView
                           style={[
-                          styles.circle,
-                          isActive && { borderColor: item, transform: [{ scale: 1.2 }] },
+                            styles.circle,
+                            { backgroundColor: color },
+                            isActive && {
+                              borderColor: "#fff",
+                              borderWidth: 3,
+                              transform: [{ scale: 1.2 }],
+                            },
                           ]}
-                        >
-                          <View
-                          style={[
-                            styles.circleInside,
-                            { backgroundColor: item },
-                          ]}
-                          />
-                        </ThemedView>
+                        />
                       </TouchableWithoutFeedback>
                     </View>
                   );
@@ -234,10 +289,11 @@ export default function edit_page() {
               </View>
             </ThemedView>
           </ThemedScrollView>
+
           <ThemedButton
             className="w-36 h-14"
             mode="confirm"
-            onPress={addAccount}
+            onPress={updateAccount}
           >
             Save
           </ThemedButton>
