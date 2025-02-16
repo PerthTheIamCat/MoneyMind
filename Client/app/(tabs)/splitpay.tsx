@@ -86,7 +86,7 @@ export default function SplitPay() {
       </ThemedView>
 
       {/* check Splitpay Information have Added */}
-      {!accountCheck ? (
+      {accountCheck ? (
         <ThemedView>
           <ThemedView className="flex flex-row justify-center items-center pt-[10%] ml-2 bg-transparent">
             <ThemedButton className={`w-[200px] h-[100px] rounded-[5vw] flex justify-center items-center ${componentColor}`}
