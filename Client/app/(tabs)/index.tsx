@@ -206,7 +206,7 @@ export default function Index() {
 
         
         <ThemedView
-          className=" mt-5 w-[80%]"
+          className=" my-5 w-[80%]"
           onTouchEnd={() => router.push("/(tabs)/transaction")}
         >
           <ThemedText className="text-xl font-bold text-start w-full">
@@ -215,7 +215,7 @@ export default function Index() {
         </ThemedView>
       </ThemedView>
 
-      <ThemedView className="max-h-64">
+      <ThemedView className="max-h-56">
         
       {transaction ? (
         <FlatList
