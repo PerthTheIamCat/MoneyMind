@@ -215,13 +215,9 @@ export default function Index() {
         </ThemedView>
       </ThemedView>
 
-      <ThemedView className="max-h-56">
-        
-      {transaction ? (
-        <FlatList
-          data={transaction}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => {
+      <ThemedView>
+      <ThemedScrollView >
+        {transaction && transaction.slice(0, 15).map((item, index) => {
           const transaction: Transaction = {
             id: item.id.toString(),
             logo: require("@/assets/logos/LOGO.png"),
@@ -231,11 +227,11 @@ export default function Index() {
             description: item.note,
             date: item.transaction_date,
           };
-      
+
           const formattedDate = moment(transaction.date).format("DD MMM YYYY");
           const showDateHeader = lastDate !== formattedDate;
-          lastDate = formattedDate; 
-      
+          lastDate = formattedDate;
+
           return (
             <View key={transaction.id} className="w-full items-center ">
               {showDateHeader && (
@@ -246,15 +242,15 @@ export default function Index() {
               <TransactionItem transaction={transaction} theme={theme} />
             </View>
           );
-        }}
-      />
-      ) : (
-        <ThemedView className="!items-center w-full ">
-          <ThemedText className="text-center font-bold mt-5">
-            no record transaction found
-          </ThemedText>
-        </ThemedView>
-      )}
+        })}
+        {transaction && transaction.length === 0 && (
+          <ThemedView className="!items-center w-full ">
+            <ThemedText className="text-center font-bold mt-5">
+              no record transaction found
+            </ThemedText>
+          </ThemedView>
+        )}
+      </ThemedScrollView>
       </ThemedView>
     </ThemedSafeAreaView>
   );
