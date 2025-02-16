@@ -41,11 +41,11 @@ router.get('/:id', jwtValidate, (req, res) => {
     db.query(
         'SELECT * FROM bankaccounts WHERE user_id = ?', [req.params.id], (err, result) => {
             if (err) {
-                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                return res.status(500).json({result, message: 'Database query failed', error: err.message, success: false });
             }
 
             if (result.length === 0) {
-                return res.status(404).json({ message: 'Bank Account or User not found', success: false });
+                return res.status(404).json({result, message: 'Bank Account or User not found', success: false });
             }
 
             return res.status(200).json({result, success: true});
