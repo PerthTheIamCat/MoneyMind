@@ -13,6 +13,7 @@ import { CreateUserBank } from "@/hooks/auth/CreateUserBank";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { AuthContext } from "@/hooks/conText/AuthContext";
+import { GetUserBank } from "@/hooks/auth/GetUserBank";
 
 const CircleSize = 40;
 const CircleRingSize = 2;
@@ -88,7 +89,13 @@ export default function Index() {
 
     return valid;
   };
-
+    const reloadBank = () => {
+      GetUserBank(URL, userID!, auth?.token!).then((res) => {
+        if (res.success) {
+          setBank(res.result);
+        }
+      });
+    };
   const addAccount = () => {
     if (validateInputs()) {
       CreateUserBank( URL , {
@@ -110,6 +117,7 @@ export default function Index() {
               icon_id: selectedIcon?.toString()!,
             },
           ]);
+          reloadBank();
           router.replace("/(tabs)/transaction");
         } else {
           console.log(response.message);
