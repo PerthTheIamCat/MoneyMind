@@ -183,7 +183,7 @@ export default function Index() {
           />
         </ThemedView>
         <ThemedView className="!items-start pl-[10%] pt-[2%] bg-[E5E5E5]">
-          <ThemedText className=" text-[18px]">Connected</ThemedText>
+          <ThemedText onPress={() => router.push("/Month_Summary")} className=" text-[18px]">Connected</ThemedText>
           <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
         </ThemedView>
         <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
