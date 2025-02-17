@@ -4,6 +4,8 @@ import { ThemedView } from "@/components/ThemedView";
 import {MaterialIcons} from "@expo/vector-icons"
 import {SwipeListView} from "react-native-swipe-list-view"
 
+import { useState } from "react";
+
 interface NotificationItem{
     id: number;
     mode: string;
@@ -16,50 +18,86 @@ interface ListNotificationProps{
     onDelete: (id:number) => void;
 }
 
+
+
 export function ListNotification({data=[], onDelete}: ListNotificationProps){
+    const [animatedValues] = useState<{ [key: number]:  { opacity: Animated.Value; translateX: Animated.Value }}>({});
+
+    data.forEach((item) => {
+        if (!animatedValues[item.id]) {
+            animatedValues[item.id] = {
+                opacity: new Animated.Value(1), // เริ่มจาก opacity = 1
+                translateX: new Animated.Value(0), // เริ่มจากตำแหน่งเดิม (X = 0)
+            };
+        }
+    });
+
+    const handleDelete = (id: number) => {
+        Animated.parallel([
+            Animated.timing(animatedValues[id].opacity, {
+                toValue: 0,
+                duration: 300, // fade out ใน 300ms
+                useNativeDriver: true,
+            }),
+            Animated.timing(animatedValues[id].translateX, {
+                toValue: -200, // slide ออกไปทางซ้าย
+                duration: 300,
+                useNativeDriver: true,
+            }),
+        ]).start(() => {
+            onDelete(id); // ลบออกจากลิสต์หลังจากแอนิเมชันจบ
+        });
+    };
+
     const renderItem = ({ item }: { item: NotificationItem }) => {
         const bgColor = item.mode ==="red" ? "bg-red-400" : 
                                     item.mode==="yellow"? "bg-yellow-400": 
                                     item.mode==="green"? "bg-green-400":
-                                    "bg-black-500";
+                                    "bg-black-500";    
         return (
-            <ThemedView  className={`mt-2 bg-transparent`}> 
-                <TouchableOpacity className={`bg-transparent w-[80%]`} >
-                    <ThemedView  className={`flex-row  p-3 !justify-between h-fit rounded-3xl  ${bgColor}`}> 
-                        <ThemedView className="bg-white w-16 h-16 rounded-full"/> {/* image icon */}
-                        <ThemedView className={`pl-3 px-16 bg-transparent w-full !items-start`}>
-                            <ThemedText className="text-lg font-bold text-[#181818]">{item.Header}</ThemedText>
-                            <ThemedText className="text-sm text-[#181818]">{item.Description}</ThemedText>
+            <Animated.View style={{
+                        opacity: animatedValues[item.id].opacity,
+                        transform: [{ translateX: animatedValues[item.id].translateX }],
+                    }}>
+
+                <ThemedView  className={`mt-2 bg-transparent `}> 
+                    <TouchableHighlight className={`bg-transparent w-[90%]`} >
+                        <ThemedView  className={`flex-row  p-3 pl-12 h-fit rounded-3xl  ${bgColor}`}> 
+                            <ThemedView className="bg-white w-16 h-16 rounded-full"/> {/* image icon */}
+                            <ThemedView className={`pl-3 px-16 bg-transparent w-full !items-start`}>
+                                <ThemedText className="text-lg font-bold text-[#181818]">{item.Header}</ThemedText>
+                                <ThemedText className="text-sm text-[#181818]">{item.Description}</ThemedText>
+                            </ThemedView>
                         </ThemedView>
-{/*                                                         
-                        <TouchableOpacity onPress={() => onDelete(item.id)} className="ml-auto ">
-                            <MaterialIcons name="delete" size={30} color={"#333333"} />
-                        </TouchableOpacity> */}
-                    </ThemedView>
-                </TouchableOpacity>
-            </ThemedView>
+                    </TouchableHighlight>
+                </ThemedView>
+
+            </Animated.View>
         );
     };
 
-
     const renderHiddenItem = ({ item }: { item: NotificationItem }) => (
-        <ThemedView className="absolute right-32 top-0 bottom-0 bg-red-600 w-20 m-3 items-center justify-center rounded-3xl">
-            <TouchableOpacity onPress={() => onDelete(item.id)}>
+        <Animated.View style={{
+            opacity: animatedValues[item.id].opacity,
+            transform: [{ translateX: animatedValues[item.id].translateX }],
+        }} className="absolute right-6 top-0 bottom-0 h-fit bg-transparent w-[85%] mt-2 pr-8 !items-end">
+            <TouchableOpacity onPress={() => handleDelete(item.id)} className=" absolute h-full w-full bg-red-600  pr-8 !items-end justify-center rounded-3xl">
                 <MaterialIcons name="delete" size={30} color="white" />
             </TouchableOpacity>
-        </ThemedView>
+        </Animated.View>
     );
-
 
      return (
         <ThemedView className="bg-transparent items-center ">
             <SwipeListView
                 data={data}
                 keyExtractor={(item) => item.id.toString()}
+                
                 renderItem={renderItem}
                 renderHiddenItem={renderHiddenItem}
                 rightOpenValue={-75} // Swipe left distance
                 disableRightSwipe
+
                 ListEmptyComponent={
                     <ThemedView>
                         <ThemedText style={{ alignSelf: "center", fontSize: 15, marginTop: 20 }}>

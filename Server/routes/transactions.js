@@ -52,6 +52,8 @@ router.post('/create', jwtValidate, (req, res) => {
                     let splitPayment = splitResult[0];
                     if (transaction_type === 'expense' && splitPayment.remaining_balance < amount) {
                         return res.status(400).json({ message: 'Insufficient split payment balance', success: false });
+                    } else if (transaction_type === 'income' && splitPayment.remaining_balance + amount > splitPayment.amount_allocated) {
+                        return res.status(400).json({ message: 'Exceeds allocated limit', success: false })
                     }
 
                     processTransaction();
@@ -219,10 +221,11 @@ router.put('/:id', jwtValidate, (req, res) => {
 
 router.delete('/:id', jwtValidate, (req, res) => {
     const transactionId = req.params.id;
+    const userId = req.user.UserID;
 
     db.query(
         'SELECT * FROM transactions WHERE id = ? AND user_id = ?',
-        [transactionId, req.user.UserID],
+        [transactionId, userId],
         (err, result) => {
             if (err) {
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
@@ -252,27 +255,78 @@ router.delete('/:id', jwtValidate, (req, res) => {
                         balance += transaction.amount;
                     }
 
-                    db.query(
-                        'UPDATE bankaccounts SET balance = ? WHERE id = ?',
-                        [balance, transaction.account_id],
-                        (err) => {
-                            if (err) {
-                                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
-                            }
+                    const updateBankAccount = () => {
+                        db.query(
+                            'UPDATE bankaccounts SET balance = ? WHERE id = ?',
+                            [balance, transaction.account_id],
+                            (err) => {
+                                if (err) {
+                                    return res.status(500).json({ message: 'Failed to update bank balance', error: err.message, success: false });
+                                }
 
-                            db.query('DELETE FROM transactions WHERE id = ?', [transactionId], (err) => {
+                                db.query('DELETE FROM transactions WHERE id = ?', [transactionId], (err) => {
+                                    if (err) {
+                                        return res.status(500).json({ message: 'Failed to delete transaction', error: err.message, success: false });
+                                    }
+                                    return res.status(200).json({ message: 'Transaction deleted successfully', success: true });
+                                });
+                            }
+                        );
+                    };
+
+                    if (transaction.split_payment_id) {
+                        db.query(
+                            'SELECT remaining_balance, amount_allocated FROM splitpayments WHERE id = ?',
+                            [transaction.split_payment_id],
+                            (err, splitResult) => {
                                 if (err) {
                                     return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
                                 }
-                                return res.status(200).json({ message: 'Transaction deleted successfully', success: true });
-                            });
-                        }
-                    );
+                                if (splitResult.length === 0) {
+                                    return res.status(404).json({ message: 'Split payment not found', success: false });
+                                }
+
+                                let remainingBalance = splitResult[0].remaining_balance;
+
+                                if (transaction.transaction_type === 'expense') {
+                                    remainingBalance += transaction.amount;
+                                    if (remainingBalance > splitResult[0].amount_allocated) {
+                                        return res.status(400).json({
+                                            message: 'Error: Remaining balance cannot exceed allocated amount.',
+                                            success: false
+                                        });
+                                    }
+                                } else {
+                                    remainingBalance -= transaction.amount;
+                                    if (remainingBalance < 0) {
+                                        return res.status(400).json({
+                                            message: 'Error: Remaining balance cannot be negative.',
+                                            success: false
+                                        });
+                                    }
+                                }
+
+                                db.query(
+                                    'UPDATE splitpayments SET remaining_balance = ? WHERE id = ?',
+                                    [remainingBalance, transaction.split_payment_id],
+                                    (err) => {
+                                        if (err) {
+                                            return res.status(500).json({ message: 'Failed to update split payment balance', error: err.message, success: false });
+                                        }
+                                        updateBankAccount();
+                                    }
+                                );
+                            }
+                        );
+                    } else {
+                        updateBankAccount();
+                    }
                 }
             );
         }
     );
 });
+
 
 module.exports = {
     router

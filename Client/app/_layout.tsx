@@ -116,6 +116,9 @@ export default function RootLayout() {
               <Stack.Screen name="NoticePage" options={{ headerShown: false }} />
               <Stack.Screen name="Edit_Transaction" options={{ headerTitle: "Edit Transaction" , presentation: "modal" }} />
               <Stack.Screen name="Edit_Account" options={{ headerTitle: "Edit Account" , presentation: "modal" }} />
+              <Stack.Screen name="Month_Summary" options={{ headerTitle: "Monthly Summary" , presentation: "modal" }} />
+
+
             </Stack>
             <StatusBar style="auto" />
           </TermsProvider>
