@@ -1,9 +1,4 @@
 import { useState, useEffect, useContext } from "react";
-
-// Mock function for deleting a card by its ID
-const deleteCardById = async (id: number) => {
-  console.log(`Card with ID ${id} deleted.`);
-};
 import { Image, TouchableOpacity, View, Modal, Button, Pressable } from "react-native";
 import * as Localization from "expo-localization";
 import { FontAwesome } from "@expo/vector-icons";
@@ -19,17 +14,22 @@ import { AuthContext } from "@/hooks/conText/AuthContext";
 import { UserContext } from "@/hooks/conText/UserContext";
 
 
-const formatBalance = (balance: string) => {
+const formatBalance = (balance: string): string => {
   const num = parseFloat(balance);
   if (isNaN(num)) return balance; // ถ้าไม่ใช่ตัวเลข ให้คืนค่าเดิม
-  if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(2)} B฿`;
-  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(2)} M฿`; // ล้าน
-  if (num < 1_000_000) return `${(num).toFixed(2)} ฿`; //
-  return new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(num); // 1,234.56
+
+  // ฟังก์ชันสำหรับตัดเลขให้เหลือทศนิยมสองตำแหน่งโดยไม่ปัดเศษ
+  const truncateTwoDecimal = (value: number) => Math.floor(value * 100) / 100;
+
+  if (num >= 1_000_000_000) {
+    return `${truncateTwoDecimal(num / 1_000_000_000).toFixed(2)} B฿`;
+  } else if (num >= 1_000_000) {
+    return `${truncateTwoDecimal(num / 1_000_000).toFixed(2)} M฿`;
+  } else {
+    return `${truncateTwoDecimal(num).toFixed(2)} ฿`;
+  }
 };
+
 const images = [
   require("../assets/images/Add_Account_page_image/AccountIcon1.png"),
   require("../assets/images/Add_Account_page_image/AccountIcon2.png"),
@@ -104,25 +104,26 @@ export function ThemedCard({
     setCountdownActive(true);
   };
 
-const confirmDelete = () => {
-  setDeleteModalVisible(false);
-  if (bank && bank.length > 0) {
-    DeleteUserBank(URL, CardID, auth?.token!)
-      .then((res) => {
-        if (res.success) {
-          console.log("Deleted");
-        }
-      });
-  } else {
-    console.error("Bank is null or empty");
-  }
-  GetUserBank(URL, userID!, auth?.token!).then((res) => {
-    if (res.success) {
-      setBank(res.result);
-    }
-  });
-};
 
+  const confirmDelete = async () => {
+    setDeleteModalVisible(false);
+  
+    try {
+      console.log("🔍 Attempting to delete account ID:", CardID);
+  
+      const deleteRes = await DeleteUserBank(URL, CardID, auth?.token!);
+  
+      if (deleteRes.success) {
+        console.log("✅ Deleted successfully");
+
+      } else {
+        console.error("❌ Failed to delete account:", deleteRes.message);
+      }
+    } catch (error) {
+      console.error("❌ Error deleting bank:", error);
+    }
+  };
+   
   
   return (
     <ThemedView
