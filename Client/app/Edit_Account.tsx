@@ -1,16 +1,5 @@
 import { ThemedText } from "@/components/ThemedText";
 
-const AccountIconSize = [
-  {
-    source: require("../assets/images/Add_Account_page_image/AccountIcon1.png"),
-  },
-  {
-    source: require("../assets/images/Add_Account_page_image/AccountIcon2.png"),
-  },
-  {
-    source: require("../assets/images/Add_Account_page_image/AccountIcon3.png"),
-  },
-];
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedInput } from "@/components/ThemedInput";
@@ -29,19 +18,6 @@ import { GetUserBank, UpdateUserBank } from "@/hooks/auth/GetUserBank";
 
 const CircleSize = 40;
 const CircleRingSize = 2;
-const iconPathToRequire = (iconPath: string) => {
-  switch (iconPath) {
-    case "../assets/images/Add_Account_page_image/AccountIcon1.png":
-      return require("../assets/images/Add_Account_page_image/AccountIcon1.png");
-    case "../assets/images/Add_Account_page_image/AccountIcon2.png":
-      return require("../assets/images/Add_Account_page_image/AccountIcon2.png");
-    case "../assets/images/Add_Account_page_image/AccountIcon3.png":
-      return require("../assets/images/Add_Account_page_image/AccountIcon3.png");
-    default:
-      return null;
-  }
-};
-
 const colors = [
   "#F94144",
   "#F3722C",
@@ -53,6 +29,30 @@ const colors = [
   "#4D908E",
   "#577590",
   "#277DA1",
+];
+const iconPathToRequire = (iconId: string) => {
+  switch (iconId) {
+    case "AccountIcon1":
+      return require("../assets/images/Add_Account_page_image/AccountIcon1.png");
+    case "AccountIcon2":
+      return require("../assets/images/Add_Account_page_image/AccountIcon2.png");
+    case "AccountIcon3":
+      return require("../assets/images/Add_Account_page_image/AccountIcon3.png");
+    default:
+      return require("../assets/images/Add_Account_page_image/AccountIcon1.png"); // ✅ ใช้ไอคอนแรกเป็นค่า Default
+  }
+};
+
+const AccountIconSize = [
+  {
+    source: require("../assets/images/Add_Account_page_image/AccountIcon1.png"),
+  },
+  {
+    source: require("../assets/images/Add_Account_page_image/AccountIcon2.png"),
+  },
+  {
+    source: require("../assets/images/Add_Account_page_image/AccountIcon3.png"),
+  },
 ];
 
 export default function edit_page() {
@@ -73,7 +73,6 @@ export default function edit_page() {
   const [selectedIcon, setSelectedIcon] = useState<number | null>(null);
 
   const { CardID } = useLocalSearchParams();
-  console.log("Card:", CardID);
 
   const validateInputs = () => {
     let valid = true;
@@ -93,85 +92,99 @@ export default function edit_page() {
       valid = false;
     }
 
-    if (selectedColor === null) {
+    if (selectedColor === null || selectedColor === undefined) {
       setSelectedColorError(true);
       valid = false;
     }
 
-    if (selectedIcon === null) {
+    if (selectedIcon === null || selectedIcon === undefined) {
       setSelectedIndexError(true);
       valid = false;
     }
 
     return valid;
   };
-
+  const reloadBank = () => {
+    GetUserBank(URL, userID!, auth?.token!).then((res) => {
+      if (res.success) {
+        setBank(res.result);
+      }
+    });
+  };
+  
   const updateAccount = async () => {
     if (!validateInputs()) return;
-
+  
+    if (!CardID) {
+      console.error("❌ No account selected for update.");
+      return;
+    }
+  
     try {
       const updatedAccount = {
-        id: Number(CardID),
         user_id: userID!,
         account_name: AccountName,
         balance: parseFloat(AccountBalance),
         color_code: colors[selectedColor!],
-        icon_id: `../assets/images/Add_Account_page_image/AccountIcon${
-          selectedIcon! + 1
-        }.png`,
+        icon_id: `AccountIcon${selectedIcon! + 1}`, // ✅ ใช้ฟอร์แมตที่ถูกต้อง
       };
-
-      console.log("📤 Updating account with data:", updatedAccount);
-
-      const response = await UpdateUserBank(
-        URL,
-        userID!,
-        updatedAccount,
-        auth?.token!
-      );
-
+  
+      console.log("🔄 Updating account with data:", updatedAccount);
+  
+      // ✅ แปลง `CardID` เป็นตัวเลขก่อนส่ง
+      const response = await UpdateUserBank(URL, Number(CardID), updatedAccount, auth?.token!);
+  
       if (response.success) {
-        console.log("✅ Update successful, fetching latest bank data...");
-        const updatedBank = await GetUserBank(URL, userID!, auth?.token!);
-
-        if (updatedBank.success) {
-          console.log("✅ Fetched updated bank data:", updatedBank.result);
-          setBank(updatedBank.result); // 🔄 อัปเดต UI ทันที
-        }
-
-        router.replace("/(tabs)/transaction");
-      } else {
-        console.error("❌ Failed to update account:", response.message);
-      }
+        console.log("✅ Successfully updated bank data:", response.result);
+        setBank(response.result); // อัปเดต state ทันที
+  
+        // ✅ โหลดข้อมูลบัญชีใหม่หลังจากอัปเดต
+        await reloadBank();
+  
+        router.replace("/(tabs)/transaction"); // กลับไปหน้าธุรกรรม
+      } 
     } catch (error) {
       console.error("❌ Error updating account:", error);
     }
   };
 
+  const getIconIndex = (iconId: string | number) => {
+    if (typeof iconId === "number") {
+      return iconId; // ถ้า API ส่งเป็นตัวเลขตรงๆ ใช้ค่าเดิม
+    }
+    
+    const match = iconId.match(/\d+/);
+    return match ? parseInt(match[0], 10) - 1 : 0; // แปลงเป็น index ที่เริ่มจาก 0
+  };
+  
+    
   useEffect(() => {
     if (!bank || !CardID) return;
-
+  
     const accountToEdit = bank.find((item) => item.id === Number(CardID));
-
+  
     if (accountToEdit) {
       setAccountName(accountToEdit.account_name);
       setAccountBalance(accountToEdit.balance.toString());
-
-      // ตั้งค่าค่าสีและไอคอนเริ่มต้น
       setSelectedColor(colors.indexOf(accountToEdit.color_code));
-
-      // 🔍 หาค่าของ Icon ที่ตรงกัน
-      const matchedIconIndex = AccountIconSize.findIndex(
-        (icon) => icon.source === iconPathToRequire(accountToEdit.icon_id)
-      );
-
-      if (matchedIconIndex !== -1) {
+  
+      console.log("🔍 Icon ID from API:", accountToEdit.icon_id);
+  
+      // ✅ ใช้ฟังก์ชันแปลง icon_id ให้ถูกต้อง
+      const matchedIconIndex = getIconIndex(accountToEdit.icon_id);
+  
+      if (matchedIconIndex >= 0 && matchedIconIndex < AccountIconSize.length) {
+        console.log("✅ Found matching icon:", matchedIconIndex);
         setSelectedIcon(matchedIconIndex);
       } else {
-        setSelectedIcon(0); // ถ้าไม่เจอให้ใช้ไอคอนแรก
+        console.warn("⚠️ No matching icon found, defaulting to first icon.");
+        setSelectedIcon(0);
       }
     }
   }, [CardID, bank]);
+  
+  
+  
 
   return (
     <ThemedSafeAreaView>
@@ -223,7 +236,12 @@ export default function edit_page() {
                         >
                           <Image
                             source={item.source}
-                            style={{ width: 100, height: 100, margin: 10 ,marginTop: 15}}
+                            style={{
+                              width: 100,
+                              height: 100,
+                              margin: 10,
+                              marginTop: 15,
+                            }}
                           />
                         </ThemedView>
                       </TouchableWithoutFeedback>
