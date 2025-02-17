@@ -1,4 +1,5 @@
 import { DonutChart } from "@/components/DonutChart";
+import { LinearBar } from "@/components/LinearBar";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedText } from "@/components/ThemedText";
@@ -20,7 +21,7 @@ interface Summary {
 const mockSummary: Summary = {
   id: 1,
   user_id: 101,
-  monthly_savings_goal: 2000,
+  monthly_savings_goal: 4000,
   monthly_current_savings: 2000,
   total_savings_goal: 100000,
   current_savings: 90000,
@@ -35,7 +36,7 @@ export default function MonthSummary() {
     <ThemedSafeAreaView>
       <ThemedView className={`items-center flex-col justify-center w-96 my-5 ${componentcolor} mx-auto rounded-lg`}>
         <ThemedView
-          className={`items-center flex-row bg-transparent justify-between w-80 m-5 p-5  mx-auto rounded-lg`}
+          className={`items-center flex-row bg-transparent justify-between w-80 m-3 px-5 py-3 mx-auto rounded-lg`}
         >
           <ThemedText className="text-3xl">Goal</ThemedText>
           <ThemedText className="text-2xl">
@@ -43,7 +44,9 @@ export default function MonthSummary() {
             {mockSummary.monthly_savings_goal}
           </ThemedText>
         </ThemedView>
-        <ThemedText className="text-3xl py-3">กราฟ</ThemedText>
+        <ThemedView className="bg-transparent pb-4">
+          <LinearBar savings_goal={mockSummary.monthly_savings_goal} current_savings={mockSummary.monthly_current_savings}/>
+        </ThemedView>
       </ThemedView>
 
       <ThemedView className="flex-row gap-3 justify-between mx-auto rounded-lg">
