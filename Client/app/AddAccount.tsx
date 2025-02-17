@@ -90,7 +90,6 @@ export default function Index() {
   };
 
   const addAccount = () => {
-    console.log("Add Account", AccountName, AccountBalance, selectedColor, selectedIcon);
     if (validateInputs()) {
       CreateUserBank( URL , {
         user_id: userID!,
