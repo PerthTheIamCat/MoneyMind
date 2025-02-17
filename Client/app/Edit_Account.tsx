@@ -223,7 +223,7 @@ export default function edit_page() {
                         >
                           <Image
                             source={item.source}
-                            style={{ width: 100, height: 100, margin: 10 }}
+                            style={{ width: 100, height: 100, margin: 10 ,marginTop: 15}}
                           />
                         </ThemedView>
                       </TouchableWithoutFeedback>
@@ -269,19 +269,26 @@ export default function edit_page() {
                   return (
                     <View key={color}>
                       <TouchableWithoutFeedback
-                        onPress={() => setSelectedColor(index)}
+                        onPress={() => {
+                          setSelectedColor(index);
+                        }}
                       >
                         <ThemedView
                           style={[
                             styles.circle,
-                            { backgroundColor: color },
                             isActive && {
-                              borderColor: "#fff",
-                              borderWidth: 3,
+                              borderColor: color,
                               transform: [{ scale: 1.2 }],
                             },
                           ]}
-                        />
+                        >
+                          <View
+                            style={[
+                              styles.circleInside,
+                              { backgroundColor: color },
+                            ]}
+                          />
+                        </ThemedView>
                       </TouchableWithoutFeedback>
                     </View>
                   );
