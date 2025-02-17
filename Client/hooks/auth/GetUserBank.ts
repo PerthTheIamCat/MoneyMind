@@ -49,35 +49,48 @@ export const GetUserBank = async (
 
 export const UpdateUserBank = async (
   url: string,
-  userID: number,
-  data: resultObject,
+  id: number,
+  updatedAccount: {
+    user_id: number;
+    account_name: string;
+    balance: number;
+    color_code: string;
+    icon_id: string;
+  },
   token: string
 ): Promise<GetUserBankResponse | GetUserBankError["response"]["data"]> => {
   try {
-    console.log("UserID:",userID);
+    console.log("Updating UserBank ID:", id);
+    console.log("Data to update:", updatedAccount);
+
     const response = await axios.put<GetUserBankResponse>(
-      `${url}/bankaccounts/${userID}`,
-      data,
+      `${url}/bankaccounts/${id}`,
+      updatedAccount, // ✅ ส่งข้อมูลที่ต้องการอัปเดต
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       }
     );
 
-    return response.data;
+    console.log("✅ API Response:", response.data); // 🛠 Debug ดูว่าค่าที่ได้เป็นอะไร
+    return response.data; // ✅ คืนค่าที่ถูกต้องกลับมา
   } catch (error) {
+    console.error("❌ Update failed:", (error as GetUserBankError).response.data);
     return (error as GetUserBankError).response.data;
   }
 };
+
 
 export const DeleteUserBank = async (
   url: string,
   id: number,
   token: string
-): Promise<GetUserBankResponse | GetUserBankError["response"]["data"]> => {
+): Promise<GetUserBankResponse | { success: false; message: string }> => {
   try {
-    console.log("BankID:", id);
+    console.log("🔍 Deleting Bank ID:", id);
+
     const response = await axios.delete<GetUserBankResponse>(
       `${url}/bankaccounts/${id}`,
       {
@@ -86,9 +99,14 @@ export const DeleteUserBank = async (
         },
       }
     );
-    console.log("Response:", response.data);
+
+    console.log("✅ API Response:", response.data);
     return response.data;
-  } catch (error) {
-    return (error as GetUserBankError).response.data;
+  } catch (error: any) {
+    console.error("❌ API Error deleting bank:", error);
+
+    return error.response
+      ? error.response.data
+      : { success: false, message: "Unknown error occurred while deleting the bank" };
   }
 };
