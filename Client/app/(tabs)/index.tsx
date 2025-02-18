@@ -169,14 +169,18 @@ export default function Index() {
               className="w-full"
             >
               <ThemedView className="w-full  flex-row ">
-                {bank?.map((account) => (
+                {bank?.map((account, index) => (
                   <ThemedCard
                     name={account.account_name}
                     color={account.color_code}
                     balance={account.balance.toString()}
                     mode="large"
                     onEdit={() => {}}
+                    CardID={account.id}
                     key={account.id}
+                    imageIndex={Number(account.icon_id)}
+                    index={index}
+
                     className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
                   />
                 ))}
