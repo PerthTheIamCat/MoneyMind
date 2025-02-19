@@ -8,7 +8,6 @@ import { StatusBar } from "expo-status-bar";
 import { TermsProvider } from "@/hooks/conText/TermsConText";
 import { ServerProvider } from "@/hooks/conText/ServerConText";
 import { AuthProvider, AuthContext } from "@/hooks/conText/AuthContext";
-import { Text } from "react-native";
 import "@/global.css";
 import {
   configureReanimatedLogger,
@@ -118,7 +117,7 @@ export default function RootLayout() {
               <Stack.Screen name="Edit_Account" options={{ headerTitle: "Edit Account" , presentation: "modal" }} />
               <Stack.Screen name="Month_Summary" options={{ headerTitle: "Monthly Summary" , presentation: "modal" }} />
               <Stack.Screen name="Retire_form" options={{ headerTitle: "Retire" , presentation: "modal" }} />
-
+              <Stack.Screen name="NewPassword1" options={{headerShown : false}} />
             </Stack>
             <StatusBar style="auto" />
           </TermsProvider>

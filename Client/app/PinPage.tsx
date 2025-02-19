@@ -87,7 +87,7 @@ export default function PinPage() {
               key={index}
               style={[
                 styles.codeEmpty,
-                code[index] ? styles.codeEntered : null,
+                code[index] !== undefined ? styles.codeEntered : null,
               ]}
             />
           ))}
