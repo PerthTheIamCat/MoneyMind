@@ -41,11 +41,11 @@ router.get('/:id', jwtValidate, (req, res) => {
     db.query(
         'SELECT * FROM bankaccounts WHERE user_id = ?', [req.params.id], (err, result) => {
             if (err) {
-                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                return res.status(500).json({result, message: 'Database query failed', error: err.message, success: false });
             }
 
             if (result.length === 0) {
-                return res.status(404).json({ message: 'Bank Account or User not found', success: false });
+                return res.status(404).json({result, message: 'Bank Account or User not found', success: false });
             }
 
             return res.status(200).json({result, success: true});
@@ -87,7 +87,9 @@ router.delete('/:id', jwtValidate, (req, res) => {
     const bankID = req.params.id;
 
     db.query(
-        'SELECT * FROM bankaccounts WHERE id = ? AND user_id = ?', [bankID, req.user.UserID], (err, result) => {
+        'SELECT * FROM bankaccounts WHERE id = ? AND user_id = ?', 
+        [bankID, req.user.UserID], 
+        (err, result) => {
             if (err) {
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
             }
@@ -96,16 +98,30 @@ router.delete('/:id', jwtValidate, (req, res) => {
                 return res.status(403).json({ message: 'Unauthorized user or account not found', success: false });
             }
 
-            db.query('DELETE FROM bankaccounts WHERE id = ?', [bankID], (err, deleteResult) => {
+            db.query('DELETE FROM transactions WHERE user_id = ?', [req.user.UserID], (err, result) => {
                 if (err) {
-                    return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                    console.error("Error deleting transactions:", err);
+                    return res.status(500).json({ error: "Failed to delete transactions" });
                 }
-    
-                if (deleteResult.length === 0) {
-                    return res.status(404).json({ message: 'Bank Account deleted', success: false });
-                }
-    
-                return res.status(200).json({ message: 'Bank Account deleted', success: true });
+            
+                db.query('DELETE FROM splitpayments WHERE account_id = ?', [bankID], (err, result) => {
+                    if (err) {
+                        console.error("Error deleting splitpayments:", err);
+                        return res.status(500).json({ error: "Failed to delete splitpayments" });
+                    }
+
+                    db.query('DELETE FROM bankaccounts WHERE id = ?', [bankID], (err, deleteResult) => {
+                        if (err) {
+                            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                        }
+            
+                        if (deleteResult.length === 0) {
+                            return res.status(404).json({ message: 'Bank Account deleted', success: false });
+                        }
+            
+                        return res.status(200).json({deleteResult, message: 'Bank Account deleted', success: true });
+                    })
+                })
             })
         }
     )

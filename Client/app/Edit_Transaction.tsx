@@ -31,6 +31,7 @@ export default function Index() {
               <ThemedView className="w-full  flex-row ">
             {bank?.map((account) => (
               <ThemedCard
+                CardID={account.id}
                 name={account.account_name}
                 color={account.color_code}
                 balance={account.balance.toString()}
