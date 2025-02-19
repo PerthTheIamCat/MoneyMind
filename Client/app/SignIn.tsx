@@ -102,7 +102,7 @@ export default function Index() {
           >
             Sign Up
           </ThemedButton>
-          <TouchableOpacity onPress={() => router.replace('/OTPpassword')}>
+          <TouchableOpacity onPress={() => router.replace('/OTPpasswordSend')}>
             <ThemedText className="mt-3 mb-5 underline">Forgot Password?</ThemedText>
           </TouchableOpacity>
         </ThemedView>
