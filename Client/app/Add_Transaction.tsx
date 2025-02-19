@@ -3,90 +3,142 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedView } from "@/components/ThemedView";
-import { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { UserContext } from "@/hooks/conText/UserContext";
-import { useColorScheme } from "react-native";
+import { Pressable, TextInput, useColorScheme } from "react-native";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedInput } from "@/components/ThemedInput";
 import { router } from "expo-router";
+import DropdownComponent from "@/components/Dropdown";
 import { ThemedScrollViewCenter } from "@/components/ThemedScrollViewCenter";
+
+type ThemedInputProps = {
+  className?: string;
+  error?: string;
+  title?: string;
+  placeholder?: string;
+  secureTextEntry?: boolean;
+  onChangeText?: (text: string) => void;
+  [key: string]: any;
+};
 export default function Index() {
   const theme = useColorScheme();
   const { bank } = useContext(UserContext);
+  const [isIncome, setIsIncome] = useState(true);
+  const incomeCategories = ["Salary", "Bonus", "Investment", "Freelance"];
+  const expenseCategories = ["Food", "Transport", "Rent", "Shopping"];
+  const categories = isIncome ? incomeCategories : expenseCategories;
+  const [budgetPlan, setBudgetPlan] = useState("");
+  const [selectedBudget, setSelectedBudget] = useState("");
+  const budgetOptions = ["Plan A", "Plan B", "Plan C"];
+
   return (
     <ThemedSafeAreaView>
-      <ThemedView className="w-full h-full flex-1 ">
-          <ThemedView className="!items-start pl-10 w-full mt-5">
-            <ThemedText className="text-[20px] font-bold mb-2">
-              Account
-            </ThemedText>
-          </ThemedView>
+      <ThemedView className="w-full !h-full flex-1">
+        <ThemedView className="!items-start pl-10 w-full mt-5">
+          <ThemedText className="text-[20px] font-bold mb-2">
+            Account
+          </ThemedText>
+        </ThemedView>
 
-          <ThemedView className="!items-center w-full ">
-            <ThemedScrollViewCenter
-              vertical={false}
-              horizontal={true}
-              className="w-full"
-            >
-              <ThemedView className="w-full  flex-row ">
-            {bank?.map((account) => (
-              <ThemedCard
-                name={account.account_name}
-                color={account.color_code}
-                balance={account.balance.toString()}
-                mode="large"
-                onEdit={() => {}}
-                CardID={account.id}
-                // image={account.icon_id}
-                className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
-              />
-            ))}
-              </ThemedView>
-            </ThemedScrollViewCenter>
-          </ThemedView>
+        <ThemedView className="!items-center w-full ">
+          <ThemedScrollViewCenter
+            vertical={false}
+            horizontal={true}
+            className="w-full"
+          >
+            <ThemedView className="w-full  flex-row ">
+              {bank?.map((account) => (
+                <ThemedCard
+                  key={account.id}
+                  name={account.account_name}
+                  color={account.color_code}
+                  balance={account.balance.toString()}
+                  mode="large"
+                  onEdit={() => {}}
+                  CardID={account.id}
+                  // image={account.icon_id}
+                  className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+                />
+              ))}
+            </ThemedView>
+          </ThemedScrollViewCenter>
+        </ThemedView>
 
-          <ThemedScrollView
-              vertical={true}
-              horizontal={false}
-              className="w-full"
-            >
-          
+        <ThemedScrollView
+          vertical={true}
+          horizontal={false}
+          className="w-full h-full"
+        >
           <ThemedView
             className={`${
               theme === "dark" ? "bg-[#000000]" : "bg-[#ffffff]"
-            } mt-2 px-10 !justify-start w-full h-full rounded-t-[30px]`}
+            } mt-2 px-10 !justify-start !items-start w-full  rounded-t-[30px] `}
           >
-            <ThemedView className="mt-8 w-full flex-row justify-between bg-transparent">
-              <ThemedButton className="w-[140px] h-8 bg-green-500">
-                Income
-              </ThemedButton>
-              <ThemedButton className="w-[140px] h-8 bg-red-400">
-                Expense
-              </ThemedButton>
+            <ThemedView className="flex-row w-fit h-12 rounded-sm p-1 mt-5 mb-4 bg-transparent">
+              <Pressable
+                onPress={() => setIsIncome(true)} // เปลี่ยนเป็น Income ถ้ายังไม่ใช่
+                className={`w-32 h-full flex items-center justify-center rounded-2xl ${
+                  isIncome ? "bg-green-500" : "bg-transparent"
+                }`}
+              >
+                <ThemedText
+                  className={`font-bold ${
+                    isIncome ? "text-white" : "text-black"
+                  }`}
+                >
+                  Income
+                </ThemedText>
+              </Pressable>
+
+              <Pressable
+                onPress={() => setIsIncome(false)} // เปลี่ยนเป็น Expense ถ้ายังไม่ใช่
+                className={`w-32 h-full flex items-center justify-center rounded-2xl ${
+                  !isIncome ? "bg-red-500" : "bg-transparent"
+                }`}
+              >
+                <ThemedText
+                  className={`font-bold ${
+                    !isIncome ? "text-white" : "text-black"
+                  }`}
+                >
+                  Expense
+                </ThemedText>
+              </Pressable>
+            </ThemedView>
+
+            <ThemedView className="w-full  bg-transparent">
+              <ThemedText className="text-xl font-bold w-full !bg-transparent">
+                Select Budget Plan
+              </ThemedText>
+
+              <ThemedView className="w-full bg-transparent">
+                <DropdownComponent />
+              </ThemedView>
             </ThemedView>
 
             <ThemedView className="mt-1 w-full justify-center !items-start bg-transparent">
               <ThemedText className="font-bold text-[16px]">
                 Category
               </ThemedText>
+
               <ThemedScrollView
                 vertical={false}
                 horizontal={true}
                 className="bg-transparent"
               >
-                <ThemedView className="h-11 w-full flex-row !items-center bg-transparent">
-                  <ThemedButton className="w-[140px] h-8 bg-green-500">
-                    Income
-                  </ThemedButton>
-                  <ThemedButton className="w-[140px] h-8 bg-green-500">
-                    Income
-                  </ThemedButton>
-                  <ThemedButton className="w-[140px] h-8 bg-green-500">
-                    Income
-                  </ThemedButton>
-                  <ThemedButton className="w-[140px] h-8 bg-green-500">
-                    Income
-                  </ThemedButton>
+                <ThemedView className="h-11 w-full flex-row !items-end bg-transparent gap-2">
+                  {categories.map((category, index) => (
+                    <ThemedButton
+                      key={index}
+                      className={`w-[90px] h-10 !rounded-lg ${
+                        isIncome ? "bg-green-500" : "bg-red-500"
+                      }`}
+                      mode={isIncome ? "cancel" : "confirm"}
+                    >
+                      {category}
+                    </ThemedButton>
+                  ))}
                 </ThemedView>
               </ThemedScrollView>
             </ThemedView>
@@ -123,21 +175,10 @@ export default function Index() {
                 className="font-bold text-[16px] w-full"
               />
             </ThemedView>
-
-            <ThemedView className="w-full justify-center !items-start bg-transparent mb-20">
-              <ThemedInput
-                title="Select Budget Type"
-                placeholder={"-"}
-                className="font-bold text-[16px] w-full"
-              />
-            </ThemedView>
-          </ThemedView>
-        </ThemedScrollView>
-
-        <ThemedView
-          className={`${
+            <ThemedView
+          className={`${ 
             theme === "dark" ? "bg-[#000000]" : "bg-[#ffffff]"
-          } bottom-20 px-10 w-full bg-transparent`}
+          }  px-10 w-full bg-transparent`}
         >
           <ThemedButton
             className="mt-3 px-10 w-full  h-12 bg-green-500"
@@ -146,6 +187,10 @@ export default function Index() {
             Add Transaction
           </ThemedButton>
         </ThemedView>
+          </ThemedView>
+        </ThemedScrollView>
+
+
       </ThemedView>
     </ThemedSafeAreaView>
   );

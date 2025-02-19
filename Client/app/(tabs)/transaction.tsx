@@ -26,13 +26,12 @@ const transactions: UserTransaction[] = [
     account_id: 1,
     split_payment_id: null,
     transaction_type: "expense",
-    amount: 250.00,
-    color_code : "#FF0000",
+    amount: 250.0,
+    color_code: "#FF0000",
     transaction_date: "2022-01-01",
     transaction_name: "Food",
     note: "Lunch",
   },
-  
 ];
 
 const TransactionItem = ({
@@ -81,25 +80,43 @@ const TransactionItem = ({
 
   return (
     <>
-      <View className={`flex-row items-center justify-center w-10/12 ${componentcolor} p-4 rounded-lg mb-2 shadow-md`}>
+      <View
+        className={`flex-row items-center justify-center w-10/12 ${componentcolor} p-4 rounded-lg mb-2 shadow-md`}
+      >
         <Image
           source={require("@/assets/logos/LOGO.png")}
           style={{ width: 40, height: 40, borderRadius: 20, marginRight: 16 }}
         />
         <View className="flex-1">
-          <ThemedText className={`font-bold text-lg `}>{transaction.transaction_name}</ThemedText>
+          <ThemedText className={`font-bold text-lg `}>
+            {transaction.transaction_name}
+          </ThemedText>
           <ThemedText>{transaction.note}</ThemedText>
         </View>
-        <Text className={`font-bold text-[16px] ${transaction.transaction_type === "income" ? "text-green-500" : "text-red-500"}`}>
+        <Text
+          className={`font-bold text-[16px] ${
+            transaction.transaction_type === "income"
+              ? "text-green-500"
+              : "text-red-500"
+          }`}
+        >
           {transaction.amount}
         </Text>
         <Pressable onPress={() => setShowDropdown(!showDropdown)}>
-          <Entypo name="dots-three-vertical" size={20} color={componenticon} className="ml-2" />
+          <Entypo
+            name="dots-three-vertical"
+            size={20}
+            color={componenticon}
+            className="ml-2"
+          />
         </Pressable>
 
         {showDropdown && (
           <ThemedView className="absolute top-10 right-2 flex-row border border-gray-300 shadow-md rounded-lg w-fit z-50">
-            <Pressable onPress={handleEdit} className="p-2 border-b border-gray-200">
+            <Pressable
+              onPress={handleEdit}
+              className="p-2 border-b border-gray-200"
+            >
               <Text className="text-green-500">Edit</Text>
             </Pressable>
             <Pressable onPress={handleDelete} className="p-2">
@@ -112,13 +129,23 @@ const TransactionItem = ({
       {showOverlay && (
         <View className="absolute inset-0 flex items-center justify-center z-50">
           <ThemedView className=" p-6 rounded-lg w-80 shadow-md text-center h-52">
-            <ThemedText className="text-lg font-bold mb-4">Confirm Deletion</ThemedText>
-            <ThemedText className="mb-4">Are you sure you want to delete this transaction?</ThemedText>
+            <ThemedText className="text-lg font-bold mb-4">
+              Confirm Deletion
+            </ThemedText>
+            <ThemedText className="mb-4">
+              Are you sure you want to delete this transaction?
+            </ThemedText>
             <View className="flex-row justify-between gap-5">
-              <Pressable onPress={handleCancel} className="bg-gray-300 px-4 py-2 rounded-lg">
+              <Pressable
+                onPress={handleCancel}
+                className="bg-gray-300 px-4 py-2 rounded-lg"
+              >
                 <Text>Cancel</Text>
               </Pressable>
-              <Pressable onPress={handleConfirmDelete} className="bg-red-500 px-4 py-2 rounded-lg">
+              <Pressable
+                onPress={handleConfirmDelete}
+                className="bg-red-500 px-4 py-2 rounded-lg"
+              >
                 <Text className="text-white">Confirm ({countdown}s)</Text>
               </Pressable>
             </View>
@@ -128,7 +155,6 @@ const TransactionItem = ({
     </>
   );
 };
-
 
 export default function Index() {
   const { bank, transaction } = useContext(UserContext);
@@ -183,7 +209,12 @@ export default function Index() {
           />
         </ThemedView>
         <ThemedView className="!items-start pl-[10%] pt-[2%] bg-[E5E5E5]">
-          <ThemedText onPress={() => router.push("/Month_Summary")} className=" text-[18px]">Connected</ThemedText>
+          <ThemedText
+            onPress={() => router.push("/Month_Summary")}
+            className=" text-[18px]"
+          >
+            Connected
+          </ThemedText>
           <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
         </ThemedView>
         <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
@@ -236,7 +267,8 @@ export default function Index() {
           <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12 ">
             <View className="w-full !items-center">
               {transaction?.map((transaction) => {
-                const showDateHeader = transaction.transaction_date !== lastDate;
+                const showDateHeader =
+                  transaction.transaction_date !== lastDate;
                 lastDate = transaction.transaction_date || "";
                 return (
                   <View key={transaction.id} className="w-full items-center ">
@@ -283,8 +315,9 @@ export default function Index() {
                   Insert Type
                 </ThemedText>
                 <View className="flex flex-row gap-6 mt-2 rounded-lg">
-                  <View
+                  <Pressable
                     className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}
+                    onPress={() => router.push("../Add_Transaction")}
                   >
                     <MaterialCommunityIcons
                       name="notebook"
@@ -295,7 +328,7 @@ export default function Index() {
                     <ThemedText className="font-bold">
                       Add By Yourself
                     </ThemedText>
-                  </View>
+                  </Pressable>
                   <View
                     className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}
                   >
