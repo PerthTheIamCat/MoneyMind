@@ -19,6 +19,70 @@ router.get('/', jwtValidate, (req, res) => {
     });
 });
 
+router.post('/forgotpwd/:id', jwtValidate, (req, res) => {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
+        return res.status(403).json({ message: 'Unauthorized user', success: false });
+    }
+
+    const { email, password, otp } = req.body
+
+    if (password.length < 8) {
+        return res.status(400).json({ message: 'Password must be at least 8 characters', success: false});
+    }
+
+    db.query('SELECT * FROM otp WHERE email = ?', [email], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false});
+        }
+
+        if(result.length === 0){
+            return res.status(404).json({ message: 'Email not found', success: false });
+        }
+
+        const otpData = result[0]
+        //console.log(otpData)
+
+        if (otpData.otp_code === otp && otpData.is_used === 0) {
+            if (otpData.expires_at < new Date()) {
+                return res.status(400).json({ message: 'OTP expired', success: false });
+            }else{
+                db.query(
+                    'UPDATE otp SET is_used = 1 where email = ?',
+                    [email],
+                    (err, result) => {
+                        if (err) {
+                            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                        }
+
+                        bcrypt.hash(password, 10, (err, hash) => {
+                            if (err) {
+                                console.error('Error hashing password:', err)
+                                return res.status(500).json({ message: 'Password hashing failed', error: err.message, success: false});
+                            }
+                    
+                            db.query(
+                                'UPDATE users SET password = ? WHERE id = ?', [hash, req.params.id], (err, result) => {
+                                    if (err) {
+                                        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                                    }
+                    
+                                    if (result.length === 0) {
+                                        return res.status(404).json({ message: 'User not found', success: false });
+                                    }
+                    
+                                    return res.status(200).json({ message: 'Password Changed', success: true });
+                                }
+                            )
+                        })
+                    }
+                )
+            }
+        }else{
+            return res.status(400).json({ message: 'Invalid OTP', success: false });
+        }
+    })
+})
+
 router.get('/:id', jwtValidate, (req, res) => {
     if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
         return res.status(403).json({ message: 'Unauthorized user', success: false });
@@ -44,19 +108,24 @@ router.put('/:id', jwtValidate, (req, res) => {
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
-    db.query(
-        'UPDATE users SET ? WHERE id = ?', [req.body, req.params.id], (err, result) => {
-            if (err) {
-                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+    if (req.body.password){
+        console.log('Please do not change password here')
+        return res.status(400).json({message: 'Please do not change password here', success: false})
+    }else{
+        db.query(
+            'UPDATE users SET ? WHERE id = ?', [req.body, req.params.id], (err, result) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                }
+    
+                if (result.length === 0) {
+                    return res.status(404).json({ message: 'User not found', success: false });
+                }
+    
+                return res.status(200).json({ message: 'User updated', success: true });
             }
-
-            if (result.length === 0) {
-                return res.status(404).json({ message: 'User not found', success: false });
-            }
-
-            return res.status(200).json({ message: 'User updated', success: true });
-        }
-    )
+        )
+    }
 })
 
 router.delete('/:id', jwtValidate, (req, res) => {
