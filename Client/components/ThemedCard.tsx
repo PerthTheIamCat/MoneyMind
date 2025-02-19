@@ -292,7 +292,5 @@ export function ThemedCard({
     </ThemedView>
   );
 }
-function setBank(newBank: import("@/hooks/auth/GetUserBank").resultObject[]) {
-  throw new Error("Function not implemented.");
-}
+
 
