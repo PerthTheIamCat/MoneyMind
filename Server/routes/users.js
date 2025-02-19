@@ -19,39 +19,39 @@ router.get('/', jwtValidate, (req, res) => {
     });
 });
 
-router.post('/forgotpwd/:id', jwtValidate, (req, res) => {
-    if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
-        return res.status(403).json({ message: 'Unauthorized user', success: false });
-    }
-
+router.post('/forgotpwd', otpValidate, (req, res) => {
     const { password} = req.body
 
     if (password.length < 8) {
         return res.status(400).json({ message: 'Password must be at least 8 characters', success: false});
     }
 
-    bcrypt.hash(password, 10, (err, hash) => {
-        if (err) {
-            console.error('Error hashing password:', err)
-            return res.status(500).json({ message: 'Password hashing failed', error: err.message, success: false});
-        }
-    
-        db.query(
-            'UPDATE users SET password = ? WHERE id = ?', [hash, req.params.id], (err, result) => {
-                if (err) {
-                    return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
-                }
-    
-                if (result.length === 0) {
-                    return res.status(404).json({ message: 'User not found', success: false });
-                   }
-
-                   req.user.otpValidate = false
-    
-                   return res.status(200).json({ message: 'Password Changed', success: true });
+    if(req.user.otpValidate){
+        bcrypt.hash(password, 10, (err, hash) => {
+            if (err) {
+                console.error('Error hashing password:', err)
+                return res.status(500).json({ message: 'Password hashing failed', error: err.message, success: false});
             }
-        )
-    })
+        
+            db.query(
+                'UPDATE users SET password = ? WHERE email = ?', [hash, req.user.email], (err, result) => {
+                    if (err) {
+                        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                    }
+        
+                    if (result.length === 0) {
+                        return res.status(404).json({ message: 'User not found', success: false });
+                       }
+    
+                       req.user.otpValidate = false
+        
+                       return res.status(200).json({ message: 'Password Changed', success: true });
+                }
+            )
+        })
+    }else{
+        return res.status(400).json({ message: 'Cannot validate OTP', success: false });
+    }
 
 })
 

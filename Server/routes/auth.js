@@ -91,31 +91,24 @@ const otpValidate = (req, res, next) => {
         }
 
         const otp = req.headers['otp']
+        const email = req.headers['email']
 
-        db.query('SELECT * FROM otp WHERE email = ?', [req.user.email], (err, result) => {
+        db.query('SELECT * FROM otp WHERE email = ?', [email], (err, result) => {
             if (err) {
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false});
             }
     
             const otpData = result[0]
-    
-            if (otpData.otp_code === otp && otpData.is_used === 0) {
+            
+            if (otpData.otp_code === otp) {
                 if (otpData.expires_at < new Date()) {
                     return res.status(400).json({ message: 'OTP expired', success: false });
                 }else{
-                    db.query(
-                        'UPDATE otp SET is_used = 1 where email = ?',
-                        [req.user.email],
-                        (err, result) => {
-                            if (err) {
-                                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
-                            }
-    
-                            req.user.otpValidate = true;      
-                            //console.log('OTP Validated:', req.user.otpValidate);
-                            next();
-                        }
-                    )
+                    req.user = {
+                        email:email,
+                        otpValidate: true
+                    }      
+                    next();
                 }
             }else{
                 return res.status(400).json({ message: 'Invalid OTP or OTP is used', success: false });
