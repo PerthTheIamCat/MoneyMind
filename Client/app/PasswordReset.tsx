@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useState, useContext } from "react";
-import { Alert, TouchableOpacity } from "react-native";
+import { Alert, TouchableOpacity, Image } from "react-native";
 import { router } from "expo-router";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedInput } from "@/components/ThemedInput";
@@ -12,10 +12,13 @@ import { UserContext } from "@/hooks/conText/UserContext";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { useSearchParams } from "expo-router/build/hooks";
 
+
 export default function PasswordRecovery() {
   const { URL } = useContext(ServerContext);
   const { userID } = useContext(UserContext);
   const auth = useContext(AuthContext);
+  const parseEmail = useSearchParams().get("email");
+  const parseOtp = useSearchParams().get("otp");
   
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -44,11 +47,16 @@ export default function PasswordRecovery() {
       return;
     }
 
+    if (!parseEmail || !parseOtp) {
+      Alert.alert("Error", "Invalid email or OTP. Please try again.");
+      return;
+    }
+
     setIsLoading(true);
 
     // Call API
     try {
-      const response = await ChangePasswordHandler(URL, { Newpassword: password }, userID!, auth?.token!);
+      const response = await ChangePasswordHandler(URL, { password: password }, parseOtp!, parseEmail!);
 
       if (response.success) {
         Alert.alert("Success", "Password reset successfully!");
@@ -65,6 +73,16 @@ export default function PasswordRecovery() {
 
   return (
     <ThemedSafeAreaView>
+      <ThemedView className="mt-10">
+        <Image
+            source={require("@/assets/logos/LOGO.png")}
+            style={{
+              width: 150,
+              height: 150,
+              marginTop: 20,
+            }}
+          />
+      </ThemedView>
       <ThemedView className="items-center mt-10">
         <ThemedText className="text-3xl font-bold">Reset Password</ThemedText>
       </ThemedView>
@@ -98,7 +116,7 @@ export default function PasswordRecovery() {
         </ThemedButton>
 
         <TouchableOpacity onPress={() => router.replace("/SignIn")}>
-          <ThemedText className="mt-3 text-center text-blue-600 underline">
+          <ThemedText className="mt-3 text-center underline">
             Back to Sign In
           </ThemedText>
         </TouchableOpacity>
