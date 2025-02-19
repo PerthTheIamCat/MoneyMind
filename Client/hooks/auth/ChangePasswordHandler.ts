@@ -1,14 +1,12 @@
 import axios from "axios";
 
 interface ChangePasswordData {
-  oldPassword: string;
-  newPassword: string;
-  confirmPassword: string;
+  Newpassword : string
 }
 
 interface ChangePasswordResponse {
-  success: boolean;
-  message: string;
+  success : boolean
+  message : string
 }
 
 interface ChangePasswordError {
@@ -22,12 +20,19 @@ interface ChangePasswordError {
 
 export const ChangePasswordHandler = async (
   url: string,
-  data: ChangePasswordData
+  data: ChangePasswordData,
+  userID : number,
+  token : string
 ): Promise<ChangePasswordResponse | ChangePasswordError["response"]["data"]> => {
   try {
     const response = await axios.post<ChangePasswordResponse>(
-      `${url}/auth/change-password`,
-      data
+      `${url}/users/forgotpwd/${userID}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      }
     );
 
     return response.data;
