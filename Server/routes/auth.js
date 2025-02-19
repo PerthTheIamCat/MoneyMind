@@ -83,6 +83,51 @@ const jwtValidate = (req, res, next) => {
     }
 };
 
+const otpValidate = (req, res, next) => {
+    try {
+        if (!req.headers['otp']){
+            console.log('No otp provided');
+            return res.status(401).json({ message: `No otp provided`, success: false });
+        }
+
+        const otp = req.headers['otp']
+
+        db.query('SELECT * FROM otp WHERE email = ?', [req.user.email], (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false});
+            }
+    
+            const otpData = result[0]
+    
+            if (otpData.otp_code === otp && otpData.is_used === 0) {
+                if (otpData.expires_at < new Date()) {
+                    return res.status(400).json({ message: 'OTP expired', success: false });
+                }else{
+                    db.query(
+                        'UPDATE otp SET is_used = 1 where email = ?',
+                        [req.user.email],
+                        (err, result) => {
+                            if (err) {
+                                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                            }
+    
+                            req.user.otpValidate = true;      
+                            //console.log('OTP Validated:', req.user.otpValidate);
+                            next();
+                        }
+                    )
+                }
+            }else{
+                return res.status(400).json({ message: 'Invalid OTP or OTP is used', success: false });
+            }
+        });
+
+    } catch (err) {
+        console.error('Unexpected error:', err.message);
+        return res.status(500).json({ message: 'Internal server error', success: false });
+    }
+}
+
 router.post('/register', (req, res) => {
     const { username, email, password, password2, otp} = req.body
 
@@ -308,6 +353,7 @@ router.post('/otpVerify', (req, res) => {
 module.exports = {
     router,
     jwtValidate,
+    otpValidate,
     getUserIDbyusername,
     getUserIDbyemail
 }
