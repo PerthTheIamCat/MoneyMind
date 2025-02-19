@@ -8,7 +8,6 @@ import { StatusBar } from "expo-status-bar";
 import { TermsProvider } from "@/hooks/conText/TermsConText";
 import { ServerProvider } from "@/hooks/conText/ServerConText";
 import { AuthProvider, AuthContext } from "@/hooks/conText/AuthContext";
-import { Text } from "react-native";
 import "@/global.css";
 import {
   configureReanimatedLogger,
