@@ -5,10 +5,16 @@ require('dotenv').config();
 const Tesseract = require('tesseract.js');
 const path = require('path');
 
+const {router: authRouter, jwtValidate, otpValidate, getUserIDbyusername, getUserIDbyemail} = require('./auth')
+const db = require('./db');
+
 // (1) ระบุไฟล์รูป OCR
 //const imagePath = path.join(__dirname, 'K.jpg'); // เปลี่ยนเป็นชื่อไฟล์จริง
 
-router.post('/', async (req, res) => {
+router.use(express.json())
+router.use(express.urlencoded({ extended: false }))
+
+router.post('/', jwtValidate, (req, res) => {
     const { imagePath } = req.body;
     if(!imagePath){
         return res.status(400).json({ message: "Missing or invalid image path", success: false });
