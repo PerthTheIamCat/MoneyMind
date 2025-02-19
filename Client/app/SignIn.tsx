@@ -9,6 +9,7 @@ import { useState, useContext } from "react";
 import { router } from "expo-router";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
+import { TouchableOpacity } from "react-native";
 
 export default function Index() {
   const [usernameEmail, setUsernameEmail] = useState<string>("");
@@ -101,7 +102,9 @@ export default function Index() {
           >
             Sign Up
           </ThemedButton>
-          <ThemedText className="mt-3 mb-5">Forgot Password?</ThemedText>
+          <TouchableOpacity onPress={() => router.replace('/OTPpassword')}>
+            <ThemedText className="mt-3 mb-5 underline">Forgot Password?</ThemedText>
+          </TouchableOpacity>
         </ThemedView>
       </ThemedView>
     </ThemedSafeAreaView>
