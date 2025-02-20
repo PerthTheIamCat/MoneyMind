@@ -11,6 +11,7 @@ const db = require('./db');
 router.post('/create', jwtValidate,(req, res) => {
     const { user_id, 
         notification_type, 
+        color_type,
         message
     } = req.body;
 
@@ -18,13 +19,13 @@ router.post('/create', jwtValidate,(req, res) => {
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
-    if (!user_id || !notification_type || !message) {
+    if (!user_id || !notification_type || !message || !color_type) {
         return res.status(400).json({ message: 'Please fill all fields', success: false });
     }
 
     db.query(
-        'INSERT INTO notifications (user_id, notification_type, message) VALUES (?, ?, ?)',
-        [user_id, notification_type, message], 
+        'INSERT INTO notifications (user_id, notification_type, color_type, message) VALUES (?, ?, ?, ?)',
+        [user_id, notification_type, color_type, message], 
         (err, result) => {
             if (err) {
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
