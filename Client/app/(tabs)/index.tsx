@@ -168,23 +168,24 @@ export default function Index() {
               horizontal={true}
               className="w-full"
             >
-              <ThemedView className="w-full  flex-row ">
-                {bank?.map((account, index) => (
+            <View className="mt-0.5 mb-1 flex-row space-x-1">
+              {bank
+                ?.slice() // ป้องกันไม่ให้เปลี่ยนค่า `bank` ดั้งเดิม
+                .sort((a, b) => a.id - b.id) // เรียงจาก id น้อยไปมาก
+                .map((account, index) => (
                   <ThemedCard
+                    CardID={account.id}
                     name={account.account_name}
                     color={account.color_code}
                     balance={account.balance.toString()}
                     mode="large"
-                    onEdit={() => {}}
-                    CardID={account.id}
-                    key={account.id}
                     imageIndex={Number(account.icon_id)}
-                    index={index}
-
+                    onEdit={() => {}}
+                    key={account.id}
                     className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
                   />
                 ))}
-              </ThemedView>
+            </View>
             </ThemedScrollViewCenter>
           </ThemedView>
         ) : (

@@ -34,6 +34,7 @@ const transactions: UserTransaction[] = [
     transaction_name: "Food",
     note: "Lunch",
   },
+
   {
     id: 2,
     user_id: 1,
@@ -118,6 +119,7 @@ const transactions: UserTransaction[] = [
     transaction_name: "Food",
     note: "Lunch",
   },
+
 ];
 
 export default function Index() {
@@ -126,6 +128,88 @@ export default function Index() {
   };
   
   const { bank, transaction } = useContext(UserContext) ?? { bank: [], transaction: [] };;
+
+  return (
+    <>
+      <View
+        className={`flex-row items-center justify-center w-10/12 ${componentcolor} p-4 rounded-lg mb-2 shadow-md`}
+      >
+        <Image
+          source={require("@/assets/logos/LOGO.png")}
+          style={{ width: 40, height: 40, borderRadius: 20, marginRight: 16 }}
+        />
+        <View className="flex-1">
+          <ThemedText className={`font-bold text-lg `}>
+            {transaction.transaction_name}
+          </ThemedText>
+          <ThemedText>{transaction.note}</ThemedText>
+        </View>
+        <Text
+          className={`font-bold text-[16px] ${
+            transaction.transaction_type === "income"
+              ? "text-green-500"
+              : "text-red-500"
+          }`}
+        >
+          {transaction.amount}
+        </Text>
+        <Pressable onPress={() => setShowDropdown(!showDropdown)}>
+          <Entypo
+            name="dots-three-vertical"
+            size={20}
+            color={componenticon}
+            className="ml-2"
+          />
+        </Pressable>
+
+        {showDropdown && (
+          <ThemedView className="absolute top-10 right-2 flex-row border border-gray-300 shadow-md rounded-lg w-fit z-50">
+            <Pressable
+              onPress={handleEdit}
+              className="p-2 border-b border-gray-200"
+            >
+              <Text className="text-green-500">Edit</Text>
+            </Pressable>
+            <Pressable onPress={handleDelete} className="p-2">
+              <Text className="text-red-600">Delete</Text>
+            </Pressable>
+          </ThemedView>
+        )}
+      </View>
+
+      {showOverlay && (
+        <View className="absolute inset-0 flex items-center justify-center z-50">
+          <ThemedView className=" p-6 rounded-lg w-80 shadow-md text-center h-52">
+            <ThemedText className="text-lg font-bold mb-4">
+              Confirm Deletion
+            </ThemedText>
+            <ThemedText className="mb-4">
+              Are you sure you want to delete this transaction?
+            </ThemedText>
+            <View className="flex-row justify-between gap-5">
+              <Pressable
+                onPress={handleCancel}
+                className="bg-gray-300 px-4 py-2 rounded-lg"
+              >
+                <Text>Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleConfirmDelete}
+                className="bg-red-500 px-4 py-2 rounded-lg"
+              >
+                <Text className="text-white">Confirm ({countdown}s)</Text>
+              </Pressable>
+            </View>
+          </ThemedView>
+        </View>
+      )}
+    </>
+  );
+};
+
+export default function Index() {
+  const { bank, transaction } = useContext(UserContext);
+  let lastDate = "";
 
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
@@ -200,20 +284,22 @@ export default function Index() {
             className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
           >
             <View className="mt-0.5 mb-1 flex-row space-x-1">
-              {bank?.map((account, index) => (
-                <ThemedCard
-                  CardID={account.id}
-                  name={account.account_name}
-                  color={account.color_code}
-                  balance={account.balance.toString()}
-                  mode="small"
-                  imageIndex={Number(account.icon_id)}
-                  onEdit={() => {}}
-                  key={account.id}
-                  // image={account.icon_id}
-                  className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
-                />
-              ))}
+              {bank
+                ?.slice() // ป้องกันไม่ให้เปลี่ยนค่า `bank` ดั้งเดิม
+                .sort((a, b) => a.id - b.id) // เรียงจาก id น้อยไปมาก
+                .map((account, index) => (
+                  <ThemedCard
+                    CardID={account.id}
+                    name={account.account_name}
+                    color={account.color_code}
+                    balance={account.balance.toString()}
+                    mode="small"
+                    imageIndex={Number(account.icon_id)}
+                    onEdit={() => {}}
+                    key={account.id}
+                    className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+                  />
+                ))}
             </View>
           </ThemedScrollView>
         </ThemedView>
@@ -237,6 +323,8 @@ export default function Index() {
         <ScrollView className="h-[450px] py-2">
           <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12 ">
             <View className="w-full !items-center">
+
+
               {/* {transactions.map((transaction) => {
                 const formattedDate = moment(transaction.transaction_date).format("DD MMM YYYY");
                           const showDateHeader = lastDate !== formattedDate;
@@ -322,8 +410,9 @@ export default function Index() {
                   Insert Type
                 </ThemedText>
                 <View className="flex flex-row gap-6 mt-2 rounded-lg">
-                  <View
+                  <Pressable
                     className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}
+                    onPress={() => router.push("../Add_Transaction")}
                   >
                     <MaterialCommunityIcons
                       name="notebook"
@@ -334,7 +423,7 @@ export default function Index() {
                     <ThemedText className="font-bold">
                       Add By Yourself
                     </ThemedText>
-                  </View>
+                  </Pressable>
                   <View
                     className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}
                   >

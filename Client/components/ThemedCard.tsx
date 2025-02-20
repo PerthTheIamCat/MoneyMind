@@ -12,6 +12,7 @@ import { response } from "express";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { UserContext } from "@/hooks/conText/UserContext";
+import { ViewStyle } from "react-native";
 
 
 const formatBalance = (balance: string): string => {
@@ -48,6 +49,7 @@ type ThemedCardProps = {
   index?: number;
   onEdit?: () => void;
   onDelete?: (id: number) => void;
+  style?: ViewStyle;  // ✅ เพิ่มตรงนี้
 };
 
 export function ThemedCard({
@@ -292,7 +294,5 @@ export function ThemedCard({
     </ThemedView>
   );
 }
-function setBank(newBank: import("@/hooks/auth/GetUserBank").resultObject[]) {
-  throw new Error("Function not implemented.");
-}
+
 
