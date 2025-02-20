@@ -17,6 +17,13 @@ type UserTransaction = {
   color_code : string;
 }
 
+type UserNotification = {
+  id: number;
+  mode: string;
+  Header: string;
+  Description: string;
+}
+
 type UserContextType = {
   fullname: string | null;
   username: string | null;
@@ -25,12 +32,15 @@ type UserContextType = {
   bank: Array<resultObject> | null;
   birthdate: string | null;
   transaction: Array<UserTransaction> | null;
+  notification: Array<UserNotification> | null;
+  
   setUsername: (user: string) => void;
   setUserID: (id: number) => void;
   setEmail: (email: string) => void;
   setFullname: (name: string) => void;
   setBirthdate: (birthdate: string) => void;
   setTransaction: (transaction: Array<UserTransaction>) => void;
+  setNotification: (transaction: Array<UserNotification>) => void;
   setBank: (bank: Array<resultObject>) => void;
   loading: boolean;
 };
@@ -43,12 +53,14 @@ export const UserContext = React.createContext<UserContextType>({
   bank: null,
   birthdate: null,
   transaction: null,
+  notification: null,
   setUsername: () => {},
   setUserID: () => {},
   setEmail: () => {},
   setFullname: () => {},
   setBirthdate: () => {},
   setTransaction: () => {},
+  setNotification: () => {},
   setBank: () => {},
   loading: true,
 });
@@ -65,6 +77,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [birthdate, setBirthdate] = useState<string | null>(null);
   const [bank, setBank] = useState<Array<resultObject> | null>(null);
   const [transaction, setTransaction] = useState<Array<UserTransaction> | null>(null);
+  const [notification, setNotification] = useState<Array<UserNotification> | null>(null);
 
   useEffect(() => {
     if (auth?.token) {
@@ -130,12 +143,14 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         bank,
         birthdate,
         transaction,
+        notification,
         setUsername,
         setEmail,
         setUserID,
         setFullname,
         setBirthdate,
         setTransaction,
+        setNotification,
         setBank,
         loading,
       }}
