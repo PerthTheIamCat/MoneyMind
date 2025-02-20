@@ -19,6 +19,7 @@ import { TouchableWithoutFeedback } from "react-native";
 import { Animated, Easing } from "react-native";
 import { UserTransaction } from "@/hooks/auth/GetAllTransaction";
 import TransactionItem from "@/components/TransactionItem";
+import moment from "moment";
 
 const transactions: UserTransaction[] = [
   {
@@ -27,23 +28,105 @@ const transactions: UserTransaction[] = [
     account_id: 1,
     split_payment_id: null,
     transaction_type: "expense",
-    amount: 250.00,
-    color_code : "#FF0000",
+    amount: 250.0,
+    color_code: "#FF0000",
     transaction_date: "2022-01-01",
     transaction_name: "Food",
     note: "Lunch",
   },
-  
+  {
+    id: 2,
+    user_id: 1,
+    account_id: 1,
+    split_payment_id: null,
+    transaction_type: "expense",
+    amount: 250.0,
+    color_code: "#FF0000",
+    transaction_date: "2022-01-01",
+    transaction_name: "Food",
+    note: "Lunch",
+  },
+  {
+    id: 3,
+    user_id: 1,
+    account_id: 1,
+    split_payment_id: null,
+    transaction_type: "expense",
+    amount: 250.0,
+    color_code: "#FF0000",
+    transaction_date: "2022-01-04",
+    transaction_name: "Food",
+    note: "Lunch",
+  },
+  {
+    id: 4,
+    user_id: 1,
+    account_id: 1,
+    split_payment_id: null,
+    transaction_type: "expense",
+    amount: 250.0,
+    color_code: "#FF0000",
+    transaction_date: "2022-01-02",
+    transaction_name: "Food",
+    note: "Lunch",
+  },
+  {
+    id: 5,
+    user_id: 1,
+    account_id: 1,
+    split_payment_id: null,
+    transaction_type: "expense",
+    amount: 250.0,
+    color_code: "#FF0000",
+    transaction_date: "2022-01-01",
+    transaction_name: "Food",
+    note: "Lunch",
+  },
+  {
+    id: 6,
+    user_id: 1,
+    account_id: 1,
+    split_payment_id: null,
+    transaction_type: "expense",
+    amount: 250.0,
+    color_code: "#FF0000",
+    transaction_date: "2022-01-01",
+    transaction_name: "Food",
+    note: "Lunch",
+  },
+  {
+    id: 7,
+    user_id: 1,
+    account_id: 1,
+    split_payment_id: null,
+    transaction_type: "expense",
+    amount: 250.0,
+    color_code: "#FF0000",
+    transaction_date: "2022-01-02",
+    transaction_name: "Food",
+    note: "Lunch",
+  },
+  {
+    id: 8,
+    user_id: 1,
+    account_id: 1,
+    split_payment_id: null,
+    transaction_type: "expense",
+    amount: 250.0,
+    color_code: "#FF0000",
+    transaction_date: "2022-01-03",
+    transaction_name: "Food",
+    note: "Lunch",
+  },
 ];
 
-
-const handleEditTransaction = (transactionId: number) => {
-  router.push(`../Edit_Transaction?id=${transactionId}`); // ✅ Route ไปหน้า Edit_Transaction
-};
-
 export default function Index() {
-  const { bank, transaction } = useContext(UserContext);
-  let lastDate = "";
+  const handleEditTransaction = (transactionId: number) => {
+    router.push(`../Edit_Transaction?id=${transactionId}`);
+  };
+  
+  const { bank, transaction } = useContext(UserContext) ?? { bank: [], transaction: [] };;
+
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
   // const handleEditTransaction = (transactionId: number) => {};
@@ -96,7 +179,12 @@ export default function Index() {
           />
         </ThemedView>
         <ThemedView className="!items-start pl-[10%] pt-[2%] bg-[E5E5E5]">
-          <ThemedText onPress={() => router.push("/Month_Summary")} className=" text-[18px]">Connected</ThemedText>
+          <ThemedText
+            onPress={() => router.push("/Month_Summary")}
+            className=" text-[18px]"
+          >
+            Connected
+          </ThemedText>
           <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
         </ThemedView>
         <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
@@ -145,28 +233,61 @@ export default function Index() {
             />
           </View>
         </ThemedView>
+
         <ScrollView className="h-[450px] py-2">
           <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12 ">
             <View className="w-full !items-center">
-              {transactions.map((transaction) => {
-                const showDateHeader = transaction.transaction_date !== lastDate;
-                lastDate = transaction.transaction_date || "";
-                return (
-                  <View key={transaction.id} className="w-full items-center ">
-                    {showDateHeader && (
-                      <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
-                        {transaction.transaction_date}
-                      </ThemedText>
-                    )}
-                    <TransactionItem 
-                      transaction={transaction} 
-                      theme={theme}                    
-                      onEdit={() => handleEditTransaction(transaction.id ?? 0)}
-                      onDelete={() => handleDeleteTransaction(transaction.id ?? 0)} 
-                      />
-                  </View>
-                );
-              })}
+              {/* {transactions.map((transaction) => {
+                const formattedDate = moment(transaction.transaction_date).format("DD MMM YYYY");
+                          const showDateHeader = lastDate !== formattedDate;
+                          lastDate = formattedDate; */}
+
+              {!transaction || transaction.length === 0 ? (
+                <ThemedText className="text-center items-center !ustify-center text-xl mt-20 text-neutral-500 py-4">
+                  No transactions available
+                </ThemedText>
+              ) : (
+                transaction
+                  .slice()
+                  .sort(
+                    (a, b) =>
+                      moment(b.transaction_date).valueOf() -
+                      moment(a.transaction_date).valueOf()
+                  )
+                  .map((transaction, index, sortedArray) => {
+                    const formattedDate = moment(
+                      transaction.transaction_date
+                    ).format("DD MMM YYYY");
+                    const showDateHeader =
+                      index === 0 ||
+                      formattedDate !==
+                        moment(sortedArray[index - 1].transaction_date).format(
+                          "DD MMM YYYY"
+                        );
+                    return (
+                      <View
+                        key={transaction.id}
+                        className="w-full items-center "
+                      >
+                        {showDateHeader && (
+                          <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
+                            {formattedDate}
+                          </ThemedText>
+                        )}
+                        <TransactionItem
+                          transaction={transaction}
+                          theme={theme}
+                          onEdit={() =>
+                            handleEditTransaction(transaction.id ?? 0)
+                          }
+                          onDelete={() =>
+                            handleDeleteTransaction(transaction.id ?? 0)
+                          }
+                        />
+                      </View>
+                    );
+                  })
+              )}
             </View>
           </ThemedView>
         </ScrollView>
