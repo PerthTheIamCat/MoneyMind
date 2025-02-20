@@ -23,6 +23,7 @@ type UserNotification = {
   mode: string;
   Header: string;
   Description: string;
+}
 
 type UserRetire = {
   id: number;
@@ -30,6 +31,7 @@ type UserRetire = {
   monthly_savings_goal : number;
   total_savings_goal: number;
   current_savings: number;
+}
 
 type UserContextType = {
   fullname: string | null;
