@@ -86,7 +86,7 @@ const mockSummary: Summary = {
   id: 1,
   user_id: 101,
   monthly_savings_goal: 2000,
-  monthly_current_savings:1800,
+  monthly_current_savings:1000,
   total_savings_goal: 100000,
   current_savings: 90000,
   income:200000,
@@ -106,7 +106,7 @@ export default function Index() {
   const [retireAmount, setretire] = useState(5000);
   const [retireGoal, setretireGoal] = useState(10000);
 
-  const { fullname, bank, transaction } = useContext(UserContext);
+  const { username, bank, transaction } = useContext(UserContext);
   let lastDate = "";
 
   useEffect(() => {
@@ -146,7 +146,7 @@ export default function Index() {
         <ThemedView className="!justify-start mt-5 w-[80%] flex-row">
           <Feather name="circle" size={40} color={`${componentIcon}`} />
           <ThemedText className="text-xl font-bold pl-3 text-start">
-            {fullname ? fullname : "FirstName LastName"}
+            {username ? username : "FirstName LastName"}
           </ThemedText>
         </ThemedView>
 
@@ -154,13 +154,13 @@ export default function Index() {
         {checkRetireData ? (
           <ThemedView className="mt-3 w-[80%]">
             <ThemedView className={`${componentColor} h-fit p-5 w-full rounded-[20]`}>
-              <ThemedText className="font-bold">
+              <ThemedText className="font-bold text-xl">
                 Your Monthly Save Goal
               </ThemedText>
                 <ThemedView className="mt-5 bg-transparent pb-4">
                 <SemiCircleProgress
                   savings_goal={mockSummary.monthly_savings_goal}
-                  current_savings={Math.min(mockSummary.monthly_current_savings, mockSummary.monthly_savings_goal) || mockSummary.monthly_savings_goal}
+                  current_savings={mockSummary.monthly_current_savings}
                 />
 
 
@@ -263,7 +263,8 @@ export default function Index() {
 
       <ThemedView>
       <ThemedScrollView >
-        {transaction && transaction.slice(0, 15).map((item, index) => {
+      {transaction && transaction.length > 0 ? (
+        transaction && transaction.slice(0, 15).map((item, index) => {
           const transaction: Transaction = {
             id: item.id.toString(),
             logo: require("@/assets/logos/LOGO.png"),
@@ -288,8 +289,7 @@ export default function Index() {
               <TransactionItem transaction={transaction} theme={theme} />
             </View>
           );
-        })}
-        {transaction && transaction.length === 0 && (
+        })):(
           <ThemedView className="!items-center w-full ">
             <ThemedText className="text-center font-bold mt-5">
               no record transaction found
