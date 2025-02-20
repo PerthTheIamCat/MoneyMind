@@ -4,6 +4,8 @@ import { Button, Text } from "react-native-paper";
 import { DatePickerModal, TimePickerModal } from "react-native-paper-dates";
 import { CalendarDate } from "react-native-paper-dates/lib/typescript/Date/Calendar";
 import Icon from "react-native-vector-icons/Feather";
+import { enGB, registerTranslation } from 'react-native-paper-dates'
+registerTranslation('en-GB', enGB)
 
 interface CustomPaperDatePickerProps {
   title: string;
