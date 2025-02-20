@@ -10,10 +10,14 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import Entypo from "@expo/vector-icons/Entypo";
 import moment from "moment";
+import { DonutChart } from "@/components/DonutChart";
+import { LinearBar } from "@/components/LinearBar";
+import { SemiCircleProgress } from "@/components/SemiCircleProgress";
 
 import { useColorScheme, Text, View ,FlatList} from "react-native";
 import { useState, useContext } from "react";
 import { Image } from "expo-image";
+import { useEffect } from "react";
 
 import { UserContext } from "@/hooks/conText/UserContext";
 import { router } from "expo-router";
@@ -67,6 +71,28 @@ const TransactionItem = ({transaction,theme,}:{transaction: Transaction;theme: s
   );
 };
 
+interface Summary {
+  id: number;
+  user_id: number;
+  monthly_savings_goal: number;
+  monthly_current_savings: number;
+  total_savings_goal: number;
+  current_savings: number;
+  income: number ;
+  expense: number;
+}
+
+const mockSummary: Summary = {
+  id: 1,
+  user_id: 101,
+  monthly_savings_goal: 2000,
+  monthly_current_savings:1000,
+  total_savings_goal: 100000,
+  current_savings: 90000,
+  income:200000,
+  expense:170000,
+};
+
 export default function Index() {
   const theme = useColorScheme() || "light";
   const componentColor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
@@ -80,8 +106,16 @@ export default function Index() {
   const [retireAmount, setretire] = useState(5000);
   const [retireGoal, setretireGoal] = useState(10000);
 
-  const { fullname, bank, transaction } = useContext(UserContext);
+  const { username, bank, transaction } = useContext(UserContext);
   let lastDate = "";
+
+  useEffect(() => {
+    // Perform actions when mockSummary or transaction changes
+    console.log("mockSummary or transaction changed:", mockSummary, transaction);
+  
+    // Optionally, you can run some side effect here, like recalculating savings progress
+  }, [mockSummary, transaction]); // This will trigger the effect whenever either of these values change
+  
 
   return (
     <ThemedSafeAreaView key={"home"}>
@@ -112,22 +146,30 @@ export default function Index() {
         <ThemedView className="!justify-start mt-5 w-[80%] flex-row">
           <Feather name="circle" size={40} color={`${componentIcon}`} />
           <ThemedText className="text-xl font-bold pl-3 text-start">
-            {fullname ? fullname : "FirstName LastName"}
+            {username ? username : "FirstName LastName"}
           </ThemedText>
         </ThemedView>
 
         {/* check retire have data */}
         {checkRetireData ? (
           <ThemedView className="mt-3 w-[80%]">
-            <ThemedView className={`${componentColor} h-40 w-full rounded-[20]`}>
-              <ThemedText className="font-bold">
+            <ThemedView className={`${componentColor} h-fit p-5 w-full rounded-[20]`}>
+              <ThemedText className="font-bold text-xl">
                 Your Monthly Save Goal
               </ThemedText>
-              <ThemedText className="h-1/2 w-10 align-middle font-bold">
-                {retire}
-              </ThemedText>
+                <ThemedView className="mt-5 bg-transparent pb-4">
+                <SemiCircleProgress
+                  savings_goal={mockSummary.monthly_savings_goal}
+                  current_savings={mockSummary.monthly_current_savings}
+                />
+
+
+                    
+                </ThemedView>
               <ThemedText className="mx-5 text-center font-bold">
-                Goal 9.0k
+              <ThemedText className="h-1/2 text-xl 1/2 align-middle  font-bold">
+                  {mockSummary.monthly_current_savings}/{mockSummary.monthly_savings_goal}
+              </ThemedText>
               </ThemedText>
             </ThemedView>
           </ThemedView>
@@ -222,7 +264,8 @@ export default function Index() {
 
       <ThemedView>
       <ThemedScrollView >
-        {transaction && transaction.slice(0, 15).map((item, index) => {
+      {transaction && transaction.length > 0 ? (
+        transaction && transaction.slice(0, 15).map((item, index) => {
           const transaction: Transaction = {
             id: item.id.toString(),
             logo: require("@/assets/logos/LOGO.png"),
@@ -247,8 +290,7 @@ export default function Index() {
               <TransactionItem transaction={transaction} theme={theme} />
             </View>
           );
-        })}
-        {transaction && transaction.length === 0 && (
+        })):(
           <ThemedView className="!items-center w-full ">
             <ThemedText className="text-center font-bold mt-5">
               no record transaction found

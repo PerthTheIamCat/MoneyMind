@@ -78,18 +78,19 @@ export default function Index() {
     ]);
 
     
-    // useEffect(() => {
-    //     if (userID) {
-    //         NotificationsGetHandler(URL, userID).then((response) => {
-    //             if (response.success) {
-    //                 setData(response.result);
-    //             }
-    //         });
-    //     }
-    // }, [userID]);
+    useEffect(() => {
+        if (userID) {
+            NotificationsGetHandler(URL, userID).then((response) => {
+                if (response) {
+                    
+                }
+            });
+        }
+    }, [userID]);
 
     const deleteNotification = (id: number) => {
         setData((prevData) => prevData.filter((item) => item.id !== id));
+        
     };
 
     const [animatedValues] = useState<{

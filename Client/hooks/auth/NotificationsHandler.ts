@@ -7,12 +7,10 @@ interface NoticePut{
 }
 
 interface NoticeResponse{
-    response:{
         data:{
             success : boolean,
             message : string
         };
-    };
 }
 
 interface NoticeError{
@@ -39,7 +37,7 @@ export const NotificationsPostHandler = async (
 export const NotificationsGetHandler = async (
     url : string,
     user_id : number,
-): Promise<NoticeResponse | NoticeError["response"]["data"]> => {
+): Promise<NoticeResponse| NoticeError["response"]["data"]> => {
     try {
         const response = await axios.get<NoticeResponse>(`${url}/notifications/${user_id}`);
         return response.data;
