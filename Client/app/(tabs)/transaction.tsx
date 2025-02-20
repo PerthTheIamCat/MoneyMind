@@ -230,20 +230,22 @@ export default function Index() {
             className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
           >
             <View className="mt-0.5 mb-1 flex-row space-x-1">
-              {bank?.map((account, index) => (
-                <ThemedCard
-                  CardID={account.id}
-                  name={account.account_name}
-                  color={account.color_code}
-                  balance={account.balance.toString()}
-                  mode="small"
-                  imageIndex={Number(account.icon_id)}
-                  onEdit={() => {}}
-                  key={account.id}
-                  // image={account.icon_id}
-                  className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
-                />
-              ))}
+              {bank
+                ?.slice() // ป้องกันไม่ให้เปลี่ยนค่า `bank` ดั้งเดิม
+                .sort((a, b) => a.id - b.id) // เรียงจาก id น้อยไปมาก
+                .map((account, index) => (
+                  <ThemedCard
+                    CardID={account.id}
+                    name={account.account_name}
+                    color={account.color_code}
+                    balance={account.balance.toString()}
+                    mode="small"
+                    imageIndex={Number(account.icon_id)}
+                    onEdit={() => {}}
+                    key={account.id}
+                    className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+                  />
+                ))}
             </View>
           </ThemedScrollView>
         </ThemedView>
