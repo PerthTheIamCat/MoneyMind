@@ -117,14 +117,15 @@ export default function SplitPay() {
               <View className="mt-0.5 mb-1 flex-row space-x-1">
                 {bank?.map((account) => (
                 <ThemedCard
-                name={account.account_name}
-                color={account.color_code}
-                balance={account.balance.toString()}
-                mode="small"
-                onEdit={() => {}}
-                key={account.id}
-                // image={account.icon_id}
-                className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+                  CardID={account.id}
+                  name={account.account_name}
+                  color={account.color_code}
+                  balance={account.balance.toString()}
+                  mode="small"
+                  onEdit={() => {}}
+                  key={account.id}
+                  // image={account.icon_id}
+                  className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
                 />
                 ))}
               </View>
