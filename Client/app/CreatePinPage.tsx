@@ -102,7 +102,7 @@ export default function CreatePinPage() {
               key={index}
               style={[
                 styles.codeEmpty,
-                code[index] ? styles.codeEntered : null,
+                code[index] !== undefined ? styles.codeEntered : null,
               ]}
             />
           ))}

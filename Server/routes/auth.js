@@ -83,6 +83,44 @@ const jwtValidate = (req, res, next) => {
     }
 };
 
+const otpValidate = (req, res, next) => {
+    try {
+        if (!req.headers['otp']){
+            console.log('No otp provided');
+            return res.status(401).json({ message: `No otp provided`, success: false });
+        }
+
+        const otp = req.headers['otp']
+        const email = req.headers['email']
+
+        db.query('SELECT * FROM otp WHERE email = ?', [email], (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false});
+            }
+    
+            const otpData = result[0]
+            
+            if (otpData.otp_code === otp) {
+                if (otpData.expires_at < new Date()) {
+                    return res.status(400).json({ message: 'OTP expired', success: false });
+                }else{
+                    req.user = {
+                        email:email,
+                        otpValidate: true
+                    }      
+                    next();
+                }
+            }else{
+                return res.status(400).json({ message: 'Invalid OTP or OTP is used', success: false });
+            }
+        });
+
+    } catch (err) {
+        console.error('Unexpected error:', err.message);
+        return res.status(500).json({ message: 'Internal server error', success: false });
+    }
+}
+
 router.post('/register', (req, res) => {
     const { username, email, password, password2, otp} = req.body
 
@@ -275,7 +313,7 @@ router.post('/otpSend', (req, res) => {
 router.post('/otpVerify', (req, res) => {
     const { email, otp } = req.body
 
-    db.query('SELECT * FROM otp WHERE email = ?', [email], async (err, result) => {
+    db.query('SELECT * FROM otp WHERE email = ?', [email], (err, result) => {
         if (err) {
             return res.status(500).json({ message: 'Database query failed', error: err.message, success: false});
         }
@@ -283,14 +321,24 @@ router.post('/otpVerify', (req, res) => {
         const otpData = result[0]
 
 
-        if (otpData.otp_code === otp) {
+        if (otpData.otp_code === otp && otpData.is_used === 0) {
             if (otpData.expires_at < new Date()) {
                 return res.status(400).json({ message: 'OTP expired', success: false });
             }else{
-                return res.status(200).json({ message: 'OTP verified', success: true });
+                db.query(
+                    'UPDATE otp SET is_used = 1 where email = ?',
+                    [email],
+                    (err, result) => {
+                        if (err) {
+                            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                        }
+
+                        return res.status(200).json({ message: 'OTP verified', success: true })
+                    }
+                )
             }
         }else{
-            return res.status(400).json({ message: 'Invalid OTP', success: false });
+            return res.status(400).json({ message: 'Invalid OTP or OTP is used', success: false });
         }
     })
 })
@@ -298,6 +346,7 @@ router.post('/otpVerify', (req, res) => {
 module.exports = {
     router,
     jwtValidate,
+    otpValidate,
     getUserIDbyusername,
     getUserIDbyemail
 }

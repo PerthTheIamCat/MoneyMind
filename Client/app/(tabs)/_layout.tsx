@@ -34,7 +34,7 @@ export default function TabLayout() {
         options={{
           title: "SplitPay",
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="home" size={24} color={color} />
+            <FontAwesome5 name="handshake" size={24} color={color} />
           ),
         }}
       />
@@ -43,7 +43,7 @@ export default function TabLayout() {
         options={{
           title: "Transaction",
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="home" size={24} color={color} />
+            <FontAwesome5 name="exchange-alt" size={24} color={color} />
           ),
         }}
       />
@@ -52,7 +52,7 @@ export default function TabLayout() {
         options={{
           title: "Retire",
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="home" size={24} color={color} />
+            <FontAwesome5 name="piggy-bank" size={24} color={color} />
           ),
         }}
       />
