@@ -40,8 +40,6 @@ export default function TransactionItem({ transaction, theme, onEdit, onDelete }
     let timer: ReturnType<typeof setInterval>;
     if (isDeleteModalVisible && countdown > 0) {
       timer = setInterval(() => setCountdown((prev) => prev - 1), 1000);
-    } else if (countdown === 0) {
-      confirmDelete();
     }
     return () => clearInterval(timer);
   }, [isDeleteModalVisible, countdown]);
@@ -80,7 +78,7 @@ export default function TransactionItem({ transaction, theme, onEdit, onDelete }
 
         {showDropdown && (
           <ThemedView className="absolute top-10 right-2 flex-row border border-gray-300 shadow-md rounded-lg w-fit z-50">
-            <Pressable onPress={onEdit} className="p-2 border-b border-gray-200">
+            <Pressable onPress={ () => {onEdit(); setShowDropdown(false); }} className="p-2 border-b border-gray-200">
               <Text className="text-green-500">Edit</Text>
             </Pressable>
             <Pressable onPress={handleDelete} className="p-2">
