@@ -163,7 +163,9 @@ export default function Index() {
   useEffect(() => {
     if (bank && bank.length > 0 && scrollViewRef.current) {
       setTimeout(() => {
-        scrollViewRef.current?.scrollTo({ x: snapToInterval * (bank.length / 2 - 1), animated: true });
+        scrollViewRef.current?.scrollTo({ x: 0, animated: true });
+        setSelectedCard(bank[0]); // ✅ ตั้งค่า selectedCard เป็นการ์ดแรก
+        console.log("🚀 First Card Selected:", bank[0]);
       }, 500);
     }
   }, [bank]);
@@ -178,7 +180,7 @@ export default function Index() {
         </ThemedView>
 
         <ThemedView className="!items-center w-full mb-5 ">
-        <ThemedScrollView
+        <ScrollView
           ref={scrollViewRef} // ✅ ให้ ScrollView ใช้ ref
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -190,10 +192,7 @@ export default function Index() {
         >
           <ThemedView className="w-full px-16">
             <ThemedView className="mt-0.5 mb-1 flex-row space-x-1 gap-5">
-              {bank
-                ?.slice() // ป้องกันไม่ให้เปลี่ยนค่า `bank` ดั้งเดิม
-                .sort((a, b) => a.id - b.id) // เรียงจาก id น้อยไปมาก
-                .map((account: resultObject, index: number) => (
+              {bank?.map((account: resultObject, index: number) => (
               
                   <Pressable
                 key={account.id}
@@ -202,6 +201,14 @@ export default function Index() {
                   storeCardPosition(account.id, x);
                 }}
               >
+                <ThemedView
+                    className={`rounded-lg ${selectedCard?.id === account.id ? "border border-green-500" : ""}`}
+                    style={{
+                      padding: selectedCard?.id === account.id ? 3 : 0, // ✅ ให้ outline ไม่ขยายขนาดการ์ด
+                      borderColor: selectedCard?.id === account.id ? "#22C55E" : "transparent", // ✅ ใช้สีเขียวสำหรับการ์ดที่ถูกเลือก
+                      borderWidth: selectedCard?.id === account.id ? 2 : 0,
+                    }}
+                  >
                     <ThemedCard
                       key={account.id}
                       CardID={account.id}
@@ -211,15 +218,19 @@ export default function Index() {
                       mode="large"
                       imageIndex={Number(account.icon_id)}
                       onEdit={() => {}}
-                      className={`!items-center !justify-center bg-[#fefefe] rounded-lg  `}
-
+                        className="!items-center !justify-center bg-[#fefefe] rounded-lg"
+                        style={{
+                          width: cardWidth,
+                          marginHorizontal: cardMargin,
+                        }}
                     />
+                    </ThemedView>
                   </Pressable>
 
               ))}
             </ThemedView>
             </ThemedView>
-          </ThemedScrollView>
+          </ScrollView>
         </ThemedView>
 
         <ThemedScrollView
