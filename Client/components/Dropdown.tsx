@@ -1,71 +1,73 @@
-import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
-import { SelectCountry } from 'react-native-element-dropdown';
+import React, { useState } from "react";
+import { StyleSheet } from "react-native";
+import { SelectCountry } from "react-native-element-dropdown";
+import { ThemedView } from "./ThemedView";
 
 const BudgetPlan_data = [
   {
-    value: '1',
-    lable: 'item 1',
+    value: "1",
+    lable: "item 1",
     image: {
-      uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg',
+      uri: "https://www.vigcenter.com/public/all/images/default-image.jpg",
     },
   },
   {
-    value: '2',
-    lable: 'Country 2',
+    value: "2",
+    lable: "Country 2",
     image: {
-      uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg',
+      uri: "https://www.vigcenter.com/public/all/images/default-image.jpg",
     },
   },
   {
-    value: '3',
-    lable: 'Country 3',
+    value: "3",
+    lable: "Country 3",
     image: {
-      uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg',
+      uri: "https://www.vigcenter.com/public/all/images/default-image.jpg",
     },
   },
   {
-    value: '4',
-    lable: 'Country 4',
+    value: "4",
+    lable: "Country 4",
     image: {
-      uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg',
+      uri: "https://www.vigcenter.com/public/all/images/default-image.jpg",
     },
   },
   {
-    value: '5',
-    lable: 'Country 5',
+    value: "5",
+    lable: "Country 5",
     image: {
-      uri: 'https://www.vigcenter.com/public/all/images/default-image.jpg',
+      uri: "https://www.vigcenter.com/public/all/images/default-image.jpg",
     },
   },
 ];
 
 const SelectBudgetPlanScreen = (_props: any) => {
-  const [BudgetPlan, setBudgetPlan] = useState('');
-
+  const [BudgetPlan, setBudgetPlan] = useState("");
 
   return (
-    <SelectCountry
-    containerStyle={{ width: 340, height: 200, marginTop: 60, }}
-      mode='default'
-      dropdownPosition = 'bottom'
-      style={styles.dropdown}
-      selectedTextStyle={styles.selectedTextStyle}
-      placeholderStyle={styles.placeholderStyle}
-      imageStyle={styles.imageStyle}
-      iconStyle={styles.iconStyle}
-      maxHeight={200}
-      value={BudgetPlan}
-      data={BudgetPlan_data}
-      valueField="value"
-      labelField="lable"
-      imageField="image"
-      placeholder="Select Your Budget Plan"
-      searchPlaceholder="Search..."
-      onChange={e => {
-        setBudgetPlan(e.value);
-      }}
-    />
+    <ThemedView className="bg-transparent">
+      <SelectCountry
+        containerStyle={{ width: 340, height: 200, marginTop: 5, zIndex: 9999, elevation: 10 }}
+        mode="default"
+        dropdownPosition="auto"
+        style={styles.dropdown}
+        selectedTextStyle={styles.selectedTextStyle}
+        placeholderStyle={styles.placeholderStyle}
+        imageStyle={styles.imageStyle}
+        iconStyle={styles.iconStyle}
+        maxHeight={200}
+        value={BudgetPlan}
+        data={BudgetPlan_data}
+        valueField="value"
+        labelField="lable"
+        imageField="image"
+        placeholder="Select Your Budget Plan"
+        searchPlaceholder="Search..."
+        onChange={(e) => {
+          setBudgetPlan(e.value);
+        }}
+      />
+    </ThemedView>
   );
 };
 
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
     height: 40,
     width: 340,
     padding: 12,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: "#EEEEEE",
     borderRadius: 12,
     paddingHorizontal: 8,
   },
