@@ -49,7 +49,7 @@ const SelectBudgetPlanScreen = (_props: any) => {
       <SelectCountry
         containerStyle={{ width: 340, height: 200, marginTop: 5, zIndex: 9999, elevation: 10 }}
         mode="default"
-        dropdownPosition="auto"
+        dropdownPosition="bottom"
         style={styles.dropdown}
         selectedTextStyle={styles.selectedTextStyle}
         placeholderStyle={styles.placeholderStyle}
