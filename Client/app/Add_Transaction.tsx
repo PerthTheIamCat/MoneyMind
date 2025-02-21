@@ -23,6 +23,7 @@ import Icon from "react-native-vector-icons/Feather";
 import DateTimePickerInput from "@/components/Date_and_Time";
 import CustomDateTimePicker from "@/components/Date_and_Time";
 import { resultObject } from "@/hooks/auth/GetUserBank";
+import { th } from "react-native-paper-dates";
 
 type ThemedInputProps = {
   className?: string;
@@ -33,8 +34,6 @@ type ThemedInputProps = {
   onChangeText?: (text: string) => void;
   [key: string]: any;
 };
-
-
 
 export default function Index() {
   const { bank } = useContext(UserContext);
@@ -91,7 +90,6 @@ export default function Index() {
   const [selectedBudget, setSelectedBudget] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
-
   // ฟังก์ชันเพิ่มหมวดหมู่ โดยให้ปุ่ม `+` คงอยู่ท้ายสุดเสมอ
   const addNewCategory = () => {
     console.log("Add Category Clicked");
@@ -126,7 +124,9 @@ export default function Index() {
 
   const scrollViewRef = useRef<ScrollView>(null);
   const [selectedCard, setSelectedCard] = useState<resultObject | null>(null);
-  const [cardPositions, setCardPositions] = useState<{ id: number; x: number }[]>([]);
+  const [cardPositions, setCardPositions] = useState<
+    { id: number; x: number }[]
+  >([]);
 
   // ✅ เก็บตำแหน่ง X ของแต่ละ Card
   const storeCardPosition = (id: number, x: number) => {
@@ -169,7 +169,7 @@ export default function Index() {
       }, 500);
     }
   }, [bank]);
- 
+
   return (
     <ThemedView className="w-full !h-full flex-1">
       <ThemedView className="w-full !h-full flex-1">
@@ -180,55 +180,51 @@ export default function Index() {
         </ThemedView>
 
         <ThemedView className="!items-center w-full mb-5 ">
-        <ScrollView
-          ref={scrollViewRef} // ✅ ให้ ScrollView ใช้ ref
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={snapToInterval} // ✅ ทำให้ ScrollView หยุดที่แต่ละการ์ด
-          decelerationRate="fast"
-          onScroll={handleScroll}
-          scrollEventThrottle={16} // ✅ ตรวจจับ scroll อย่างละเอียด
-          className="w-full"
-        >
-          <ThemedView className="w-full px-16">
-            <ThemedView className="mt-0.5 mb-1 flex-row space-x-1 gap-5">
-              {bank?.map((account: resultObject, index: number) => (
-              
+          <ScrollView
+            ref={scrollViewRef} // ✅ ให้ ScrollView ใช้ ref
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={snapToInterval} // ✅ ทำให้ ScrollView หยุดที่แต่ละการ์ด
+            decelerationRate="fast"
+            onScroll={handleScroll}
+            scrollEventThrottle={16} // ✅ ตรวจจับ scroll อย่างละเอียด
+            className="w-full"
+          >
+            <ThemedView className="w-full px-16">
+              <ThemedView className="mt-0.5 mb-1 flex-row space-x-1 gap-5">
+                {bank?.map((account: resultObject, index: number) => (
                   <Pressable
-                key={account.id}
-                onLayout={(event) => {
-                  const x = event.nativeEvent.layout.x +10+ event.nativeEvent.layout.width / 2;
-                  storeCardPosition(account.id, x);
-                }}
-              >
-                <ThemedView
-                    className={`rounded-lg ${selectedCard?.id === account.id ? "border border-green-500" : ""}`}
-                    style={{
-                      padding: selectedCard?.id === account.id ? 3 : 0, // ✅ ให้ outline ไม่ขยายขนาดการ์ด
-                      borderColor: selectedCard?.id === account.id ? "#22C55E" : "transparent", // ✅ ใช้สีเขียวสำหรับการ์ดที่ถูกเลือก
-                      borderWidth: selectedCard?.id === account.id ? 2 : 0,
+                    key={account.id}
+                    onLayout={(event) => {
+                      const x =
+                        event.nativeEvent.layout.x +
+                        10 +
+                        event.nativeEvent.layout.width / 2;
+                      storeCardPosition(account.id, x);
                     }}
                   >
-                    <ThemedCard
-                      key={account.id}
-                      CardID={account.id}
-                      name={account.account_name}
-                      color={account.color_code}
-                      balance={account.balance.toString()}
-                      mode="large"
-                      imageIndex={Number(account.icon_id)}
-                      onEdit={() => {}}
-                        className="!items-center !justify-center bg-[#fefefe] rounded-lg"
-                        style={{
-                          width: cardWidth,
-                          marginHorizontal: cardMargin,
-                        }}
-                    />
+                    <ThemedView>
+                      <ThemedCard
+                        key={account.id}
+                        CardID={account.id}
+                        name={account.account_name}
+                        color={account.color_code}
+                        balance={account.balance.toString()}
+                        mode="large"
+                        imageIndex={Number(account.icon_id)}
+                        onEdit={() => {}}
+                        className={`!items-center !justify-center bg-[#fefefe] rounded-lg 
+                          ${
+                            selectedCard?.id === account.id
+                              ? "border-4 border-[#03A696]"
+                              : "border-0"
+                          }
+                        `}
+                      />
                     </ThemedView>
                   </Pressable>
-
-              ))}
-            </ThemedView>
+                ))}
+              </ThemedView>
             </ThemedView>
           </ScrollView>
         </ThemedView>
@@ -240,17 +236,25 @@ export default function Index() {
         >
           <ThemedView
             className={`${
-              theme === "dark" ? "bg-[#000000]" : "bg-[#ffffff]"
+              theme === "dark" ? "bg-[#242424]" : "bg-[#ffffff]"
             } mt-2 px-10 !justify-start !items-start w-full  rounded-t-[30px] `}
-            >
+          >
             <ThemedView className="flex-row w-fit h-12 rounded-sm p-1 mt-5 mb-4 bg-transparent">
-            <Pressable
+              <Pressable
                 onPress={() => setIsIncome(true)}
                 className={`w-32 h-full flex items-center justify-center rounded-2xl ${
                   isIncome ? "bg-green-500" : "bg-transparent"
                 }`}
               >
-                <ThemedText className={`font-bold ${isIncome ? "text-white" : "text-black"}`}>
+                <ThemedText
+                  className={`font-bold ${
+                    isIncome
+                      ? "text-white"
+                      : theme === "dark"
+                      ? "text-white"
+                      : "text-black"
+                  }`}
+                >
                   Income
                 </ThemedText>
               </Pressable>
@@ -261,7 +265,15 @@ export default function Index() {
                   !isIncome ? "bg-red-500" : "bg-transparent"
                 }`}
               >
-                <ThemedText className={`font-bold ${!isIncome ? "text-white" : "text-black"}`}>
+                <ThemedText
+                  className={`font-bold ${
+                    !isIncome
+                      ? "text-white"
+                      : theme === "dark"
+                      ? "text-white"
+                      : "text-black"
+                  }`}
+                >
                   Expense
                 </ThemedText>
               </Pressable>
@@ -295,7 +307,10 @@ export default function Index() {
               >
                 {/* 2 แถวแน่นอน */}
                 {categoryRows.map((row, rowIndex) => (
-                  <ThemedView key={rowIndex} className="flex-row gap-2 mb-2">
+                  <ThemedView
+                    key={rowIndex}
+                    className="flex-row gap-4 mb-2 bg-transparent "
+                  >
                     {row.map((category, index) => (
                       <Pressable
                         key={`${category.name}-${index}`}
@@ -306,15 +321,24 @@ export default function Index() {
                             ? setSelectedIncomeCategory(category.name)
                             : setSelectedExpenseCategory(category.name)
                         }
-                        className={`px-4 py-2 rounded-lg flex-shrink-0 flex-row items-center gap-2 ${
-                          category.name === "add"
-                            ? "border border-black bg-transparent w-28 h-10 flex items-center justify-center"
-                            : (isIncome ? selectedIncomeCategory : selectedExpenseCategory) === category.name
-                            ? isIncome
-                              ? "bg-green-500 text-white"
-                              : "bg-red-500 text-white"
-                            : "bg-gray-300 text-black"
-                        }`}
+                        className={`px-4 py-2 rounded-lg flex-shrink-0 flex-row items-center gap-4
+                          ${
+                            category.name === "add"
+                              ? `${
+                                  theme === "dark"
+                                    ? "bg-[#141212]"
+                                    : "bg-[#D9D9D9]"
+                                } w-28 h-10 flex items-center justify-center`
+                              : (isIncome
+                                  ? selectedIncomeCategory
+                                  : selectedExpenseCategory) === category.name
+                              ? isIncome
+                                ? "bg-green-500 text-white"
+                                : "bg-red-500 text-white"
+                              : theme === "dark"
+                              ? "bg-[#141212] text-white"
+                              : "bg-[#D9D9D9] text-black"
+                          }`}
                         style={{
                           flexBasis: "auto",
                           minWidth: 90,
@@ -322,11 +346,39 @@ export default function Index() {
                         }}
                       >
                         {category.name === "add" ? (
-                          <Icon name={category.icon} size={24} color="black" />
+                          <Icon
+                            name={category.icon}
+                            size={24}
+                            color={theme === "dark" ? "white" : "black"} // ✅ ถ้าอยู่ในโหมดมืด ใช้สีขาว
+                          />
                         ) : (
                           <>
-                            <Icon name={category.icon} size={18} color="black" />
-                            <ThemedText className="font-bold">{category.name}</ThemedText>
+                            <Icon
+                              name={category.icon}
+                              size={18}
+                              color={
+                                (isIncome
+                                  ? selectedIncomeCategory
+                                  : selectedExpenseCategory) === category.name
+                                  ? "white" // ✅ สีขาวถ้าถูกเลือก
+                                  : theme === "dark"
+                                  ? "white"
+                                  : "black" // ✅ สีดำถ้าไม่ถูกเลือก
+                              }
+                            />
+                            <ThemedText
+                              className={`font-bold ${
+                                (isIncome
+                                  ? selectedIncomeCategory
+                                  : selectedExpenseCategory) === category.name
+                                  ? "text-white" // ✅ สีขาวถ้าถูกเลือก
+                                  : theme === "dark"
+                                  ? "white"
+                                  : "black" // ✅ สีดำถ้าไม่ถูกเลือก
+                              }`}
+                            >
+                              {category.name}
+                            </ThemedText>
                           </>
                         )}
                       </Pressable>
@@ -349,16 +401,17 @@ export default function Index() {
               </ThemedView>
             </ThemedView>
 
-
             <ThemedView className="w-full mt-4 justify-center !items-start bg-transparent">
               <ThemedText className="font-bold text-[16px] mb-2">
                 Note
               </ThemedText>
-              <ThemedView className="w-full flex-row">
+              <ThemedView className="w-full h-20 flex-row">
                 <TextInput
                   placeholder="Enter Note"
-                  keyboardType="numeric"
-                  className="h-10 bg-[#D9D9D9] text-[#2F2F2F] rounded-xl p-2 w-full"
+                  keyboardType="default" // ✅ เปลี่ยนเป็น Default ให้พิมพ์ตัวอักษรได้
+                  multiline={true} // ✅ ทำให้พิมพ์ได้หลายบรรทัด
+                  textAlignVertical="top" // ✅ ให้ข้อความเริ่มที่ด้านบน
+                  className="h-20 bg-[#D9D9D9] text-[#2F2F2F] rounded-xl p-2 w-full"
                 />
               </ThemedView>
             </ThemedView>
