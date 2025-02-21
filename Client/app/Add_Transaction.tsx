@@ -24,6 +24,7 @@ import DateTimePickerInput from "@/components/Date_and_Time";
 import CustomDateTimePicker from "@/components/Date_and_Time";
 import { resultObject } from "@/hooks/auth/GetUserBank";
 import { th } from "react-native-paper-dates";
+import CustomPaperDatePicker from "@/components/Date_and_Time";
 
 type ThemedInputProps = {
   className?: string;
@@ -82,9 +83,7 @@ export default function Index() {
 
   const [categories, setCategories] = useState(incomeCategories);
 
-  useEffect(() => {
-    setCategories(isIncome ? incomeCategories : expenseCategories);
-  }, [isIncome]);
+
 
   const [budgetPlan, setBudgetPlan] = useState("");
   const [selectedBudget, setSelectedBudget] = useState("");
@@ -99,6 +98,9 @@ export default function Index() {
       { name: "add", icon: "plus" },
     ]);
   };
+  useEffect(() => {
+    setCategories(isIncome ? incomeCategories : expenseCategories);
+  }, [isIncome]);
 
   // ฟังก์ชันแบ่งหมวดหมู่เป็น 2 แถวเสมอ
   const splitIntoTwoRows = (arr: any[]) => {
@@ -170,6 +172,25 @@ export default function Index() {
     }
   }, [bank]);
 
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+
+  // ฟังก์ชันรับค่าและอัปเดต State
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date.toISOString().split("T")[0]); // เก็บแค่ `YYYY-MM-DD`
+    console.log("📅 Selected Date:", date.toISOString().split("T")[0]);
+  };
+
+  const handleTimeChange = (time: Date) => {
+    const formattedTime = time.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    setSelectedTime(formattedTime);
+    console.log("⏰ Selected Time:", formattedTime);
+  };
+
   return (
     <ThemedView className="w-full !h-full flex-1">
       <ThemedView className="w-full !h-full flex-1">
@@ -233,10 +254,11 @@ export default function Index() {
           vertical={true}
           horizontal={false}
           className="w-full h-full"
+          contentContainerStyle={{ flexGrow: 1 }} 
         >
           <ThemedView
             className={`${
-              theme === "dark" ? "bg-[#242424]" : "bg-[#ffffff]"
+              theme === "dark" ? "bg-[#262626]" : "bg-[#ffffff]"
             } mt-2 px-10 !justify-start !items-start w-full  rounded-t-[30px] `}
           >
             <ThemedView className="flex-row w-fit h-12 rounded-sm p-1 mt-5 mb-4 bg-transparent">
@@ -388,45 +410,92 @@ export default function Index() {
               </ThemedScrollView>
             </ThemedView>
 
-            <ThemedView className="w-full mt-4 justify-center !items-start bg-transparent">
-              <ThemedText className="font-bold text-[16px] mb-2">
+            <ThemedView className="flex-row w-full mt-5 mb-5 justify-start !items-start bg-transparent gap-10">
+              <ThemedView className="bg-transparent">
+                <CustomPaperDatePicker
+                  title="Date"
+                  mode="date"
+                  onConfirm={setSelectedDate}
+                />
+              </ThemedView>
+              <ThemedView className="bg-transparent">
+                <CustomPaperDatePicker
+                  title="Time"
+                  mode="time"
+                  onConfirm={setSelectedTime}
+                />
+              </ThemedView>
+            </ThemedView>
+
+            <ThemedView className="w-full mt-5 justify-center !items-start bg-transparent">
+              <ThemedText
+                className="font-bold text-[16px] mb-2"
+                style={{ color: theme === "dark" ? "#FFF" : "#333" }}
+              >
                 Amount
               </ThemedText>
               <ThemedView className="w-full flex-row">
                 <TextInput
                   placeholder="Enter Amount"
                   keyboardType="numeric"
-                  className="h-10 bg-[#D9D9D9] text-[#2F2F2F] rounded-xl p-2 w-full"
+                  style={{
+                    backgroundColor: theme === "dark" ? "#121212" : "#D9D9D9",
+                    color: theme === "dark" ? "#FFF" : "#2F2F2F",
+                    borderRadius: 12,
+                    padding: 10,
+                  }}
+                  placeholderTextColor={theme === "dark" ? "#888" : "#555"} // ✅ รองรับ Dark Mode
+                  className="w-full"
                 />
               </ThemedView>
             </ThemedView>
 
-            <ThemedView className="w-full mt-4 justify-center !items-start bg-transparent">
-              <ThemedText className="font-bold text-[16px] mb-2">
+            <ThemedView className="w-full mt-5 mb-10 justify-center !items-start bg-transparent">
+              <ThemedText
+                className="font-bold text-[16px] mb-7"
+                style={{ color: theme === "dark" ? "#FFF" : "#333" }}
+              >
                 Note
               </ThemedText>
               <ThemedView className="w-full h-20 flex-row">
                 <TextInput
                   placeholder="Enter Note"
-                  keyboardType="default" // ✅ เปลี่ยนเป็น Default ให้พิมพ์ตัวอักษรได้
-                  multiline={true} // ✅ ทำให้พิมพ์ได้หลายบรรทัด
-                  textAlignVertical="top" // ✅ ให้ข้อความเริ่มที่ด้านบน
-                  className="h-20 bg-[#D9D9D9] text-[#2F2F2F] rounded-xl p-2 w-full"
+                  keyboardType="default"
+                  multiline={true}
+                  textAlignVertical="top"
+                  style={{
+                    backgroundColor: theme === "dark" ? "#121212" : "#D9D9D9",
+                    color: theme === "dark" ? "#FFF" : "#2F2F2F",
+                    borderRadius: 12,
+                    padding: 10,
+                    minHeight: 100, // ✅ เพิ่มความสูงของ Input
+                  }}
+                  placeholderTextColor={theme === "dark" ? "#888" : "#555"}
+                  className="w-full"
                 />
               </ThemedView>
             </ThemedView>
+
             <ThemedView
-              className={`${
-                theme === "dark" ? "bg-[#000000]" : "bg-[#ffffff]"
-              }  px-10 w-full bg-transparent`}
-            >
-              <ThemedButton
-                className="mt-28 mb-24 px-10 w-full  h-12 bg-green-500"
-                onPress={() => router.push("/(tabs)/transaction")}
-              >
-                Add Transaction
-              </ThemedButton>
-            </ThemedView>
+    className={`${
+      theme === "dark" ? "bg-[#262626]" : "bg-[#ffffff]"
+    } mt-2 px-10 !justify-start !items-start w-full  rounded-t-[30px]`}
+  >
+    {/* ส่วนอื่น ๆ ของฟอร์ม */}
+
+    <ThemedView
+      className={`${
+        theme === "dark" ? "bg-[#000000]" : "bg-[#ffffff]"
+      } px-10 w-full bg-transparent`}
+    >
+      <ThemedButton
+        className="mt-8 mb-42px-10 w-full h-12 bg-green-500" // ✅ เพิ่ม mb-32 ให้ Scroll ลงไปถึงปุ่ม
+        onPress={() => router.push("/(tabs)/transaction")}
+      >
+        Add Transaction
+      </ThemedButton>
+    </ThemedView>
+  </ThemedView>
           </ThemedView>
         </ThemedScrollView>
       </ThemedView>
