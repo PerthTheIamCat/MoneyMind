@@ -325,6 +325,8 @@ export default function Index() {
                   <View
                     className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}
                   >
+                    <Pressable
+                      onPress={() => router.push("/Add_Transaction")}>
                     <MaterialCommunityIcons
                       name="notebook"
                       size={54}
@@ -334,6 +336,7 @@ export default function Index() {
                     <ThemedText className="font-bold">
                       Add By Yourself
                     </ThemedText>
+                    </Pressable>
                   </View>
                   <View
                     className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}
