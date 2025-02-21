@@ -1,5 +1,11 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { TouchableOpacity, StyleSheet, useColorScheme, Text as RNText } from "react-native";
+import {
+  TouchableOpacity,
+  StyleSheet,
+  useColorScheme,
+  Text as RNText,
+  Pressable,
+} from "react-native";
 import {
   Text,
   Snackbar,
@@ -109,13 +115,15 @@ const CustomPaperDatePicker: React.FC<CustomPaperDatePickerProps> = ({
               color: isDarkMode ? "#FFF" : "#333",
               textAlign: "left",
               alignSelf: "flex-start",
+              fontSize: 16, // ✅ ขนาดตัวอักษรใหญ่ขึ้น
             },
           ]}
         >
           {title}
         </ThemedText>
 
-        <TouchableOpacity
+        <Pressable
+          className={mode === "date" ? "w-56" : "w-36"} // ✅ Date กว้างกว่า Time
           onPress={() =>
             mode === "date" ? setDateVisible(true) : setTimeVisible(true)
           }
@@ -124,6 +132,8 @@ const CustomPaperDatePicker: React.FC<CustomPaperDatePickerProps> = ({
             {
               backgroundColor: isDarkMode ? "#222" : "#d5d5d5",
               borderColor: isDarkMode ? "#555" : "#ccc",
+              minWidth: mode === "date" ? 185 : 130, // ✅ Date = 220px, Time = 140px
+              paddingHorizontal: mode === "date" ? 15 : 10, // ✅ Date มี padding เยอะกว่า
             },
           ]}
         >
@@ -133,7 +143,10 @@ const CustomPaperDatePicker: React.FC<CustomPaperDatePickerProps> = ({
             color={isDarkMode ? "#FFF" : "#555"}
             style={styles.icon}
           />
-          <Text style={[styles.input, { color: isDarkMode ? "#FFF" : "#333" }]}> 
+          <Text
+            className="w-full"
+            style={[styles.input, { color: isDarkMode ? "#FFF" : "#333" }]}
+          >
             {mode === "date"
               ? date?.toISOString().split("T")[0] ?? "Select Date"
               : date
@@ -144,7 +157,7 @@ const CustomPaperDatePicker: React.FC<CustomPaperDatePickerProps> = ({
                 })
               : "Select Time"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
 
         <DatePickerModal
           locale="en-GB"
@@ -184,6 +197,7 @@ const styles = StyleSheet.create({
   container: { width: "100%" },
   label: { fontSize: 14, fontWeight: "bold", marginBottom: 5 },
   inputContainer: {
+    width: "100%",
     borderWidth: 1,
     borderRadius: 8,
     padding: 10,
