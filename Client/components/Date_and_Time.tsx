@@ -45,51 +45,37 @@ const CustomPaperDatePicker: React.FC<CustomPaperDatePickerProps> = ({
     (params: { date: CalendarDate }) => {
       if (params.date) {
         const selectedDate = new Date(params.date);
-        const today = new Date();
-
-        if (selectedDate > today) {
-          setErrorMsg("You cannot select a future date.");
-          return;
-        }
-
+  
         setDate(selectedDate);
-        onConfirm(selectedDate.toISOString().split("T")[0]);
+        onConfirm(selectedDate.toISOString().split("T")[0]); // ✅ อัปเดตวันที่
       }
       setDateVisible(false);
     },
     [onConfirm]
   );
-
+  
   const handleConfirmTime = useCallback(
     (params: { hours: number; minutes: number }) => {
       if (date) {
         const updatedDate = new Date(date);
         updatedDate.setHours(params.hours);
         updatedDate.setMinutes(params.minutes);
-
-        const now = new Date();
-
-        if (
-          updatedDate > now &&
-          updatedDate.toDateString() === now.toDateString()
-        ) {
-          setErrorMsg("You cannot select a future time today.");
-          return;
-        }
-
+  
         setDate(updatedDate);
+  
         const formattedTime = updatedDate.toLocaleTimeString("en-US", {
           hour: "2-digit",
           minute: "2-digit",
           hour12: true,
         });
-
-        onConfirm(formattedTime);
+  
+        onConfirm(formattedTime); // ✅ อัปเดตเวลา
       }
       setTimeVisible(false);
     },
     [date, onConfirm]
   );
+  
 
   useEffect(() => {
     if (date) {
