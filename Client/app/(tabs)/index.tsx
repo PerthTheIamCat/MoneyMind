@@ -21,6 +21,10 @@ import { useEffect } from "react";
 
 import { UserContext } from "@/hooks/conText/UserContext";
 import { router } from "expo-router";
+import { enGB, registerTranslation } from "react-native-paper-dates";
+
+// ✅ ลงทะเบียนภาษา `en`
+registerTranslation("en", enGB);
 
 interface Transaction {
   id: string;
