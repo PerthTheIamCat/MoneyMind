@@ -5,6 +5,7 @@ import {
   useColorScheme,
   Text as RNText,
   Pressable,
+  Modal,
 } from "react-native";
 import {
   Text,
@@ -19,6 +20,9 @@ import Icon from "react-native-vector-icons/Feather";
 import { enGB, registerTranslation } from "react-native-paper-dates";
 import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
+import { ThemedButton } from "./ThemedButton";
+
+import { Alert } from "react-native";
 
 registerTranslation("en-GB", enGB);
 
@@ -34,48 +38,92 @@ const CustomPaperDatePicker: React.FC<CustomPaperDatePickerProps> = ({
   onConfirm,
 }) => {
   const isDarkMode = useColorScheme() === "dark";
-
+  // const isDarkModes = useColorScheme() === "dark"; // Removed duplicate variable
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [dateVisible, setDateVisible] = useState(false);
   const [timeVisible, setTimeVisible] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const theme = isDarkMode ? MD3DarkTheme : MD3LightTheme;
 
-  const handleConfirmDate = useCallback(
-    (params: { date: CalendarDate }) => {
-      if (params.date) {
-        const selectedDate = new Date(params.date);
+  const theme = isDarkMode ? MD3DarkTheme : MD3LightTheme;
   
-        setDate(selectedDate);
-        onConfirm(selectedDate.toISOString().split("T")[0]); // ✅ อัปเดตวันที่
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+const [errorMsg, setErrorMsg] = useState<string | null>(null);
+const [errorTitle, setErrorTitle] = useState<string | null>(null);
+
+// Function to show the modal with a specific error message
+const showError = (message: string) => {
+  setErrorMsg(message);
+  setIsModalVisible(true);
+};
+
+// Function to hide the modal
+const hideErrorModal = () => {
+  setIsModalVisible(false);
+  setErrorMsg(null);
+  setErrorTitle(null);
+};
+
+const handleConfirmDate = useCallback(
+  (params: { date: CalendarDate }) => {
+    if (params.date) {
+      const selectedDate = new Date(params.date);
+      const today = new Date();
+
+      today.setHours(0, 0, 0, 0);
+      selectedDate.setHours(0, 0, 0, 0);
+
+      if (selectedDate > today) {
+        showError(
+          "You cannot select a future date! 💔 Please choose today or a past date."
+        );
+        return;
       }
-      setDateVisible(false);
-    },
-    [onConfirm]
-  );
-  
-  const handleConfirmTime = useCallback(
-    (params: { hours: number; minutes: number }) => {
-      if (date) {
-        const updatedDate = new Date(date);
-        updatedDate.setHours(params.hours);
-        updatedDate.setMinutes(params.minutes);
-  
-        setDate(updatedDate);
-  
-        const formattedTime = updatedDate.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        });
-  
-        onConfirm(formattedTime); // ✅ อัปเดตเวลา
+
+      setDate(selectedDate);
+      onConfirm(selectedDate.toISOString().split("T")[0]);
+    }
+    setDateVisible(false);
+  },
+  [onConfirm]
+);
+
+const handleConfirmTime = useCallback(
+  (params: { hours: number; minutes: number }) => {
+    if (date) {
+      const updatedDate = new Date(date);
+      updatedDate.setHours(params.hours);
+      updatedDate.setMinutes(params.minutes);
+
+      const now = new Date();
+
+      // Check if selected time is today
+      const isSameDay =
+        updatedDate.getFullYear() === now.getFullYear() &&
+        updatedDate.getMonth() === now.getMonth() &&
+        updatedDate.getDate() === now.getDate();
+
+      // Prevent selecting future time on the same day
+      if (isSameDay && updatedDate > now) {
+        showError(
+          "You cannot select a future time today! ⏳ Please choose a past or current time."
+        );
+        return;
       }
-      setTimeVisible(false);
-    },
-    [date, onConfirm]
-  );
-  
+
+      setDate(updatedDate);
+
+      const formattedTime = updatedDate.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      onConfirm(formattedTime);
+    }
+    setTimeVisible(false);
+  },
+  [date, onConfirm]
+);
 
   useEffect(() => {
     if (date) {
@@ -163,17 +211,22 @@ const CustomPaperDatePicker: React.FC<CustomPaperDatePickerProps> = ({
           minutes={date?.getMinutes() ?? 0}
         />
 
-        <Snackbar
-          visible={!!errorMsg}
-          onDismiss={() => setErrorMsg("")}
-          duration={3000}
-          action={{
-            label: "OK",
-            onPress: () => setErrorMsg(""),
-          }}
-        >
-          <Text>{errorMsg}</Text>
-        </Snackbar>
+<Modal
+  visible={isModalVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={hideErrorModal}
+>
+  <ThemedView className="rounded-2xl" style={styles.modalOverlay}>
+    <ThemedView style={styles.modalContent}>
+      <Text style={styles.modalText}>{errorMsg}</Text>
+      <ThemedButton onPress={hideErrorModal} className="w-28 h-8 !rounded-lg" mode="normal">
+        OK
+      </ThemedButton>
+    </ThemedView>
+  </ThemedView>
+</Modal>
+
       </ThemedView>
     </PaperProvider>
   );
@@ -192,6 +245,35 @@ const styles = StyleSheet.create({
   },
   input: { fontSize: 16, fontWeight: "bold", flex: 1, marginLeft: 8 },
   icon: { marginLeft: 5 },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)", 
+  },
+  modalContent: {
+    paddingVertical: 20,
+    paddingHorizontal: 25,
+    borderRadius: 12,
+    alignItems: "center",
+    width: 300,
+  },
+  modalText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 15,
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  modalButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 });
 
 export default CustomPaperDatePicker;
