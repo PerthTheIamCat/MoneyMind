@@ -83,8 +83,6 @@ export default function Index() {
 
   const [categories, setCategories] = useState(incomeCategories);
 
-
-
   const [budgetPlan, setBudgetPlan] = useState("");
   const [selectedBudget, setSelectedBudget] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -254,11 +252,13 @@ export default function Index() {
           vertical={true}
           horizontal={false}
           className="w-full h-full"
-          contentContainerStyle={{ flexGrow: 1 }} 
+          contentContainerStyle={{ flexGrow: 1 }}
+          scrollEventThrottle={16} // ควบคุมอัตราการอัปเดต scroll event
+          decelerationRate={0.95} // ทำให้ scroll ช้าลง (ค่าปกติคือ 0.998, ยิ่งต่ำยิ่งช้าลง)     
         >
           <ThemedView
             className={`${
-              theme === "dark" ? "bg-[#262626]" : "bg-[#ffffff]"
+              theme === "dark" ? "bg-[#222222]" : "bg-[#ffffff]"
             } mt-2 px-10 !justify-start !items-start w-full  rounded-t-[30px] `}
           >
             <ThemedView className="flex-row w-fit h-12 rounded-sm p-1 mt-5 mb-4 bg-transparent">
@@ -476,26 +476,15 @@ export default function Index() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView
-    className={`${
-      theme === "dark" ? "bg-[#262626]" : "bg-[#ffffff]"
-    } mt-2 px-10 !justify-start !items-start w-full  rounded-t-[30px]`}
-  >
-    {/* ส่วนอื่น ๆ ของฟอร์ม */}
-
-    <ThemedView
-      className={`${
-        theme === "dark" ? "bg-[#000000]" : "bg-[#ffffff]"
-      } px-10 w-full bg-transparent`}
-    >
-      <ThemedButton
-        className="mt-8 mb-42px-10 w-full h-12 bg-green-500" // ✅ เพิ่ม mb-32 ให้ Scroll ลงไปถึงปุ่ม
-        onPress={() => router.push("/(tabs)/transaction")}
-      >
-        Add Transaction
-      </ThemedButton>
-    </ThemedView>
-  </ThemedView>
+            <ThemedView className="w-full bg-transparent mb-16">
+              <ThemedButton
+                className="mt-8 px-10 w-full h-12 bg-green-500"
+                onPress={() => router.push("/(tabs)/transaction")}
+              >
+                Add Transaction
+              </ThemedButton>
+            
+            </ThemedView>
           </ThemedView>
         </ThemedScrollView>
       </ThemedView>
