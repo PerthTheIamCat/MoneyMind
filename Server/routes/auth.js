@@ -214,7 +214,7 @@ router.post('/login', (req, res) => {
         userOrEmail = "email"
     }
     
-    console.log(`SELECT * FROM users WHERE ${userOrEmail} = ?`, [input]);
+    //console.log(`SELECT * FROM users WHERE ${userOrEmail} = ?`, [input]);
     
     db.query(`SELECT * FROM users WHERE ${userOrEmail} = ?`, [input], (err, result) => {
         if (err) {
@@ -226,7 +226,7 @@ router.post('/login', (req, res) => {
         }
 
         const user = result[0]
-        console.log(user)
+        //console.log(user)
 
         bcrypt.compare(password, user.password, async (err, match) => {
             if (err) {
@@ -240,6 +240,8 @@ router.post('/login', (req, res) => {
             const UserID = userOrEmail === "email" ? await getUserIDbyemail(input) : await getUserIDbyusername(input);
 
             const accessToken = jwtAccessTokenGenrate(UserID, user.username, user.email)
+            console.log(user)
+            
             return res.status(200).json({ accessToken, message: 'Login successful', success: true });
         });
     });
@@ -340,6 +342,30 @@ router.post('/otpVerify', (req, res) => {
         }else{
             return res.status(400).json({ message: 'Invalid OTP or OTP is used', success: false });
         }
+    })
+})
+
+router.put('/createpin', jwtValidate, (req, res) => {
+    const { user_id, pin } = req.body
+
+    if (req.user.UserID !== parseInt(user_id, 10)) { //user_id
+        return res.status(403).json({ message: 'Unauthorized user', success: false });
+    }
+
+    if ( !user_id || !pin ){
+        return res.status(400).json({ message: 'Please fill all needed fields', success: false });
+    }
+
+    db.query('UPDATE users SET pin = ? WHERE id = ?', [pin, user_id], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false});
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'User not found', success: false });
+        }
+
+        return res.status(200).json({ message: 'Pin updated', success: true });
     })
 })
 
