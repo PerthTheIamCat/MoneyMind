@@ -513,7 +513,7 @@ export default function Index() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView className="w-full bg-transparent mb-16">
+            <ThemedView className="w-full mb-40 bg-transparent">
               <ThemedButton
                 className="mt-8 px-10 w-full h-12 bg-green-500"
                 onPress={() => router.push("/(tabs)/transaction")}
