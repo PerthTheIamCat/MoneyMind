@@ -331,7 +331,7 @@ export default function Index() {
                     className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}
                   >
                     <Pressable
-                      onPress={() => { router.push("/Add_Transaction"); setIsOverlayVisible(false); }}>
+                      onPress={() => { router.push("/Add_Transaction"); setIsOverlayVisible(false); setIsButtonVisible(true)}}>
                     <MaterialCommunityIcons
                       name="notebook"
                       size={54}
@@ -347,7 +347,7 @@ export default function Index() {
                     className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}
                   >
                   <Pressable
-                    onPress={() => { ; setIsOverlayVisible(false); }}>
+                    onPress={() => { ; setIsOverlayVisible(false); setIsButtonVisible(true) }}>
                     <Ionicons
                       name="camera-sharp"
                       size={54}

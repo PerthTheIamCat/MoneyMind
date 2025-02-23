@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export type UserTransaction = {
+export interface CreateUserTransactionData {
   id: number;
   user_id: number;
   account_id: number;
@@ -11,10 +11,10 @@ export type UserTransaction = {
   transaction_date: string;
   note: string;
   color_code: string;
-};
+}
 
 interface GetUserTransactionResponse {
-  result: Array<UserTransaction>;
+  result: Array<CreateUserTransactionData>;
   success: boolean;
   message: string;
 }
@@ -22,31 +22,30 @@ interface GetUserTransactionResponse {
 interface GetUserTransactionError {
   response: {
     data: {
-      result: Array<UserTransaction>;
+      result: Array<CreateUserTransactionData>;
       success: boolean;
       message: string;
     };
   };
 }
 
-export const GetUserTransaction = async (
+export const CreateUserTransaction = async (
   url: string,
-  userID: number,
+  data: CreateUserTransactionData,
   token: string
 ): Promise<
   GetUserTransactionResponse | GetUserTransactionError["response"]["data"]
 > => {
   try {
-    console.log("UserID:", userID);
-    const response = await axios.get<GetUserTransactionResponse>(
-      `${url}/transactions/${userID}`,
+    const response = await axios.post<GetUserTransactionResponse>(
+      `${url}/transactions/create`,
+      data,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
-
     return response.data;
   } catch (error) {
     return (error as GetUserTransactionError).response.data;
