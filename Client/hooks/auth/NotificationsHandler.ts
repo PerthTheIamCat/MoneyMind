@@ -1,23 +1,23 @@
 import axios from "axios";
 
 interface NoticePut{
-    user_id : number,
-    notification_type : string,
-    message : string
+    user_id: number;
+    notification_type: string;
+    message: string;
+    color_type: string;
 }
 
 interface NoticeResponse{
-        data:{
-            success : boolean,
-            message : string
-        };
+    success : boolean;
+    result : NoticePut[];
 }
 
 interface NoticeError{
     response:{
         data:{
             success: boolean,
-            message : string
+            message : string,
+            result: NoticePut[]
         };
     };
 }
@@ -37,9 +37,18 @@ export const NotificationsPostHandler = async (
 export const NotificationsGetHandler = async (
     url : string,
     user_id : number,
+    token: string
+    
 ): Promise<NoticeResponse| NoticeError["response"]["data"]> => {
     try {
-        const response = await axios.get<NoticeResponse>(`${url}/notifications/${user_id}`);
+        
+        const response = await axios.get<NoticeResponse>(`${url}/notifications/${user_id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
         return response.data;
     } catch(error){
         return (error as NoticeError).response.data

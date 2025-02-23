@@ -110,11 +110,8 @@ export default function Index() {
   let lastDate = "";
 
   useEffect(() => {
-    // Perform actions when mockSummary or transaction changes
     console.log("mockSummary or transaction changed:", mockSummary, transaction);
-  
-    // Optionally, you can run some side effect here, like recalculating savings progress
-  }, [mockSummary, transaction]); // This will trigger the effect whenever either of these values change
+  }, [mockSummary, transaction]);
   
 
   return (
