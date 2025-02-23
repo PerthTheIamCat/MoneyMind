@@ -267,15 +267,15 @@ export default function Index() {
       URL,
       {
         id: (transaction?.length || 0) + 1,
-        user_id: userID,
+        user_id: userID!,
         account_id: selectedCard.id,
         split_payment_id: 0,
         transaction_name: selectedIncomeCategory || selectedExpenseCategory,
         amount: Amount,
         transaction_type: isIncome ? "income" : "expense",
-        transaction_date: selectedDate,
+        transaction_date: selectedDate!,
         note: Note,
-        color_code: null,
+        color_code: "#FFFFFF",
       },
       auth?.token!
     ).then((response) => {

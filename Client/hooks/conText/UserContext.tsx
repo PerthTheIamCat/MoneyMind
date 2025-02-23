@@ -8,30 +8,29 @@ type UserTransaction = {
   id: number;
   user_id: number;
   account_id: number;
-  split_payment_id : number;
-  transaction_name : string;
-  amount : number;
-  transaction_type : "income" | "expense";
-  transaction_date : string;
-  note : string;
-  color_code : string;
-}
-
+  split_payment_id: number | null;
+  transaction_name: string;
+  amount: number;
+  transaction_type: "income" | "expense";
+  transaction_date: string;
+  note: string;
+  color_code: string;
+};
 
 type UserNotification = {
   id: number;
   mode: string;
   Header: string;
   Description: string;
-}
+};
 
 type UserRetire = {
   id: number;
   user_id: number;
-  monthly_savings_goal : number;
+  monthly_savings_goal: number;
   total_savings_goal: number;
   current_savings: number;
-}
+};
 
 type UserContextType = {
   fullname: string | null;
@@ -66,7 +65,6 @@ export const UserContext = React.createContext<UserContextType>({
   notification: null,
   retire: null,
 
-  
   setUsername: () => {},
   setUserID: () => {},
   setEmail: () => {},
@@ -90,8 +88,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [fullname, setFullname] = useState<string | null>(null);
   const [birthdate, setBirthdate] = useState<string | null>(null);
   const [bank, setBank] = useState<Array<resultObject> | null>(null);
-  const [transaction, setTransaction] = useState<Array<UserTransaction> | null>(null);
-  const [notification, setNotification] = useState<Array<UserNotification> | null>(null);
+  const [transaction, setTransaction] = useState<Array<UserTransaction> | null>(
+    null
+  );
+  const [notification, setNotification] =
+    useState<Array<UserNotification> | null>(null);
   const [retire, setRetire] = useState<Array<UserRetire> | null>(null);
 
   useEffect(() => {
@@ -142,7 +143,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         .then((response) => {
           setTransaction(response.data.result);
           console.log("Transaction: ", response.data.result);
-        }).catch((error) => {
+        })
+        .catch((error) => {
           console.log(error.message);
         });
     }
