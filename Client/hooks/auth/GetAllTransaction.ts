@@ -14,9 +14,11 @@ export type UserTransaction = {
   }
 
 interface GetUserTransactionResponse {
-  result: Array<UserTransaction>;
-  success: boolean;
-  message: string;
+    response: {
+      result: Array<UserTransaction>;
+      success: boolean;
+      message: string;
+  };
 }
 
 interface GetUserTransactionError {
@@ -33,10 +35,10 @@ export const GetUserTransaction = async (
   url: string,
   userID: number,
   token: string
-): Promise<GetUserTransactionResponse | GetUserTransactionError["response"]["data"]> => {
+): Promise<GetUserTransactionResponse | GetUserTransactionError["response"]> => {
   try {
     console.log("UserID:",userID);
-    const response = await axios.get<GetUserTransactionResponse>(
+    const { data } = await axios.get<GetUserTransactionResponse>(
       `${url}/transactions/${userID}`,
       {
         headers: {
@@ -45,8 +47,8 @@ export const GetUserTransaction = async (
       }
     );
 
-    return response.data;
+    return data.response;
   } catch (error) {
-    return (error as GetUserTransactionError).response.data;
+    return (error as GetUserTransactionError).response;
   }
 };

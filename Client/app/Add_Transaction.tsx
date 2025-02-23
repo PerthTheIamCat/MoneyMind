@@ -5,6 +5,9 @@ import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedView } from "@/components/ThemedView";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "@/hooks/conText/UserContext";
+import { CreateUserTransaction } from "@/hooks/auth/CreateTransaction";
+import { AuthContext } from "@/hooks/conText/AuthContext";
+import { ServerContext } from "@/hooks/conText/ServerConText";
 import {
   Dimensions,
   Modal,
@@ -27,6 +30,8 @@ import CustomDateTimePicker from "@/components/Date_and_Time";
 import { resultObject } from "@/hooks/auth/GetUserBank";
 import { th } from "react-native-paper-dates";
 import CustomPaperDatePicker from "@/components/Date_and_Time";
+import { GetUserTransaction } from "@/hooks/auth/GetAllTransaction";
+import { transform } from "@babel/core";
 
 
 
@@ -42,7 +47,7 @@ type ThemedInputProps = {
 };
 
 export default function Index() {
-  const { bank } = useContext(UserContext);
+  const { bank,setTransaction,transaction,userID} = useContext(UserContext);
   const theme = useColorScheme();
   const [isIncome, setIsIncome] = useState(true);
   // หมวดหมู่ของ Income และ Expense พร้อมโลโก้
@@ -53,6 +58,10 @@ export default function Index() {
   const [Note, setNote] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("plus");
+  
+  const auth = useContext(AuthContext);
+  const { URL } = useContext(ServerContext);
+
   const iconList = [
     "dollar-sign",
     "gift",
@@ -239,8 +248,62 @@ export default function Index() {
       setIsAddCategoryModalVisible(false); // ✅ ปิด Modal
     }, 0);
   };
+
+        
+  const saveTransaction = () => {
+    if (!selectedCard) {
+      console.log("⚠️ No selectedCard, using default account");
+      return;
+    }
   
-  
+    // console.log("✅ Selected transaction ID:", (transaction?.length || 0) + 1);
+    
+    const reloadTransaction = () => {
+        GetUserTransaction(URL, userID!, auth?.token!).then((res) => {
+          if (res) {
+            setTransaction(res);
+          }
+        });
+      };
+
+    CreateUserTransaction(URL, {
+      id: (transaction?.length || 0) + 1,
+      user_id: userID,
+      account_id: selectedCard.id,
+      split_payment_id : 0,
+      transaction_name : selectedIncomeCategory || selectedExpenseCategory,
+      amount : Amount,
+      transaction_type : isIncome ? "income" : "expense",
+      transaction_date : selectedDate,
+      note : Note,
+      color_code : null,
+
+
+    }, auth?.token!)
+      .then((response) => {
+        if (response) {
+          setTransaction([
+            ...(transaction||[]),
+            {
+              id: (transaction?.length || 0) + 1,
+              user_id: userID!,
+              account_id: selectedCard?.id,
+              split_payment_id: 0,
+              transaction_name: selectedIncomeCategory || selectedExpenseCategory,
+              amount: Amount,
+              transaction_type: isIncome ? "income" : "expense",
+              transaction_date: selectedDate || new Date().toISOString().split("T")[0],
+              note: Note,
+              color_code: "#FFFFFF",
+            },
+          ]);
+          reloadTransaction();
+          router.replace("/(tabs)/transaction");
+        } else {
+          console.log(response);
+        }
+      });
+  };
   
 
   return (
@@ -492,6 +555,7 @@ export default function Index() {
                     borderRadius: 12,
                     padding: 10,
                   }}
+                  onChangeText={(text) => setAmount(parseInt(text))}
                   placeholderTextColor={theme === "dark" ? "#888" : "#555"} // ✅ รองรับ Dark Mode
                   className="w-full"
                 />
@@ -511,6 +575,7 @@ export default function Index() {
                   keyboardType="default"
                   multiline={true}
                   textAlignVertical="top"
+                  onChangeText={(text) => setNote(text)}
                   style={{
                     backgroundColor: theme === "dark" ? "#121212" : "#D9D9D9",
                     color: theme === "dark" ? "#FFF" : "#2F2F2F",
@@ -522,16 +587,20 @@ export default function Index() {
                   className="w-full"
                 />
               </ThemedView>
+              <ThemedView className="w-full mt-10 mb-32 bg-transparent">
+                <ThemedButton
+                  className=" px-10 w-56 h-12 bg-green-500"
+                  
+                  onPress={async() => {
+                    saveTransaction()
+
+                  }}
+                >
+                  Add Transaction
+                </ThemedButton>
+              </ThemedView>
             </ThemedView>
 
-            <ThemedView className="w-full mb-20 bg-transparent">
-              <ThemedButton
-                className="mt-8 px-10 w-56 h-12 bg-green-500"
-                onPress={() => router.push("/(tabs)/transaction")}
-              >
-                Add Transaction
-              </ThemedButton>
-            </ThemedView>
           </ThemedView>
         </ThemedScrollView>
       </ThemedView>
