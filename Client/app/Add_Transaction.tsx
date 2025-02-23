@@ -261,7 +261,7 @@ export default function Index() {
     const reloadTransaction = () => {
         GetUserTransaction(URL, userID!, auth?.token!).then((res) => {
           if (res) {
-            setTransaction(res);
+            setTransaction(res.result);
           }
         });
       };
