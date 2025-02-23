@@ -5,19 +5,11 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { useContext } from "react";
 import { router } from "expo-router";
-import { useState, useEffect } from "react";
-import { Image } from "expo-image";
-import { View, TouchableOpacity, Text, Pressable, ScrollView } from "react-native";
 import { useColorScheme } from "react-native";
-import { ThemedScrollView } from "@/components/ThemedScrollView";
-import { ThemedCard } from "@/components/ThemedCard";
 import { UserContext } from "@/hooks/conText/UserContext";
 
-import Ionicons from "@expo/vector-icons/Ionicons";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import Entypo from "@expo/vector-icons/Entypo";
 import Feather from "@expo/vector-icons/Feather";
+import { View } from "react-native";
 
 export default function Setting() {
   const auth = useContext(AuthContext);
@@ -25,63 +17,79 @@ export default function Setting() {
   const isDarkMode = theme === "dark";
 
   // สีขององค์ประกอบใน Dark Mode
-  const bgColor = isDarkMode ? "bg-gray-700" : "bg-gray-300";
-  const selectedColor = isDarkMode ? "bg-green-500" : "bg-green-600";
-  const unselectedColor = isDarkMode ? "bg-gray-500" : "bg-gray-300";
+  const bgColor = isDarkMode ? "bg-gray-700" : "bg-gray-100";
   const textColor = isDarkMode ? "text-white" : "text-black";
-  const componentColor = isDarkMode ? "bg-gray-700" : "bg-gray-300";
+  const componentColor = isDarkMode ? "bg-gray-800" : "bg-white";
+  const borderColor = isDarkMode ? "border-gray-700" : "border-gray-300";
   const componentIcon = isDarkMode ? "#f2f2f2" : "#2f2f2f";
+  const logoutColor = isDarkMode ? "bg-gray-800" : "bg-gray-200";
 
-  const { username,  } = useContext(UserContext);
+  const { username } = useContext(UserContext);
 
   return (
     <ThemedSafeAreaView>
-
       {/* Header */}
-      <ThemedText className={`mx-5 text-[24px] font-bold pt-[10%] ${textColor}`}>
+      <ThemedText className={`text-[24px] font-bold mx-5 pt-[15%] ${textColor}`}>
         Setting
       </ThemedText>
 
       {/* Profile Account Setting */}
-      <ThemedButton
-        className="mx-5 w-[330] h-[75] bg-slate-300 rounded-md !justify-start"
-        mode="normal"
-        textClassName="text-[22px] font-bold mx-3"
-        onPress={() => {
-          auth?.logout();
-          router.replace("/(tabs)");
-        }}
-      >
-        <Feather name="circle" size={30} color={`${componentIcon}`} />
-        <ThemedText>
-          {username ? username : "FirstName LastName"}
-        </ThemedText>
-      </ThemedButton>
-      
+      <View className="mt-5 mb-[15%]">
+        <ThemedButton
+          className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
+          mode="normal"
+          onPress={() => {
+            auth?.logout();
+            router.replace("/(tabs)");
+          }}
+        >
+          <Feather name="circle" size={30} color={componentIcon} />
+          <View className="flex-1 ml-3">
+            <ThemedText className={`text-[18px] font-bold mx-2 ${textColor}`}>
+              {username ? username : "FirstName LastName"}
+            </ThemedText>
+            <ThemedText className="text-gray-500 text-[14px] mx-2">
+              Profile, account setting
+            </ThemedText>
+          </View>
+          <Feather name="chevron-right" size={24} color={componentIcon} />
+        </ThemedButton>
+      </View>
 
-      {/* Notification */}
-
-
-      {/* Change Pin */}
-
-
-      {/* Icon Transaction */}
-
+      {/* เมนูตั้งค่า */}
+      <View className="mt-5 space-y-3">
+        {["Notification", "Change Pin", "Icon Transaction"].map((title, index) => (
+          <ThemedButton
+            key={index}
+            className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
+            mode="normal"
+            onPress={() => {
+              auth?.logout();
+              router.replace("/(tabs)");
+            }}
+          >
+            <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
+              {title}
+            </ThemedText>
+            <Feather name="chevron-right" size={24} color={componentIcon} />
+          </ThemedButton>
+        ))}
+      </View>
 
       {/* Logout */}
-      <ThemedView>
+      <View className="mt-10 border-gray-300 pt-[60%]">
         <ThemedButton
-          className="w-[330] h-[42] bg-slate-300 rounded-md "
+          className={`w-full py-3 rounded-lg ${logoutColor}`}
           mode="cancel"
-          textClassName="text-[20px] font-bold"
+          textClassName={`text-[18px] font-bold ${textColor}`}
           onPress={() => {
             auth?.logout();
             router.replace("/Welcome");
           }}
         >
-          Logout
+          Log Out
         </ThemedButton>
-      </ThemedView>
+      </View>
     </ThemedSafeAreaView>
   );
 }
