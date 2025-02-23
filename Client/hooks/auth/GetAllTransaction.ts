@@ -1,16 +1,16 @@
 import axios from "axios";
 
 export type UserTransaction = {
-  id: number | null;
-  user_id: number | null;
-  account_id: number | null;
-  split_payment_id: number | null;
-  transaction_name: string | null;
-  amount: number;
-  transaction_type: "income" | "expense";
-  transaction_date: string | null;
-  note: string | null;
-  color_code: string | null;
+  id: number;
+  user_id: number;
+  account_id: number;
+  split_payment_id : number;
+  transaction_name : string;
+  amount : number;
+  transaction_type : "income" | "expense";
+  transaction_date : string;
+  note : string;
+  color_code : string;
 };
 
 interface GetUserTransactionResponse {
