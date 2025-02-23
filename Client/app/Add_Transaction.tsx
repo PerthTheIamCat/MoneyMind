@@ -10,6 +10,7 @@ import {
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Platform,
   Pressable,
   ScrollView,
   TextInput,
@@ -26,6 +27,9 @@ import CustomDateTimePicker from "@/components/Date_and_Time";
 import { resultObject } from "@/hooks/auth/GetUserBank";
 import { th } from "react-native-paper-dates";
 import CustomPaperDatePicker from "@/components/Date_and_Time";
+
+
+
 
 type ThemedInputProps = {
   className?: string;
@@ -44,8 +48,9 @@ export default function Index() {
   // หมวดหมู่ของ Income และ Expense พร้อมโลโก้
   const [selectedIncomeCategory, setSelectedIncomeCategory] = useState("");
   const [selectedExpenseCategory, setSelectedExpenseCategory] = useState("");
-  const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] =
-    useState(false);
+  const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] =useState(false);
+  const [Amount, setAmount] = useState(0);
+  const [Note, setNote] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("plus");
   const iconList = [
@@ -101,7 +106,7 @@ export default function Index() {
   ]);
 
   const [categories, setCategories] = useState(incomeCategories);
-
+  
   const [budgetPlan, setBudgetPlan] = useState("");
   const [selectedBudget, setSelectedBudget] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -210,13 +215,13 @@ export default function Index() {
 
   // ✅ ฟังก์ชันบันทึกหมวดหมู่ใหม่
   const onSaveCategory = () => {
-    if (newCategoryName.trim() === "") return; // ป้องกันช่องว่าง
-
+    if (newCategoryName.trim() === "") return; // ✅ ป้องกันหมวดหมู่ที่เป็นค่าว่าง
+  
     if (isIncome) {
       setIncomeCategories((prev) => [
-        ...prev.filter((cat) => cat.name !== "add"), // เอาปุ่ม "+" ออกก่อน
+        ...prev.filter((cat) => cat.name !== "add"),
         { name: newCategoryName, icon: selectedIcon },
-        { name: "add", icon: "plus" }, // ใส่ปุ่ม "+" กลับท้ายสุด
+        { name: "add", icon: "plus" },
       ]);
     } else {
       setExpenseCategories((prev) => [
@@ -225,11 +230,16 @@ export default function Index() {
         { name: "add", icon: "plus" },
       ]);
     }
-
-    setNewCategoryName(""); // รีเซ็ตชื่อ
-    setSelectedIcon("plus"); // รีเซ็ตไอคอน
-    setIsAddCategoryModalVisible(false); // ปิด modal
+  
+    setNewCategoryName(""); // ✅ รีเซ็ตค่า
+    setSelectedIcon("plus"); // ✅ รีเซ็ตไอคอน
+  
+    setTimeout(() => {
+      setIsAddCategoryModalVisible(false); // ✅ ปิด Modal
+    }, 0);
   };
+  
+  
 
   return (
     <ThemedView className="w-full !h-full flex-1">
@@ -273,7 +283,6 @@ export default function Index() {
                         balance={account.balance.toString()}
                         mode="large"
                         imageIndex={Number(account.icon_id)}
-                        onEdit={() => {}}
                         className={`!items-center !justify-center bg-[#fefefe] rounded-lg 
                           ${
                             selectedCard?.id === account.id
@@ -301,9 +310,9 @@ export default function Index() {
           <ThemedView
             className={`${
               theme === "dark" ? "bg-[#222222]" : "bg-[#ffffff]"
-            } mt-2 px-10 !justify-start !items-start w-full  rounded-t-[30px] `}
+            } mt-2  !justify-start !items-start w-full  rounded-t-[30px] `}
           >
-            <ThemedView className="flex-row w-fit h-12 rounded-sm p-1 mt-5 mb-4 bg-transparent">
+            <ThemedView className="flex-row px-10 w-fit h-12 rounded-sm p-1 mt-5 mb-4 bg-transparent">
               <Pressable
                 onPress={() => setIsIncome(true)}
                 className={`w-32 h-full flex items-center justify-center rounded-2xl ${
@@ -343,7 +352,7 @@ export default function Index() {
               </Pressable>
             </ThemedView>
 
-            <ThemedView className="w-full  bg-transparent">
+            <ThemedView className="w-full px-10  bg-transparent">
               <ThemedText className="text-xl font-bold w-full !bg-transparent">
                 Select Budget Plan
               </ThemedText>
@@ -353,15 +362,15 @@ export default function Index() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView className="mt-1 w-full justify-center !items-start bg-transparent">
-              <ThemedText className="font-bold text-[16px]">
+            <ThemedView className="mt-1 w-full  justify-center !items-start bg-transparent">
+              <ThemedText className="font-bold px-10 text-[16px]">
                 Category
               </ThemedText>
 
               {/* Scroll แนวนอน แต่แบ่ง 2 แถว */}
               <ThemedScrollView
                 horizontal
-                className="h-[90px] w-full mt-3 bg-transparent"
+                className="h-[90px] w-full mt-3 py-2 bg-transparent"
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{
                   flexDirection: "column",
@@ -373,7 +382,7 @@ export default function Index() {
                 {categoryRows.map((row, rowIndex) => (
                   <ThemedView
                     key={rowIndex}
-                    className="flex-row gap-4 mb-2 bg-transparent "
+                    className="flex-row mr-4 ml-10 mb-2 gap-4 bg-transparent"
                   >
                     {row.map((category, index) => (
                       <Pressable
@@ -464,7 +473,7 @@ export default function Index() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView className="w-full mt-5 justify-center !items-start bg-transparent">
+            <ThemedView className="w-full px-10 mt-5 justify-center !items-start bg-transparent">
               <ThemedText
                 className="font-bold text-[16px] mb-2"
                 style={{ color: theme === "dark" ? "#FFF" : "#333" }}
@@ -487,7 +496,7 @@ export default function Index() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView className="w-full mt-5 mb-10 justify-center !items-start bg-transparent">
+            <ThemedView className="w-full px-10 mt-5 mb-10 justify-center !items-start bg-transparent">
               <ThemedText
                 className="font-bold text-[16px] mb-7"
                 style={{ color: theme === "dark" ? "#FFF" : "#333" }}
@@ -513,9 +522,9 @@ export default function Index() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView className="w-full mb-40 bg-transparent">
+            <ThemedView className="w-full mb-20 bg-transparent">
               <ThemedButton
-                className="mt-8 px-10 w-full h-12 bg-green-500"
+                className="mt-8 px-10 w-56 h-12 bg-green-500"
                 onPress={() => router.push("/(tabs)/transaction")}
               >
                 Add Transaction
@@ -525,68 +534,108 @@ export default function Index() {
         </ThemedScrollView>
       </ThemedView>
       <Modal
-        transparent
-        visible={isAddCategoryModalVisible}
-        onRequestClose={() => setIsAddCategoryModalVisible(false)}
+  key={isAddCategoryModalVisible ? "visible" : "hidden"}
+  transparent
+  visible={isAddCategoryModalVisible}
+  animationType={Platform.OS === "ios" ? "none" : "fade"}
+  onRequestClose={() => setIsAddCategoryModalVisible(false)}
+>
+  <ThemedView
+    className={`flex-1 items-center justify-center ${
+      theme === "dark" ? "bg-black/80" : "bg-black/50"
+    }`}
+  >
+    <ThemedView
+      className={`w-4/5 p-6 rounded-3xl shadow-lg ${
+        theme === "dark" ? "bg-[#2F2F2F]" : "bg-white"
+      }`}
+    >
+      <ThemedText
+        className={`text-xl font-bold mb-3 ${
+          theme === "dark" ? "text-white" : "text-black"
+        }`}
       >
-        <ThemedView className="flex-1 items-center justify-center bg-black/50">
-          <ThemedView className="w-4/5 bg-white p-6 rounded-3xl shadow-lg">
-            <ThemedText className="text-xl font-bold mb-3">
-              Add New Category
-            </ThemedText>
+        Add New Category
+      </ThemedText>
 
-            {/* Input ชื่อหมวดหมู่ */}
-            <ThemedText className="text-lg font-semibold mb-2">
-              Category Name
-            </ThemedText>
-            <TextInput
-              placeholder="Enter category name"
-              value={newCategoryName}
-              onChangeText={setNewCategoryName}
-              className="border border-gray-300 rounded-lg p-3 mb-4 w-full"
+      {/* Input ชื่อหมวดหมู่ */}
+      <ThemedText
+        className={`text-lg font-semibold mb-2 ${
+          theme === "dark" ? "text-white" : "text-black"
+        }`}
+      >
+        Category Name
+      </ThemedText>
+      <TextInput
+        placeholder="Enter category name"
+        value={newCategoryName}
+        onChangeText={setNewCategoryName}
+        className={`border ${
+          theme === "dark" ? "border-gray-600 text-white" : "border-gray-300"
+        } rounded-lg p-3 mb-4 w-full`}
+        placeholderTextColor={theme === "dark" ? "#BBB" : "#777"}
+        style={{
+          backgroundColor: theme === "dark" ? "#222" : "#FFF",
+        }}
+      />
+
+      {/* เลือกไอคอน */}
+      <ThemedText
+        className={`text-lg font-semibold mb-2 ${
+          theme === "dark" ? "text-white" : "text-black"
+        }`}
+      >
+        Select Icon
+      </ThemedText>
+      <ScrollView
+        horizontal
+        className="flex-row gap-2"
+        showsHorizontalScrollIndicator={false}
+      >
+        {iconList.map((icon) => (
+          <Pressable
+            key={icon}
+            onPress={() => setSelectedIcon(icon)}
+            className={`p-3 m-1 rounded-full ${
+              selectedIcon === icon
+                ? "bg-green-500"
+                : theme === "dark"
+                ? "bg-gray-400"
+                : "bg-gray-200"
+            }`}
+          >
+            <Icon
+              name={icon}
+              size={24}
+              color={selectedIcon === icon ? "white" : "black"}
             />
+          </Pressable>
+        ))}
+      </ScrollView>
 
-            {/* เลือกไอคอน */}
-            <ThemedText className="text-lg font-semibold mb-2">
-              Select Icon
-            </ThemedText>
-            <ScrollView horizontal className="flex-row gap-2">
-              {iconList.map((icon) => (
-                <Pressable
-                  key={icon}
-                  onPress={() => setSelectedIcon(icon)}
-                  className={`p-3 m-1 rounded-full ${
-                    selectedIcon === icon ? "bg-green-500" : "bg-gray-200"
-                  }`}
-                >
-                  <Icon
-                    name={icon}
-                    size={24}
-                    color={selectedIcon === icon ? "white" : "black"}
-                  />
-                </Pressable>
-              ))}
-            </ScrollView>
+      {/* ปุ่ม Save & Cancel */}
+      <ThemedView className="flex-row justify-between mt-10 gap-8 bg-transparent">
+        <ThemedButton
+          className="bg-gray-400 h-11 w-28"
+          onPress={() => setIsAddCategoryModalVisible(false)}
+        >
+          <ThemedText>Cancel</ThemedText>
+        </ThemedButton>
 
-            {/* ปุ่ม Save & Cancel */}
-            <ThemedView className="flex-row justify-between mt-4 gap-8 bg-transparent">
-              <ThemedButton
-                className="bg-gray-400 w-1/3"
-                onPress={() => setIsAddCategoryModalVisible(false)}
-              >
-                <ThemedText>Cancel</ThemedText>
-              </ThemedButton>
+        <ThemedButton
+          className="bg-green-500 h-11 w-28"
+          onPress={() => {
+            if (newCategoryName.trim() === "") return;
+            setIsAddCategoryModalVisible(false);
+          }}
+        >
+          <ThemedText>Save</ThemedText>
+        </ThemedButton>
+      </ThemedView>
+    </ThemedView>
+  </ThemedView>
+</Modal>
 
-              <ThemedButton
-                className="bg-green-500 w-1/3"
-                onPress={onSaveCategory}
-              >
-                <ThemedText>Save</ThemedText>
-              </ThemedButton>
-            </ThemedView>
-          </ThemedView>
-        </ThemedView>
-      </Modal>
     </ThemedView>
   );
 }
