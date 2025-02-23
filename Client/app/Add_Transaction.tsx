@@ -279,7 +279,7 @@ export default function Index() {
       },
       auth?.token!
     ).then((response) => {
-      if (response) {
+      if (response.success) {
         setTransaction([
           ...(transaction || []),
           {
@@ -299,6 +299,7 @@ export default function Index() {
         reloadTransaction();
         router.replace("/(tabs)/transaction");
       } else {
+        alert(response.message)
         console.log(response);
       }
     });
