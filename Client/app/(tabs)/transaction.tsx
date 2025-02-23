@@ -131,6 +131,8 @@ export default function Index() {
   const [isButtonVisible, setIsButtonVisible] = useState(true);
   // const handleEditTransaction = (transactionId: number) => {};
   const handleDeleteTransaction = (transactionId: number) => {};
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+
 
   const theme = useColorScheme() || "light";
   const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
@@ -208,7 +210,7 @@ export default function Index() {
                   balance={account.balance.toString()}
                   mode="small"
                   imageIndex={Number(account.icon_id)}
-                  onEdit={() => {}}
+                  onPress={() => setSelectedAccountId(account.id)}
                   key={account.id}
                   // image={account.icon_id}
                   className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
