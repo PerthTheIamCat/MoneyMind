@@ -226,7 +226,6 @@ export default function Index() {
                     balance={account.balance.toString()}
                     mode="large"
                     imageIndex={Number(account.icon_id)}
-                    onEdit={() => {}}
                     key={account.id}
                     className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
                   />

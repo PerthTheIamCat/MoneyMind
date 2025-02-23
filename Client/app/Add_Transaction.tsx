@@ -217,18 +217,19 @@ export default function Index() {
   const onSaveCategory = () => {
     if (newCategoryName.trim() === "") return; // ✅ ป้องกันหมวดหมู่ที่เป็นค่าว่าง
   
+    const newCategory = { name: newCategoryName, icon: selectedIcon };
+    const addCategory = { name: "add", icon: "plus" };
+  
     if (isIncome) {
-      setIncomeCategories((prev) => [
-        ...prev.filter((cat) => cat.name !== "add"),
-        { name: newCategoryName, icon: selectedIcon },
-        { name: "add", icon: "plus" },
-      ]);
+      setIncomeCategories((prev) => {
+        const filteredCategories = prev.filter((cat) => cat.name !== "add");
+        return [...filteredCategories, newCategory, addCategory]; // ✅ สร้าง array ใหม่เพื่อ trigger render
+      });
     } else {
-      setExpenseCategories((prev) => [
-        ...prev.filter((cat) => cat.name !== "add"),
-        { name: newCategoryName, icon: selectedIcon },
-        { name: "add", icon: "plus" },
-      ]);
+      setExpenseCategories((prev) => {
+        const filteredCategories = prev.filter((cat) => cat.name !== "add");
+        return [...filteredCategories, newCategory, addCategory]; // ✅ สร้าง array ใหม่เพื่อ trigger render
+      });
     }
   
     setNewCategoryName(""); // ✅ รีเซ็ตค่า
@@ -238,6 +239,7 @@ export default function Index() {
       setIsAddCategoryModalVisible(false); // ✅ ปิด Modal
     }, 0);
   };
+  
   
   
 
@@ -624,10 +626,7 @@ export default function Index() {
 
         <ThemedButton
           className="bg-green-500 h-11 w-28"
-          onPress={() => {
-            if (newCategoryName.trim() === "") return;
-            setIsAddCategoryModalVisible(false);
-          }}
+          onPress={onSaveCategory} // ✅ เรียกฟังก์ชันเพิ่มหมวดหมู่
         >
           <ThemedText>Save</ThemedText>
         </ThemedButton>
@@ -635,6 +634,7 @@ export default function Index() {
     </ThemedView>
   </ThemedView>
 </Modal>
+
 
     </ThemedView>
   );
