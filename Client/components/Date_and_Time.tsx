@@ -66,20 +66,26 @@ const CustomPaperDatePicker: React.FC<CustomPaperDatePickerProps> = ({
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       selectedDate.setHours(0, 0, 0, 0);
-
+  
       if (selectedDate > today) {
         showError("You cannot select a future date! 💔 Please choose today or a past date.");
         return;
       }
-
+  
       setTimeout(() => {
+        // ✅ ใช้ `toLocaleString` เพื่อให้ชื่อเดือนเป็นแบบย่อ (Jan, Feb, Mar, ...)
+        const monthAbbr = selectedDate.toLocaleString("en-US", { month: "short" });
+  
+        // ✅ ฟอร์แมตวันที่เป็น DD/Mon/YYYY
+        const formattedDate = `${selectedDate.getDate().toString().padStart(2, "0")}/${monthAbbr}/${selectedDate.getFullYear()}`;
+  
         setDate(selectedDate);
-        onConfirm(selectedDate.toISOString().split("T")[0]);
-        setDateVisible(false); // ✅ ปิด Modal
+        onConfirm(formattedDate);
+        setDateVisible(false);
       }, 0);
     }
   };
-
+  
   const handleConfirmTime = (params: { hours: number; minutes: number }) => {
     if (date) {
       const updatedDate = new Date(date);
