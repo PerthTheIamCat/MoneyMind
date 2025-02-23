@@ -68,6 +68,29 @@ export const SplitpaymentsGetHandler = async (
     }
 }
 
+export const SplitpaymentsPutHandler = async (
+    url : string,
+    id : number,
+    data : SplitpaymentData,
+    token: string,
+): Promise<SplitpaymentsResponse | SplitpaymentsError["response"]["data"]> => {
+    try {
+        const response = await axios.put<SplitpaymentsResponse>(
+            `${url}/splitpayments/${id}`,
+            data,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        return (error as SplitpaymentsError).response.data
+    }
+}
+
 export const SplitpaymentsDeleteHandler = async (
     url : string,
     id : number,
