@@ -47,7 +47,7 @@ type ThemedCardProps = {
   imageIndex?: number;
   className?: string;
   index?: number;
-  onEdit?: () => void;
+  onPress?: () => void;
   onDelete?: (id: number) => void;
   style?: ViewStyle;  // ✅ เพิ่มตรงนี้
 };
@@ -60,7 +60,7 @@ export function ThemedCard({
   mode = "small",
   imageIndex = 0,
   className,
-  onEdit,
+  onPress,
   index,
   onDelete,
 }: ThemedCardProps) {
