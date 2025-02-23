@@ -33,11 +33,9 @@ export const GetUserTransaction = async (
   url: string,
   userID: number,
   token: string
-): Promise<
-  GetUserTransactionResponse | GetUserTransactionError["response"]["data"]
-> => {
+): Promise<GetUserTransactionResponse | GetUserTransactionError["response"]["data"]> => {
   try {
-    console.log("UserID:", userID);
+    console.log("UserID:",userID);
     const response = await axios.get<GetUserTransactionResponse>(
       `${url}/transactions/${userID}`,
       {
