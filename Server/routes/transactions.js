@@ -15,6 +15,7 @@ router.post('/create', jwtValidate, (req, res) => {
             transaction_name, 
             amount,
             transaction_type,
+            transaction_date,
             note,
             color_code
         } = req.body;
@@ -75,8 +76,8 @@ router.post('/create', jwtValidate, (req, res) => {
                 }
 
                 db.query(
-                    'INSERT INTO transactions (user_id, account_id, split_payment_id, transaction_name, amount, transaction_type, note, color_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                    [user_id, account_id, split_payment_id || null, transaction_name, amount, transaction_type, note || null, color_code],
+                    'INSERT INTO transactions (user_id, account_id, split_payment_id, transaction_name, amount, transaction_type, transaction_date, note, color_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [user_id, account_id, split_payment_id || null, transaction_name, amount, transaction_type, transaction_date, note || null, color_code],
                     (err, result) => {
                         if (err) {
                             return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
