@@ -17,6 +17,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Entypo from "@expo/vector-icons/Entypo";
+import Feather from "@expo/vector-icons/Feather";
 
 export default function Setting() {
   const auth = useContext(AuthContext);
@@ -31,6 +32,8 @@ export default function Setting() {
   const componentColor = isDarkMode ? "bg-gray-700" : "bg-gray-300";
   const componentIcon = isDarkMode ? "#f2f2f2" : "#2f2f2f";
 
+  const { username,  } = useContext(UserContext);
+
   return (
     <ThemedSafeAreaView>
 
@@ -40,7 +43,21 @@ export default function Setting() {
       </ThemedText>
 
       {/* Profile Account Setting */}
-
+      <ThemedButton
+        className="mx-5 w-[330] h-[75] bg-slate-300 rounded-md !justify-start"
+        mode="normal"
+        textClassName="text-[22px] font-bold mx-3"
+        onPress={() => {
+          auth?.logout();
+          router.replace("/(tabs)");
+        }}
+      >
+        <Feather name="circle" size={30} color={`${componentIcon}`} />
+        <ThemedText>
+          {username ? username : "FirstName LastName"}
+        </ThemedText>
+      </ThemedButton>
+      
 
       {/* Notification */}
 
