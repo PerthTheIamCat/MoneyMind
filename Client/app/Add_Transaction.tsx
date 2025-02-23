@@ -7,8 +7,10 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "@/hooks/conText/UserContext";
 import {
   Dimensions,
+  Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Platform,
   Pressable,
   ScrollView,
   TextInput,
@@ -25,6 +27,9 @@ import CustomDateTimePicker from "@/components/Date_and_Time";
 import { resultObject } from "@/hooks/auth/GetUserBank";
 import { th } from "react-native-paper-dates";
 import CustomPaperDatePicker from "@/components/Date_and_Time";
+
+
+
 
 type ThemedInputProps = {
   className?: string;
@@ -43,8 +48,27 @@ export default function Index() {
   // หมวดหมู่ของ Income และ Expense พร้อมโลโก้
   const [selectedIncomeCategory, setSelectedIncomeCategory] = useState("");
   const [selectedExpenseCategory, setSelectedExpenseCategory] = useState("");
-
-  const incomeCategories = [
+  const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] =useState(false);
+  const [Amount, setAmount] = useState(0);
+  const [Note, setNote] = useState("");
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [selectedIcon, setSelectedIcon] = useState("plus");
+  const iconList = [
+    "dollar-sign",
+    "gift",
+    "trending-up",
+    "briefcase",
+    "home",
+    "pie-chart",
+    "music",
+    "percent",
+    "shopping-cart",
+    "users",
+    "bar-chart",
+    "more-horizontal",
+    "clock",
+  ];
+  const [incomeCategories, setIncomeCategories] = useState([
     { name: "Salary", icon: "dollar-sign" },
     { name: "Bonus", icon: "gift" },
     { name: "Investment", icon: "trending-up" },
@@ -61,9 +85,9 @@ export default function Index() {
     { name: "Side Hustle", icon: "briefcase" },
     { name: "Part-time Job", icon: "clock" },
     { name: "add", icon: "plus" },
-  ];
+  ]);
 
-  const expenseCategories = [
+  const [expenseCategories, setExpenseCategories] = useState([
     { name: "Food", icon: "coffee" },
     { name: "Transport", icon: "car" },
     { name: "Rent", icon: "home" },
@@ -79,12 +103,10 @@ export default function Index() {
     { name: "Groceries", icon: "shopping-cart" },
     { name: "Other", icon: "more-horizontal" },
     { name: "add", icon: "plus" },
-  ];
+  ]);
 
   const [categories, setCategories] = useState(incomeCategories);
-
-
-
+  
   const [budgetPlan, setBudgetPlan] = useState("");
   const [selectedBudget, setSelectedBudget] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -99,8 +121,8 @@ export default function Index() {
     ]);
   };
   useEffect(() => {
-    setCategories(isIncome ? incomeCategories : expenseCategories);
-  }, [isIncome]);
+    setCategories(isIncome ? [...incomeCategories] : [...expenseCategories]);
+  }, [isIncome, incomeCategories, expenseCategories]);
 
   // ฟังก์ชันแบ่งหมวดหมู่เป็น 2 แถวเสมอ
   const splitIntoTwoRows = (arr: any[]) => {
@@ -191,6 +213,34 @@ export default function Index() {
     console.log("⏰ Selected Time:", formattedTime);
   };
 
+  // ✅ ฟังก์ชันบันทึกหมวดหมู่ใหม่
+  const onSaveCategory = () => {
+    if (newCategoryName.trim() === "") return; // ✅ ป้องกันหมวดหมู่ที่เป็นค่าว่าง
+  
+    if (isIncome) {
+      setIncomeCategories((prev) => [
+        ...prev.filter((cat) => cat.name !== "add"),
+        { name: newCategoryName, icon: selectedIcon },
+        { name: "add", icon: "plus" },
+      ]);
+    } else {
+      setExpenseCategories((prev) => [
+        ...prev.filter((cat) => cat.name !== "add"),
+        { name: newCategoryName, icon: selectedIcon },
+        { name: "add", icon: "plus" },
+      ]);
+    }
+  
+    setNewCategoryName(""); // ✅ รีเซ็ตค่า
+    setSelectedIcon("plus"); // ✅ รีเซ็ตไอคอน
+  
+    setTimeout(() => {
+      setIsAddCategoryModalVisible(false); // ✅ ปิด Modal
+    }, 0);
+  };
+  
+  
+
   return (
     <ThemedView className="w-full !h-full flex-1">
       <ThemedView className="w-full !h-full flex-1">
@@ -233,7 +283,6 @@ export default function Index() {
                         balance={account.balance.toString()}
                         mode="large"
                         imageIndex={Number(account.icon_id)}
-                        onEdit={() => {}}
                         className={`!items-center !justify-center bg-[#fefefe] rounded-lg 
                           ${
                             selectedCard?.id === account.id
@@ -254,14 +303,16 @@ export default function Index() {
           vertical={true}
           horizontal={false}
           className="w-full h-full"
-          contentContainerStyle={{ flexGrow: 1 }} 
+          contentContainerStyle={{ flexGrow: 1 }}
+          scrollEventThrottle={16} // ควบคุมอัตราการอัปเดต scroll event
+          decelerationRate={0.95} // ทำให้ scroll ช้าลง (ค่าปกติคือ 0.998, ยิ่งต่ำยิ่งช้าลง)
         >
           <ThemedView
             className={`${
-              theme === "dark" ? "bg-[#262626]" : "bg-[#ffffff]"
-            } mt-2 px-10 !justify-start !items-start w-full  rounded-t-[30px] `}
+              theme === "dark" ? "bg-[#222222]" : "bg-[#ffffff]"
+            } mt-2  !justify-start !items-start w-full  rounded-t-[30px] `}
           >
-            <ThemedView className="flex-row w-fit h-12 rounded-sm p-1 mt-5 mb-4 bg-transparent">
+            <ThemedView className="flex-row px-10 w-fit h-12 rounded-sm p-1 mt-5 mb-4 bg-transparent">
               <Pressable
                 onPress={() => setIsIncome(true)}
                 className={`w-32 h-full flex items-center justify-center rounded-2xl ${
@@ -301,7 +352,7 @@ export default function Index() {
               </Pressable>
             </ThemedView>
 
-            <ThemedView className="w-full  bg-transparent">
+            <ThemedView className="w-full px-10  bg-transparent">
               <ThemedText className="text-xl font-bold w-full !bg-transparent">
                 Select Budget Plan
               </ThemedText>
@@ -311,15 +362,15 @@ export default function Index() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView className="mt-1 w-full justify-center !items-start bg-transparent">
-              <ThemedText className="font-bold text-[16px]">
+            <ThemedView className="mt-1 w-full  justify-center !items-start bg-transparent">
+              <ThemedText className="font-bold px-10 text-[16px]">
                 Category
               </ThemedText>
 
               {/* Scroll แนวนอน แต่แบ่ง 2 แถว */}
               <ThemedScrollView
                 horizontal
-                className="h-[90px] w-full mt-3 bg-transparent"
+                className="h-[90px] w-full mt-3 py-2 bg-transparent"
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{
                   flexDirection: "column",
@@ -331,79 +382,74 @@ export default function Index() {
                 {categoryRows.map((row, rowIndex) => (
                   <ThemedView
                     key={rowIndex}
-                    className="flex-row gap-4 mb-2 bg-transparent "
+                    className="flex-row mr-4 ml-10 mb-2 gap-4 bg-transparent"
                   >
                     {row.map((category, index) => (
                       <Pressable
-                        key={`${category.name}-${index}`}
-                        onPress={() =>
-                          category.name === "add"
-                            ? addNewCategory()
-                            : isIncome
-                            ? setSelectedIncomeCategory(category.name)
-                            : setSelectedExpenseCategory(category.name)
+                      key={`${category.name}-${index}`}
+                      onPress={() => {
+                        if (category.name === "add") {
+                          setIsAddCategoryModalVisible(true);
+                        } else {
+                          if (isIncome) {
+                            setSelectedIncomeCategory(category.name);
+                          } else {
+                            setSelectedExpenseCategory(category.name);
+                          }
                         }
-                        className={`px-4 py-2 rounded-lg flex-shrink-0 flex-row items-center gap-4
-                          ${
-                            category.name === "add"
-                              ? `${
-                                  theme === "dark"
-                                    ? "bg-[#141212]"
-                                    : "bg-[#D9D9D9]"
-                                } w-28 h-10 flex items-center justify-center`
-                              : (isIncome
-                                  ? selectedIncomeCategory
-                                  : selectedExpenseCategory) === category.name
-                              ? isIncome
-                                ? "bg-green-500 text-white"
-                                : "bg-red-500 text-white"
-                              : theme === "dark"
-                              ? "bg-[#141212] text-white"
-                              : "bg-[#D9D9D9] text-black"
-                          }`}
-                        style={{
-                          flexBasis: "auto",
-                          minWidth: 90,
-                          paddingHorizontal: 12,
-                        }}
-                      >
-                        {category.name === "add" ? (
+                      }}
+                      className={`px-4 py-2 rounded-lg flex-shrink-0 flex-row items-center gap-4
+                        ${
+                          category.name === "add"
+                            ? `${
+                                theme === "dark"
+                                  ? "bg-[#141212]"
+                                  : "bg-[#D9D9D9]"
+                              } w-28 h-10 flex items-center justify-center`
+                            : category.name === (isIncome ? selectedIncomeCategory : selectedExpenseCategory)
+                            ? isIncome
+                              ? "bg-green-700 text-white" // ✅ สีเข้มขึ้นเมื่อถูกเลือก (Income)
+                              : "bg-red-700 text-white" // ✅ สีเข้มขึ้นเมื่อถูกเลือก (Expense)
+                            : theme === "dark"
+                            ? "bg-[#141212] text-white"
+                            : "bg-[#D9D9D9] text-black"
+                        }`}
+                      style={{
+                        flexBasis: "auto",
+                        minWidth: 90,
+                        paddingHorizontal: 12,
+                      }}
+                    >
+                      {category.name === "add" ? (
+                        <Icon name={category.icon} size={24} color={theme === "dark" ? "white" : "black"} />
+                      ) : (
+                        <>
                           <Icon
                             name={category.icon}
-                            size={24}
-                            color={theme === "dark" ? "white" : "black"} // ✅ ถ้าอยู่ในโหมดมืด ใช้สีขาว
+                            size={18}
+                            color={
+                              category.name === (isIncome ? selectedIncomeCategory : selectedExpenseCategory)
+                                ? "white"
+                                : theme === "dark"
+                                ? "white"
+                                : "black"
+                            }
                           />
-                        ) : (
-                          <>
-                            <Icon
-                              name={category.icon}
-                              size={18}
-                              color={
-                                (isIncome
-                                  ? selectedIncomeCategory
-                                  : selectedExpenseCategory) === category.name
-                                  ? "white" // ✅ สีขาวถ้าถูกเลือก
-                                  : theme === "dark"
-                                  ? "white"
-                                  : "black" // ✅ สีดำถ้าไม่ถูกเลือก
-                              }
-                            />
-                            <ThemedText
-                              className={`font-bold ${
-                                (isIncome
-                                  ? selectedIncomeCategory
-                                  : selectedExpenseCategory) === category.name
-                                  ? "text-white" // ✅ สีขาวถ้าถูกเลือก
-                                  : theme === "dark"
-                                  ? "white"
-                                  : "black" // ✅ สีดำถ้าไม่ถูกเลือก
-                              }`}
-                            >
-                              {category.name}
-                            </ThemedText>
-                          </>
-                        )}
-                      </Pressable>
+                          <ThemedText
+                            className={`font-bold ${
+                              category.name === (isIncome ? selectedIncomeCategory : selectedExpenseCategory)
+                                ? "text-white"
+                                : theme === "dark"
+                                ? "text-white"
+                                : "black"
+                            }`}
+                          >
+                            {category.name}
+                          </ThemedText>
+                        </>
+                      )}
+                    </Pressable>
+                    
                     ))}
                   </ThemedView>
                 ))}
@@ -427,7 +473,7 @@ export default function Index() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView className="w-full mt-5 justify-center !items-start bg-transparent">
+            <ThemedView className="w-full px-10 mt-5 justify-center !items-start bg-transparent">
               <ThemedText
                 className="font-bold text-[16px] mb-2"
                 style={{ color: theme === "dark" ? "#FFF" : "#333" }}
@@ -450,7 +496,7 @@ export default function Index() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView className="w-full mt-5 mb-10 justify-center !items-start bg-transparent">
+            <ThemedView className="w-full px-10 mt-5 mb-10 justify-center !items-start bg-transparent">
               <ThemedText
                 className="font-bold text-[16px] mb-7"
                 style={{ color: theme === "dark" ? "#FFF" : "#333" }}
@@ -476,29 +522,120 @@ export default function Index() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView
-    className={`${
-      theme === "dark" ? "bg-[#262626]" : "bg-[#ffffff]"
-    } mt-2 px-10 !justify-start !items-start w-full  rounded-t-[30px]`}
-  >
-    {/* ส่วนอื่น ๆ ของฟอร์ม */}
-
-    <ThemedView
-      className={`${
-        theme === "dark" ? "bg-[#000000]" : "bg-[#ffffff]"
-      } px-10 w-full bg-transparent`}
-    >
-      <ThemedButton
-        className="mt-8 mb-42px-10 w-full h-12 bg-green-500" // ✅ เพิ่ม mb-32 ให้ Scroll ลงไปถึงปุ่ม
-        onPress={() => router.push("/(tabs)/transaction")}
-      >
-        Add Transaction
-      </ThemedButton>
-    </ThemedView>
-  </ThemedView>
+            <ThemedView className="w-full mb-20 bg-transparent">
+              <ThemedButton
+                className="mt-8 px-10 w-56 h-12 bg-green-500"
+                onPress={() => router.push("/(tabs)/transaction")}
+              >
+                Add Transaction
+              </ThemedButton>
+            </ThemedView>
           </ThemedView>
         </ThemedScrollView>
       </ThemedView>
+      <Modal
+  key={isAddCategoryModalVisible ? "visible" : "hidden"}
+  transparent
+  visible={isAddCategoryModalVisible}
+  animationType={Platform.OS === "ios" ? "none" : "fade"}
+  onRequestClose={() => setIsAddCategoryModalVisible(false)}
+>
+  <ThemedView
+    className={`flex-1 items-center justify-center ${
+      theme === "dark" ? "bg-black/80" : "bg-black/50"
+    }`}
+  >
+    <ThemedView
+      className={`w-4/5 p-6 rounded-3xl shadow-lg ${
+        theme === "dark" ? "bg-[#2F2F2F]" : "bg-white"
+      }`}
+    >
+      <ThemedText
+        className={`text-xl font-bold mb-3 ${
+          theme === "dark" ? "text-white" : "text-black"
+        }`}
+      >
+        Add New Category
+      </ThemedText>
+
+      {/* Input ชื่อหมวดหมู่ */}
+      <ThemedText
+        className={`text-lg font-semibold mb-2 ${
+          theme === "dark" ? "text-white" : "text-black"
+        }`}
+      >
+        Category Name
+      </ThemedText>
+      <TextInput
+        placeholder="Enter category name"
+        value={newCategoryName}
+        onChangeText={setNewCategoryName}
+        className={`border ${
+          theme === "dark" ? "border-gray-600 text-white" : "border-gray-300"
+        } rounded-lg p-3 mb-4 w-full`}
+        placeholderTextColor={theme === "dark" ? "#BBB" : "#777"}
+        style={{
+          backgroundColor: theme === "dark" ? "#222" : "#FFF",
+        }}
+      />
+
+      {/* เลือกไอคอน */}
+      <ThemedText
+        className={`text-lg font-semibold mb-2 ${
+          theme === "dark" ? "text-white" : "text-black"
+        }`}
+      >
+        Select Icon
+      </ThemedText>
+      <ScrollView
+        horizontal
+        className="flex-row gap-2"
+        showsHorizontalScrollIndicator={false}
+      >
+        {iconList.map((icon) => (
+          <Pressable
+            key={icon}
+            onPress={() => setSelectedIcon(icon)}
+            className={`p-3 m-1 rounded-full ${
+              selectedIcon === icon
+                ? "bg-green-500"
+                : theme === "dark"
+                ? "bg-gray-400"
+                : "bg-gray-200"
+            }`}
+          >
+            <Icon
+              name={icon}
+              size={24}
+              color={selectedIcon === icon ? "white" : "black"}
+            />
+          </Pressable>
+        ))}
+      </ScrollView>
+
+      {/* ปุ่ม Save & Cancel */}
+      <ThemedView className="flex-row justify-between mt-10 gap-8 bg-transparent">
+        <ThemedButton
+          className="bg-gray-400 h-11 w-28"
+          onPress={() => setIsAddCategoryModalVisible(false)}
+        >
+          <ThemedText>Cancel</ThemedText>
+        </ThemedButton>
+
+        <ThemedButton
+          className="bg-green-500 h-11 w-28"
+          onPress={() => {
+            if (newCategoryName.trim() === "") return;
+            setIsAddCategoryModalVisible(false);
+          }}
+        >
+          <ThemedText>Save</ThemedText>
+        </ThemedButton>
+      </ThemedView>
+    </ThemedView>
+  </ThemedView>
+</Modal>
+
     </ThemedView>
   );
 }
