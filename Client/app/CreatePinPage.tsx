@@ -2,6 +2,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Image } from "expo-image";
 import { useEffect, useState, useContext } from "react";
+import * as LocalAuthentication from "expo-local-authentication";
 import {
   Alert,
   StyleSheet,
@@ -22,6 +23,29 @@ export default function CreatePinPage() {
   const theme = useColorScheme();
   const codeLength = Array(6).fill(0);
 
+  // Function to handle biometric authentication
+  const handleBiometricAuth = async () => {
+    const hasHardware = await LocalAuthentication.hasHardwareAsync();
+    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+    if (!hasHardware || !isEnrolled) {
+      Alert.alert("Biometric authentication is not available on this device.");
+      return;
+    }
+
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: "Authenticate to set your PIN",
+      fallbackLabel: "Use your PIN instead",
+    });
+
+    if (result.success) {
+      Alert.alert("Biometric authentication successful!");
+      router.replace("/(tabs)"); // Redirect after authentication
+    } else {
+      Alert.alert("Authentication failed. Try again.");
+    }
+  };
+
   const handleSetPin = () => {
     if (confirmPin === pin) {
       auth?.setPinCode(pin);
@@ -32,11 +56,11 @@ export default function CreatePinPage() {
       setCode([]);
       Alert.alert("PIN does not match");
     }
-  }
+  };
 
   const handlePress = (value: string) => {
     if (code.length < 6) {
-      setCode(prevCode => [...prevCode, parseInt(value)]);
+      setCode((prevCode) => [...prevCode, parseInt(value)]);
     }
   };
 
@@ -80,18 +104,11 @@ export default function CreatePinPage() {
           </ThemedView>
         ) : (
           <ThemedView className="!justify-start !items-start w-full px-5 mt-5">
-            <Ionicons
-              name="arrow-back-outline"
-              size={32}
-              color="transparent"
-            />
+            <Ionicons name="arrow-back-outline" size={32} color="transparent" />
           </ThemedView>
         )}
         <ThemedView className="flex-1 justify-center h-full mb-10">
-          <Image
-            source={require("@/assets/logos/LOGO.png")}
-            style={styles.logo}
-          />
+          <Image source={require("@/assets/logos/LOGO.png")} style={styles.logo} />
         </ThemedView>
         <ThemedText style={styles.greetings}>
           {pin === "" ? "Create your PIN code" : "Enter your PIN again"}
@@ -107,10 +124,7 @@ export default function CreatePinPage() {
             />
           ))}
         </ThemedView>
-        <ThemedView
-          style={styles.numbersView}
-          className="flex-row justify-center gap-5 my-5"
-        >
+        <ThemedView style={styles.numbersView} className="flex-row justify-center gap-5 my-5">
           <ThemedText
             style={[styles.underline, styles.forgot]}
             onPress={() => router.replace("/PinPage")}
@@ -119,9 +133,10 @@ export default function CreatePinPage() {
           </ThemedText>
         </ThemedView>
         <ThemedNumPad
-          haveBiometric={false}
+          haveBiometric={true} // Ensure biometric is available
           onPress={handlePress}
           onPressBack={handlePressBack}
+          onPressBiometric={handleBiometricAuth} // Assign biometric function
         />
       </ThemedView>
     </ThemedSafeAreaView>

@@ -1,16 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { ThemedView } from "./ThemedView";
 import { Container, Row, Col } from "react-native-flex-grid";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { useColorScheme, Pressable } from "react-native";
+import { useColorScheme, Pressable, TouchableOpacity, StyleSheet } from "react-native";
 import { ThemedText } from "./ThemedText";
 
 interface ThemedNumPadProps {
   onPress: (value: string) => void;
   onPressBack: () => void;
-  onPressBiometric?: () => void;
+  onPressBiometric?: () => void; // Should trigger biometric auth, not modify PIN
   haveBiometric?: boolean;
-  [key: string]: any;
 }
 
 export function ThemedNumPad({
@@ -18,131 +17,63 @@ export function ThemedNumPad({
   onPress,
   onPressBack,
   onPressBiometric,
-  ...props
 }: ThemedNumPadProps) {
   const theme = useColorScheme();
-  const textClassName =
-    "text-center text-4xl font-bold " +
-    (theme === "dark" ? "text-[#F2F2F2]" : "text-[#2F2F2F]");
-  const rowClassName = `py-[5%] border-b-2 rounded-b-2xl ${theme === "dark" ? "border-[#F2F2F2]" : "border-[#2F2F2F]"}`;
-  const colClassName = `border-r-2 ${theme === "dark" ? "border-[#F2F2F2]" : "border-[#2F2F2F]"}`;
-  const pressableClassName = "active:scale-150";
+  const [pressedKey, setPressedKey] = useState<string | null>(null);
 
   return (
-    <ThemedView className="flex flex-wrap flex-row justify-center">
+    <ThemedView className="flex justify-center items-center w-full">
       <Container>
-        <Row className={rowClassName}>
-          <Col className={colClassName}>
-            <Pressable
-              className={pressableClassName}
-              onPress={() => onPress("1")}
-            >
-              <ThemedText className={textClassName}>1</ThemedText>
-            </Pressable>
-          </Col>
-          <Col className={colClassName}>
-            <Pressable
-              className={pressableClassName}
-              onPress={() => onPress("2")}
-            >
-              <ThemedText className={textClassName}>2</ThemedText>
-            </Pressable>
-          </Col>
-          <Col className={`${colClassName} !border-r-0`}>
-            <Pressable
-              className={pressableClassName}
-              onPress={() => onPress("3")}
-            >
-              <ThemedText className={textClassName}>3</ThemedText>
-            </Pressable>
-          </Col>
-        </Row>
-        <Row className={rowClassName}>
-          <Col className={colClassName}>
-            <Pressable
-              className={pressableClassName}
-              onPress={() => onPress("4")}
-            >
-              <ThemedText className={textClassName}>4</ThemedText>
-            </Pressable>
-          </Col>
-          <Col className={colClassName}>
-            <Pressable
-              className={pressableClassName}
-              onPress={() => onPress("5")}
-            >
-              <ThemedText className={textClassName}>5</ThemedText>
-            </Pressable>
-          </Col>
-          <Col className={`${colClassName} !border-r-0`}>
-            <Pressable
-              className={pressableClassName}
-              onPress={() => onPress("6")}
-            >
-              <ThemedText className={textClassName}>6</ThemedText>
-            </Pressable>
-          </Col>
-        </Row>
-        <Row className={rowClassName}>
-          <Col className={colClassName}>
-            <Pressable
-              className={pressableClassName}
-              onPress={() => onPress("7")}
-            >
-              <ThemedText className={textClassName}>7</ThemedText>
-            </Pressable>
-          </Col>
-          <Col className={colClassName}>
-            <Pressable
-              className={pressableClassName}
-              onPress={() => onPress("8")}
-            >
-              <ThemedText className={textClassName}>8</ThemedText>
-            </Pressable>
-          </Col>
-          <Col className={`${colClassName} !border-r-0`}>
-            <Pressable
-              className={pressableClassName}
-              onPress={() => onPress("9")}
-            >
-              <ThemedText className={textClassName}>9</ThemedText>
-            </Pressable>
-          </Col>
-        </Row>
-        <Row className={`${rowClassName} border-b-0`}>
-          <Col className={`${colClassName} items-center`}>
-            {haveBiometric && (
-              <Pressable
-                className={pressableClassName}
-                onPress={onPressBiometric}
-              >
-                <FontAwesome5
-                  name="fingerprint"
-                  size={32}
-                  color={theme === "dark" ? "#F2F2F2" : "#2F2F2F"}
-                />
-              </Pressable>
-            )}
-          </Col>
-          <Col className={colClassName}>
-            <Pressable
-              className={pressableClassName}
-              onPress={() => onPress("0")}
-            >
-              <ThemedText className={textClassName}>0</ThemedText>
-            </Pressable>
-          </Col>
-          <Col className={`${colClassName} items-center !border-r-0`}>
-            <Pressable className={pressableClassName} onPress={onPressBack}>
-              <FontAwesome5
-                name="backspace"
-                size={32}
-                color={theme === "dark" ? "#F2F2F2" : "#2F2F2F"}
-              />
-            </Pressable>
-          </Col>
-        </Row>
+        {/* Number Pad Rows */}
+        {[["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], ["biometric", "0", "backspace"]].map(
+          (row, rowIndex) => (
+            <Row key={rowIndex} className="mb-10">
+              {row.map((value, colIndex) => (
+                <Col key={colIndex} className="justify-center items-center">
+                  {value === "biometric" && haveBiometric ? (
+                    <Pressable onPress={() => onPressBiometric && onPressBiometric()}>
+                      <FontAwesome5 name="fingerprint" size={32} color={theme === "dark" ? "#F2F2F2" : "#2F2F2F"} />
+                    </Pressable>
+                  ) : value === "backspace" ? (
+                    <Pressable onPress={onPressBack}>
+                      <FontAwesome5 name="backspace" size={32} color={theme === "dark" ? "#F2F2F2" : "#2F2F2F"} />
+                    </Pressable>
+                  ) : (
+                    <TouchableOpacity
+                      onPressIn={() => setPressedKey(value)}
+                      onPressOut={() => setPressedKey(null)}
+                      onPress={() => onPress(value)}
+                      style={pressedKey === value ? styles.containerPress : styles.container}
+                    >
+                      <ThemedText className="text-center text-4xl font-bold">
+                        {value}
+                      </ThemedText>
+                    </TouchableOpacity>
+                  )}
+                </Col>
+              ))}
+            </Row>
+          )
+        )}
       </Container>
     </ThemedView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    width: 60,
+    height: 60,
+    borderRadius: 9999,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  containerPress: {
+    width: 60,
+    height: 60,
+    borderRadius: 9999,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#1a1a1a",
+  },
+});
