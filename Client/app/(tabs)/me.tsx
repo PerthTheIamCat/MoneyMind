@@ -34,14 +34,11 @@ export default function Setting() {
       </ThemedText>
 
       {/* Profile Account Setting */}
-      <View className="mt-5 mb-[15%]">
+      <View className="mt-5 mb-[15%] mx-4">
         <ThemedButton
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
           mode="normal"
-          onPress={() => {
-            auth?.logout();
-            router.replace("/(tabs)");
-          }}
+          onPress={() => router.push("/Edit_Account")}
         >
           <Feather name="circle" size={30} color={componentIcon} />
           <View className="flex-1 ml-3">
@@ -57,27 +54,43 @@ export default function Setting() {
       </View>
 
       {/* เมนูตั้งค่า */}
-      <View className="mt-5 space-y-3">
-        {["Notification", "Change Pin", "Icon Transaction"].map((title, index) => (
-          <ThemedButton
-            key={index}
-            className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
-            mode="normal"
-            onPress={() => {
-              auth?.logout();
-              router.replace("/(tabs)");
-            }}
-          >
-            <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
-              {title}
-            </ThemedText>
-            <Feather name="chevron-right" size={24} color={componentIcon} />
-          </ThemedButton>
-        ))}
+      <View className="mt-5 space-y-3 mx-4">
+        <ThemedButton
+          className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
+          mode="normal"
+          onPress={() => router.push("/NotificationPage")}
+        >
+          <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
+            Notification
+          </ThemedText>
+          <Feather name="chevron-right" size={24} color={componentIcon} />
+        </ThemedButton>
+        
+        <ThemedButton
+          className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
+          mode="normal"
+          onPress={() => router.push("/CreatePinPage")}
+        >
+          <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
+            Change Pin
+          </ThemedText>
+          <Feather name="chevron-right" size={24} color={componentIcon} />
+        </ThemedButton>
+        
+        <ThemedButton
+          className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
+          mode="normal"
+          onPress={() => router.push("/Edit_Transaction")}
+        >
+          <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
+            Icon Transaction
+          </ThemedText>
+          <Feather name="chevron-right" size={24} color={componentIcon} />
+        </ThemedButton>
       </View>
 
       {/* Logout */}
-      <View className="mt-10 border-gray-300 pt-[60%]">
+      <View className="mt-10 border-gray-300 pt-[60%] mx-4">
         <ThemedButton
           className={`w-full py-3 rounded-lg ${logoutColor}`}
           mode="cancel"
