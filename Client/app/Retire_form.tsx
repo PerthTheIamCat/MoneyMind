@@ -15,10 +15,12 @@ export default function Retire_form() {
   const [ageAfterRetire, setAgeAfterRetire] = useState<number>(0);
   const [currentIncome, setCurrentIncome] = useState<number>(0);
   const [currentExpenses, setCurrentExpenses] = useState<number>(0);
-  const [expectedRateFromSaving, setExpectedRateFromSaving] = useState<number>(0);
+  const [expectedRateFromSaving, setExpectedRateFromSaving] =
+    useState<number>(0);
   const [monthlySalary, setMonthlySalary] = useState<number>(0);
   const [inflationRate, setInflationRate] = useState<number>(0);
-  const [expectedRateFromSaving2, setExpectedRateFromSaving2] = useState<number>(0);
+  const [expectedRateFromSaving2, setExpectedRateFromSaving2] =
+    useState<number>(0);
 
   return (
     <ThemedView className="h-full !justify-start">
@@ -54,23 +56,28 @@ export default function Retire_form() {
         style={{
           width: "100%",
           height: "70%",
-          backgroundColor: "transparent",
+          backgroundColor: "red",
         }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 200 : 20}
       >
         <ScrollView
-          className="w-full"
-          contentContainerStyle={{ alignItems: "center" }}
+          contentContainerStyle={{
+            alignItems: "center",
+            width: "100%",
+            height: "100%",
+            flex: 1,
+            backgroundColor: "blue",
+          }}
         >
           {/* Form 1 */}
           {step === 0 && (
-            <ThemedView className="w-full px-5">
+            <ThemedView className="w-full px-5 gap-10">
               <ThemedView className="w-[80%] flex-row !justify-between">
                 <ThemedView className="w-[60%]">
                   <ThemedInput title="Current Age" className="w-full" />
                 </ThemedView>
-                <ThemedText className="text-2xl font-bold h-full py-safe">
+                <ThemedText className="text-2xl font-bold mt-5">
                   years
                 </ThemedText>
               </ThemedView>
@@ -78,7 +85,7 @@ export default function Retire_form() {
                 <ThemedView className="w-[60%]">
                   <ThemedInput title="Age to Retire" className="w-full" />
                 </ThemedView>
-                <ThemedText className="text-2xl font-bold h-full py-safe">
+                <ThemedText className="text-2xl font-bold mt-5">
                   years
                 </ThemedText>
               </ThemedView>
@@ -86,7 +93,7 @@ export default function Retire_form() {
                 <ThemedView className="w-[60%]">
                   <ThemedInput title="Age after Retire" className="w-full" />
                 </ThemedView>
-                <ThemedText className="text-2xl font-bold h-full py-safe">
+                <ThemedText className="text-2xl font-bold mt-5">
                   years
                 </ThemedText>
               </ThemedView>
@@ -94,64 +101,88 @@ export default function Retire_form() {
           )}
 
           {/* Form 2 */}
-            {step === 1 && (
+          {step === 1 && (
             <ThemedView className="w-full px-5">
               <ThemedText className="text-3xl font-bold w-[80%]">
-              Period Before Retirement
+                Period Before Retirement
               </ThemedText>
               <ThemedView className="w-[80%] flex-row !justify-between">
-              <ThemedView className="w-[60%]">
-                <ThemedInput title="Current Income" className="w-full" keyboardType="numeric" />
-              </ThemedView>
-              <ThemedText className="text-2xl font-bold h-full py-safe">
-                Bath/Month
-              </ThemedText>
-              </ThemedView>
-              <ThemedView className="w-[80%] flex-row !justify-between">
-              <ThemedView className="w-[60%]">
-                <ThemedInput title="Current Expenses" className="w-full" keyboardType="numeric" />
-              </ThemedView>
-              <ThemedText className="text-2xl font-bold h-full py-safe">
-                Bath/Month
-              </ThemedText>
+                <ThemedView className="w-[60%]">
+                  <ThemedInput
+                    title="Current Income"
+                    className="w-full"
+                    keyboardType="numeric"
+                  />
+                </ThemedView>
+                <ThemedText className="text-2xl font-bold h-full">
+                  Bath/Month
+                </ThemedText>
               </ThemedView>
               <ThemedView className="w-[80%] flex-row !justify-between">
-              <ThemedView className="w-[60%]">
-                <ThemedInput title="Expected rate from saving" className="w-full" keyboardType="numeric" />
+                <ThemedView className="w-[60%]">
+                  <ThemedInput
+                    title="Current Expenses"
+                    className="w-full"
+                    keyboardType="numeric"
+                  />
+                </ThemedView>
+                <ThemedText className="text-2xl font-bold h-full">
+                  Bath/Month
+                </ThemedText>
               </ThemedView>
-              <ThemedText className="text-2xl font-bold h-full py-safe">
-                Bath/Month
-              </ThemedText>
+              <ThemedView className="w-[80%] flex-row !justify-between">
+                <ThemedView className="w-[60%]">
+                  <ThemedInput
+                    title="Expected rate from saving"
+                    className="w-full"
+                    keyboardType="numeric"
+                  />
+                </ThemedView>
+                <ThemedText className="text-2xl font-bold h-full">
+                  Bath/Month
+                </ThemedText>
               </ThemedView>
               <ThemedText className="text-3xl font-bold w-[80%] mt-5">
-              Period After Retirement
+                Period After Retirement
               </ThemedText>
               <ThemedView className="w-[80%] flex-row !justify-between">
-              <ThemedView className="w-[60%]">
-                <ThemedInput title="Monthly salary" className="w-full" keyboardType="numeric" />
-              </ThemedView>
-              <ThemedText className="text-2xl font-bold h-full py-safe">
-                %/year
-              </ThemedText>
-              </ThemedView>
-              <ThemedView className="w-[80%] flex-row !justify-between">
-              <ThemedView className="w-[60%]">
-                <ThemedInput title="Inflation rate" className="w-full" keyboardType="numeric" />
-              </ThemedView>
-              <ThemedText className="text-2xl font-bold h-full py-safe">
-                %/year
-              </ThemedText>
+                <ThemedView className="w-[60%]">
+                  <ThemedInput
+                    title="Monthly salary"
+                    className="w-full"
+                    keyboardType="numeric"
+                  />
+                </ThemedView>
+                <ThemedText className="text-2xl font-bold h-full">
+                  %/year
+                </ThemedText>
               </ThemedView>
               <ThemedView className="w-[80%] flex-row !justify-between">
-              <ThemedView className="w-[60%]">
-                <ThemedInput title="Expected rate from saving" className="w-full" keyboardType="numeric" />
+                <ThemedView className="w-[60%]">
+                  <ThemedInput
+                    title="Inflation rate"
+                    className="w-full"
+                    keyboardType="numeric"
+                  />
+                </ThemedView>
+                <ThemedText className="text-2xl font-bold h-full">
+                  %/year
+                </ThemedText>
               </ThemedView>
-              <ThemedText className="text-2xl font-bold h-full py-safe">
-                %/year
-              </ThemedText>
+              <ThemedView className="w-[80%] flex-row !justify-between">
+                <ThemedView className="w-[60%]">
+                  <ThemedInput
+                    title="Expected rate from saving"
+                    className="w-full"
+                    keyboardType="numeric"
+                  />
+                </ThemedView>
+                <ThemedText className="text-2xl font-bold h-full">
+                  %/year
+                </ThemedText>
               </ThemedView>
             </ThemedView>
-            )}
+          )}
 
           {/* Form 3 */}
           {step === 2 && (
@@ -160,7 +191,7 @@ export default function Retire_form() {
                 <ThemedView className="w-[60%]">
                   <ThemedInput title="Current Age" className="w-full" />
                 </ThemedView>
-                <ThemedText className="text-2xl font-bold h-full py-safe">
+                <ThemedText className="text-2xl font-bold h-full">
                   years
                 </ThemedText>
               </ThemedView>
@@ -168,7 +199,7 @@ export default function Retire_form() {
                 <ThemedView className="w-[60%]">
                   <ThemedInput title="Age to Retire" className="w-full" />
                 </ThemedView>
-                <ThemedText className="text-2xl font-bold h-full py-safe">
+                <ThemedText className="text-2xl font-bold h-full">
                   years
                 </ThemedText>
               </ThemedView>
@@ -176,7 +207,7 @@ export default function Retire_form() {
                 <ThemedView className="w-[60%]">
                   <ThemedInput title="Age after Retire" className="w-full" />
                 </ThemedView>
-                <ThemedText className="text-2xl font-bold h-full py-safe">
+                <ThemedText className="text-2xl font-bold h-full">
                   years
                 </ThemedText>
               </ThemedView>
@@ -186,25 +217,25 @@ export default function Retire_form() {
       </KeyboardAvoidingView>
 
       {/* BUTTON */}
-      <ThemedView className="absolute top-[80%] w-full">
-      <ThemedView className="w-[80%] flex-row !justify-around py-5">
-        <ThemedButton
-          mode="normal"
-          className="px-14 py-5"
-          onPress={() => {
-            step === 0 ? router.back() : setStep(step - 1);
-          }}
-        >
-          back
-        </ThemedButton>
-        <ThemedButton
-          mode="confirm"
-          className="px-14 py-5"
-          onPress={() => setStep(step + 1)}
-        >
-          next
-        </ThemedButton>
-      </ThemedView>
+      <ThemedView className="w-full">
+        <ThemedView className="w-[80%] flex-row !justify-around py-5">
+          <ThemedButton
+            mode="normal"
+            className="px-14 py-5"
+            onPress={() => {
+              step === 0 ? router.back() : setStep(step - 1);
+            }}
+          >
+            back
+          </ThemedButton>
+          <ThemedButton
+            mode="confirm"
+            className="px-14 py-5"
+            onPress={() => setStep(step + 1)}
+          >
+            next
+          </ThemedButton>
+        </ThemedView>
       </ThemedView>
     </ThemedView>
   );
