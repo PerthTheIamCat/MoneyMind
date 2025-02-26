@@ -32,6 +32,7 @@ import { th } from "react-native-paper-dates";
 import CustomPaperDatePicker from "@/components/Date_and_Time";
 import { GetUserTransaction } from "@/hooks/auth/GetAllTransaction";
 import { transform } from "@babel/core";
+import DatePicker from "react-native-date-picker";
 
 type ThemedInputProps = {
   className?: string;
@@ -56,6 +57,10 @@ export default function Index() {
   const [Note, setNote] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("plus");
+  const [date, setDate] = useState(new Date()); // เก็บค่า Date
+  const [time, setTime] = useState(new Date()); // เก็บค่า Time
+  const [openDate, setOpenDate] = useState(false);
+  const [openTime, setOpenTime] = useState(false);
 
   const auth = useContext(AuthContext);
   const { URL } = useContext(ServerContext);
@@ -203,6 +208,7 @@ export default function Index() {
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const today = new Date();
 
   // ฟังก์ชันรับค่าและอัปเดต State
   const handleDateChange = (date: Date) => {
@@ -299,7 +305,7 @@ export default function Index() {
         reloadTransaction();
         router.replace("/(tabs)/transaction");
       } else {
-        alert(response.message)
+        alert(response.message);
         console.log(response);
       }
     });
@@ -533,19 +539,35 @@ export default function Index() {
             </ThemedView>
 
             <ThemedView className="flex-row w-full mt-5 mb-5 justify-start !items-start bg-transparent gap-10">
-              <ThemedView className="bg-transparent">
-                <CustomPaperDatePicker
-                  title="Date"
-                  mode="date"
-                  onConfirm={setSelectedDate}
-                />
+              <ThemedView className="w-56">
+                <ThemedText className="py-2">
+                  Date <ThemedText style={{ color: "red" }}>*</ThemedText>
+                </ThemedText>
+                <Pressable
+                  className="border border-[#203B82] h-[45px] w-full rounded-3xl px-4 py-2 flex justify-center"
+                  onPress={() => setOpenDate(true)}
+                >
+                  <ThemedText className="text-[#203B82]">
+                    {date.toDateString()}
+                  </ThemedText>
+                </Pressable>
               </ThemedView>
-              <ThemedView className="bg-transparent">
-                <CustomPaperDatePicker
-                  title="Time"
-                  mode="time"
-                  onConfirm={setSelectedTime}
-                />
+
+              <ThemedView className="w-32">
+                <ThemedText className="py-2">
+                  Time<ThemedText style={{ color: "red" }}>*</ThemedText>
+                </ThemedText>
+                <Pressable
+                  className="border border-[#203B82] h-[45px] w-full rounded-3xl px-4 py-2 flex justify-center"
+                  onPress={() => setOpenTime(true)}
+                >
+                  <ThemedText className="text-[#203B82]">
+                    {time.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </ThemedText>
+                </Pressable>
               </ThemedView>
             </ThemedView>
 
@@ -713,6 +735,32 @@ export default function Index() {
           </ThemedView>
         </ThemedView>
       </Modal>
+      <DatePicker
+        modal
+        open={openDate}
+        date={date}
+        mode="date"
+        maximumDate={today} // ไม่ให้เลือกวันอนาคต
+        onConfirm={(date) => {
+          setOpenDate(false);
+          setDate(date);
+        }}
+        onCancel={() => setOpenDate(false)}
+      />
+
+      {/* Time Picker (เลือกเวลาเกิด) - จำกัดไม่ให้เลือกเวลานาคตของวันนี้ */}
+      <DatePicker
+        modal
+        open={openTime}
+        date={time}
+        mode="time"
+        maximumDate={today} // จำกัดเวลาไม่ให้เกินเวลาปัจจุบันของวันนี้
+        onConfirm={(time) => {
+          setOpenTime(false);
+          setTime(time);
+        }}
+        onCancel={() => setOpenTime(false)}
+      />
     </ThemedView>
   );
 }
