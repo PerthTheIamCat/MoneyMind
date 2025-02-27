@@ -55,6 +55,7 @@ export default function Setting() {
 
       {/* เมนูตั้งค่า */}
       <View className="mt-5 space-y-3 mx-4">
+        {/* Notification Setting path */}
         <ThemedButton
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
           mode="normal"
@@ -66,6 +67,7 @@ export default function Setting() {
           <Feather name="chevron-right" size={24} color={componentIcon} />
         </ThemedButton>
         
+        {/* Change Pin Password path */}
         <ThemedButton
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
           mode="normal"
@@ -77,6 +79,7 @@ export default function Setting() {
           <Feather name="chevron-right" size={24} color={componentIcon} />
         </ThemedButton>
         
+        {/* Icon Transaction path */}
         <ThemedButton
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
           mode="normal"
