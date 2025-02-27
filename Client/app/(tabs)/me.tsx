@@ -1,5 +1,4 @@
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedButton } from "@/components/ThemedButton";
 import { AuthContext } from "@/hooks/conText/AuthContext";
@@ -7,6 +6,7 @@ import { useContext } from "react";
 import { router } from "expo-router";
 import { useColorScheme } from "react-native";
 import { UserContext } from "@/hooks/conText/UserContext";
+
 
 import Feather from "@expo/vector-icons/Feather";
 import { View } from "react-native";
