@@ -539,37 +539,24 @@ export default function Index() {
             </ThemedView>
 
             <ThemedView className="flex-row w-full mt-5 mb-5 justify-start !items-start bg-transparent gap-10">
-              <ThemedView className="w-56">
-                <ThemedText className="py-2">
-                  Date <ThemedText style={{ color: "red" }}>*</ThemedText>
-                </ThemedText>
-                <Pressable
-                  className="border border-[#203B82] h-[45px] w-full rounded-3xl px-4 py-2 flex justify-center"
-                  onPress={() => setOpenDate(true)}
-                >
-                  <ThemedText className="text-[#203B82]">
-                    {date.toDateString()}
-                  </ThemedText>
-                </Pressable>
-              </ThemedView>
+      {/* ✅ Input สำหรับเลือกวันที่ */}
+      <ThemedView className="w-56">
+        <DateTimePickerInput
+          title="Date"
+          mode="date"
+          onConfirm={(value: string) => setSelectedDate(value)} // ✅ อัปเดตค่าเมื่อเลือก
+        />
+      </ThemedView>
 
-              <ThemedView className="w-32">
-                <ThemedText className="py-2">
-                  Time<ThemedText style={{ color: "red" }}>*</ThemedText>
-                </ThemedText>
-                <Pressable
-                  className="border border-[#203B82] h-[45px] w-full rounded-3xl px-4 py-2 flex justify-center"
-                  onPress={() => setOpenTime(true)}
-                >
-                  <ThemedText className="text-[#203B82]">
-                    {time.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </ThemedText>
-                </Pressable>
-              </ThemedView>
-            </ThemedView>
+      {/* ✅ Input สำหรับเลือกเวลา */}
+      <ThemedView className="w-32">
+        <DateTimePickerInput
+          title="Time"
+          mode="time"
+          onConfirm={(value: string) => setSelectedTime(value)} // ✅ อัปเดตค่าเมื่อเลือก
+        />
+      </ThemedView>
+    </ThemedView>
 
             <ThemedView className="w-full px-10 mt-5 justify-center !items-start bg-transparent">
               <ThemedText
