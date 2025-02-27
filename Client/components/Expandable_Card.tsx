@@ -14,19 +14,17 @@ interface DeviceProps {
         lastSeen: string;
     };
     onSignOut: () => void;
+    onSignOutAll?: () => void;
 }
 
-const ExpandableDeviceCard: React.FC<DeviceProps> = ({ deviceDetails, onSignOut }) => {
+const ExpandableDeviceCard: React.FC<DeviceProps> = ({ deviceDetails, onSignOut}) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
-    const toggleExpand = () => {
-        setIsExpanded((prev) => !prev);
-    };
       const theme = useColorScheme();
-      const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
+      const componentcolor = theme === "dark" ? "#181818" : "#d8d8d8";
 
     return (
-        <TouchableOpacity onPress={toggleExpand} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() => setIsExpanded((prev) => !prev)} activeOpacity={1}>
             <MotiView
                 from={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -42,27 +40,26 @@ const ExpandableDeviceCard: React.FC<DeviceProps> = ({ deviceDetails, onSignOut 
                     position: "relative", // ให้เป็นจุดอ้างอิงสำหรับตำแหน่งของ Sign Out
                 }}
             >
-                {/* Header - Device Type + Location + Toggle Button */}
-                <ThemedView className="bg-transparent" style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                <ThemedView className="bg-transparent py-2" style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                     <View>
-                        <ThemedText >{deviceDetails.deviceType}</ThemedText>
-                        <ThemedText >{deviceDetails.location}</ThemedText>
+                        <ThemedText className="font-bold text-xl">{deviceDetails.deviceType}</ThemedText>
+                        <ThemedText className="font-bold">{deviceDetails.location}</ThemedText>
                     </View>
 
                     <TouchableOpacity
                         onPress={onSignOut}
                         style={{
                             position: "absolute",
-                            right: 10, // ชิดขวา
+                            right: 0, // ชิดขวา
                             top: "50%", // ตรงกลาง
                             transform: [{ translateY: -12 }], // ปรับสมดุลแนวตั้ง
                             paddingVertical: 6,
                             paddingHorizontal: 12,
-                            backgroundColor: "red",
+                            // backgroundColor: "red",
                             borderRadius: 5,
                         }}
                     >
-                        <Text style={{ color: "white", fontSize: 14 }}>Sign Out</Text>
+                        <ThemedText className="text-lg font-bold">Sign Out</ThemedText>
                     </TouchableOpacity>
 
                     {/* <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={24} color="white" /> */}
@@ -70,15 +67,17 @@ const ExpandableDeviceCard: React.FC<DeviceProps> = ({ deviceDetails, onSignOut 
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                    <ThemedView className="!justify-start !items-start bg-transparent">
-                        <Text>
-                            <ThemedText>IP Address:</ThemedText> {deviceDetails.ipAddress}
-                        </Text>
-                        <Text>
-                            <ThemedText>Last Seen:</ThemedText> {deviceDetails.lastSeen}
-                        </Text>
+                    <ThemedView className="!justify-start !items-start"
+                    style={{ backgroundColor: componentcolor }}>
+                        <ThemedText>
+                            <ThemedText className="font-bold">IP Address:</ThemedText> {deviceDetails.ipAddress}
+                        </ThemedText>
+                        <ThemedText>
+                            <ThemedText className="font-bold">Last Seen:</ThemedText> {deviceDetails.lastSeen}
+                        </ThemedText>
                     </ThemedView>
                 )}
+
             </MotiView>
         </TouchableOpacity>
     );
