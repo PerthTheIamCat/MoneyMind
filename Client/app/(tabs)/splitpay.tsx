@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, SetStateAction } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
@@ -58,24 +58,32 @@ export default function SplitPay() {
   const [limit, setLimit] = useState(50);
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
-  // 📌 อัปเดตจำนวนเงินเมื่อ Slider เปลี่ยนค่า
+  const [isEditing, setIsEditing] = useState(false);
+  // 📌 อัปเดต budgetLimit ตาม limit ทุกครั้งที่เปลี่ยนค่า
   useEffect(() => {
-    if (limitRef.current !== limit && selectedCard) {
-      const newBudgetLimit = (selectedCard.balance * limit) / 100;
-      setBudgetLimit(newBudgetLimit);
-      limitRef.current = limit;
+    if (!isEditing && limitRef.current !== limit) {
+      if (selectedCard) {
+        const newBudgetLimit = (selectedCard.balance * limit) / 100;
+        setBudgetLimit(newBudgetLimit);
+        limitRef.current = limit;
+      }
     }
-  }, [limit, selectedCard]);
+  }, [limit, selectedCard, isEditing]);
 
-  // 📌 อัปเดต limit ตาม budgetLimit เมื่อผู้ใช้กรอกตัวเลข
   const handleAmountChange = (text: string) => {
+    setIsEditing(true);
     let newAmount = parseFloat(text) || 0;
-    newAmount = Math.min(newAmount, selectedCard?.balance || 0); // จำกัดไม่ให้เกินยอดเงินในบัญชี
+    newAmount = Math.min(newAmount, selectedCard?.balance || 0);
     const newLimit = selectedCard
       ? (newAmount / selectedCard.balance) * 100
       : 0;
     setBudgetLimit(newAmount);
     setLimit(newLimit);
+  };
+
+  const handleSliderChange = (value: SetStateAction<number>) => {
+    setIsEditing(false);
+    setLimit(value);
   };
   const colors = [
     "#F94144",
@@ -467,38 +475,34 @@ export default function SplitPay() {
                   {/* Budget Limit */}
                   <View className="w-full mt-4 p-4 bg-white dark:bg-[#222] rounded-lg shadow-lg">
                     {/* Label "Limits" พร้อมช่องกรอกจำนวนเงิน */}
-                    <View className="flex-row items-center justify-between mb-2">
+                    <View className="flex-row items-center justify-between">
                       <Text className="font-bold text-lg text-gray-900 dark:text-white">
                         Limits
                       </Text>
                       <View className="w-32 h-10 p-2 bg-gray-200 dark:bg-gray-800 rounded-lg">
                         <TextInput
-                          value={budgetLimit.toFixed(2)}
+                          value={
+                            isEditing
+                              ? budgetLimit.toString()
+                              : budgetLimit.toFixed(0)
+                          }
                           onChangeText={handleAmountChange}
                           keyboardType="numeric"
                           placeholder="0.00"
                           placeholderTextColor="#AAA"
                           className="text-right text-gray-900 dark:text-white text-lg"
+                          style={{ height: 38 }}
                         />
                       </View>
                     </View>
-
-                    {/* Slider ที่แสดงค่าเป็นเปอร์เซ็นต์ */}
                     <Slider
                       value={limit}
-                      onValueChange={(value) => {
-                        setLimit(value);
-                        if (selectedCard) {
-                          setBudgetLimit((selectedCard.balance * value) / 100);
-                        }
-                      }}
+                      onValueChange={handleSliderChange}
                       minimumValue={0}
                       maximumValue={100}
-                      step={1} // ✅ เลื่อนทีละ 1% เพื่อป้องกันค่าแกว่ง
+                      step={5}
                       className="w-full my-2"
                     />
-
-                    {/* แสดงค่าที่เลือก */}
                     <Text className="text-gray-600 dark:text-gray-300">
                       {limit.toFixed(0)}% ({budgetLimit.toFixed(2)} THB)
                     </Text>
