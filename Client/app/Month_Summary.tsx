@@ -4,6 +4,7 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { useState } from "react";
 import { View, Text } from "react-native";
 import { useColorScheme } from "react-native";
 
@@ -30,6 +31,15 @@ const mockSummary: Summary = {
 };
 
 export default function MonthSummary() {
+  const percentage =
+  mockSummary.total_savings_goal > 0 ? (mockSummary.current_savings / mockSummary.total_savings_goal) * 100 : 0;
+  
+  const [Summary,setSummary] = useState() ;
+  
+  const formatPercentage = (percentage: number) => {
+    return percentage % 1 === 0 ? percentage.toFixed(0) : percentage.toFixed(2);
+  };
+  
   const theme = useColorScheme();
   const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
   return (
@@ -64,7 +74,7 @@ export default function MonthSummary() {
         <DonutChart savings_goal={mockSummary.total_savings_goal} current_savings={mockSummary.current_savings}/>
       </View>
       <View className={`items-center flex-col justify-center w-96 my-1 mx-auto rounded-lg`}>
-        <ThemedText className="text-2xl">You Already Saved 0.1 %</ThemedText>
+        <ThemedText className="text-2xl">You Already Saved {formatPercentage(percentage)}%</ThemedText>
       </View>
       <View className={`items-center flex-col justify-center w-96 my-2 mx-auto rounded-lg`}>
         <ThemedText className="text-6xl">{mockSummary.total_savings_goal}</ThemedText>

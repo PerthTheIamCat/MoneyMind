@@ -240,7 +240,7 @@ router.post('/login', (req, res) => {
             const UserID = userOrEmail === "email" ? await getUserIDbyemail(input) : await getUserIDbyusername(input);
 
             const accessToken = jwtAccessTokenGenrate(UserID, user.username, user.email)
-            console.log(user)
+            //console.log(user)
             
             return res.status(200).json({ accessToken, message: 'Login successful', success: true });
         });

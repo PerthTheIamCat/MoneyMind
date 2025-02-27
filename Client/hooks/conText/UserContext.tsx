@@ -2,36 +2,36 @@ import axios from "axios";
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import { GetUserBank, resultObject } from "../auth/GetUserBank";
+import { GetUserTransaction } from "../auth/GetAllTransaction";
 import { ServerContext } from "../conText/ServerConText";
 
 type UserTransaction = {
   id: number;
   user_id: number;
   account_id: number;
-  split_payment_id : number;
-  transaction_name : string;
-  amount : number;
-  transaction_type : "income" | "expense";
-  transaction_date : string;
-  note : string;
-  color_code : string;
-}
-
+  split_payment_id: number | null;
+  transaction_name: string;
+  amount: number;
+  transaction_type: "income" | "expense";
+  transaction_date: string;
+  note: string;
+  color_code: string;
+};
 
 type UserNotification = {
   id: number;
   mode: string;
   Header: string;
   Description: string;
-}
+};
 
 type UserRetire = {
   id: number;
   user_id: number;
-  monthly_savings_goal : number;
+  monthly_savings_goal: number;
   total_savings_goal: number;
   current_savings: number;
-}
+};
 
 type UserContextType = {
   fullname: string | null;
@@ -66,7 +66,6 @@ export const UserContext = React.createContext<UserContextType>({
   notification: null,
   retire: null,
 
-  
   setUsername: () => {},
   setUserID: () => {},
   setEmail: () => {},
@@ -90,8 +89,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [fullname, setFullname] = useState<string | null>(null);
   const [birthdate, setBirthdate] = useState<string | null>(null);
   const [bank, setBank] = useState<Array<resultObject> | null>(null);
-  const [transaction, setTransaction] = useState<Array<UserTransaction> | null>(null);
-  const [notification, setNotification] = useState<Array<UserNotification> | null>(null);
+  const [transaction, setTransaction] = useState<Array<UserTransaction> | null>(
+    null
+  );
+  const [notification, setNotification] =
+    useState<Array<UserNotification> | null>(null);
   const [retire, setRetire] = useState<Array<UserRetire> | null>(null);
 
   useEffect(() => {
@@ -101,24 +103,23 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       setUserID(decoded.UserID);
       setEmail(decoded.email);
       setLoading(false);
-
-      GetUserBank(URL, userID!, auth.token)
-        .then((response) => {
-          if (response.success) {
-            setBank(response.result);
-            // console.log(response.result);
-          } else {
-            console.log(response.message);
-          }
-        })
-        .catch((error) => {
-          console.log(error.message);
-        });
     }
   }, [auth?.token, userID]);
 
   useEffect(() => {
     if (userID && auth?.token) {
+      GetUserBank(URL, userID!, auth.token)
+        .then((response) => {
+          if (response.success) {
+            setBank(response.result);
+            console.log("get back success:", response.result);
+          } else {
+            console.log("fail to get back:", response.message);
+          }
+        })
+        .catch((error) => {
+          console.log(error.message);
+        });
       axios
         .get(`${URL}/users/${userID}`, {
           headers: {
@@ -126,25 +127,21 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           },
         })
         .then((response) => {
-          // console.log("fullname1:", response.data);
+          console.log("get user info success:", response.data);
           setFullname(response.data.name);
           // console.log("Fullname: ", response.data.name);
         })
         .catch((error) => {
-          console.log(error.message);
+          console.log("fail to get user info:", error.message);
         });
-      axios
-        .get(`${URL}/transactions/${userID}`, {
-          headers: {
-            Authorization: `Bearer ${auth.token}`,
-          },
-        })
-        .then((response) => {
-          setTransaction(response.data.result);
-          console.log("Transaction: ", response.data.result);
-        }).catch((error) => {
-          console.log(error.message);
-        });
+      GetUserTransaction(URL, userID!, auth.token).then((response) => {
+        if (response.success) {
+          console.log("get transaction success:", response.result);
+          setTransaction(response.result);
+        } else {
+          console.log("fail to get transaction:", response.message);
+        }
+      });
     }
   }, [fullname, userID, auth?.token]);
 

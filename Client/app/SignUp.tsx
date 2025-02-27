@@ -66,6 +66,10 @@ export default function Index() {
         router.push("/terms_and_con");
         return;
       }
+      if(password && password.length < 8){
+        setErrorPassword("Password must longer than 8 characters!")
+        return;
+      } 
       setIsSending(true);
       const timeoutId = setTimeout(()=> {
         setIsSending(false);

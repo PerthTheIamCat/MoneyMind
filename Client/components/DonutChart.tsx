@@ -19,6 +19,10 @@ export function DonutChart({
   const AnimatedCircle = Animated.createAnimatedComponent(Circle);
   const progressValue = useSharedValue(0);
 
+  const formatPercentage = (percentage: number) => {
+    return percentage % 1 === 0 ? percentage.toFixed(0) : percentage.toFixed(2);
+  };
+
   const percentage =
     savings_goal > 0 ? (current_savings / savings_goal) * 100 : 0;
 
@@ -72,7 +76,7 @@ export function DonutChart({
         </G>
       </Svg>
       <ThemedText className=" absolute text-6xl font-bold" >
-      {percentage}%
+      {formatPercentage(percentage)}%
       </ThemedText>
     </View>
   );
