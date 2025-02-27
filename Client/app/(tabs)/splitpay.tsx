@@ -183,8 +183,8 @@ export default function SplitPay() {
   }, [bank]);
 
   return (
-    <ThemedSafeAreaView>
-      <ThemedView className="flex-col w-full h-full bg-transparent">
+    <ThemedView>
+      <ThemedView className="flex-col w-full h-full justify-center items-center">
         <ThemedView className=" flex-row !items-center !justify-between w-full px-4">
           <Image
             source={require("@/assets/logos/LOGO.png")}
@@ -304,7 +304,8 @@ export default function SplitPay() {
                 Monthly Budgets
               </ThemedText>
             </ThemedView>
-            <ThemedView className=" w-[80%] h-fit mb-12">
+            <ThemedView className="flex-row items-center justify-center bg-transparent p-1 mt-5 mb-4">
+            <ThemedView className=" w-[80%] h-fit ">
               <Pressable
                 className={`justify-center items-center rounded-3xl w-[320px] h-[280px] ${componentColor} ml-2`}
                 onPress={() => toggleOverlay(true)}
@@ -326,6 +327,7 @@ export default function SplitPay() {
                 </ThemedView>
               </Pressable>
             </ThemedView>
+          </ThemedView>
           </ThemedView>
         ) : (
           <ThemedView className="flex-col  justify-center items-center bg-transparent p-1 mt-10 mb-4">
@@ -359,180 +361,137 @@ export default function SplitPay() {
         )}
       </ThemedView>
       {isOverlayVisible && (
-        <TouchableWithoutFeedback onPress={() => toggleOverlay(false)}>
-          <View className="absolute inset-0 bg-[#00000055] flex items-center justify-end pb-1">
-            <Animated.View
+  <TouchableWithoutFeedback onPress={() => toggleOverlay(false)}>
+    <View className=" absolute inset-0 bg-[#00000055] flex-1 items-center justify-end pb-1">
+      <Animated.View
+        style={{
+          transform: [{ translateY: slideAnim }],
+          width: "100%",
+          height: 480,
+          borderTopLeftRadius: 40,
+          borderTopRightRadius: 40,
+        }}
+        className="p-6 bg-[#f2f2f2] dark:bg-[#222222] shadow-lg"
+      >
+        {/* ✅ Container หลักที่ห่อเนื้อหาทั้งหมด */}
+        <View className="h-full w-full" onStartShouldSetResponder={() => true}>
+          <View className="flex items-center">
+            {/* ✅ รูปโปรไฟล์ Budget */}
+            <View
+              className="w-28 h-28 rounded-lg flex items-center justify-center mb-6"
               style={{
-                transform: [{ translateY: slideAnim }],
-                width: "100%",
-                height: 480,
-                borderTopLeftRadius: 40,
-                borderTopRightRadius: 40,
+                backgroundColor:
+                  selectedColor || (isDarkMode ? "#2D3748" : "#D3D3D3"),
               }}
-              className="p-6 bg-[#f2f2f2] dark:bg-[#222222] shadow-lg"
             >
-              {/* ห่อเนื้อหาทั้งหมดเพื่อป้องกันการกดแล้ว Overlay ปิด */}
-              <View
-                className="h-full w-full"
-                onStartShouldSetResponder={() => true}
-              >
-                <View className="flex items-center">
-                  {/* รูปโปรไฟล์ Budget */}
-                  <View
-                    className="w-28 h-28 rounded-lg flex items-center justify-center mb-8"
-                    style={{
-                      backgroundColor:
-                        selectedColor || (isDarkMode ? "#2D3748" : "#D3D3D3"),
-                    }} // สีพื้นหลังขึ้นกับธีม
-                  >
-                    {selectedIcon ? (
-                      <MaterialIcons
-                        name={selectedIcon as any}
-                        size={42}
-                        color="white"
-                      />
-                    ) : (
-                      <Ionicons
-                        name="person-outline"
-                        size={32}
-                        color={isDarkMode ? "white" : "gray"}
-                      />
-                    )}
-                  </View>
+              {selectedIcon ? (
+                <MaterialIcons name={selectedIcon as any} size={42} color="white" />
+              ) : (
+                <Ionicons name="person-outline" size={32} color={isDarkMode ? "white" : "gray"} />
+              )}
+            </View>
 
-                  {/* เลือกสี */}
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    className="w-full"
-                  >
-                    <View className="flex-row gap-x-4 px-4">
-                      {colors.map((color, index) => (
-                        <Pressable
-                          key={index}
-                          onPress={() => setSelectedColor(color)}
-                          className={`w-8 h-8 rounded-full border-2 ${
-                            selectedColor === color
-                              ? isDarkMode
-                                ? "border-white"
-                                : "border-black"
-                              : "border-gray-500 dark:border-gray-700"
-                          }`}
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
-                    </View>
-                  </ScrollView>
-
-                  {/* เลือกไอคอน */}
-                  <View className="flex-row space-x-3 mt-4">
-                    {icons.map((icon, index) => (
-                      <Pressable
-                        key={index}
-                        onPress={() => setSelectedIcon(icon)}
-                        className="p-2"
-                      >
-                        <MaterialIcons
-                          name={icon as any}
-                          size={32}
-                          color={
-                            selectedIcon === icon
-                              ? isDarkMode
-                                ? "white"
-                                : "black"
-                              : "gray"
-                          }
-                        />
-                      </Pressable>
-                    ))}
-                  </View>
-
-                  {/* Budget Name */}
-                  <View className="w-full mt-4">
-                    <ThemedText className="font-bold text-lg text-gray-900 dark:text-white">
-                      Budget Name
-                    </ThemedText>
-                    <ThemedView className="w-full flex-row bg-transparent">
-                      <TextInput
-                        placeholder="Enter Budget Name"
-                        keyboardType="numeric"
-                        style={{
-                          backgroundColor:
-                            theme === "dark" ? "#121212" : "#D9D9D9",
-                          color: theme === "dark" ? "#FFF" : "#2F2F2F",
-                          borderRadius: 12,
-                          padding: 10,
-                        }}
-                        onChangeText={setBudgetName}
-                        placeholderTextColor={
-                          theme === "dark" ? "#888" : "#555"
-                        } // ✅ รองรับ Dark Mode
-                        className="w-full"
-                      />
-                    </ThemedView>
-                  </View>
-
-                  {/* Budget Limit */}
-                  <View className="w-full mt-4 p-4 bg-white dark:bg-[#222] rounded-lg shadow-lg">
-                    {/* Label "Limits" พร้อมช่องกรอกจำนวนเงิน */}
-                    <View className="flex-row items-center justify-between">
-                      <Text className="font-bold text-lg text-gray-900 dark:text-white">
-                        Limits
-                      </Text>
-                      <View className="w-32 h-10 p-2 bg-gray-200 dark:bg-gray-800 rounded-lg">
-                        <TextInput
-                          value={
-                            isEditing
-                              ? budgetLimit.toString()
-                              : budgetLimit.toFixed(0)
-                          }
-                          onChangeText={handleAmountChange}
-                          keyboardType="numeric"
-                          placeholder="0.00"
-                          placeholderTextColor="#AAA"
-                          className="text-right text-gray-900 dark:text-white text-lg"
-                          style={{ height: 38 }}
-                        />
-                      </View>
-                    </View>
-                    <Slider
-                      value={limit}
-                      onValueChange={handleSliderChange}
-                      minimumValue={0}
-                      maximumValue={100}
-                      step={5}
-                      className="w-full my-2"
-                    />
-                    <Text className="text-gray-600 dark:text-gray-300">
-                      {limit.toFixed(0)}% ({budgetLimit.toFixed(2)} THB)
-                    </Text>
-
-                    {/* ปุ่ม Save */}
-                    <Pressable
-                      onPress={() => toggleOverlay(false)}
-                      className="p-3 bg-gray-400 dark:bg-gray-700 rounded-lg mt-4 w-full"
-                    >
-                      <Text className="text-center font-bold text-white">
-                        Save
-                      </Text>
-                    </Pressable>
-                  </View>
-
-                  {/* ปุ่ม Save */}
+            {/* ✅ เลือกสี */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="w-full">
+              <View className="flex-row gap-x-4 px-4">
+                {colors.map((color, index) => (
                   <Pressable
-                    onPress={() => toggleOverlay(false)}
-                    className="p-3 bg-gray-400 dark:bg-gray-700 rounded-lg mt-4 w-full"
-                  >
-                    <ThemedText className="text-center font-bold text-white">
-                      Save
-                    </ThemedText>
-                  </Pressable>
+                    key={index}
+                    onPress={() => setSelectedColor(color)}
+                    className={`w-8 h-8 rounded-full border-2 ${
+                      selectedColor === color
+                        ? isDarkMode
+                          ? "border-white"
+                          : "border-black"
+                        : "border-gray-500 dark:border-gray-700"
+                    }`}
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </View>
+            </ScrollView>
+
+            {/* ✅ เลือกไอคอน */}
+            <View className="flex-row space-x-3 mt-4">
+              {icons.map((icon, index) => (
+                <Pressable key={index} onPress={() => setSelectedIcon(icon)} className="p-2">
+                  <MaterialIcons
+                    name={icon as any}
+                    size={32}
+                    color={selectedIcon === icon ? (isDarkMode ? "white" : "black") : "gray"}
+                  />
+                </Pressable>
+              ))}
+            </View>
+
+            {/* ✅ Budget Name */}
+            <View className="w-full mt-4">
+              <ThemedText className="font-bold text-lg text-gray-900 dark:text-white">
+                Budget Name
+              </ThemedText>
+              <ThemedView className="w-full flex-row bg-transparent">
+                <TextInput
+                  placeholder="Enter Budget Name"
+                  keyboardType="default"
+                  style={{
+                    backgroundColor: isDarkMode ? "#121212" : "#D9D9D9",
+                    color: isDarkMode ? "#FFF" : "#2F2F2F",
+                    borderRadius: 12,
+                    padding: 10,
+                  }}
+                  onChangeText={setBudgetName}
+                  placeholderTextColor={isDarkMode ? "#888" : "#555"} // ✅ รองรับ Dark Mode
+                  className="w-full"
+                />
+              </ThemedView>
+            </View>
+
+            {/* ✅ Limits (ไม่มีกรอบแยก) */}
+            <View className="w-full mt-4">
+              {/* Label "Limits" และช่องกรอกจำนวนเงินอยู่แถวเดียวกัน */}
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="font-bold text-lg text-gray-900 dark:text-white">Limits</Text>
+                <View className="w-32 h-10 pb-3 bg-gray-200 dark:bg-gray-800 rounded-lg">
+                  <TextInput
+                    value={isEditing ? budgetLimit.toString() : budgetLimit.toFixed(0)}
+                    onChangeText={handleAmountChange}
+                    keyboardType="numeric"
+                    placeholder="0.00"
+                    placeholderTextColor="#AAA"
+                    className="text-right text-gray-900 dark:text-white text-lg p-2"
+                    style={{ height: 38 }}
+                  />
                 </View>
               </View>
-            </Animated.View>
+
+              {/* ✅ Slider (ต่อจาก Limits) */}
+              <Slider
+                value={limit}
+                onValueChange={handleSliderChange}
+                minimumValue={0}
+                maximumValue={100}
+                step={5}
+                className="w-full my-2"
+              />
+              <Text className="text-gray-600 dark:text-gray-300">
+                {limit.toFixed(0)}% ({budgetLimit.toFixed(2)} THB)
+              </Text>
+            </View>
+
+            {/* ✅ ปุ่ม Save (เหลืออันเดียว) */}
+            <Pressable
+              onPress={() => toggleOverlay(false)}
+              className="p-3 bg-gray-400 dark:bg-gray-700 rounded-lg mt-6 w-full"
+            >
+              <Text className="text-center font-bold text-white">Save</Text>
+            </Pressable>
           </View>
-        </TouchableWithoutFeedback>
-      )}
-    </ThemedSafeAreaView>
+        </View>
+      </Animated.View>
+    </View>
+  </TouchableWithoutFeedback>
+)}
+
+    </ThemedView>
   );
 }
