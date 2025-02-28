@@ -38,7 +38,7 @@ export default function Setting() {
         <ThemedButton
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
           mode="normal"
-          onPress={() => router.push("/AccountSetting")}
+          onPress={() => router.push("../AccountSetting")}
         >
           <Feather name="circle" size={30} color={componentIcon} />
           <View className="flex-1 ml-3">
@@ -59,7 +59,7 @@ export default function Setting() {
         <ThemedButton
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
           mode="normal"
-          onPress={() => router.push("/NotificationSetting")}
+          onPress={() => router.push("../NotificationSetting")}
         >
           <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
             Notification
@@ -83,7 +83,7 @@ export default function Setting() {
         <ThemedButton
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
           mode="normal"
-          onPress={() => router.push("/IconTransaction")}
+          onPress={() => router.push("../IconTransaction")}
         >
           <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
             Icon Transaction
