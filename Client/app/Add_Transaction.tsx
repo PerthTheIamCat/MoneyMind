@@ -538,25 +538,25 @@ export default function Index() {
               </ThemedScrollView>
             </ThemedView>
 
-            <ThemedView className="flex-row w-full mt-5 mb-5 justify-start !items-start bg-transparent gap-10">
-      {/* ✅ Input สำหรับเลือกวันที่ */}
-      <ThemedView className="w-56">
-        <DateTimePickerInput
-          title="Date"
-          mode="date"
-          onConfirm={(value: string) => setSelectedDate(value)} // ✅ อัปเดตค่าเมื่อเลือก
-        />
-      </ThemedView>
+            <ThemedView className="flex-row w-full px-8 mt-5 mb-5 !justify-start !items-start bg-transparent gap-8">
+              {/* ✅ Input สำหรับเลือกวันที่ */}
+              <ThemedView className="w-56 bg-transparent">
+                <DateTimePickerInput
+                  title="Date"
+                  mode="date"
+                  onConfirm={(value: string) => setSelectedDate(value)} // ✅ อัปเดตค่าเมื่อเลือก
+                />
+              </ThemedView>
 
-      {/* ✅ Input สำหรับเลือกเวลา */}
-      <ThemedView className="w-32">
-        <DateTimePickerInput
-          title="Time"
-          mode="time"
-          onConfirm={(value: string) => setSelectedTime(value)} // ✅ อัปเดตค่าเมื่อเลือก
-        />
-      </ThemedView>
-    </ThemedView>
+              {/* ✅ Input สำหรับเลือกเวลา */}
+              <ThemedView className="w-32 bg-transparent ">
+                <DateTimePickerInput
+                  title="Time"
+                  mode="time"
+                  onConfirm={(value: string) => setSelectedTime(value)} // ✅ อัปเดตค่าเมื่อเลือก
+                />
+              </ThemedView>
+            </ThemedView>
 
             <ThemedView className="w-full px-10 mt-5 justify-center !items-start bg-transparent">
               <ThemedText
