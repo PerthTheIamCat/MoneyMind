@@ -119,6 +119,8 @@ export default function RootLayout() {
               <Stack.Screen name="Retire_form" options={{ headerTitle: "Retire" , presentation: "modal", gestureEnabled: false }} />
               <Stack.Screen name="NewPassword1" options={{headerShown : false}} />
               <Stack.Screen name="NotificationSetting" options={{headerTitle : "Notification Settings" , presentation : "modal"}}/>
+              <Stack.Screen name="IconTransaction" options={{headerTitle : "Icon Transaction" , presentation : "modal"}}/>
+              <Stack.Screen name="AccountSetting" options={{headerTitle : "Account Detail" , presentation : "modal"}}/>
             </Stack>
             <StatusBar style="auto" />
           </TermsProvider>
