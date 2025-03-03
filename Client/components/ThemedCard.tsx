@@ -8,6 +8,7 @@ import { ThemedButton } from "./ThemedButton";
 import { TouchableWithoutFeedback } from "react-native";
 import { router } from "expo-router";
 import { DeleteUserBank, GetUserBank } from "@/hooks/auth/GetUserBank";
+import { GetUserTransaction } from "@/hooks/auth/GetAllTransaction";
 import { response } from "express";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
@@ -80,7 +81,7 @@ export function ThemedCard({
   
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
-  const {userID , setBank} = useContext(UserContext);
+  const {userID , setBank,setTransaction} = useContext(UserContext);
   
 
   const locales = Localization.getLocales();
@@ -109,7 +110,15 @@ export function ThemedCard({
   const reloadBank = () => {
     GetUserBank(URL, userID!, auth?.token!).then((res) => {
       if (res.success) {
-        setBank(res.result);
+        setBank(res.result ?? []);
+
+      }
+    });
+  };
+  const reloadTransaction = () => {
+    GetUserTransaction(URL, userID!, auth?.token!).then((res) => {
+      if (res.success) {
+        setTransaction(res.result);
       }
     });
   };
@@ -132,6 +141,7 @@ export function ThemedCard({
       console.error("❌ Error deleting bank:", error);
     }
     reloadBank();
+    reloadTransaction();
   };
    
   

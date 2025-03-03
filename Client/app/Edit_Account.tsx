@@ -10,7 +10,6 @@ import { useState, useContext, useEffect } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
-import { CreateUserBank } from "@/hooks/auth/CreateUserBank";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { AuthContext } from "@/hooks/conText/AuthContext";
@@ -30,18 +29,6 @@ const colors = [
   "#577590",
   "#277DA1",
 ];
-const iconPathToRequire = (iconId: string) => {
-  switch (iconId) {
-    case "AccountIcon1":
-      return require("../assets/images/Add_Account_page_image/AccountIcon1.png");
-    case "AccountIcon2":
-      return require("../assets/images/Add_Account_page_image/AccountIcon2.png");
-    case "AccountIcon3":
-      return require("../assets/images/Add_Account_page_image/AccountIcon3.png");
-    default:
-      return require("../assets/images/Add_Account_page_image/AccountIcon1.png"); // ✅ ใช้ไอคอนแรกเป็นค่า Default
-  }
-};
 
 const AccountIconSize = [
   {
@@ -126,7 +113,7 @@ export default function edit_page() {
         account_name: AccountName,
         balance: parseFloat(AccountBalance),
         color_code: colors[selectedColor!],
-        icon_id: `AccountIcon${selectedIcon! + 1}`, // ✅ ใช้ฟอร์แมตที่ถูกต้อง
+        icon_id: `${selectedIcon!}`,
       };
   
       console.log("🔄 Updating account with data:", updatedAccount);
