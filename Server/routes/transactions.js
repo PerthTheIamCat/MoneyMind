@@ -110,6 +110,40 @@ router.post('/create', jwtValidate, (req, res) => {
     );
 });
 
+router.get('/sum_income/:id', jwtValidate, (req, res) => {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
+        return res.status(403).json({ message: 'Unauthorized user', success: false });
+    }
+
+    db.query(
+        'SELECT SUM(amount) AS total_income FROM transactions WHERE user_id = ? AND transaction_type = "income"', [req.params.id], (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+            }
+
+            return res.status(200).json({ result: result[0], message: 'Get sum income successfully', success: true });
+        }
+    )
+
+})
+
+router.get('/sum_expense/:id', jwtValidate, (req, res) => {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
+        return res.status(403).json({ message: 'Unauthorized user', success: false });
+    }
+
+    db.query(
+        'SELECT SUM(amount) AS total_expense FROM transactions WHERE user_id = ? AND transaction_type = "expense"', [req.params.id], (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+            }
+
+            return res.status(200).json({ result: result[0], message: 'Get sum expense successfully', success: true });
+        }
+    )
+
+})
+
 router.get('/:id', jwtValidate, (req, res) => {
     if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
         return res.status(403).json({ message: 'Unauthorized user', success: false });
@@ -125,7 +159,7 @@ router.get('/:id', jwtValidate, (req, res) => {
                 return res.status(404).json({ message: 'Transactions not found', success: false });
             }
 
-            return res.status(200).json({result, success: true});
+            return res.status(200).json({result, message: 'Get transaction successfully', success: true});
         }
     )
 })
