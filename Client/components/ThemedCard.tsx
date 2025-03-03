@@ -80,7 +80,7 @@ export function ThemedCard({
   
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
-  const {userID , bank} = useContext(UserContext);
+  const {userID , setBank} = useContext(UserContext);
   
 
   const locales = Localization.getLocales();
@@ -106,10 +106,17 @@ export function ThemedCard({
     setCountdownActive(true);
   };
 
+  const reloadBank = () => {
+    GetUserBank(URL, userID!, auth?.token!).then((res) => {
+      if (res.success) {
+        setBank(res.result);
+      }
+    });
+  };
 
   const confirmDelete = async () => {
     setDeleteModalVisible(false);
-  
+    
     try {
       console.log("🔍 Attempting to delete account ID:", CardID);
   
@@ -124,6 +131,7 @@ export function ThemedCard({
     } catch (error) {
       console.error("❌ Error deleting bank:", error);
     }
+    reloadBank();
   };
    
   

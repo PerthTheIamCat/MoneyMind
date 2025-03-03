@@ -204,7 +204,6 @@ export default function Index() {
             <View className="mt-0.5 mb-1 flex-row space-x-1">
               {bank
               ?.slice()
-              .sort((a,b)=> a.id-b.id)
               .map((account, index) => (
                 <ThemedCard
                   CardID={account.id}
@@ -254,11 +253,6 @@ export default function Index() {
               ) : (
                 transaction
                   .slice()
-                  .sort(
-                    (a, b) =>
-                      moment(b.transaction_date).valueOf() -
-                      moment(a.transaction_date).valueOf()
-                  )
                   .map((transaction, index, sortedArray) => {
                     const formattedDate = moment(
                       transaction.transaction_date
