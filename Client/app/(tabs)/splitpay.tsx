@@ -1,4 +1,10 @@
-import { useState, useEffect, useRef, SetStateAction } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  SetStateAction,
+  useCallback,
+} from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
@@ -67,38 +73,48 @@ export default function SplitPay() {
   const [budgetLimit, setBudgetLimit] = useState(0);
   const isDragging = useRef(false); // ✅ ใช้ตรวจสอบว่ากำลังลากอยู่หรือไม่
 
+  // ✅ ฟังก์ชันอัปเดตค่าจาก `TextInput`
+  const handleAmountChange = (text: string) => {
+    let newAmount = parseFloat(text.replace(/[^0-9.]/g, "")) || 0; // ✅ เอาเฉพาะตัวเลข
+
+    if (selectedCard) {
+      newAmount = Math.min(newAmount, selectedCard.balance); // ✅ ห้ามเกินยอดเงิน
+    }
+
+    const newLimit =
+      selectedCard && selectedCard.balance > 0
+        ? (newAmount / selectedCard.balance) * 100
+        : 0;
+
+    setBudgetLimit(newAmount);
+    setSliderValue(Math.min(newLimit, 100)); // ✅ จำกัดค่า % ไม่ให้เกิน 100
+  };
+
+  const handleSliderChange = useCallback(
+    (value: number) => {
+      setSliderValue(value); // ✅ เปลี่ยน % แบบ real-time
+      if (selectedCard) {
+        setBudgetLimit((selectedCard.balance * value) / 100); // ✅ เปลี่ยนค่าเงินให้ตรงกัน
+      }
+    },
+    [selectedCard]
+  );
+
+  // ✅ รีเซ็ตค่าทุกครั้งที่เปลี่ยนบัญชีที่เลือก
   useEffect(() => {
     if (selectedCard) {
-      setLimit(0); // เริ่มต้นที่ 50% (หรือค่าอื่นที่ต้องการ)
+      setSliderValue(0);
       setBudgetLimit((selectedCard.balance * 50) / 100);
     }
   }, [selectedCard]);
 
-  const handleAmountChange = (text: string) => {
-    isEditing.current = true; // ✅ บอกว่า TextInput กำลังถูกแก้ไข
-    let newAmount = parseFloat(text) || 0;
-    newAmount = Math.min(newAmount, selectedCard?.balance || 0); // ✅ ป้องกันค่ามากกว่ายอดเงินในบัญชี
-
-    const newLimit = selectedCard
-      ? (newAmount / selectedCard.balance) * 100
-      : 0;
-
-    setBudgetLimit(newAmount);
-    setSliderValue(newLimit); // ✅ อัปเดต % ใน Slider ด้วย
-  };
-
-  const handleSliderChange = (value: number) => {
-    isDragging.current = true; // ✅ บอกว่ากำลังลากอยู่
-    sliderValueRef.current = value; // ✅ ใช้ `useRef` กันการ re-render
-    if (selectedCard) {
-      budgetLimitRef.current = (selectedCard.balance * value) / 100; // ✅ คำนวณค่าเงินตาม %
-    }
-  };
-
   const handleSliderComplete = (value: number) => {
     isDragging.current = false; // ✅ หยุดลาก
-    setSliderValue(sliderValueRef.current); // ✅ อัปเดตค่า UI เฉพาะเมื่อปล่อยนิ้ว
-    setBudgetLimit(budgetLimitRef.current);
+
+    setSliderValue(value); // ✅ อัปเดตค่า % ตามค่าที่ปล่อยนิ้ว
+    if (selectedCard) {
+      setBudgetLimit((selectedCard.balance * value) / 100); // ✅ อัปเดตจำนวนเงินให้ตรงกัน
+    }
   };
 
   const colors = [
@@ -397,7 +413,7 @@ export default function SplitPay() {
                 <View className="flex items-center">
                   {/* ✅ รูปโปรไฟล์ Budget */}
                   <View
-                    className="w-28 h-28 rounded-lg flex items-center justify-center mb-6"
+                    className="w-28 h-28 rounded-lg flex items-center justify-center mb-4"
                     style={{
                       backgroundColor:
                         selectedColor || (isDarkMode ? "#2D3748" : "#D3D3D3"),
@@ -443,7 +459,7 @@ export default function SplitPay() {
                   </ScrollView>
 
                   {/* ✅ เลือกไอคอน */}
-                  <View className="flex-row space-x-3 mt-4">
+                  <View className="flex-row space-x-3 mt-2">
                     {icons.map((icon, index) => (
                       <Pressable
                         key={index}
@@ -495,25 +511,25 @@ export default function SplitPay() {
                         <Text className="font-bold text-lg text-gray-900 dark:text-white">
                           Limits
                         </Text>
-                        <View className="w-44 h-10 pb-3 ml-36 bg-gray-200 dark:bg-gray-800 rounded-lg">
-                          <TextInput
-                            value={
-                              isEditing.current
-                                ? budgetLimit.toString()
-                                : budgetLimit.toFixed(2)
-                            }
-                            onChangeText={handleAmountChange}
-                            keyboardType="numeric"
-                            placeholder="0.00"
-                            placeholderTextColor="#AAA"
-                            className="text-right text-gray-900 dark:text-white text-lg p-2"
-                            style={{ height: 38 }}
-                          />
+                        <View className="flex-row items-center mb-2">
+                          <View className="w-44 h-10 pb-3 ml-36 bg-gray-200 dark:bg-gray-800 rounded-lg">
+                            <TextInput
+                              value={
+                                budgetLimit > 0 ? budgetLimit.toFixed(2) : ""
+                              } // ✅ ถ้าเป็น 0 ให้ช่องว่าง
+                              onChangeText={handleAmountChange} // ✅ อัปเดตค่าทันที
+                              keyboardType="numeric"
+                              placeholder="0.00"
+                              placeholderTextColor="#AAA"
+                              className="text-right text-gray-900 dark:text-white text-lg p-2"
+                              style={{ height: 38 }}
+                            />
+                          </View>
                         </View>
                       </View>
-                      <ThemedText className="text-gray-600 dark:text-gray-300 text-sm ml-3">
+                      <Text className="text-gray-600 dark:text-gray-300 text-sm text-start ml-3">
                         THB
-                      </ThemedText>
+                      </Text>
                     </View>
 
                     {/* ✅ Slider (ต่อจาก Limits) */}
@@ -538,15 +554,14 @@ export default function SplitPay() {
                     />
 
                     <Text className="text-gray-600 dark:text-gray-300 text-sm text-start mt-2">
-                      {sliderValueRef.current.toFixed(0)}% (
-                      {budgetLimitRef.current.toFixed(2)} THB)
+                      {sliderValue.toFixed(0)}% ({budgetLimit.toFixed(2)} THB)
                     </Text>
                   </View>
 
                   {/* ✅ ปุ่ม Save (เหลืออันเดียว) */}
                   <Pressable
                     onPress={() => toggleOverlay(false)}
-                    className="p-3 bg-gray-400 dark:bg-gray-700 rounded-lg mt-6 w-full"
+                    className="p-3 bg-gray-400 dark:bg-gray-700 rounded-lg mt-4 w-full"
                   >
                     <Text className="text-center font-bold text-white">
                       Save
