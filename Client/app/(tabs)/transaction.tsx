@@ -202,23 +202,26 @@ export default function Index() {
             className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
           >
             <View className="mt-0.5 mb-1 flex-row space-x-1">
-              {bank
-              ?.slice()
-              .sort((a,b)=> a.id-b.id)
-              .map((account, index) => (
-                <ThemedCard
-                  CardID={account.id}
-                  name={account.account_name}
-                  color={account.color_code}
-                  balance={account.balance.toString()}
-                  mode="small"
-                  imageIndex={Number(account.icon_id)}
-                  onPress={() => setSelectedAccountId(account.id)}
-                  key={account.id}
-                  // image={account.icon_id}
-                  className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
-                />
-              ))}
+              {bank  && bank.length > 0 ? (
+                bank.map((account) => (
+                  <ThemedCard
+                    CardID={account.id}
+                    name={account.account_name}
+                    color={account.color_code}
+                    balance={account.balance.toString()}
+                    mode="small"
+                    imageIndex={Number(account.icon_id)}
+                    onPress={() => setSelectedAccountId(account.id)}
+                    key={account.id}
+                    // image={account.icon_id}
+                    className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+                  />
+                ))
+              ):(
+                  <ThemedView>
+                    <ThemedText>emptyaccount</ThemedText>
+                  </ThemedView>    
+              )}
             </View>
           </ThemedScrollView>
         </ThemedView>
@@ -254,11 +257,6 @@ export default function Index() {
               ) : (
                 transaction
                   .slice()
-                  .sort(
-                    (a, b) =>
-                      moment(b.transaction_date).valueOf() -
-                      moment(a.transaction_date).valueOf()
-                  )
                   .map((transaction, index, sortedArray) => {
                     const formattedDate = moment(
                       transaction.transaction_date
