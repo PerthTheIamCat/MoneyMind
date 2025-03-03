@@ -61,6 +61,7 @@ export default function Index() {
   const [time, setTime] = useState(new Date()); // เก็บค่า Time
   const [openDate, setOpenDate] = useState(false);
   const [openTime, setOpenTime] = useState(false);
+  const today = new Date();
 
   const auth = useContext(AuthContext);
   const { URL } = useContext(ServerContext);
@@ -206,24 +207,23 @@ export default function Index() {
     }
   }, [bank]);
 
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const today = new Date();
+  // ✅ เก็บวันที่และเวลาที่เลือกไว้ใน State
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedTime, setSelectedTime] = useState<Date>(new Date());
 
-  // ฟังก์ชันรับค่าและอัปเดต State
-  const handleDateChange = (date: Date) => {
-    setSelectedDate(date.toISOString().split("T")[0]); // เก็บแค่ `YYYY-MM-DD`
-    console.log("📅 Selected Date:", date.toISOString().split("T")[0]);
+  // ✅ ฟังก์ชันอัปเดตวันที่จาก DatePicker
+  const handleDateChange = (date: string) => {
+    console.log("📅 Selected Date:", date); // ✅ Log เพื่อตรวจสอบค่า
+    setSelectedDate(new Date(date));
   };
 
-  const handleTimeChange = (time: Date) => {
-    const formattedTime = time.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-    setSelectedTime(formattedTime);
-    console.log("⏰ Selected Time:", formattedTime);
+  // ✅ ฟังก์ชันอัปเดตเวลาจาก TimePicker
+  const handleTimeChange = (time: string) => {
+    console.log("⏰ Selected Time:", time); // ✅ Log เพื่อตรวจสอบค่า
+    const [hour, minute] = time.split(":"); // แยกชั่วโมงกับนาที
+    const newTime = new Date(selectedDate); // ใช้วันที่ปัจจุบัน
+    newTime.setHours(parseInt(hour, 10), parseInt(minute, 10));
+    setSelectedTime(newTime);
   };
 
   // ✅ ฟังก์ชันบันทึกหมวดหมู่ใหม่
@@ -279,7 +279,7 @@ export default function Index() {
         transaction_name: selectedIncomeCategory || selectedExpenseCategory,
         amount: Amount,
         transaction_type: isIncome ? "income" : "expense",
-        transaction_date: selectedDate!,
+        transaction_date: selectedDate.toISOString().split("T")[0],
         note: Note,
         color_code: "#FFFFFF",
       },
@@ -296,8 +296,7 @@ export default function Index() {
             transaction_name: selectedIncomeCategory || selectedExpenseCategory,
             amount: Amount,
             transaction_type: isIncome ? "income" : "expense",
-            transaction_date:
-              selectedDate || new Date().toISOString().split("T")[0],
+            transaction_date: selectedDate.toISOString().split("T")[0],
             note: Note,
             color_code: "#FFFFFF",
           },
@@ -538,22 +537,22 @@ export default function Index() {
               </ThemedScrollView>
             </ThemedView>
 
-            <ThemedView className="flex-row w-full px-8 mt-5 mb-5 !justify-start !items-start bg-transparent gap-8">
-              {/* ✅ Input สำหรับเลือกวันที่ */}
+            <ThemedView className="flex-row w-full px-8 mt-5 mb-5 !justify-start !items-start bg-transparent gap-14">
+              {/* ✅ Picker สำหรับเลือกวันที่ */}
               <ThemedView className="w-56 bg-transparent">
                 <DateTimePickerInput
                   title="Date"
                   mode="date"
-                  onConfirm={(value: string) => setSelectedDate(value)} // ✅ อัปเดตค่าเมื่อเลือก
+                  onConfirm={handleDateChange} // ✅ ใช้ฟังก์ชัน handleDateChange
                 />
               </ThemedView>
 
-              {/* ✅ Input สำหรับเลือกเวลา */}
-              <ThemedView className="w-32 bg-transparent ">
+              {/* ✅ Picker สำหรับเลือกเวลา */}
+              <ThemedView className="w-40 bg-transparent ">
                 <DateTimePickerInput
                   title="Time"
                   mode="time"
-                  onConfirm={(value: string) => setSelectedTime(value)} // ✅ อัปเดตค่าเมื่อเลือก
+                  onConfirm={handleTimeChange} // ✅ ใช้ฟังก์ชัน handleTimeChange
                 />
               </ThemedView>
             </ThemedView>
