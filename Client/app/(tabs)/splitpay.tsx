@@ -490,25 +490,30 @@ export default function SplitPay() {
                   {/* ✅ Limits (ไม่มีกรอบแยก) */}
                   <View className="w-full mt-4">
                     {/* Label "Limits" และช่องกรอกจำนวนเงินอยู่แถวเดียวกัน */}
-                    <View className="flex-row items-center justify-between mb-2">
-                      <Text className="font-bold text-lg text-gray-900 dark:text-white">
-                        Limits
-                      </Text>
-                      <View className="w-32 h-10 pb-3 bg-gray-200 dark:bg-gray-800 rounded-lg">
-                        <TextInput
-                          value={
-                            isEditing.current
-                              ? budgetLimit.toString()
-                              : budgetLimit.toFixed(0)
-                          }
-                          onChangeText={handleAmountChange}
-                          keyboardType="numeric"
-                          placeholder="0.00"
-                          placeholderTextColor="#AAA"
-                          className="text-right text-gray-900 dark:text-white text-lg p-2"
-                          style={{ height: 38 }}
-                        />
+                    <View className="flex-row items-center  mb-2">
+                      <View className="flex-row items-center  mb-2">
+                        <Text className="font-bold text-lg text-gray-900 dark:text-white">
+                          Limits
+                        </Text>
+                        <View className="w-44 h-10 pb-3 ml-36 bg-gray-200 dark:bg-gray-800 rounded-lg">
+                          <TextInput
+                            value={
+                              isEditing.current
+                                ? budgetLimit.toString()
+                                : budgetLimit.toFixed(2)
+                            }
+                            onChangeText={handleAmountChange}
+                            keyboardType="numeric"
+                            placeholder="0.00"
+                            placeholderTextColor="#AAA"
+                            className="text-right text-gray-900 dark:text-white text-lg p-2"
+                            style={{ height: 38 }}
+                          />
+                        </View>
                       </View>
+                      <ThemedText className="text-gray-600 dark:text-gray-300 text-sm ml-3">
+                        THB
+                      </ThemedText>
                     </View>
 
                     {/* ✅ Slider (ต่อจาก Limits) */}
