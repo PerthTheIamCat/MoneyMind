@@ -124,6 +124,7 @@ export default function Index() {
   const handleEditTransaction = (transactionId: number) => {
     router.push(`../Edit_Transaction?id=${transactionId}`);
   };
+
   
   const [activeCardID, setActiveCardID] = useState<number | null>(null);
 
@@ -132,6 +133,8 @@ export default function Index() {
   };
 
   const { bank, transaction } = useContext(UserContext) ?? { bank: [], transaction: [] };;
+
+
 
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
@@ -197,7 +200,15 @@ export default function Index() {
           >
             Connected
           </ThemedText>
-          <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
+          <ThemedText
+            onPress={() => {
+              console.log("Navigating to Account_Detail...");
+              router.push("/Account_Detail");
+            }}
+            className="font-bold text-[24px]"
+          >
+            Accounts
+          </ThemedText>
         </ThemedView>
         <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
           <Pressable
@@ -335,6 +346,7 @@ export default function Index() {
                   <View
                     className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}
                   >
+
                     <Pressable
                       onPress={() => { router.push("/Add_Transaction"); setIsOverlayVisible(false); setIsButtonVisible(true)}}>
                     <MaterialCommunityIcons
@@ -346,6 +358,7 @@ export default function Index() {
                     <ThemedText className="font-bold">
                       Add By Yourself
                     </ThemedText>
+
                     </Pressable>
                   </View>
                   <View

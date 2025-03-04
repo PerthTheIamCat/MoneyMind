@@ -5,9 +5,7 @@ import {
   Platform,
   UIManager,
   View,
-  TouchableOpacity,
   useColorScheme,
-  Text,
 } from "react-native";
 import * as Localization from "expo-localization";
 import { ThemedText } from "./ThemedText";
@@ -18,10 +16,11 @@ type CollapsibleSectionProps = {
   title: string;
   children: ReactNode;
   className?: string;
+  disabled?: boolean;
+  onToggle?: (isOpen: boolean) => void;
   [key: string]: any;
 };
 
-// สำหรับ Android เปิด experimental API ของ LayoutAnimation ถ้าจำเป็น
 if (
   Platform.OS === "android" &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -33,6 +32,9 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   title,
   children,
   className,
+  disabled,
+  onToggle,
+
   ...props
 }) => {
   const theme = useColorScheme();
@@ -47,45 +49,45 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   const toggleSection = () => {
+    if (disabled) return;
+
     if (isOpen) {
-      // Animate ปิด (slide up) แล้ว set state หลังจบ animation
       Animated.timing(slideAnim, {
         toValue: 0,
         duration: 300,
         easing: Easing.ease,
-        useNativeDriver: false, // animate height ต้องใช้ false
+        useNativeDriver: false,
       }).start(() => {
         setIsOpen(false);
+        onToggle && onToggle(false);
       });
     } else {
-      // set state true แล้ว animate เปิด (slide down)
       setIsOpen(true);
       Animated.timing(slideAnim, {
         toValue: 1,
         duration: 300,
         easing: Easing.ease,
         useNativeDriver: false,
-      }).start();
+      }).start(() => {
+        onToggle && onToggle(true);
+      });
     }
   };
 
-  // กำหนดค่า interpolate สำหรับ height ของ content
-  // (ปรับ outputRange ให้เหมาะกับความสูงของเนื้อหาที่ต้องการแสดง)
+  const childrenCount = React.Children.count(children) + 1;
+  const maxHeight = childrenCount * 65;
   const heightInterpolate = slideAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 150],
+    outputRange: [0, maxHeight],
   });
 
   return (
-    <View style={{ marginVertical: 8 }} {...props}>
-      <ThemedText className="text-[#2B9348] text-xl font-bold text-center">
-        Social Security Fund
+    <View style={{ marginVertical: 8, opacity: disabled ? 0.5 : 1 }} {...props}>
+      <ThemedText className="!text-[#2B9348] text-xl font-bold text-center">
+        {title}
       </ThemedText>
-      <ThemedView className=" flex-row !justify-between">
-        <ThemedView
-          key={"interest1"}
-          className="w-full flex flex-row justify-around"
-        >
+      <ThemedView className="flex-row !justify-between">
+        <ThemedView key={title} className="w-full flex flex-row justify-around">
           <View className={`bg-[${textColor}] w-[40%] h-1`} />
           <View className={`rounded-full bg-[${textColor}]`}>
             {!isOpen ? (
@@ -108,7 +110,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         </ThemedView>
       </ThemedView>
       <Animated.View style={{ height: heightInterpolate, overflow: "hidden" }}>
-        <View>{children}</View>
+        <View className="min-h-10">{children}</View>
       </Animated.View>
     </View>
   );

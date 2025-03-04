@@ -10,7 +10,9 @@ type ThemedInputProps = {
   error?: string;
   title?: string;
   unit?: string;
+  value?: string;
   placeholder?: string;
+  editable?: boolean;
   keyboardType?: KeyboardTypeOptions;
   autoComplete?: TextInputProps["autoComplete"];
   secureTextEntry?: boolean;
@@ -26,7 +28,9 @@ export function ThemedInputHorizontal({
   className,
   autoComplete,
   placeholder,
+  editable = true,
   secureTextEntry = false,
+  value,
   onChangeText,
   ...props
 }: ThemedInputProps) {
@@ -40,23 +44,25 @@ export function ThemedInputHorizontal({
     <ThemedView className={`!justify-start !items-start ${className} w-full`}>
       <ThemedView className="!justify-between  flex-row bg-transparent w-full">
         {title ? (
-          <ThemedText className="text-sm font-bold bg-transparent">
+          <ThemedText className="text-sm font-bold bg-transparent min-w-[130px]">
             {title}
           </ThemedText>
         ) : null}
-        <ThemedView className="w-52 bg-transparent mt-5">
+        <ThemedView className="bg-transparent mt-5">
           <TextInput
             placeholder={placeholder}
             keyboardType={keyboardType}
             secureTextEntry={isPasswordVisible}
             autoComplete={autoComplete}
             onChangeText={onChangeText}
-            className={`h-10 bg-[#D9D9D9] text-[#2F2F2F] rounded-xl w-full px-2`}
+            editable={editable}
+            value={value}
+            className={`h-10 bg-[#D9D9D9] text-[#2F2F2F] rounded-xl w-40 px-2`}
             {...props}
           />
           <ThemedText className="text-red-500 w-full">{error}</ThemedText>
         </ThemedView>
-        <ThemedText className="text-sm font-bold bg-transparent">
+        <ThemedText className="text-sm font-bold bg-transparent min-w-[75px]">
           {unit}
         </ThemedText>
       </ThemedView>
