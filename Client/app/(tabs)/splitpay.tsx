@@ -76,10 +76,16 @@ export default function SplitPay() {
 
   // ✅ ฟังก์ชันอัปเดตค่าจาก `TextInput`
   const handleAmountChange = (text: string) => {
-    let newAmount = parseFloat(text.replace(/[^0-9.]/g, "")) || 0; // ✅ เอาเฉพาะตัวเลข
+    if (text === "") {
+      setBudgetLimit(0);
+      setSliderValue(0);
+      return;
+    }
+
+    let newAmount = parseFloat(text.replace(/[^0-9.]/g, "")) || 0; // ✅ ป้องกัน NaN
 
     if (selectedCard) {
-      newAmount = Math.min(newAmount, selectedCard.balance); // ✅ ห้ามเกินยอดเงิน
+      newAmount = Math.min(newAmount, selectedCard.balance); // ✅ จำกัดไม่ให้เกินยอดเงิน
     }
 
     const newLimit =
@@ -88,7 +94,7 @@ export default function SplitPay() {
         : 0;
 
     setBudgetLimit(newAmount);
-    setSliderValue(Math.min(newLimit, 100)); // ✅ จำกัดค่า % ไม่ให้เกิน 100
+    setSliderValue(Math.min(newLimit, 100)); // ✅ จำกัด % ไม่ให้เกิน 100
   };
 
   const handleSliderChange = useCallback(
@@ -285,111 +291,123 @@ export default function SplitPay() {
         </ThemedView>
 
         {bank && bank.length > 0 ? (
-  <ThemedView className="flex-col w-full h-fit bg-transparent mt-10">
-    <ScrollView
-      ref={scrollViewRef}
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      snapToInterval={snapToInterval}
-      decelerationRate="fast"
-      onScroll={handleScroll}
-      scrollEventThrottle={16}
-      className="w-full"
-    >
-      <ThemedView className="w-full px-16">
-        <ThemedView className="mt-0.5 mb-1 flex-row space-x-1 gap-5">
-          {bank?.map((account: resultObject) => (
-            <Pressable
-              key={account.id}
-              onLayout={(event) => {
-                const x =
-                  event.nativeEvent.layout.x +
-                  10 +
-                  event.nativeEvent.layout.width / 2;
-                storeCardPosition(account.id, x);
-              }}
+          <ThemedView className="flex-col w-full h-fit bg-transparent mt-10">
+            <ScrollView
+              ref={scrollViewRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              snapToInterval={snapToInterval}
+              decelerationRate="fast"
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+              className="w-full"
             >
-              <ThemedView>
-                <ThemedCard
-                  CardID={account.id}
-                  name={account.account_name}
-                  color={account.color_code}
-                  balance={account.balance.toString()}
-                  mode="large"
-                  imageIndex={Number(account.icon_id)}
-                  className={`!items-center !justify-center bg-[#fefefe] rounded-lg 
+              <ThemedView className="w-full px-16">
+                <ThemedView className="mt-0.5 mb-1 flex-row space-x-1 gap-5">
+                  {bank?.map((account: resultObject) => (
+                    <Pressable
+                      key={account.id}
+                      onLayout={(event) => {
+                        const x =
+                          event.nativeEvent.layout.x +
+                          10 +
+                          event.nativeEvent.layout.width / 2;
+                        storeCardPosition(account.id, x);
+                      }}
+                    >
+                      <ThemedView>
+                        <ThemedCard
+                          CardID={account.id}
+                          name={account.account_name}
+                          color={account.color_code}
+                          balance={account.balance.toString()}
+                          mode="large"
+                          imageIndex={Number(account.icon_id)}
+                          className={`!items-center !justify-center bg-[#fefefe] rounded-lg 
                               ${
                                 selectedCard?.id === account.id
                                   ? "border-4 border-[#03A696]"
                                   : "border-0"
                               }
                             `}
-                />
+                        />
+                      </ThemedView>
+                    </Pressable>
+                  ))}
+                </ThemedView>
               </ThemedView>
-            </Pressable>
-          ))}
-        </ThemedView>
-      </ThemedView>
-    </ScrollView>
+            </ScrollView>
 
-    {/* Header Monthly Budgets */}
-    <ThemedView className="my-5 w-[80%] mt-10">
-      <ThemedText className="text-xl font-bold text-start w-full">
-        Monthly Budgets
-      </ThemedText>
-    </ThemedView>
-
-    {/* ถ้ามี Budget แสดงข้อมูล Budget, ถ้าไม่มีให้แสดงปุ่มสร้าง Budget */}
-    {BudgetID && BudgetID.id ? (
-      <ThemedText>Budget exists</ThemedText>
-    ) : (
-      <ThemedView className="flex-row items-center justify-center bg-transparent p-1 mt-5 mb-4">
-        <ThemedView className="w-[80%] h-fit">
-          <Pressable
-            className={`justify-center items-center rounded-3xl w-[370px] h-[320px] ${componentColor} ml-2`}
-            onPress={() => {
-              console.log("✅ Pressable clicked, opening overlay");
-              toggleOverlay(true);
-            }}
-          >
-            <AntDesign name="filetext1" size={70} color={componentIcon} className="m-3" />
-            <ThemedView className="bg-transparent w-56 h-18">
-              <ThemedText className="text-[#484848] dark:text-white mx-5 text-center font-bold">
-                Let’s get started with your first budget plan!
+            {/* Header Monthly Budgets */}
+            <ThemedView className="my-5 w-[80%] mt-10">
+              <ThemedText className="text-xl font-bold text-start w-full">
+                Monthly Budgets
               </ThemedText>
             </ThemedView>
-            <ThemedView className="w-12 h-12 mt-5 bg-transparent border-2 border-[#484848] dark:border-white rounded-full flex items-center justify-center">
-              <Ionicons name="add" size={24} color={componentIcon} />
+
+            {/* ถ้ามี Budget แสดงข้อมูล Budget, ถ้าไม่มีให้แสดงปุ่มสร้าง Budget */}
+            {BudgetID && BudgetID.id ? (
+              <ThemedText>Budget exists</ThemedText>
+            ) : (
+              <ThemedView className="flex-row items-center justify-center bg-transparent p-1 mt-5 mb-4">
+                <ThemedView className="w-[80%] h-fit">
+                  <Pressable
+                    className={`justify-center items-center rounded-3xl w-[370px] h-[320px] ${componentColor} ml-2`}
+                    onPress={() => {
+                      console.log("✅ Pressable clicked, opening overlay");
+                      toggleOverlay(true);
+                    }}
+                  >
+                    <AntDesign
+                      name="filetext1"
+                      size={70}
+                      color={componentIcon}
+                      className="m-3"
+                    />
+                    <ThemedView className="bg-transparent w-56 h-18">
+                      <ThemedText className="text-[#484848] dark:text-white mx-5 text-center font-bold">
+                        Let’s get started with your first budget plan!
+                      </ThemedText>
+                    </ThemedView>
+                    <ThemedView className="w-12 h-12 mt-5 bg-transparent border-2 border-[#484848] dark:border-white rounded-full flex items-center justify-center">
+                      <Ionicons name="add" size={24} color={componentIcon} />
+                    </ThemedView>
+                  </Pressable>
+                </ThemedView>
+              </ThemedView>
+            )}
+          </ThemedView>
+        ) : (
+          // ไม่มีบัญชี แสดงปุ่มให้เพิ่มบัญชี
+          <ThemedView className="flex-col justify-center items-center bg-transparent p-1 mt-10 mb-4">
+            <Pressable
+              className={`${componentColor} flex-col w-[280px] h-[180px] rounded-2xl justify-center items-center p-4`}
+              onPress={() => router.push("/AddAccount")}
+            >
+              <ThemedView className="w-12 h-12 bg-[#949494] dark:bg-[#383838] rounded-full flex items-center justify-center">
+                <Ionicons name="add" size={24} color="white" />
+              </ThemedView>
+              <ThemedText className="text-[#484848] dark:text-white text-center text-[18px] font-bold mt-5">
+                Add Account
+              </ThemedText>
+            </Pressable>
+            <ThemedView className="flex-row items-center pt-[10%]">
+              <ThemedView
+                className={`justify-center items-center rounded-[10%] w-[340px] h-[220px] ${componentColor} ml-2`}
+              >
+                <AntDesign
+                  name="filetext1"
+                  size={70}
+                  color={componentIcon}
+                  className="m-3"
+                />
+                <ThemedText className="text-[#484848] dark:text-white mx-5 text-center font-bold">
+                  Please create an account to proceed with your transaction.
+                </ThemedText>
+              </ThemedView>
             </ThemedView>
-          </Pressable>
-        </ThemedView>
-      </ThemedView>
-    )}
-  </ThemedView>
-) : (
-  // ไม่มีบัญชี แสดงปุ่มให้เพิ่มบัญชี
-  <ThemedView className="flex-col justify-center items-center bg-transparent p-1 mt-10 mb-4">
-    <Pressable
-      className={`${componentColor} flex-col w-[280px] h-[180px] rounded-2xl justify-center items-center p-4`}
-      onPress={() => router.push("/AddAccount")}
-    >
-      <ThemedView className="w-12 h-12 bg-[#949494] dark:bg-[#383838] rounded-full flex items-center justify-center">
-        <Ionicons name="add" size={24} color="white" />
-      </ThemedView>
-      <ThemedText className="text-[#484848] dark:text-white text-center text-[18px] font-bold mt-5">
-        Add Account
-      </ThemedText>
-    </Pressable>
-    <ThemedView className="flex-row items-center pt-[10%]">
-      <ThemedView className={`justify-center items-center rounded-[10%] w-[340px] h-[220px] ${componentColor} ml-2`}>
-        <AntDesign name="filetext1" size={70} color={componentIcon} className="m-3" />
-        <ThemedText className="text-[#484848] dark:text-white mx-5 text-center font-bold">
-          Please create an account to proceed with your transaction.
-        </ThemedText>
-      </ThemedView>
-    </ThemedView>
-  </ThemedView>
-)}
+          </ThemedView>
+        )}
       </ThemedView>
       {isOverlayVisible && (
         <TouchableWithoutFeedback onPress={() => toggleOverlay(false)}>
@@ -513,10 +531,8 @@ export default function SplitPay() {
                         <View className="flex-row items-center mb-2">
                           <View className="w-44 h-10 pb-3 ml-36 bg-gray-200 dark:bg-gray-800 rounded-lg">
                             <TextInput
-                              value={
-                                budgetLimit > 0 ? budgetLimit.toFixed(2) : ""
-                              } // ✅ ถ้าเป็น 0 ให้ช่องว่าง
-                              onChangeText={handleAmountChange} // ✅ อัปเดตค่าทันที
+                              value={budgetLimit?.toString() || ""} // ✅ ป้องกัน NaN
+                              onChangeText={handleAmountChange} // ✅ ใช้ฟังก์ชันที่แก้ไขแล้ว
                               keyboardType="numeric"
                               placeholder="0.00"
                               placeholderTextColor="#AAA"
