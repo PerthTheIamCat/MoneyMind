@@ -3,6 +3,7 @@ import axios from "axios";
 interface NotificationSetting{
     user_id : number,
     settingList : boolean[]
+    update : string
 }
 
 interface NotificationResponse{
@@ -23,9 +24,14 @@ interface NotificationError{
 export const NotificationsPostHandler = async (
     url : string,
     data : NotificationSetting,
+    token : string
 ): Promise<NotificationResponse | NotificationError["response"]["data"]> => {
     try {
-        const response = await axios.post<NotificationResponse>(`${url}/notifications/create`,data);
+        const response = await axios.post<NotificationResponse>(`${url}/notifications/create`, data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         return response.data;
     } catch (error) {
         return (error as NotificationError).response.data
