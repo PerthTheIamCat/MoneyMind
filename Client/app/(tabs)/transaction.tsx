@@ -4,7 +4,7 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { Image } from "expo-image";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView, KeyboardAvoidingView ,Platform, Keyboard} from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { router } from "expo-router";
@@ -125,10 +125,16 @@ export default function Index() {
     router.push(`../Edit_Transaction?id=${transactionId}`);
   };
 
-  const { bank, transaction } = useContext(UserContext) ?? {
-    bank: [],
-    transaction: [],
+  
+  const [activeCardID, setActiveCardID] = useState<number | null>(null);
+
+  const handleToggleOptions = (cardID: number) => {
+    setActiveCardID((prevID) => (prevID === cardID ? null : cardID));
   };
+
+  const { bank, transaction } = useContext(UserContext) ?? { bank: [], transaction: [] };;
+
+
 
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
@@ -156,7 +162,11 @@ export default function Index() {
   }, [isOverlayVisible]);
 
   return (
-    <>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={{ flex: 1 }}
+    >
+      <TouchableWithoutFeedback onPress={() => setActiveCardID(null)}>
       <ThemedSafeAreaView>
         <ThemedView
           className={`${componenticon} flex-row items-center justify-between px-4`}
@@ -216,16 +226,15 @@ export default function Index() {
               {bank  && bank.length > 0 ? (
                 bank.map((account) => (
                   <ThemedCard
-                    CardID={account.id}
-                    name={account.account_name}
-                    color={account.color_code}
-                    balance={account.balance.toString()}
-                    mode="small"
-                    imageIndex={Number(account.icon_id)}
-                    onPress={() => setSelectedAccountId(account.id)}
-                    key={account.id}
-                    // image={account.icon_id}
-                    className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+                  key={account.id}
+                  CardID={account.id}
+                  name={account.account_name}
+                  color={account.color_code}
+                  balance={account.balance.toString()}
+                  mode="small"
+                  imageIndex={Number(account.icon_id)}
+                  isOptionsVisible={activeCardID === account.id}
+                  setOptionsVisible={() => handleToggleOptions(account.id)}
                   />
                 ))
               ):(
@@ -262,7 +271,7 @@ export default function Index() {
                           lastDate = formattedDate; */}
 
               {!transaction || transaction.length === 0 ? (
-                <ThemedText className="text-center items-center !ustify-center text-xl mt-20 text-neutral-500 py-4">
+                <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
                   No transactions available
                 </ThemedText>
               ) : (
@@ -305,8 +314,6 @@ export default function Index() {
             </View>
           </ThemedView>
         </ScrollView>
-      </ThemedSafeAreaView>
-
       {isOverlayVisible && (
         <TouchableWithoutFeedback
           onPress={() => {
@@ -388,6 +395,8 @@ export default function Index() {
           </View>
         </Pressable>
       )}
-    </>
+    </ThemedSafeAreaView>
+    </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
