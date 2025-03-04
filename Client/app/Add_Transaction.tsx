@@ -19,20 +19,21 @@ import {
   TextInput,
   useColorScheme,
 } from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedInput } from "@/components/ThemedInput";
 import { router } from "expo-router";
 import DropdownComponent from "@/components/Dropdown";
 import { ThemedScrollViewCenter } from "@/components/ThemedScrollViewCenter";
 import Icon from "react-native-vector-icons/Feather";
-import DateTimePickerInput from "@/components/Date_and_Time";
-import CustomDateTimePicker from "@/components/Date_and_Time";
+// import DateTimePickerInput from "@/components/Date_and_Time";
+// import CustomDateTimePicker from "@/components/Date_and_Time";
 import { GetUserBank, resultObject } from "@/hooks/auth/GetUserBank";
 import { th } from "react-native-paper-dates";
 import CustomPaperDatePicker from "@/components/Date_and_Time";
 import { GetUserTransaction } from "@/hooks/auth/GetAllTransaction";
 import { transform } from "@babel/core";
-import DatePicker from "react-native-date-picker";
+// import DatePicker from "react-native-date-picker";
 
 type ThemedInputProps = {
   className?: string;
@@ -45,22 +46,43 @@ type ThemedInputProps = {
 };
 
 export default function Index() {
-  const { bank, setTransaction,setBank, transaction, userID } = useContext(UserContext);
+  const { bank, setTransaction, setBank, transaction, userID } =
+    useContext(UserContext);
   const theme = useColorScheme();
   const [isIncome, setIsIncome] = useState(true);
   // หมวดหมู่ของ Income และ Expense พร้อมโลโก้
   const [selectedIncomeCategory, setSelectedIncomeCategory] = useState("");
   const [selectedExpenseCategory, setSelectedExpenseCategory] = useState("");
-  const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] =useState(false);
+  const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] =
+    useState(false);
   const [Amount, setAmount] = useState(0);
   const [Note, setNote] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("plus");
-  const [date, setDate] = useState(new Date()); // เก็บค่า Date
-  const [time, setTime] = useState(new Date()); // เก็บค่า Time
+  const [date, setDate] = useState(new Date().getTime() + 7 * 60 * 60 * 1000); // เก็บค่า Date
+  const [time, setTime] = useState(new Date().getTime()); // เก็บค่า Time
   const [openDate, setOpenDate] = useState(false);
   const [openTime, setOpenTime] = useState(false);
   const today = new Date();
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const showDatePicker = () => setDatePickerVisibility(true);
+  const showTimePicker = () => setOpenTime(true);
+  const hideDatePicker = () => setDatePickerVisibility(false);
+  const hideTimePicker = () => setOpenTime(false);
+
+  const handleDateConfirm = (date: Date) => {
+    console.log("A date has been picked: ", date);
+    const localDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+    setSelectedDate(localDate);
+    hideDatePicker();
+  };
+  const handleTimeConfirm = (date: Date) => {
+    console.log("A date has been picked: ", date);
+    const localDate = new Date(date.getTime());
+    setSelectedTime(localDate);
+    hideTimePicker();
+  };
 
   const auth = useContext(AuthContext);
   const { URL } = useContext(ServerContext);
@@ -253,13 +275,13 @@ export default function Index() {
   };
 
   const saveTransaction = () => {
-    console.log(userID!)
-    console.log(selectedCard?.id)
-    console.log( isIncome ? selectedIncomeCategory : selectedExpenseCategory)
-    console.log(Amount)
-    console.log(isIncome ? "income" : "expense")
-    console.log(selectedDate.toISOString().split("T")[0])
-    console.log(Note)
+    console.log(userID!);
+    console.log(selectedCard?.id);
+    console.log(isIncome ? selectedIncomeCategory : selectedExpenseCategory);
+    console.log(Amount);
+    console.log(isIncome ? "income" : "expense");
+    console.log(selectedDate.toISOString().split("T")[0]);
+    console.log(Note);
     if (!selectedCard) {
       console.log("⚠️ No selectedCard, using default account");
       return;
@@ -286,7 +308,9 @@ export default function Index() {
         user_id: userID!,
         account_id: selectedCard?.id,
         split_payment_id: 0,
-        transaction_name: isIncome ? selectedIncomeCategory : selectedExpenseCategory,
+        transaction_name: isIncome
+          ? selectedIncomeCategory
+          : selectedExpenseCategory,
         amount: Amount,
         transaction_type: isIncome ? "income" : "expense",
         transaction_date: selectedDate.toISOString().split("T")[0],
@@ -303,7 +327,9 @@ export default function Index() {
             user_id: userID!,
             account_id: selectedCard?.id,
             split_payment_id: 0,
-            transaction_name: isIncome ? selectedIncomeCategory : selectedExpenseCategory,
+            transaction_name: isIncome
+              ? selectedIncomeCategory
+              : selectedExpenseCategory,
             amount: Amount,
             transaction_type: isIncome ? "income" : "expense",
             transaction_date: selectedDate.toISOString().split("T")[0],
@@ -320,103 +346,103 @@ export default function Index() {
     });
   };
 
-  const AddCategory = () =>{
-    return(  
+  const AddCategory = () => {
+    return (
       <ThemedView
-      className={`flex-1 items-center justify-center ${
-        theme === "dark" ? "bg-black/80" : "bg-black/50"
-      }`}
+        className={`flex-1 items-center justify-center ${
+          theme === "dark" ? "bg-black/80" : "bg-black/50"
+        }`}
       >
-          <ThemedView
-            className={`w-4/5 p-6 rounded-3xl shadow-lg ${
-              theme === "dark" ? "bg-[#2F2F2F]" : "bg-white"
+        <ThemedView
+          className={`w-4/5 p-6 rounded-3xl shadow-lg ${
+            theme === "dark" ? "bg-[#2F2F2F]" : "bg-white"
+          }`}
+        >
+          <ThemedText
+            className={`text-xl font-bold mb-3 ${
+              theme === "dark" ? "text-white" : "text-black"
             }`}
-            >
-            <ThemedText
-              className={`text-xl font-bold mb-3 ${
-                theme === "dark" ? "text-white" : "text-black"
-              }`}
-              >
-              Add New Category
-            </ThemedText>
+          >
+            Add New Category
+          </ThemedText>
 
-            {/* Input ชื่อหมวดหมู่ */}
-            <ThemedText
-              className={`text-lg font-semibold mb-2 ${
-                theme === "dark" ? "text-white" : "text-black"
-              }`}
-              >
-              Category Name
-            </ThemedText>
-            <TextInput
-              placeholder="Enter category name"
-              value={newCategoryName}
-              onChangeText={setNewCategoryName}
-              className={`border ${
-                theme === "dark"
+          {/* Input ชื่อหมวดหมู่ */}
+          <ThemedText
+            className={`text-lg font-semibold mb-2 ${
+              theme === "dark" ? "text-white" : "text-black"
+            }`}
+          >
+            Category Name
+          </ThemedText>
+          <TextInput
+            placeholder="Enter category name"
+            value={newCategoryName}
+            onChangeText={setNewCategoryName}
+            className={`border ${
+              theme === "dark"
                 ? "border-gray-600 text-white"
                 : "border-gray-300"
-              } rounded-lg p-3 mb-4 w-full`}
-              placeholderTextColor={theme === "dark" ? "#BBB" : "#777"}
-              style={{
-                backgroundColor: theme === "dark" ? "#222" : "#FFF",
-              }}
-              />
+            } rounded-lg p-3 mb-4 w-full`}
+            placeholderTextColor={theme === "dark" ? "#BBB" : "#777"}
+            style={{
+              backgroundColor: theme === "dark" ? "#222" : "#FFF",
+            }}
+          />
 
-            {/* เลือกไอคอน */}
-            <ThemedText
-              className={`text-lg font-semibold mb-2 ${
-                theme === "dark" ? "text-white" : "text-black"
-              }`}
-              >
-              Select Icon
-            </ThemedText>
-            <ScrollView
-              horizontal
-              className="flex-row gap-2"
-              showsHorizontalScrollIndicator={false}
-              >
-              {iconList.map((icon) => (
-                <Pressable
+          {/* เลือกไอคอน */}
+          <ThemedText
+            className={`text-lg font-semibold mb-2 ${
+              theme === "dark" ? "text-white" : "text-black"
+            }`}
+          >
+            Select Icon
+          </ThemedText>
+          <ScrollView
+            horizontal
+            className="flex-row gap-2"
+            showsHorizontalScrollIndicator={false}
+          >
+            {iconList.map((icon) => (
+              <Pressable
                 key={icon}
                 onPress={() => setSelectedIcon(icon)}
                 className={`p-3 m-1 rounded-full ${
-                    selectedIcon === icon
+                  selectedIcon === icon
                     ? "bg-green-500"
                     : theme === "dark"
                     ? "bg-gray-400"
                     : "bg-gray-200"
-                  }`}
-                  >
-                  <Icon
-                    name={icon}
-                    size={24}
-                    color={selectedIcon === icon ? "white" : "black"}
-                    />
-                </Pressable>
-              ))}
-            </ScrollView>
+                }`}
+              >
+                <Icon
+                  name={icon}
+                  size={24}
+                  color={selectedIcon === icon ? "white" : "black"}
+                />
+              </Pressable>
+            ))}
+          </ScrollView>
 
-            {/* ปุ่ม Save & Cancel */}
-            <ThemedView className="flex-row justify-between mt-10 gap-8 bg-transparent">
-              <ThemedButton
-                className="bg-gray-400 h-11 w-28"
-                onPress={() => setIsAddCategoryModalVisible(false)}
-                >
-                <ThemedText>Cancel</ThemedText>
-              </ThemedButton>
+          {/* ปุ่ม Save & Cancel */}
+          <ThemedView className="flex-row justify-between mt-10 gap-8 bg-transparent">
+            <ThemedButton
+              className="bg-gray-400 h-11 w-28"
+              onPress={() => setIsAddCategoryModalVisible(false)}
+            >
+              <ThemedText>Cancel</ThemedText>
+            </ThemedButton>
 
-              <ThemedButton
-                className="bg-green-500 h-11 w-28"
-                onPress={onSaveCategory} // ✅ เรียกฟังก์ชันเพิ่มหมวดหมู่
-                >
-                <ThemedText>Save</ThemedText>
-              </ThemedButton>
-            </ThemedView>
+            <ThemedButton
+              className="bg-green-500 h-11 w-28"
+              onPress={onSaveCategory} // ✅ เรียกฟังก์ชันเพิ่มหมวดหมู่
+            >
+              <ThemedText>Save</ThemedText>
+            </ThemedButton>
           </ThemedView>
         </ThemedView>
+      </ThemedView>
     );
-  }
+  };
 
   return (
     <ThemedView className="w-full !h-full flex-1">
@@ -489,176 +515,188 @@ export default function Index() {
               theme === "dark" ? "bg-[#1f1f1f]" : "bg-[#ffffff]"
             } mt-2  !justify-start !items-start w-full  rounded-t-[30px] `}
           >
-          <ThemedView className="w-full bg-transparent">
-            <ThemedView className="flex-row px-10 w-fit h-12 rounded-sm p-1 mt-5 mb-4 bg-transparent">
-              <Pressable
-                onPress={() => setIsIncome(true)}
-                className={`w-32 h-full flex items-center justify-center rounded-2xl ${
-                  isIncome ? "bg-green-500" : "bg-transparent"
-                }`}
-              >
-                <ThemedText
-                  className={`font-bold ${
-                    isIncome
-                      ? "text-white"
-                      : theme === "dark"
-                      ? "text-white"
-                      : "text-black"
-                  }`}
-                >
-                  Income
-                </ThemedText>
-              </Pressable>
-              <Pressable
-                onPress={() => setIsIncome(false)}
-                className={`w-32 h-full flex items-center justify-center rounded-2xl ${
-                  !isIncome ? "bg-red-500" : "bg-transparent"
-                }`}
-              >
-                <ThemedText
-                  className={`font-bold ${
-                    !isIncome
-                      ? "text-white"
-                      : theme === "dark"
-                      ? "text-white"
-                      : "text-black"
-                  }`}
-                >
-                  Expense
-                </ThemedText>
-              </Pressable>
-            </ThemedView>
-          </ThemedView>
-
-          <ThemedView className="w-full px-10  bg-transparent">
-            <ThemedText className="text-xl font-bold w-full !bg-transparent">
-              Select Budget Plan
-            </ThemedText>
             <ThemedView className="w-full bg-transparent">
-              <DropdownComponent />
-            </ThemedView>
-          </ThemedView>
-
-          <ThemedView className="mt-1 w-full  justify-center !items-start bg-transparent">
-            <ThemedText className="font-bold px-10 text-[16px]">
-              Category
-            </ThemedText>
-
-            {/* Scroll แนวนอน แต่แบ่ง 2 แถว */}
-            <ThemedScrollView
-              horizontal
-              className="h-[90px] w-full mt-3 py-2 bg-transparent"
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                flexDirection: "column",
-                rowGap: 4, // ลดช่องว่างระหว่างแถว
-                alignItems: "center", // จัดให้แถว 1 และ 2 เริ่มใกล้กันมากขึ้น
-              }}
-            >
-              {/* 2 แถวแน่นอน */}
-              {categoryRows.map((row, rowIndex) => (
-                <ThemedView
-                  key={rowIndex}
-                  className="flex-row mr-4 ml-10 mb-2 gap-4 bg-transparent"
+              <ThemedView className="flex-row px-10 w-fit h-12 rounded-sm p-1 mt-5 mb-4 bg-transparent">
+                <Pressable
+                  onPress={() => setIsIncome(true)}
+                  className={`w-32 h-full flex items-center justify-center rounded-2xl ${
+                    isIncome ? "bg-green-500" : "bg-transparent"
+                  }`}
                 >
-                  {row.map((category, index) => (
-                    <Pressable
-                      key={`${category.name}-${index}`}
-                      onPress={() => {
-                        console.log(category.name)
-                        if (category.name === "add") {
-                          setIsAddCategoryModalVisible(true);
-                        } else {
-                          if (isIncome) {
-                            setSelectedIncomeCategory(category.name);
+                  <ThemedText
+                    className={`font-bold ${
+                      isIncome
+                        ? "text-white"
+                        : theme === "dark"
+                        ? "text-white"
+                        : "text-black"
+                    }`}
+                  >
+                    Income
+                  </ThemedText>
+                </Pressable>
+                <Pressable
+                  onPress={() => setIsIncome(false)}
+                  className={`w-32 h-full flex items-center justify-center rounded-2xl ${
+                    !isIncome ? "bg-red-500" : "bg-transparent"
+                  }`}
+                >
+                  <ThemedText
+                    className={`font-bold ${
+                      !isIncome
+                        ? "text-white"
+                        : theme === "dark"
+                        ? "text-white"
+                        : "text-black"
+                    }`}
+                  >
+                    Expense
+                  </ThemedText>
+                </Pressable>
+              </ThemedView>
+            </ThemedView>
+
+            <ThemedView className="w-full px-10  bg-transparent">
+              <ThemedText className="text-xl font-bold w-full !bg-transparent">
+                Select Budget Plan
+              </ThemedText>
+              <ThemedView className="w-full bg-transparent">
+                <DropdownComponent />
+              </ThemedView>
+            </ThemedView>
+
+            <ThemedView className="mt-1 w-full  justify-center !items-start bg-transparent">
+              <ThemedText className="font-bold px-10 text-[16px]">
+                Category
+              </ThemedText>
+
+              {/* Scroll แนวนอน แต่แบ่ง 2 แถว */}
+              <ThemedScrollView
+                horizontal
+                className="h-[90px] w-full mt-3 py-2 bg-transparent"
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{
+                  flexDirection: "column",
+                  rowGap: 4, // ลดช่องว่างระหว่างแถว
+                  alignItems: "center", // จัดให้แถว 1 และ 2 เริ่มใกล้กันมากขึ้น
+                }}
+              >
+                {/* 2 แถวแน่นอน */}
+                {categoryRows.map((row, rowIndex) => (
+                  <ThemedView
+                    key={rowIndex}
+                    className="flex-row mr-4 ml-10 mb-2 gap-4 bg-transparent"
+                  >
+                    {row.map((category, index) => (
+                      <Pressable
+                        key={`${category.name}-${index}`}
+                        onPress={() => {
+                          console.log(category.name);
+                          if (category.name === "add") {
+                            setIsAddCategoryModalVisible(true);
                           } else {
-                            setSelectedExpenseCategory(category.name);
+                            if (isIncome) {
+                              setSelectedIncomeCategory(category.name);
+                            } else {
+                              setSelectedExpenseCategory(category.name);
+                            }
                           }
-                        }
-                      }}
-                      className={`px-4 py-2 rounded-lg flex-shrink-0 flex-row items-center gap-4
+                        }}
+                        className={`px-4 py-2 rounded-lg flex-shrink-0 flex-row items-center gap-4
                       ${
                         category.name === "add"
                           ? `${
-                              theme === "dark"
-                                ? "bg-[#141212]"
-                                : "bg-[#D9D9D9]"
+                              theme === "dark" ? "bg-[#141212]" : "bg-[#D9D9D9]"
                             } w-28 h-10 flex items-center justify-center`
-                          : category.name === (isIncome? selectedIncomeCategory: selectedExpenseCategory)? 
-                          isIncome
+                          : category.name ===
+                            (isIncome
+                              ? selectedIncomeCategory
+                              : selectedExpenseCategory)
+                          ? isIncome
                             ? "bg-green-700 text-white" // ✅ สีเข้มขึ้นเมื่อถูกเลือก (Income)
                             : "bg-red-700 text-white" // ✅ สีเข้มขึ้นเมื่อถูกเลือก (Expense)
                           : theme === "dark"
                           ? "bg-[#141212] text-white"
                           : "bg-[#D9D9D9] text-black"
                       }`}
-                      style={{
-                        flexBasis: "auto",
-                        minWidth: 90,
-                        paddingHorizontal: 12,
-                      }}
-                    >
-                      {category.name === "add" ? (
-                        <Icon
-                          name={category.icon}
-                          size={24}
-                          color={theme === "dark" ? "white" : "black"}
-                        />
-                      ) : (
-                        <>
+                        style={{
+                          flexBasis: "auto",
+                          minWidth: 90,
+                          paddingHorizontal: 12,
+                        }}
+                      >
+                        {category.name === "add" ? (
                           <Icon
                             name={category.icon}
-                            size={18}
-                            color={
-                              category.name ===
-                              (isIncome
-                                ? selectedIncomeCategory
-                                : selectedExpenseCategory)
-                                ? "white"
-                                : theme === "dark"
-                                ? "white"
-                                : "black"
-                            }
+                            size={24}
+                            color={theme === "dark" ? "white" : "black"}
                           />
-                          <ThemedText
-                            className={`font-bold ${
-                              category.name ===
-                              (isIncome
-                                ? selectedIncomeCategory
-                                : selectedExpenseCategory)
-                                ? "text-white"
-                                : theme === "dark"
-                                ? "text-white"
-                                : "black"
-                            }`}
-                          >
-                            {category.name}
-                          </ThemedText>
-                        </>
-                      )}
-                    </Pressable>
-                  ))}
-                </ThemedView>
-              ))}
-            </ThemedScrollView>
-          </ThemedView>
+                        ) : (
+                          <>
+                            <Icon
+                              name={category.icon}
+                              size={18}
+                              color={
+                                category.name ===
+                                (isIncome
+                                  ? selectedIncomeCategory
+                                  : selectedExpenseCategory)
+                                  ? "white"
+                                  : theme === "dark"
+                                  ? "white"
+                                  : "black"
+                              }
+                            />
+                            <ThemedText
+                              className={`font-bold ${
+                                category.name ===
+                                (isIncome
+                                  ? selectedIncomeCategory
+                                  : selectedExpenseCategory)
+                                  ? "text-white"
+                                  : theme === "dark"
+                                  ? "text-white"
+                                  : "black"
+                              }`}
+                            >
+                              {category.name}
+                            </ThemedText>
+                          </>
+                        )}
+                      </Pressable>
+                    ))}
+                  </ThemedView>
+                ))}
+              </ThemedScrollView>
+            </ThemedView>
 
-            <ThemedView className="flex-row w-full px-8 mt-5 mb-5 !justify-start !items-start bg-transparent gap-14">
-              {/* ✅ Picker สำหรับเลือกวันที่ */}
-              <ThemedView className="w-56 bg-transparent">
-                <DateTimePickerInput
-                  title="Date"
-                  mode="date"
-                  onConfirm={handleDateChange} // ✅ ใช้ฟังก์ชัน handleDateChange
+            <ThemedView className="flex-row w-full px-8 mt-5 mb-5 !justify-around bg-transparent">
+              <ThemedView className="w-40 bg-transparent">
+                <ThemedInput
+                  className="w-full"
+                  title="date"
+                  error=""
+                  value={`${selectedDate.toLocaleDateString("th-TH", {
+                    year: "numeric",
+                    month: "numeric",
+                    day: "numeric",
+                    timeZone: "Asia/Bangkok",
+                  })}`}
+                  onPress={showDatePicker}
                 />
               </ThemedView>
-
-              {/* ✅ Picker สำหรับเลือกเวลา */}
-              <ThemedView className="w-40 bg-transparent ">
-                <DateTimePickerInput
-                  title="Time"
-                  mode="time"
-                  onConfirm={handleTimeChange} // ✅ ใช้ฟังก์ชัน handleTimeChange
+              <ThemedView className="w-40 bg-transparent">
+                <ThemedInput
+                  className="w-full"
+                  title="time"
+                  error=""
+                  value={`${selectedTime.toLocaleTimeString("th-TH", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                    timeZone: "Asia/Bangkok",
+                  })}`}
+                  onPress={showTimePicker}
                 />
               </ThemedView>
             </ThemedView>
@@ -734,34 +772,32 @@ export default function Index() {
         animationType={Platform.OS === "ios" ? "none" : "fade"}
         onRequestClose={() => setIsAddCategoryModalVisible(false)}
       >
-        <AddCategory/>
+        <AddCategory />
       </Modal>
 
-      <DatePicker
-        modal
-        open={openDate}
-        date={date}
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
         mode="date"
-        maximumDate={today} // ไม่ให้เลือกวันอนาคต
-        onConfirm={(date) => {
-          setOpenDate(false);
-          setDate(date);
-        }}
-        onCancel={() => setOpenDate(false)}
+        onConfirm={handleDateConfirm}
+        onCancel={hideDatePicker}
+        is24Hour={true}
+        date={today}
+        minimumDate={today}
+        timeZoneName="Asia/Bangkok"
+        locale="th-TH"
       />
 
       {/* Time Picker (เลือกเวลาเกิด) - จำกัดไม่ให้เลือกเวลานาคตของวันนี้ */}
-      <DatePicker
-        modal
-        open={openTime}
-        date={time}
+      <DateTimePickerModal
+        isVisible={openTime}
         mode="time"
-        maximumDate={today} // จำกัดเวลาไม่ให้เกินเวลาปัจจุบันของวันนี้
-        onConfirm={(time) => {
-          setOpenTime(false);
-          setTime(time);
-        }}
-        onCancel={() => setOpenTime(false)}
+        onConfirm={handleTimeConfirm}
+        onCancel={hideTimePicker}
+        is24Hour={true}
+        date={today}
+        minimumDate={today}
+        timeZoneName="Asia/Bangkok"
+        locale="th-TH"
       />
     </ThemedView>
   );
