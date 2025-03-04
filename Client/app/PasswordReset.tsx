@@ -35,6 +35,10 @@ export default function PasswordRecovery() {
       setErrorPassword("");
     }
 
+    if(password.length < 8){
+      setErrorPassword("Password must longer than 8 characters!")
+    } 
+
     if (!confirmPassword) {
       setErrorConfirmPassword("Confirm your password");
       return;
@@ -61,8 +65,6 @@ export default function PasswordRecovery() {
       if (response.success) {
         Alert.alert("Success", "Password reset successfully!");
         router.replace("/SignIn");
-      } else {
-        Alert.alert("Error", response.message);
       }
     } catch (error) {
       Alert.alert("Error", "Something went wrong. Try again.");

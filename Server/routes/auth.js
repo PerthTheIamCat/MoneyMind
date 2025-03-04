@@ -190,10 +190,23 @@ router.post('/register', (req, res) => {
             
                                 console.log(UserID, username, email)
             
-                                const accessToken = jwtAccessTokenGenrate(UserID, username, email)
-            
-                                console.log('User created')
-                                return res.status(201).json({ accessToken, message: 'User created', success: true})
+                                db.query(
+                                    'INSERT INTO user_setting (user_id) VALUES (?)',
+                                    [UserID],
+                                    (err, result) => {
+                                        if (err) {
+                                            console.error('Error inserting user settings:', err);
+                                            return res.status(500).json({ message: 'Failed to insert user settings', error: err.message, success: false });
+                                        }
+
+                                        console.log('User settings created');
+                                        const accessToken = jwtAccessTokenGenrate(UserID, username, email);
+
+                                        console.log('User created');
+                                        return res.status(201).json({ accessToken, message: 'User created successfully', success: true });
+                                    }
+                                );
+                            
                             })
                         })
                     }
@@ -240,7 +253,7 @@ router.post('/login', (req, res) => {
             const UserID = userOrEmail === "email" ? await getUserIDbyemail(input) : await getUserIDbyusername(input);
 
             const accessToken = jwtAccessTokenGenrate(UserID, user.username, user.email)
-            console.log(user)
+            //console.log(user)
             
             return res.status(200).json({ accessToken, message: 'Login successful', success: true });
         });

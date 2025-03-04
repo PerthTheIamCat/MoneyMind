@@ -6,14 +6,15 @@ import Animated, {
   useAnimatedProps,
   withTiming,
   Easing,
+  interpolateColor,
 } from "react-native-reanimated";
 import { ThemedText } from "./ThemedText";
 
 export function LinearBar({
   savings_goal,
   current_savings,
-  width = 300, // กำหนดความกว้างของ Progress Bar
-  height = 25, // กำหนดความสูงของ Progress Bar
+  width = 300,
+  height = 25,
 }: {
   savings_goal: number;
   current_savings: number;
@@ -23,26 +24,32 @@ export function LinearBar({
   const AnimatedRect = Animated.createAnimatedComponent(Rect);
   const progressValue = useSharedValue(0);
 
-  const percentage = savings_goal > 0 ? (current_savings / savings_goal) * 100 : 0;
-  const progressWidth = (percentage / 100) * width; // คำนวณความยาวของ Progress Bar
+  const formatPercentage = (percentage: number) => {
+    return percentage % 1 === 0 ? percentage.toFixed(0) : percentage.toFixed(2);
+  };
 
-  // อัปเดต Animation เมื่อค่า percentage เปลี่ยน
+  const percentage = savings_goal > 0 ? (current_savings / savings_goal) * 100 : 0;
+  const progressWidth = (percentage / 100) * width;
+
   useEffect(() => {
     progressValue.value = withTiming(progressWidth, {
-      duration: 1000, // ความเร็ว Animation (1 วินาที)
-      easing: Easing.out(Easing.ease), // ทำให้ลื่นขึ้น
+      duration: 1000,
+      easing: Easing.out(Easing.ease),
     });
   }, [progressWidth]);
 
-  // ใช้ Animated Props เพื่ออัปเดตความกว้างของ Progress Bar
   const animatedProps = useAnimatedProps(() => ({
     width: progressValue.value,
+    fill: interpolateColor(
+      progressValue.value,
+      [0, width],
+      ["red", "green"]
+    ),
   }));
 
   return (
     <View className="justify-center items-center">
       <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-        {/* Background Progress Bar + Border */}
         <Rect
           x="0"
           y="0"
@@ -50,24 +57,21 @@ export function LinearBar({
           height={height}
           rx="15"
           fill="lightgray"
-          stroke="black"  // ขอบดำ
-          strokeWidth="1" // ความหนาของขอบ
+          stroke="black"
+          strokeWidth="1"
         />
         
-        {/* Animated Progress */}
         <AnimatedRect
           x="0"
           y="0"
           height={height}
           rx="15"
-          fill="green"
           animatedProps={animatedProps}
         />
       </Svg>
   
-      {/* แสดงเปอร์เซ็นต์ตรงกลาง */}
       <ThemedText className="absolute text-lg font-bold">
-        {String(Math.round(percentage))}%
+        {formatPercentage(percentage)}%
       </ThemedText>
     </View>
   );

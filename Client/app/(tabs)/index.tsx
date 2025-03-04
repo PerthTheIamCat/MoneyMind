@@ -114,11 +114,8 @@ export default function Index() {
   let lastDate = "";
 
   useEffect(() => {
-    // Perform actions when mockSummary or transaction changes
     console.log("mockSummary or transaction changed:", mockSummary, transaction);
-  
-    // Optionally, you can run some side effect here, like recalculating savings progress
-  }, [mockSummary, transaction]); // This will trigger the effect whenever either of these values change
+  }, [mockSummary, transaction]);
   
 
   return (
@@ -226,7 +223,6 @@ export default function Index() {
                     balance={account.balance.toString()}
                     mode="large"
                     imageIndex={Number(account.icon_id)}
-                    onEdit={() => {}}
                     key={account.id}
                     className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
                   />

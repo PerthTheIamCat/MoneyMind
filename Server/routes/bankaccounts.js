@@ -39,7 +39,7 @@ router.get('/:id', jwtValidate, (req, res) => {
     }
 
     db.query(
-        'SELECT * FROM bankaccounts WHERE user_id = ?', [req.params.id], (err, result) => {
+        'SELECT * FROM bankaccounts WHERE user_id = ? ORDER BY id', [req.params.id], (err, result) => {
             if (err) {
                 return res.status(500).json({result, message: 'Database query failed', error: err.message, success: false });
             }

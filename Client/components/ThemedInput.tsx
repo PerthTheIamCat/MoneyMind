@@ -31,15 +31,14 @@ export function ThemedInput({
   const locales = Localization.getLocales();
   const currentLanguage = locales[0]?.languageCode;
   const fontFamily = currentLanguage === "th" ? "NotoSansThai" : "Prompt";
-  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(secureTextEntry);
+  const [isPasswordVisible, setIsPasswordVisible] =
+    useState<boolean>(secureTextEntry);
 
   return (
-    <ThemedView className="w-full">
-      {
-        title ? (
-          <ThemedText className="text-xl font-bold w-full">{title}</ThemedText>
-        ) : null
-      }
+    <ThemedView className="w-full !bg-transparent">
+      {title ? (
+        <ThemedText className="text-xl font-bold w-full">{title}</ThemedText>
+      ) : null}
       <ThemedView className="w-full flex-row">
         <TextInput
           placeholder={placeholder}
@@ -52,9 +51,21 @@ export function ThemedInput({
         />
         {autoComplete === "password" ? (
           isPasswordVisible ? (
-            <Entypo onPress={()=>setIsPasswordVisible(!isPasswordVisible)} className="px-2 absolute right-2" name="eye" size={24} color="black" />
+            <Entypo
+              onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+              className="px-2 absolute right-2"
+              name="eye"
+              size={24}
+              color="black"
+            />
           ) : (
-            <Entypo onPress={()=>setIsPasswordVisible(!isPasswordVisible)} className="px-2 absolute right-2" name="eye-with-line" size={24} color="black" />
+            <Entypo
+              onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+              className="px-2 absolute right-2"
+              name="eye-with-line"
+              size={24}
+              color="black"
+            />
           )
         ) : null}
       </ThemedView>

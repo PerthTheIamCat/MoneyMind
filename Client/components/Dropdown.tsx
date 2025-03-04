@@ -47,7 +47,7 @@ const SelectBudgetPlanScreen = (_props: any) => {
   return (
     <ThemedView className="bg-transparent">
       <SelectCountry
-        containerStyle={{ width: 340, height: 200, marginTop: 5, zIndex: 9999, elevation: 10 }}
+        containerStyle={{ width: 340, height: 200, marginTop: 5, zIndex: 9999, elevation: 10,  borderRadius: 15}}
         mode="default"
         dropdownPosition="bottom"
         style={styles.dropdown}

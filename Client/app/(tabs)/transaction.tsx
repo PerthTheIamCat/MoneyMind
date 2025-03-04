@@ -12,7 +12,7 @@ import { ThemedCard } from "@/components/ThemedCard";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useColorScheme } from "react-native";
 import { UserContext } from "@/hooks/conText/UserContext";
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { useState, useEffect } from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { TouchableWithoutFeedback } from "react-native";
@@ -134,6 +134,8 @@ export default function Index() {
   const [isButtonVisible, setIsButtonVisible] = useState(true);
   // const handleEditTransaction = (transactionId: number) => {};
   const handleDeleteTransaction = (transactionId: number) => {};
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+
 
   const theme = useColorScheme() || "light";
   const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
@@ -211,20 +213,26 @@ export default function Index() {
             className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
           >
             <View className="mt-0.5 mb-1 flex-row space-x-1">
-              {bank?.map((account, index) => (
-                <ThemedCard
-                  CardID={account.id}
-                  name={account.account_name}
-                  color={account.color_code}
-                  balance={account.balance.toString()}
-                  mode="small"
-                  imageIndex={Number(account.icon_id)}
-                  onEdit={() => {}}
-                  key={account.id}
-                  // image={account.icon_id}
-                  className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
-                />
-              ))}
+              {bank  && bank.length > 0 ? (
+                bank.map((account) => (
+                  <ThemedCard
+                    CardID={account.id}
+                    name={account.account_name}
+                    color={account.color_code}
+                    balance={account.balance.toString()}
+                    mode="small"
+                    imageIndex={Number(account.icon_id)}
+                    onPress={() => setSelectedAccountId(account.id)}
+                    key={account.id}
+                    // image={account.icon_id}
+                    className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
+                  />
+                ))
+              ):(
+                  <ThemedView>
+                    <ThemedText>emptyaccount</ThemedText>
+                  </ThemedView>    
+              )}
             </View>
           </ThemedScrollView>
         </ThemedView>
@@ -260,11 +268,6 @@ export default function Index() {
               ) : (
                 transaction
                   .slice()
-                  .sort(
-                    (a, b) =>
-                      moment(b.transaction_date).valueOf() -
-                      moment(a.transaction_date).valueOf()
-                  )
                   .map((transaction, index, sortedArray) => {
                     const formattedDate = moment(
                       transaction.transaction_date
@@ -336,21 +339,26 @@ export default function Index() {
                   <View
                     className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}
                   >
-                    <Pressable onPress={() => router.push("/Add_Transaction")}>
-                      <MaterialCommunityIcons
-                        name="notebook"
-                        size={54}
-                        color="black"
-                        className="bg-[#AACC00] m-2 mr-11 rounded-lg"
-                      />
-                      <ThemedText className="font-bold">
-                        Add By Yourself
-                      </ThemedText>
+
+                    <Pressable
+                      onPress={() => { router.push("/Add_Transaction"); setIsOverlayVisible(false); setIsButtonVisible(true)}}>
+                    <MaterialCommunityIcons
+                      name="notebook"
+                      size={54}
+                      color="black"
+                      className="bg-[#AACC00] m-2 mr-11 rounded-lg"
+                    />
+                    <ThemedText className="font-bold">
+                      Add By Yourself
+                    </ThemedText>
+
                     </Pressable>
                   </View>
                   <View
                     className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}
                   >
+                  <Pressable
+                    onPress={() => { ; setIsOverlayVisible(false); setIsButtonVisible(true) }}>
                     <Ionicons
                       name="camera-sharp"
                       size={54}
@@ -358,6 +366,7 @@ export default function Index() {
                       className="bg-[#AACC00] w-fit m-2 mr-11 rounded-lg"
                     />
                     <ThemedText className="font-bold">Add By Camera</ThemedText>
+                    </Pressable>
                   </View>
                 </View>
               </ThemedView>
