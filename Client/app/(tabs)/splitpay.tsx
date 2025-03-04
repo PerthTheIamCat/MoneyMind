@@ -583,7 +583,7 @@ export default function SplitPay() {
 
                     {/* ✅ Slider (ต่อจาก Limits) */}
                     <Slider
-                      value={sliderValue} // ✅ ใช้ `useState` เพื่อให้ค่าอัปเดตสมูท
+                      // value={sliderValue} // ✅ ใช้ `useState` เพื่อให้ค่าอัปเดตสมูท
                       onValueChange={handleSliderChange} // ✅ เมื่อเลื่อน Slider, ค่า TextInput เปลี่ยนตาม
                       onSlidingComplete={handleSliderComplete} // ✅ อัปเดต State เมื่อปล่อยนิ้ว
                       minimumValue={0}
