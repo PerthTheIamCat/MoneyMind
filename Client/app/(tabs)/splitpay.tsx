@@ -73,65 +73,59 @@ export default function SplitPay() {
   const [limit, setLimit] = useState(0); // ✅ ใช้ State คุมค่า
   const [budgetLimit, setBudgetLimit] = useState(0);
   const isDragging = useRef(false); // ✅ ใช้ตรวจสอบว่ากำลังลากอยู่หรือไม่
+  const [inputValue, setInputValue] = useState(""); // ✅ ใช้สำหรับ UI เท่านั้น
 
-  // ✅ ฟังก์ชันอัปเดตค่าจาก `TextInput`
-  const [inputValue, setInputValue] = useState(""); // ⬅️ ใช้ State สำหรับ TextInput
+  const [dummyState, setDummyState] = useState(false); // ✅ ใช้ trigger UI update เมื่อจำเป็น
 
-  const handleAmountChange = (text: string) => {
-    setInputValue(text); // ✅ อัปเดตค่า TextInput ทันทีเมื่อพิมพ์
+  const updateUI = () => setDummyState((prev) => !prev); // ✅ Trigger UI update เมื่อค่ามีการเปลี่ยนแปลง
   
-    if (text === "") {
-      setBudgetLimit(0);
-      setSliderValue(0);
-      return;
-    }
-  
-    let newAmount = parseFloat(text.replace(/[^0-9.]/g, "")) || 0;
-  
-    if (selectedCard) {
-      newAmount = Math.min(newAmount, selectedCard.balance); // ✅ จำกัดไม่ให้เกินยอดเงิน
-    }
-  
-    const newLimit =
-      selectedCard && selectedCard.balance > 0
-        ? (newAmount / selectedCard.balance) * 100
-        : 0;
-  
-    // ✅ ใช้ setTimeout เพื่อป้องกันอัปเดตทันที (debounce)
-    setTimeout(() => {
-      setBudgetLimit(newAmount);
-      setSliderValue(Math.min(newLimit, 100)); // ✅ อัปเดต Slider ตามค่าเงิน
-    }, 300);
-  };
-  // ✅ เมื่อ Slider เปลี่ยนค่า ให้ Update `inputValue` ด้วย
-  const handleSliderChange = useCallback(
-    (value: number) => {
-      setSliderValue(value);
-      if (selectedCard) {
-        const calculatedAmount = (selectedCard.balance * value) / 100;
-        setBudgetLimit(calculatedAmount);
-        setInputValue(calculatedAmount.toFixed(2)); // ✅ อัปเดตค่า TextInput ทันที
-      }
-    },
-    [selectedCard]
-  );
+ // ✅ เมื่อพิมพ์ใน TextInput → อัปเดตค่า Budget และ Slider (แต่ไม่ trigger `re-render`)
+const handleAmountChange = useCallback((text: string) => {
+  let newAmount = parseFloat(text.replace(/[^0-9.]/g, "")) || 0;
+  if (selectedCard) {
+    newAmount = Math.min(newAmount, selectedCard.balance);
+  }
+  budgetLimitRef.current = newAmount;
+  sliderValueRef.current = selectedCard && selectedCard.balance > 0 ? (newAmount / selectedCard.balance) * 100 : 0;
 
-  // ✅ รีเซ็ตค่าทุกครั้งที่เปลี่ยนบัญชีที่เลือก
-  useEffect(() => {
-    if (selectedCard) {
-      setSliderValue(0);
-      setBudgetLimit((selectedCard.balance * 50) / 100);
-    }
-  }, [selectedCard]);
+  setInputValue(newAmount.toFixed(0)); // ✅ อัปเดต UI เท่านั้น
+  updateUI(); // ✅ Trigger UI update
+}, [selectedCard]);
 
-  const handleSliderComplete = (value: number) => {
-    isDragging.current = false; // ✅ หยุดลาก
+// ✅ เมื่อเลื่อน Slider → อัปเดตค่า Budget (แต่ไม่ trigger `re-render`)
+const handleSliderChange = useCallback((value: number) => {
+  sliderValueRef.current = value;
+  if (selectedCard) {
+    budgetLimitRef.current = (selectedCard.balance * value) / 100;
+    setInputValue(budgetLimitRef.current.toFixed(0)); // ✅ อัปเดต UI เท่านั้น
+    updateUI(); // ✅ Trigger UI update
+  }
+}, [selectedCard]);
 
-    setSliderValue(value); // ✅ อัปเดตค่า % ตามค่าที่ปล่อยนิ้ว
-    if (selectedCard) {
-      setBudgetLimit((selectedCard.balance * value) / 100); // ✅ อัปเดตจำนวนเงินให้ตรงกัน
-    }
-  };
+// ✅ รีเซ็ตค่าทุกครั้งที่เปลี่ยนบัญชี
+useEffect(() => {
+  if (selectedCard) {
+    sliderValueRef.current = 0;
+    budgetLimitRef.current = (selectedCard.balance * 50) / 100;
+    setInputValue(budgetLimitRef.current.toFixed(2));
+    updateUI(); // ✅ Trigger UI update
+  }
+}, [selectedCard]);
+
+// ✅ หยุดลากแล้วค่อยอัปเดตค่า Budget (ลด re-render)
+const handleSliderComplete = useCallback((value: number) => {
+  isDragging.current = false;
+  if (selectedCard) {
+    const calculatedAmount = (selectedCard.balance * value) / 100;
+    budgetLimitRef.current = calculatedAmount;
+  }
+}, [selectedCard]);
+
+
+useEffect(() => {
+  setSliderValue(sliderValueRef.current);
+  setBudgetLimit(budgetLimitRef.current);
+}, [sliderValueRef.current, budgetLimitRef.current]); // ✅ ตรวจจับการเปลี่ยนแปลง
 
   const colors = [
     "#F94144",
@@ -517,58 +511,60 @@ export default function SplitPay() {
                     </ThemedView>
                   </View>
 
-                  {/* ✅ Limits (ไม่มีกรอบแยก) */}
                   <View className="w-full mt-4">
-                    {/* Label "Limits" และช่องกรอกจำนวนเงินอยู่แถวเดียวกัน */}
-                    <View className="flex-row items-center  mb-2">
-                      <View className="flex-row items-center  mb-2">
-                        <Text className="font-bold text-lg text-gray-900 dark:text-white">
-                          Limits
-                        </Text>
-                        <View className="flex-row items-center mb-2">
-                          <View className="w-44 h-10 pb-3 ml-36 bg-gray-200 dark:bg-gray-800 rounded-lg">
-                            <TextInput
-                              value={inputValue} // ✅ ใช้ State ที่เราสร้างขึ้น
-                              onChangeText={handleAmountChange} // ✅ อัปเดตค่าทันที
-                              keyboardType="numeric"
-                              placeholder="0.00"
-                              placeholderTextColor="#AAA"
-                              className="text-right text-gray-900 dark:text-white text-lg p-2"
-                              style={{ height: 38 }}
-                            />
-                          </View>
-                        </View>
-                      </View>
-                      <Text className="text-gray-600 dark:text-gray-300 text-sm text-start ml-3">
-                        THB
-                      </Text>
-                    </View>
+  {/* Label "Limits" และช่องกรอกจำนวนเงินอยู่แถวเดียวกัน */}
+  <View className="flex-row items-center  mb-2">
+    <View className="flex-row items-center  mb-2">
+      <Text className="font-bold text-lg text-gray-900 dark:text-white">
+        Limits
+      </Text>
+      <View className="flex-row items-center mb-2">
+        <View className="w-44 h-10 pb-3 ml-36 bg-gray-200 dark:bg-gray-800 rounded-lg">
+          <TextInput
+            value={inputValue} // ✅ ใช้ State ที่เราสร้างขึ้น
+            onChangeText={handleAmountChange} // ✅ อัปเดตค่าทันที
+            keyboardType="numeric"
+            placeholder="0"
+            placeholderTextColor="#AAA"
+            className="text-right text-gray-900 dark:text-white text-lg p-2"
+            style={{ height: 38 }}
+          />
+        </View>
+      </View>
+    </View>
+    <Text className="text-gray-600 dark:text-gray-300 text-sm text-start ml-3">
+      THB
+    </Text>
+  </View>
 
-                    {/* ✅ Slider (ต่อจาก Limits) */}
-                    <Slider
-                      value={sliderValueRef.current} // ✅ ใช้ `useRef` ให้ค่าเปลี่ยนแบบเรียลไทม์
-                     onValueChange={handleSliderChange} // ✅ เมื่อเลื่อน Slider, ค่า TextInput เปลี่ยนตาม
-                      onSlidingComplete={handleSliderComplete} // ✅ อัปเดต State เมื่อปล่อยนิ้ว
-                      minimumValue={0}
-                      maximumValue={100}
-                      step={1}
-                      thumbTintColor="#1E88E5" // ✅ เปลี่ยนสี Thumb เป็นน้ำเงิน
-                      minimumTrackTintColor="#1E88E5" // ✅ เปลี่ยนสีเส้นที่แสดง progress
-                      maximumTrackTintColor="#d3d3d3" // ✅ สีเส้นหลัง Thumb
-                      style={{
-                        height: 20,
-                        width: "55%",
-                        marginStart: 10,
-                        alignSelf: "center",
-                        marginHorizontal: 10,
-                        transform: [{ scaleY: 2 }, { scaleX: 2 }],
-                      }}
-                    />
+  {/* ✅ Slider (ต่อจาก Limits) */}
+  <Slider
+    value={sliderValueRef.current} // ✅ ใช้ `useRef` ให้ค่าเปลี่ยนแบบเรียลไทม์
+    onValueChange={handleSliderChange} // ✅ เมื่อเลื่อน Slider, ค่า TextInput เปลี่ยนตาม
+    onSlidingComplete={handleSliderComplete} // ✅ อัปเดต State เมื่อปล่อยนิ้ว
+    minimumValue={0}
+    maximumValue={100}
+    step={1}
+    thumbTintColor="#1E88E5" // ✅ เปลี่ยนสี Thumb เป็นน้ำเงิน
+    minimumTrackTintColor="#1E88E5" // ✅ เปลี่ยนสีเส้นที่แสดง progress
+    maximumTrackTintColor="#d3d3d3" // ✅ สีเส้นหลัง Thumb
+    style={{
+      height: 20,
+      width: "55%",
+      marginStart: 10,
+      alignSelf: "center",
+      marginHorizontal: 10,
+      transform: [{ scaleY: 2 }, { scaleX: 2 }],
+    }}
+  />
 
-                    <Text className="text-gray-600 dark:text-gray-300 text-sm text-start mt-2">
-                      {sliderValue.toFixed(0)}% ({budgetLimit.toFixed(2)} THB)
-                    </Text>
-                  </View>
+  {/* ✅ แสดงค่าที่อัปเดตจาก useRef */}
+  <Text className="text-gray-600 dark:text-gray-300 text-sm text-start mt-2">
+    {sliderValueRef.current.toFixed(0)}% ({budgetLimitRef.current.toFixed(2)} THB)
+  </Text>
+</View>
+
+
 
                   {/* ✅ ปุ่ม Save (เหลืออันเดียว) */}
                   <Pressable
