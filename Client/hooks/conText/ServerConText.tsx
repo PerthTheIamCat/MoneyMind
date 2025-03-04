@@ -12,14 +12,14 @@ type ServerContextType = {
   setPassword: (value: string) => void;
   setPasswordConfirmation: (value: string) => void;
   setOtp: (value: string) => void;
-}
+};
 export const ServerContext = createContext<ServerContextType>({
-    URL: "http://localhost:3000",
-    setUsername: () => {},
-    setEmail: () => {},
-    setPassword: () => {},
-    setPasswordConfirmation: () => {},
-    setOtp: () => {},
+  URL: "http://192.168.230.190:3000",
+  setUsername: () => {},
+  setEmail: () => {},
+  setPassword: () => {},
+  setPasswordConfirmation: () => {},
+  setOtp: () => {},
 });
 
 export const ServerProvider = ({ children }: { children: ReactNode }) => {
@@ -31,7 +31,21 @@ export const ServerProvider = ({ children }: { children: ReactNode }) => {
   const [otp, setOtp] = useState<string>("");
 
   return (
-    <ServerContext.Provider value={{ URL, setUsername, setEmail, setPassword, setPasswordConfirmation, setOtp, username, email, password, passwordConfirmation, otp }}>
+    <ServerContext.Provider
+      value={{
+        URL,
+        setUsername,
+        setEmail,
+        setPassword,
+        setPasswordConfirmation,
+        setOtp,
+        username,
+        email,
+        password,
+        passwordConfirmation,
+        otp,
+      }}
+    >
       {children}
     </ServerContext.Provider>
   );
