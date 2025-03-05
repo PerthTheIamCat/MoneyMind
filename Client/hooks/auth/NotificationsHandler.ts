@@ -60,12 +60,19 @@ export const NotificationsGetHandler = async (
 
 export const NotificationsDeleteHandler = async (
   url: string,
-  user_id: number
+  id: number,
+  token: string,
 ): Promise<NoticeResponse | NoticeError["response"]["data"]> => {
   try {
     const response = await axios.delete<NoticeResponse>(
-      `${url}/notifications/${user_id}`
+      `${url}/notifications/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
+    console.log(id)
     return response.data;
   } catch (error) {
     return (error as NoticeError).response.data;

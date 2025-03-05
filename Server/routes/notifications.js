@@ -98,17 +98,13 @@ router.put('/:id', jwtValidate,(req, res) => {
 })
 
 router.delete('/:id', jwtValidate,(req, res) => {
-    if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
-        return res.status(403).json({ message: 'Unauthorized user', success: false });
-    }
-
     db.query(
-        'DELETE FROM notifications WHERE id = ?', [req.params.id], (err, result) => { //noti_id
+        'DELETE FROM notifications WHERE id = ?', [parseInt(req.params.id, 10)], (err, result) => { //noti_id
             if (err) {
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
             }
 
-            if (result.length === 0) {
+            if (result.affectedRows === 0) {
                 return res.status(404).json({ message: 'Nofitication not found', success: false });
             }
 
