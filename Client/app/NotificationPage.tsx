@@ -10,7 +10,7 @@ import { SwipeListView } from "react-native-swipe-list-view";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { AuthContext } from "@/hooks/conText/AuthContext";
-import { NotificationsGetHandler } from "@/hooks/auth/NotificationsHandler";
+import { NotificationsGetHandler,NotificationsDeleteHandler } from "@/hooks/auth/NotificationsHandler";
 
 interface NotificationItem {
   id: number;
@@ -20,86 +20,46 @@ interface NotificationItem {
   color_type: string;
 }
 
-interface ListNotificationProps {
-  data: NotificationItem[];
-  onDelete: (id: number) => void;
-}
 
 export default function Index() {
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
-  const { userID, notification } = useContext(UserContext);
+  const { userID } = useContext(UserContext);
 
   const theme = useColorScheme();
   const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
 
-  const [data, setData] = useState<NotificationItem[]>([
-    {
-      id: 1,
-      user_id: 1,
-      color_type: "red",
-      notification_type: "Monthly Summary",
-      message:
-        "You didn't save enough money last month try to be better next month.",
-    },
-    {
-      id: 2,
-      user_id: 1,
-      color_type: "green",
-      notification_type: "Monthly Summary",
-      message: "You save enough money last month keep it up in next month.",
-    },
-    {
-      id: 3,
-      user_id: 1,
-      color_type: "red",
-      notification_type: "Nearly out of money",
-      message:
-        "Your funds are running low. Spend wisely before it all slips away.",
-    },
-    {
-      id: 4,
-      user_id: 1,
-      color_type: "red",
-      notification_type: "Out of money",
-      message:
-        "Your funds are depleted. NOw is th time to rely on practice and careful planning to start anew.  ",
-    },
-    {
-      id: 5,
-      user_id: 1,
-      color_type: "yellow",
-      notification_type: "New device logged in",
-      message:
-        "New device logged in on 11/01/2025 11:10 . If this not you please go to setting and change your password",
-    },
-    {
-      id: 6,
-      user_id: 1,
-      color_type: "yellow",
-      notification_type: "Password changed",
-      message: "Password change successfully.",
-    },
-  ]);
+  const [data, setData] = useState<NotificationItem[]>([]);
 
   useEffect(() => {
     if (userID) {
       NotificationsGetHandler(URL, userID, auth?.token!)
         .then((response) => {
           console.log("API Response:", response); // ดูข้อมูลทั้งหมดที่ตอบกลับมาจาก API
-          if (response.success) {
+          if (response.result && response.result.length > 0) {
             console.log(response.result);
             setData(response.result);
+          }else{
+            setData([]);
           }
         })
-        .catch((error) =>
-          console.error("Failed to fetch notifications:", error)
-        );
+        .catch((error) =>{
+          console.error("Failed to fetch notifications:", error);
+          setData([]);
+        });
     }
   }, [userID]);
 
   const deleteNotification = (id: number) => {
-    setData((prevData) => prevData.filter((item) => item.id !== id));
+    console.log(id)
+    NotificationsDeleteHandler(URL,id,auth?.token!)
+    .then((response)=>{
+      console.log("API Response:", response);
+      if(response.success){
+        console.log(response.result);
+        handleDelete(id);
+      }
+    })
   };
 
   const [animatedValues] = useState<{
@@ -127,9 +87,9 @@ export default function Index() {
         duration: 300,
         useNativeDriver: true,
       }),
-    ]).start(() => {
-      deleteNotification(id); // ลบออกจากลิสต์หลังจากแอนิเมชันจบ
-    });
+    ]).start(()=>{
+      setData((prevData) => prevData.filter((item) => item.id !== id));
+    })
   };
 
   const renderItem = ({ item }: { item: NotificationItem }) => {
@@ -182,7 +142,7 @@ export default function Index() {
       className="absolute right-6 top-0 bottom-0 h-fit bg-transparent w-[85%] mt-2 pr-8 !items-end"
     >
       <TouchableOpacity
-        onPress={() => handleDelete(item.id)}
+        onPress={() => deleteNotification(item.id)}
         className="h-full max-h-[76px] absolute w-full bg-red-600  pr-8 !items-end justify-center rounded-3xl"
       >
         <MaterialIcons name="delete" size={30} color="white" />
