@@ -72,15 +72,15 @@ export default function Index() {
   const hideTimePicker = () => setOpenTime(false);
 
   const handleDateConfirm = (date: Date) => {
-    console.log("A date has been picked: ", date);
-    const localDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+    console.log("A date has been picked: ", date.toLocaleString("th-TH"));
+    const localDate = new Date(date.getTime());
     setSelectedDate(localDate);
     hideDatePicker();
   };
   const handleTimeConfirm = (date: Date) => {
-    console.log("A date has been picked: ", date);
-    const localDate = new Date(date.getTime());
-    setSelectedTime(localDate);
+    console.log("A date has been picked: ", date.toLocaleString("th-TH"));
+    const localTime = new Date(date.getTime());
+    setSelectedTime(localTime);
     hideTimePicker();
   };
 
@@ -487,13 +487,12 @@ export default function Index() {
                         mode="large"
                         imageIndex={Number(account.icon_id)}
                         className={`!items-center !justify-center bg-[#fefefe] rounded-lg 
-                          ${
-                            selectedCard?.id === account.id
-                              ? "border-4 border-[#03A696]"
-                              : "border-0"
-                          }
-                        `}
-                      />
+                          ${selectedCard?.id === account.id
+                            ? "border-4 border-[#03A696]"
+                            : "border-0"}
+                        `} isOptionsVisible={false} setOptionsVisible={function (): void {
+                          throw new Error("Function not implemented.");
+                        } }                      />
                     </ThemedView>
                   </Pressable>
                 ))}
@@ -782,7 +781,7 @@ export default function Index() {
         onCancel={hideDatePicker}
         is24Hour={true}
         date={today}
-        minimumDate={today}
+        maximumDate={today}
         timeZoneName="Asia/Bangkok"
         locale="th-TH"
       />
@@ -795,7 +794,7 @@ export default function Index() {
         onCancel={hideTimePicker}
         is24Hour={true}
         date={today}
-        minimumDate={today}
+        maximumDate={today}
         timeZoneName="Asia/Bangkok"
         locale="th-TH"
       />
