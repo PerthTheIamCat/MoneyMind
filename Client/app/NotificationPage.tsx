@@ -19,12 +19,10 @@ interface NotificationItem {
   message: string;
   color_type: string;
 }
-
-
 export default function Index() {
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
-  const { userID } = useContext(UserContext);
+  const { userID} = useContext(UserContext);
 
   const theme = useColorScheme();
   const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
@@ -69,8 +67,8 @@ export default function Index() {
   data.forEach((item) => {
     if (!animatedValues[item.id]) {
       animatedValues[item.id] = {
-        opacity: new Animated.Value(1), // เริ่มจาก opacity = 1
-        translateX: new Animated.Value(0), // เริ่มจากตำแหน่งเดิม (X = 0)
+        opacity: new Animated.Value(1), 
+        translateX: new Animated.Value(0),
       };
     }
   });
@@ -103,7 +101,7 @@ export default function Index() {
         : "bg-black-500";
     return (
       <Animated.View
-        key={"animatenoti3"}
+        key={"animate3"}
         style={{
           opacity: animatedValues[item.id].opacity,
           transform: [{ translateX: animatedValues[item.id].translateX }],
@@ -134,7 +132,7 @@ export default function Index() {
 
   const renderHiddenItem = ({ item }: { item: NotificationItem }) => (
     <Animated.View
-      key={"animatenoti2"}
+      key={"animate2"}
       style={{
         opacity: animatedValues[item.id].opacity,
         transform: [{ translateX: animatedValues[item.id].translateX }],
@@ -150,8 +148,18 @@ export default function Index() {
     </Animated.View>
   );
 
+  const EmptyComponent = () => (
+    <ThemedView className="bg-transparent mt-5">
+      <ThemedText className="text-3xl !text-[#181818]">
+        No Notification now
+      </ThemedText>
+    </ThemedView>
+  );
+  
+  
+
   return (
-    <ThemedView key={"animenoti"} className={`${componentcolor}`}>
+    <ThemedView key={"animate1"} className={`${componentcolor}`}>
       <ThemedView className="bg-transparent items-center ">
         <SwipeListView
           data={data}
@@ -160,13 +168,6 @@ export default function Index() {
           renderHiddenItem={renderHiddenItem}
           rightOpenValue={-75} // Swipe left distance
           disableRightSwipe
-          ListEmptyComponent={
-            <ThemedView className="bg-transparent mt-5">
-              <ThemedText className="text-3xl !text-[#181818]">
-                No Notification now
-              </ThemedText>
-            </ThemedView>
-          }
         />
       </ThemedView>
     </ThemedView>
