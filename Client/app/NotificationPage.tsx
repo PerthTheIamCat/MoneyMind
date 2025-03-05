@@ -11,6 +11,7 @@ import { ServerContext } from "@/hooks/conText/ServerConText";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { NotificationsGetHandler,NotificationsDeleteHandler } from "@/hooks/auth/NotificationsHandler";
+import { router } from "expo-router";
 
 interface NotificationItem {
   id: number;
@@ -58,6 +59,15 @@ export default function Index() {
         handleDelete(id);
       }
     })
+  };
+
+  const RouterPath = (id: number,notification_type:string) => {
+    console.log(id)
+    if(notification_type=="monthly_summary"){
+      router.replace("/Month_Summary")
+    }else if(notification_type=="security"){
+      router.replace("/PinRecovery")
+    }
   };
 
   const [animatedValues] = useState<{
@@ -108,7 +118,7 @@ export default function Index() {
         }}
       >
         <ThemedView className={`mt-2 bg-transparent `}>
-          <TouchableHighlight className={`bg-transparent w-[90%]`}>
+          <TouchableHighlight className={`bg-transparent w-[90%]`} onPress={() => RouterPath(item.id,item.notification_type)}>
             <ThemedView
               className={`flex-row  p-3 pl-12 h-fit rounded-3xl  ${bgColor}`}
             >
@@ -116,10 +126,10 @@ export default function Index() {
               <ThemedView
                 className={`pl-3 px-16 bg-transparent w-full !items-start`}
               >
-                <ThemedText className="text-lg font-bold text-[#181818]">
+                <ThemedText className="text-lg font-bold !text-[#181818]">
                   {item.notification_type}
                 </ThemedText>
-                <ThemedText className="text-sm text-[#181818]">
+                <ThemedText className="text-sm !text-[#181818]">
                   {item.message}
                 </ThemedText>
               </ThemedView>
@@ -137,25 +147,16 @@ export default function Index() {
         opacity: animatedValues[item.id].opacity,
         transform: [{ translateX: animatedValues[item.id].translateX }],
       }}
-      className="absolute right-6 top-0 bottom-0 h-fit bg-transparent w-[85%] mt-2 pr-8 !items-end"
+      className="absolute right-6 top-0 bottom-0 bg-transparent w-[85%] mt-2 pr-8 !items-end"
     >
       <TouchableOpacity
         onPress={() => deleteNotification(item.id)}
-        className="h-full max-h-[76px] absolute w-full bg-red-600  pr-8 !items-end justify-center rounded-3xl"
+        className="h-full absolute w-full bg-red-600  pr-8 !items-end justify-center rounded-3xl"
       >
         <MaterialIcons name="delete" size={30} color="white" />
       </TouchableOpacity>
     </Animated.View>
   );
-
-  const EmptyComponent = () => (
-    <ThemedView className="bg-transparent mt-5">
-      <ThemedText className="text-3xl !text-[#181818]">
-        No Notification now
-      </ThemedText>
-    </ThemedView>
-  );
-  
   
 
   return (
