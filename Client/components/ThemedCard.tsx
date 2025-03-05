@@ -1,5 +1,12 @@
 import { useState, useEffect, useContext } from "react";
-import { Image, TouchableOpacity, View, Modal, Button, Pressable } from "react-native";
+import {
+  Image,
+  TouchableOpacity,
+  View,
+  Modal,
+  Button,
+  Pressable,
+} from "react-native";
 import * as Localization from "expo-localization";
 import { FontAwesome } from "@expo/vector-icons";
 import { ThemedView } from "./ThemedView";
@@ -14,7 +21,6 @@ import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { ViewStyle } from "react-native";
-
 
 const formatBalance = (balance: string): string => {
   const num = parseFloat(balance);
@@ -46,8 +52,8 @@ type ThemedCardProps = {
   mode?: "small" | "large";
   imageIndex?: number;
   className?: string;
-  isOptionsVisible: boolean; // Controlled by parent
-  setOptionsVisible: () => void; // Controlled by parent
+  isOptionsVisible?: boolean; // Controlled by parent
+  setOptionsVisible?: (visible: boolean) => void; // Controlled by parent
 };
 
 export function ThemedCard({
@@ -72,12 +78,10 @@ export function ThemedCard({
     color_code: string;
     icon_id: string;
   };
-  
-  
+
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
-  const {userID , setBank,setTransaction} = useContext(UserContext);
-  
+  const { userID, setBank, setTransaction } = useContext(UserContext);
 
   const locales = Localization.getLocales();
   const currentLanguage = locales[0]?.languageCode;
@@ -106,7 +110,6 @@ export function ThemedCard({
     GetUserBank(URL, userID!, auth?.token!).then((res) => {
       if (res.success) {
         setBank(res.result ?? []);
-
       }
     });
   };
@@ -120,15 +123,14 @@ export function ThemedCard({
 
   const confirmDelete = async () => {
     setDeleteModalVisible(false);
-    
+
     try {
       console.log("🔍 Attempting to delete account ID:", CardID);
-  
+
       const deleteRes = await DeleteUserBank(URL, CardID, auth?.token!);
-  
+
       if (deleteRes.success) {
         console.log("✅ Deleted successfully");
-
       } else {
         console.error("❌ Failed to delete account:", deleteRes.message);
       }
@@ -138,8 +140,7 @@ export function ThemedCard({
     reloadBank();
     reloadTransaction();
   };
-   
-  
+
   return (
     <ThemedView
       className={`!rounded-2xl !flex-row !justify-start !items-start mr-3 ${
@@ -160,7 +161,7 @@ export function ThemedCard({
 
       {mode === "small" && (
         <Pressable
-          onPress={() => setOptionsVisible()}
+          onPress={() => setOptionsVisible?.(!isOptionsVisible)}
           className="absolute top-4 right-4 p-2 rounded-md"
         >
           <FontAwesome name="pencil" size={16} color="#f2f2f2" />
@@ -169,7 +170,6 @@ export function ThemedCard({
 
       {isOptionsVisible && (
         <TouchableOpacity
-          
           activeOpacity={1}
           style={{
             position: "absolute",
@@ -195,7 +195,7 @@ export function ThemedCard({
             className="w-full !justify-center !items-center "
             onPress={() => {
               router.push({ pathname: "/Edit_Account", params: { CardID } });
-              setOptionsVisible(!isOptionsVisible);
+              setOptionsVisible?.(!isOptionsVisible);
             }}
           >
             <ThemedText className="text-center text-[16px] text-blue-600 w-full mb-2">
@@ -205,12 +205,13 @@ export function ThemedCard({
           <Pressable
             className="w-full justify-center items-center"
             onPress={() => {
-              setOptionsVisible(!isOptionsVisible);
+              setOptionsVisible?.(!isOptionsVisible);
               handleDelete();
             }}
           >
-            <ThemedText className="text-center text-[16px] text-red-600">Delete</ThemedText>
-            
+            <ThemedText className="text-center text-[16px] text-red-600">
+              Delete
+            </ThemedText>
           </Pressable>
         </ThemedView>
       )}
@@ -230,9 +231,9 @@ export function ThemedCard({
         <ThemedView className="absolute top-8 left-24 bg-transparent">
           <ThemedText
             className="text-[24px] !text-[#f2f2f2] font-bold w-full"
-            numberOfLines={2} 
+            numberOfLines={2}
             ellipsizeMode="tail"
-            style={{ textAlign: "left" }} 
+            style={{ textAlign: "left" }}
           >
             {name.trim()}
           </ThemedText>
@@ -308,5 +309,3 @@ export function ThemedCard({
     </ThemedView>
   );
 }
-
-
