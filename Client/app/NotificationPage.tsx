@@ -12,6 +12,8 @@ import { UserContext } from "@/hooks/conText/UserContext";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { NotificationsGetHandler,NotificationsDeleteHandler } from "@/hooks/auth/NotificationsHandler";
 import { router } from "expo-router";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { black, white } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 
 interface NotificationItem {
   id: number;
@@ -70,6 +72,17 @@ export default function Index() {
     }
   };
 
+  const checknotification_type=(notification_type:string) => {
+    switch(notification_type){
+      case "monthly_summary":
+        return "areachart"
+      case "security":
+        return "lock1"
+      default:
+        return "info"; // ไอคอนเริ่มต้น
+    }
+  }
+
   const [animatedValues] = useState<{
     [key: number]: { opacity: Animated.Value; translateX: Animated.Value };
   }>({});
@@ -122,7 +135,15 @@ export default function Index() {
             <ThemedView
               className={`flex-row  p-3 pl-12 h-fit rounded-3xl  ${bgColor}`}
             >
-              <ThemedView className="bg-white w-16 h-16 rounded-full" />
+              <ThemedView className="${bgColor} w-16 h-16 rounded-full">
+                  <AntDesign 
+                    name= {checknotification_type(item.notification_type)}
+                    size={30}
+                    color={theme==="dark"?"white":"black"}
+                    className="m-3"
+                    />
+              </ThemedView>
+                
               <ThemedView
                 className={`pl-3 px-16 bg-transparent w-full !items-start`}
               >
