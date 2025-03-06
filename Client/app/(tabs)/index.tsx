@@ -10,9 +10,8 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import Entypo from "@expo/vector-icons/Entypo";
 import moment from "moment";
-import { DonutChart } from "@/components/DonutChart";
-import { LinearBar } from "@/components/LinearBar";
 import { SemiCircleProgress } from "@/components/SemiCircleProgress";
+import TransactionItem from "@/components/TransactionItem";
 
 import { useColorScheme, Text, View ,FlatList} from "react-native";
 import { useState, useContext } from "react";
@@ -21,59 +20,6 @@ import { useEffect } from "react";
 
 import { UserContext } from "@/hooks/conText/UserContext";
 import { router } from "expo-router";
-import { enGB, registerTranslation } from "react-native-paper-dates";
-
-// ✅ ลงทะเบียนภาษา `en`
-registerTranslation("en", enGB);
-
-interface Transaction {
-  id: string;
-  logo: any;
-  transaction_type: "income" | "expense";
-  amount: string;
-  category: string;
-  description: string;
-  date: string;
-}
-
-const TransactionItem = ({transaction,theme,}:{transaction: Transaction;theme: string | null;}) => {
-  const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
-  const componentIcon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
-
-  return (
-    <View
-      className={`flex-row items-center justify-between ${componentcolor} w-[90%] p-4  rounded-lg mb-2`}
-    >
-      <Image
-        source={transaction.logo}
-        style={{ width: 40, height: 40, borderRadius: 20, marginRight: 16 }}
-      />
-
-      <View className="">
-        <ThemedText className={`font-bold text-lg w-32`}>
-          {transaction.category}
-        </ThemedText>
-        <ThemedText className={``}>{transaction.description}</ThemedText>
-      </View>
-
-      <Text
-        className={`font-bold text-[16px] ${
-          transaction.transaction_type === "income"
-            ? "text-green-500"
-            : "text-red-500"
-        }`}
-      >
-        {transaction.amount}
-      </Text>
-      <Entypo
-        name="dots-three-vertical"
-        size={20}
-        color={componentIcon}
-        className="ml-2"
-      />
-    </View>
-  );
-};
 
 interface Summary {
   id: number;
@@ -252,10 +198,7 @@ export default function Index() {
         )}
 
         
-        <ThemedView
-          className=" my-5 w-[80%]"
-          onTouchEnd={() => router.push("/(tabs)/transaction")}
-        >
+        <ThemedView className=" my-5 w-[80%]">
           <ThemedText className="text-xl font-bold text-start w-full">
             Transaction
           </ThemedText>
@@ -264,39 +207,37 @@ export default function Index() {
 
       <ThemedView>
       <ThemedScrollView >
-      {transaction && transaction.length > 0 ? (
-        transaction && transaction.slice(0, 15).map((item, index) => {
-          const transaction: Transaction = {
-            id: item.id.toString(),
-            logo: require("@/assets/logos/LOGO.png"),
-            transaction_type: item.transaction_type,
-            amount: item.amount.toString(),
-            category: item.transaction_type,
-            description: item.note,
-            date: item.transaction_date,
-          };
-
-          const formattedDate = moment(transaction.date).format("DD MMM YYYY");
-          const showDateHeader = lastDate !== formattedDate;
-          lastDate = formattedDate;
-
-          return (
-            <View key={transaction.id} className="w-full items-center ">
-              {showDateHeader && (
-                <ThemedText className="w-[90%]  text-left font-bold text-1xl py-1">
-                  {formattedDate}
-                </ThemedText>
-              )}
-              <TransactionItem transaction={transaction} theme={theme} />
-            </View>
-          );
-        })):(
-          <ThemedView className="!items-center w-full ">
-            <ThemedText className="text-center font-bold mt-5">
-              no record transaction found
-            </ThemedText>
-          </ThemedView>
-        )}
+      {!transaction || transaction.length === 0 ? (
+        <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
+          No transactions available
+        </ThemedText>
+      ) : (
+        transaction
+          .slice()
+          .map((transaction, index, sortedArray) => {
+            const formattedDate = moment(transaction.transaction_date).format("DD MMM YYYY");
+            const showDateHeader =index === 0 ||formattedDate !==moment(sortedArray[index - 1].transaction_date).format("DD MMM YYYY");
+            return (
+              <View
+                key={transaction.id}
+                className="w-full items-center "
+              >
+                {showDateHeader && (
+                  <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
+                    {formattedDate}
+                  </ThemedText>
+                )}
+                <ThemedView className="w-[400px]" onTouchEnd={() => router.push("/(tabs)/transaction")}>
+                  <TransactionItem 
+                    transaction={transaction}
+                    theme={theme}
+                    checkpage={"Home"}
+                  />
+                </ThemedView>
+              </View>
+            );
+          })
+      )}
       </ThemedScrollView>
       </ThemedView>
     </ThemedSafeAreaView>

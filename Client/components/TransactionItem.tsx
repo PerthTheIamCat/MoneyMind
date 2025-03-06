@@ -12,18 +12,18 @@ import { TouchableWithoutFeedback } from "react-native";
 interface TransactionItemProps {
   transaction: UserTransaction;
   theme: string | null;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void ;
+  onDelete?: () => void;
+  checkpage : string;
 }
-
-export default function TransactionItem({ transaction, theme, onEdit, onDelete }: TransactionItemProps) {
+export default function TransactionItem({ transaction, theme, onEdit, onDelete,checkpage}: TransactionItemProps) {
+  
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   // const [showOverlay, setShowOverlay] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [showDropdown, setShowDropdown] = useState(false);
   const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
-
   useEffect(() => {
     let timer: ReturnType<typeof setInterval>;
     if (isDeleteModalVisible && countdown > 0) {
@@ -31,7 +31,7 @@ export default function TransactionItem({ transaction, theme, onEdit, onDelete }
     }
     return () => clearInterval(timer);
   }, [isDeleteModalVisible, countdown]);
-
+  
   const handleDelete = () => {
     setShowDropdown(false);
     // setShowOverlay(true);
@@ -42,10 +42,10 @@ export default function TransactionItem({ transaction, theme, onEdit, onDelete }
   const confirmDelete = () => {
     // setShowOverlay(false);
     setDeleteModalVisible(false);
-    onDelete(); // เรียก function ที่ส่งมา
+    onDelete ?? (() => console.log(`Delete transaction ${transaction.id}`));; // เรียก function ที่ส่งมา
   };
 
-
+  
   return (
     <>
       <View className={`flex-row items-center justify-center w-10/12 ${componentcolor} p-4 rounded-lg mb-2 shadow-md`}>
@@ -62,13 +62,17 @@ export default function TransactionItem({ transaction, theme, onEdit, onDelete }
             {new Date(transaction.transaction_date).toLocaleString("th-TH").slice(9,14)}
           </ThemedText>
         </View>
+      {checkpage==="transactions" ?(
         <Pressable onPress={() => setShowDropdown(!showDropdown)}>
           <Entypo name="dots-three-vertical" size={20} color={componenticon} style={{ marginLeft: 8 }} />
         </Pressable>
+        ):(<View className="ml-3">
+
+        </View>)}
 
         {showDropdown && (
           <ThemedView className="absolute top-10 right-2 flex-row border border-gray-300 shadow-md rounded-lg w-fit z-50">
-            <Pressable onPress={ () => {onEdit(); setShowDropdown(false); }} className="p-2 border-b border-gray-200">
+            <Pressable onPress={ () => {onEdit?.(); setShowDropdown(false); }} className="p-2 border-b border-gray-200">
               <Text className="text-green-500">Edit</Text>
             </Pressable>
             <Pressable onPress={handleDelete} className="p-2">
@@ -104,25 +108,25 @@ export default function TransactionItem({ transaction, theme, onEdit, onDelete }
                 <ThemedText className="text-lg mb-4">
                   You can cancel or confirm the action.
                 </ThemedText>
-                <ThemedView className="flex-row bg-transparent mt-14">
-                  <ThemedButton
-                    className="w-32 h-12 mr-6"
-                    title={countdown === 0 ? "Confirm" : `Confirm (${countdown}s)`}
-                    onPress={confirmDelete}
-                    disabled={countdown > 0}
-                    mode={countdown === 0 ? "cancel" : "normal"}
-                  >
-                    {countdown === 0 ? "Confirm" : `Confirm (${countdown}s)`}
-                  </ThemedButton>
-                  <ThemedButton
-                    className="w-32 h-12"
-                    title="Cancel"
-                    onPress={() => setDeleteModalVisible(false)}
-                    mode="normal"
-                  >
-                    Cancel
-                  </ThemedButton>
-                </ThemedView>
+                  <ThemedView className="flex-row bg-transparent mt-14">
+                    <ThemedButton
+                      className="w-32 h-12 mr-6"
+                      title={countdown === 0 ? "Confirm" : `Confirm (${countdown}s)`}
+                      onPress={confirmDelete}
+                      disabled={countdown > 0}
+                      mode={countdown === 0 ? "cancel" : "normal"}
+                    >
+                      {countdown === 0 ? "Confirm" : `Confirm (${countdown}s)`}
+                    </ThemedButton>
+                    <ThemedButton
+                      className="w-32 h-12"
+                      title="Cancel"
+                      onPress={() => setDeleteModalVisible(false)}
+                      mode="normal"
+                    >
+                      Cancel
+                    </ThemedButton>
+                  </ThemedView>
               </ThemedView>
             </TouchableWithoutFeedback>
           </ThemedView>
