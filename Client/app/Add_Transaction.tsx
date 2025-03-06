@@ -232,21 +232,6 @@ export default function Index() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<Date>(new Date());
 
-  // ✅ ฟังก์ชันอัปเดตวันที่จาก DatePicker
-  const handleDateChange = (date: string) => {
-    console.log("📅 Selected Date:", date); // ✅ Log เพื่อตรวจสอบค่า
-    setSelectedDate(new Date(date));
-  };
-
-  // ✅ ฟังก์ชันอัปเดตเวลาจาก TimePicker
-  const handleTimeChange = (time: string) => {
-    console.log("⏰ Selected Time:", time); // ✅ Log เพื่อตรวจสอบค่า
-    const [hour, minute] = time.split(":"); // แยกชั่วโมงกับนาที
-    const newTime = new Date(selectedDate); // ใช้วันที่ปัจจุบัน
-    newTime.setHours(parseInt(hour, 10), parseInt(minute, 10));
-    setSelectedTime(newTime);
-  };
-
   // ✅ ฟังก์ชันบันทึกหมวดหมู่ใหม่
   const onSaveCategory = () => {
     if (newCategoryName.trim() === "") return; // ✅ ป้องกันหมวดหมู่ที่เป็นค่าว่าง
@@ -280,7 +265,7 @@ export default function Index() {
     console.log(isIncome ? selectedIncomeCategory : selectedExpenseCategory);
     console.log(Amount);
     console.log(isIncome ? "income" : "expense");
-    console.log(selectedDate.toISOString().split("T")[0]);
+    console.log(selectedDate.toISOString().split("T")[0]+" "+selectedTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }));
     console.log(Note);
     if (!selectedCard) {
       console.log("⚠️ No selectedCard, using default account");
@@ -313,7 +298,7 @@ export default function Index() {
           : selectedExpenseCategory,
         amount: Amount,
         transaction_type: isIncome ? "income" : "expense",
-        transaction_date: selectedDate.toISOString().split("T")[0],
+        transaction_date: selectedDate.toISOString().split("T")[0]+" "+selectedTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
         note: Note,
         color_code: "#FFFFFF",
       },
@@ -332,7 +317,7 @@ export default function Index() {
               : selectedExpenseCategory,
             amount: Amount,
             transaction_type: isIncome ? "income" : "expense",
-            transaction_date: selectedDate.toISOString().split("T")[0],
+            transaction_date: selectedDate.toISOString().split("T")[0]+" "+selectedTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
             note: Note,
             color_code: "#FFFFFF",
           },

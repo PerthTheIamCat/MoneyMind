@@ -150,7 +150,7 @@ router.get('/:id', jwtValidate, (req, res) => {
     }
 
     db.query(
-        'SELECT * FROM transactions WHERE user_id = ? ORDER BY id', [req.params.id], (err, result) => {
+        'SELECT * FROM transactions WHERE user_id = ? ORDER BY transaction_date desc', [req.params.id], (err, result) => {
             if (err) {
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
             }

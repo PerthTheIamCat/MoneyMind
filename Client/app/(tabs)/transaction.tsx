@@ -17,108 +17,8 @@ import { useState, useEffect } from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { TouchableWithoutFeedback } from "react-native";
 import { Animated, Easing } from "react-native";
-import { UserTransaction } from "@/hooks/auth/GetAllTransaction";
 import TransactionItem from "@/components/TransactionItem";
 import moment from "moment";
-
-const transactions: UserTransaction[] = [
-  {
-    id: 1,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-01",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 2,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-01",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 3,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-04",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 4,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-02",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 5,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-01",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 6,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-01",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 7,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-02",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 8,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-03",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-];
 
 export default function Index() {
   const handleEditTransaction = (transactionId: number) => {
@@ -278,15 +178,8 @@ export default function Index() {
                 transaction
                   .slice()
                   .map((transaction, index, sortedArray) => {
-                    const formattedDate = moment(
-                      transaction.transaction_date
-                    ).format("DD MMM YYYY");
-                    const showDateHeader =
-                      index === 0 ||
-                      formattedDate !==
-                        moment(sortedArray[index - 1].transaction_date).format(
-                          "DD MMM YYYY"
-                        );
+                    const formattedDate = moment(transaction.transaction_date).format("DD MMM YYYY");
+                    const showDateHeader =index === 0 ||formattedDate !==moment(sortedArray[index - 1].transaction_date).format("DD MMM YYYY");
                     return (
                       <View
                         key={transaction.id}
