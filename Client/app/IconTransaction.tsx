@@ -82,8 +82,30 @@ export default function IconTransaction() {
               </ThemedText>
               <MaterialIcons name="edit" size={22} color="#555" />
             </ThemedButton>
-
-
+            
+            <ThemedButton
+              className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
+              mode="normal"
+              onPress={() => router.push("../")}
+            >
+              
+              <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
+                ข้าว
+              </ThemedText>
+              <MaterialIcons name="edit" size={22} color="#555" />
+            </ThemedButton>
+            
+            <ThemedButton
+              className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
+              mode="normal"
+              onPress={() => router.push("../")}
+            >
+              
+              <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
+                ข้าว
+              </ThemedText>
+              <MaterialIcons name="edit" size={22} color="#555" />
+            </ThemedButton>
         </View>
       </ThemedView>
     </ThemedSafeAreaView>
