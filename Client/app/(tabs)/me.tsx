@@ -39,7 +39,7 @@ export default function Setting() {
         <ThemedButton
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
           mode="normal"
-          onPress={() => router.push("/AccountSetting")}
+          onPress={() => router.push("/Account_Detail")}
         >
           <View className="pl-2 pr-4"> {/* ใส่ padding ซ้ายและขวาให้ไอคอน */}
             <Feather name="circle" size={30} color={componentIcon}/>
