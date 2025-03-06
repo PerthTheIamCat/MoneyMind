@@ -1,3 +1,4 @@
+
 import React, { useContext, useState } from 'react';
 import { View, Switch, StyleSheet, useColorScheme, ScrollView } from 'react-native';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';

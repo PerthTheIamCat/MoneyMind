@@ -120,6 +120,8 @@ export default function RootLayout() {
               <Stack.Screen name="NewPassword1" options={{headerShown : false}} />
               <Stack.Screen name="Account_Detail" options={{ headerTitle: "Account Detail", presentation: "modal" }} />
               <Stack.Screen name="NotificationSetting" options={{headerTitle : "Notification Settings" , presentation : "modal"}}/>
+              <Stack.Screen name="IconTransaction" options={{headerTitle : "Icon Transaction" , presentation : "modal"}}/>
+              <Stack.Screen name="AccountSetting" options={{headerTitle : "Account Detail" , presentation : "modal"}}/>
             </Stack>
             <StatusBar style="auto" />
           </TermsProvider>

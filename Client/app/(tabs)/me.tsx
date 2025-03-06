@@ -40,12 +40,14 @@ export default function Setting() {
           mode="normal"
           onPress={() => router.push("/AccountSetting")}
         >
-          <Feather name="circle" size={30} color={componentIcon} />
-          <View className="flex-1 ml-3">
-            <ThemedText className={`text-[18px] font-bold mx-2 ${textColor}`}>
+          <View className="pl-2 pr-4"> {/* ใส่ padding ซ้ายและขวาให้ไอคอน */}
+            <Feather name="circle" size={30} color={componentIcon}/>
+          </View>
+          <View className="flex-1">
+            <ThemedText className={`text-[18px] font-bold ${textColor}`}>
               {username ? username : "FirstName LastName"}
             </ThemedText>
-            <ThemedText className="text-gray-500 text-[14px] mx-2">
+            <ThemedText className="text-gray-500 text-[14px]">
               Profile, account setting
             </ThemedText>
           </View>
@@ -59,7 +61,7 @@ export default function Setting() {
         <ThemedButton
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
           mode="normal"
-          onPress={() => router.push("/NotificationSetting")}
+          onPress={() => router.push("../NotificationSetting")}
         >
           <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
             Notification
@@ -83,7 +85,7 @@ export default function Setting() {
         <ThemedButton
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
           mode="normal"
-          onPress={() => router.push("/IconTransaction")}
+          onPress={() => router.push("../IconTransaction")}
         >
           <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
             Icon Transaction
