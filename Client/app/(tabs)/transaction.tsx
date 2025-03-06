@@ -199,6 +199,7 @@ export default function Index() {
                           onDelete={() =>
                             handleDeleteTransaction(transaction.id ?? 0)
                           }
+                          checkpage={"transactions"}
                         />
                       </View>
                     );
