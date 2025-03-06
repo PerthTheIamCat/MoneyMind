@@ -126,16 +126,11 @@ export default function Index() {
           </ThemedView>
           <ThemedView className="!items-start pl-[10%] pt-[2%] bg-[E5E5E5]">
             <ThemedText
-              onPress={() => router.push("/Month_Summary")}
               className=" text-[18px]"
             >
               Connected
             </ThemedText>
             <ThemedText
-              onPress={() => {
-                console.log("Navigating to Account_Detail...");
-                router.push("/Account_Detail");
-              }}
               className="font-bold text-[24px]"
             >
               Accounts

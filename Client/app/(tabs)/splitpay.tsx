@@ -217,7 +217,7 @@ export default function SplitPay() {
               }}
             />
             <Ionicons
-              onPress={() => router.push("/Add_Transaction")}
+              onPress={() => router.push("/NotificationPage")}
               name="notifications-outline"
               size={32}
               color={theme === "dark" ? "#F2F2F2" : "#2F2F2F"}

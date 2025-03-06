@@ -191,7 +191,7 @@ export function ThemedCard({
             }}
           >
             {/* ตัวเลือก Edit/Delete */}
-            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+            <Pressable onPress={(e) => e.stopPropagation()}>
               <ThemedView
                 className="absolute z-10 rounded-lg shadow-lg"
                 style={{
@@ -227,7 +227,7 @@ export function ThemedCard({
                   </ThemedText>
                 </Pressable>
               </ThemedView>
-            </TouchableWithoutFeedback>
+            </Pressable>
           </View>
         </TouchableWithoutFeedback>
       )}
