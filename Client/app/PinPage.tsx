@@ -8,6 +8,10 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ThemedNumPad } from "@/components/ThemedNumPad";
+import { VerifyPinHandler } from "@/hooks/auth/VerifyPin";
+import { UserContext } from "@/hooks/conText/UserContext";
+import { ServerContext } from "@/hooks/conText/ServerConText";
+import { verify } from "crypto";
 
 export default function PinPage() {
   const auth = useContext(AuthContext);
@@ -15,6 +19,8 @@ export default function PinPage() {
   const [code, setCode] = useState<number[]>([]);
   const theme = useColorScheme();
   const codeLength = Array(6).fill(0);
+  const { userID } = useContext(UserContext);
+  const { URL } = useContext(ServerContext);
 
   const handlePress = (value: string) => {
     if (code.length < 6) {
@@ -29,15 +35,37 @@ export default function PinPage() {
   };
 
   const handleVerifyPin = async () => {
-    if ((await auth?.isPinSet) && (await auth?.verifyPin(pin))) {
+    if (!auth || !auth.token) {
+      Alert.alert("Error", "User authentication is missing.");
+      return;
+    }
+
+    const storedPin = await auth.verifyPin(pin); // Check local PIN
+    if (storedPin) {
+      console.log("Local PIN Matched ✅");
       router.replace("/(tabs)");
-    } else if (await !auth?.isPinSet) {
-      alert("Please set your PIN first");
-      router.replace("/CreatePinPage");
-    } else {
-      setPin("");
-      setCode([]);
-      Alert.alert("Invalid PIN");
+      return;
+    }
+
+    try {
+      console.log("Checking PIN with database... ⏳");
+      const response = await VerifyPinHandler(URL, auth?.token!, {
+        user_id: userID!,
+        pin: pin,
+      });
+
+      if (response.success) {
+        console.log("Database PIN Matched ✅");
+        router.replace("/(tabs)");
+      } else {
+        console.log("PIN incorrect ❌");
+        setPin("");
+        setCode([]);
+        Alert.alert("Invalid PIN", response.message);
+      }
+    } catch (error) {
+      console.error("Error verifying PIN:", error);
+      Alert.alert("Error", "Something went wrong while verifying PIN.");
     }
   };
 
@@ -52,15 +80,35 @@ export default function PinPage() {
   }, []);
 
   useEffect(() => {
-    if (code.length === 6) {
-      if (pin === "") {
-        setPin(code.join(""));
-        setCode([]);
-      }
+    if (pin.length === 6) {
+      handleVerifyPin();
     }
-  }, [code]);
+  }, [pin]);
 
   useEffect(() => {
+    const verifyPinFromDatabase = async () => {
+      if (pin.length === 6) {
+        try {
+          const apiUrl = URL; // Replace with your actual API URL
+          const token = auth?.token!; // Ensure the token is provided
+          const response = await VerifyPinHandler(apiUrl, token, {
+            user_id: userID!,
+            pin: pin,
+          });
+
+          if (response.success) {
+            router.replace("/(tabs)");
+          } else {
+            setPin("");
+            setCode([]);
+            Alert.alert("Invalid PIN", response.message);
+          }
+        } catch (error) {
+          Alert.alert("Error", "Something went wrong while verifying PIN.");
+        }
+      }
+    };
+
     if (pin.length === 6) {
       handleVerifyPin();
     }

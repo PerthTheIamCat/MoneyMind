@@ -10,6 +10,8 @@ import { router } from "expo-router";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { TouchableOpacity } from "react-native";
+import { getPinFromDatabase } from "@/hooks/auth/GetPin";
+import { UserContext } from "@/hooks/conText/UserContext";
 
 export default function Index() {
   const [usernameEmail, setUsernameEmail] = useState<string>("");
@@ -20,42 +22,66 @@ export default function Index() {
 
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
+  const { userID } = useContext(UserContext);
 
   const handleSignIn = async () => {
-    console.log("Sign In :",usernameEmail, password);
+    console.log("Sign In:", usernameEmail, password);
+
     try {
-      if (usernameEmail === "") {
+      if (usernameEmail.trim() === "") {
         setErrorUsernameEmail("Username/Email is required");
         return;
-      } else {
-        setErrorUsernameEmail("");
       }
-      if (password === "") {
+
+      if (password.trim() === "") {
         setErrorPassword("Password is required");
         return;
-      } else {
-        setErrorPassword("");
       }
-      const timeoutId = setTimeout(()=> {
-        setIsLoading(false);
-        alert("Sign In is taking too long. Please try again later.");
-      }, 5000);
+
       setIsLoading(true);
-      SignInHandler(URL, { input: usernameEmail, password: password }).then((response) => {
-        console.log(response);
-        if (response.success) {
-          clearTimeout(timeoutId);
-          auth?.setToken(response.accessToken);
-          setIsLoading(false);
-          router.replace("/(tabs)");
-        } else {
-          clearTimeout(timeoutId);
-          setIsLoading(false);
-          setErrorUsernameEmail(response.message);
-        }
+
+      const response = await SignInHandler(URL, {
+        input: usernameEmail,
+        password,
       });
+
+      if (response.success) {
+        // clearTimeout(timeoutId);
+        auth?.setToken(response.accessToken);
+
+        // Fetch the PIN from the database
+        const databasePin = await getPinFromDatabase(
+          URL,
+          userID!,
+          auth?.token!
+        );
+
+        console.log(
+          "Database PIN:",
+          databasePin,
+          "Auth isPinSet:",
+          auth?.isPinSet
+        );
+
+        setIsLoading(false);
+
+        // If PIN is missing (null or empty), redirect to CreatePinPage
+        if (databasePin === null || databasePin.trim() === "") {
+          console.log("No PIN found. Redirecting to CreatePinPage...");
+          router.replace("/CreatePinPage");
+          return;
+        }
+
+        // Otherwise, redirect to Account Details
+        router.replace("/Account_Detail");
+      } else {
+        setIsLoading(false);
+        setErrorUsernameEmail(response.message);
+      }
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      setIsLoading(false);
+      alert("An error occurred while signing in. Please try again.");
     }
   };
 
@@ -71,9 +97,7 @@ export default function Index() {
           }}
         />
         <ThemedView className="w-[80%] mt-5 px-5 gap-5">
-          <ThemedText className="text-2xl font-bold w-full">
-              Sign In
-          </ThemedText>
+          <ThemedText className="text-2xl font-bold w-full">Sign In</ThemedText>
           <ThemedInput
             value={usernameEmail}
             autoComplete="username"
@@ -92,7 +116,12 @@ export default function Index() {
           />
         </ThemedView>
         <ThemedView className=" w-full  mt-[65%]">
-          <ThemedButton mode="confirm" className="w-[60%] mt-5 h-14 " onPress={handleSignIn} isLoading={isLoading}>
+          <ThemedButton
+            mode="confirm"
+            className="w-[60%] mt-5 h-14 "
+            onPress={handleSignIn}
+            isLoading={isLoading}
+          >
             Sign In
           </ThemedButton>
           <ThemedButton
@@ -102,8 +131,10 @@ export default function Index() {
           >
             Sign Up
           </ThemedButton>
-          <TouchableOpacity onPress={() => router.replace('/OTPpasswordSend')}>
-            <ThemedText className="mt-3 mb-5 underline">Forgot Password?</ThemedText>
+          <TouchableOpacity onPress={() => router.replace("/OTPpasswordSend")}>
+            <ThemedText className="mt-3 mb-5 underline">
+              Forgot Password?
+            </ThemedText>
           </TouchableOpacity>
         </ThemedView>
       </ThemedView>
