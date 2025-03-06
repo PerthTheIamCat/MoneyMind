@@ -33,8 +33,6 @@ export default function Index() {
     router.push(`../Edit_Transaction?id=${transactionId}`);
   };
 
-  const [activeCardID, setActiveCardID] = useState<number | null>(null);
-
   const { bank, transaction } = useContext(UserContext) ?? {
     bank: [],
     transaction: [],
@@ -66,6 +64,20 @@ export default function Index() {
     }
   }, [isOverlayVisible]);
 
+  const [activeCardID, setActiveCardID] = useState<number | null>(null); // เก็บเมนูที่เปิดอยู่
+  const [selectedCardID, setSelectedCardID] = useState<number | null>(null); // ✅ เก็บค่าการ์ดที่ถูกเลือก
+
+  // ✅ ฟังก์ชันสำหรับเลือกการ์ด (ไม่เกี่ยวกับเมนู)
+  const handleSelectCard = (cardID: number) => {
+    if (selectedCardID === cardID) {
+      console.log(`🔻 Unselecting Card ID: ${cardID}`);
+      setSelectedCardID(null); // ✅ ยกเลิกการเลือกถ้ากดซ้ำ
+    } else {
+      console.log(`✅ Selecting Card ID: ${cardID}`);
+      setSelectedCardID(cardID); // ✅ เลือกการ์ดใหม่
+    }
+  };
+  
   const handleToggleOptions = (cardID: number) => {
     if (activeCardID === cardID) {
       setActiveCardID(null); // ถ้ากดซ้ำ ให้ปิดเมนู
@@ -73,7 +85,7 @@ export default function Index() {
       setActiveCardID(null); // ปิดเมนูเดิมก่อน
       setTimeout(() => {
         setActiveCardID(cardID); // เปิดเมนูใหม่หลังจากปิดเดิมแล้ว
-      }, 50);
+      }, 100);
     }
   };
 
@@ -154,6 +166,8 @@ export default function Index() {
                       imageIndex={Number(account.icon_id)}
                       isOptionsVisible={activeCardID === account.id}
                       setOptionsVisible={() => handleToggleOptions(account.id)}
+                      isSelected={selectedCardID === account.id} // ✅ ส่งค่าการ์ดที่เลือก
+                      onSelectCard={() => handleSelectCard(account.id)} // ✅ ฟังก์ชันเลือกการ์ด
                     />
                   ))
                 ) : (

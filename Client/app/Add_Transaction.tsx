@@ -30,7 +30,7 @@ import Icon from "react-native-vector-icons/Feather";
 // import CustomDateTimePicker from "@/components/Date_and_Time";
 import { GetUserBank, resultObject } from "@/hooks/auth/GetUserBank";
 import { th } from "react-native-paper-dates";
-import CustomPaperDatePicker from "@/components/Date_and_Time";
+
 import { GetUserTransaction } from "@/hooks/auth/GetAllTransaction";
 import { transform } from "@babel/core";
 // import DatePicker from "react-native-date-picker";
