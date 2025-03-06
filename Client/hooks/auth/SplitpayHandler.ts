@@ -1,5 +1,6 @@
 import axios from "axios";
 interface SplitpayData {
+  id: number;
   user_id: number;
   account_id: number;
   split_name: string;
@@ -58,6 +59,31 @@ export const getSplitpay = async (
   try {
     const response = await axios.get<SplitpayResponse>(
       `${url}/splitpayments/${account_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log("From splitpayHandler:", response.data);
+    return response.data;
+  } catch (error) {
+    console.log("From splitpayHandler:", error);
+    return (error as SplitpayError).response.data;
+  }
+};
+
+export const updateSplitpay = async (
+  url: string,
+  splitpay_id: number,
+  data: SplitpayData,
+  token: string
+): Promise<SplitpayResponse | SplitpayError["response"]["data"]> => {
+  // console.log("From auth:",data);
+  try {
+    const response = await axios.put<SplitpayResponse>(
+      `${url}/splitpayments/${splitpay_id}`,
+      data,
       {
         headers: {
           Authorization: `Bearer ${token}`,
