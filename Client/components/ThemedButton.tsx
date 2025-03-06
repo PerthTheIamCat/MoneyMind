@@ -53,7 +53,9 @@ export function ThemedButton({
     >
       <ThemedText
         // style={{ fontFamily }}
-        className={`text-center font-bold text-[#F2F2F2] ${textClassName} ${isLoading? "mr-2" : ""}`}
+        className={`text-center font-bold text-[#F2F2F2] ${textClassName} ${
+          isLoading ? "mr-2" : ""
+        }`}
       >
         {children}
       </ThemedText>
