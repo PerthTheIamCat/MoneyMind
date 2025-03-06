@@ -87,7 +87,7 @@ router.put('/:id', jwtValidate, (req, res) => {
     const { split_name, amount_allocated, color_code, icon_id } = req.body;
     
     db.query(
-        'SELECT sp.account_id, ba.user_id FROM splitpayments sp JOIN bankaccounts ba ON sp.account_id = ba.id WHERE sp.id = ? AND ba.user_id = ?',
+        'SELECT sp.account_id, ba.user_id, sp.amount_allocated, sp.remaining_balance FROM splitpayments sp JOIN bankaccounts ba ON sp.account_id = ba.id WHERE sp.id = ? AND ba.user_id = ?',
         [splitPaymentId, req.user.UserID],
         (err, result) => {
             if (err) {
@@ -97,16 +97,49 @@ router.put('/:id', jwtValidate, (req, res) => {
                 return res.status(403).json({ message: 'Unauthorized user or split payment not found', success: false });
             }
 
+            const bankId = result[0].account_id
+            const amount_allocated_old = result[0].amount_allocated
+            let remaining_balance_old = result[0].remaining_balance
+
             db.query(
-                'UPDATE splitpayments SET split_name = ?, amount_allocated = ?, color_code = ?, icon_id = ? WHERE id = ?',
-                [split_name, amount_allocated, color_code, icon_id || null, splitPaymentId],
-                (err, updateResult) => {
+                'SELECT ba.balance, SUM(sp.amount_allocated) AS sumAmount FROM bankaccounts ba LEFT JOIN splitpayments sp ON ba.id = sp.account_id WHERE ba.id = ? and ba.user_id = ? GROUP BY ba.id, ba.balance',
+                [bankId, req.user.UserID],
+                (err, result) => {
                     if (err) {
                         return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
                     }
-                    return res.status(200).json({ message: 'Split Payment updated successfully', success: true });
+
+                    if (result.length === 0) {
+                        return res.status(403).json({ message: 'Bankaccount not found', success: false });
+                    }
+
+                    let sumSplitpay = result[0]
+                    console.log(sumSplitpay)
+
+
+                    let remaining = sumSplitpay.balance - sumSplitpay.sumAmount + amount_allocated_old
+                    console.log(remaining)
+
+                    let remaining_balance_new = remaining_balance_old + amount_allocated - amount_allocated_old
+
+                    if (remaining - amount_allocated < 0) {
+                        return res.status(400).json({ message: 'Your Bank balance remaining does not enough', success: false });
+                    } else if (remaining_balance_new < 0) {
+                        return res.status(400).json({ message: 'Your Split Payment remaining balance does not enough', success: false });
+                    } else {
+                        db.query(
+                            'UPDATE splitpayments SET split_name = ?, amount_allocated = ?, remaining_balance = ?, color_code = ?, icon_id = ? WHERE id = ?',
+                            [split_name, amount_allocated, remaining_balance_new, color_code, icon_id || null, splitPaymentId],
+                            (err, updateResult) => {
+                                if (err) {
+                                    return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                                }
+                                return res.status(200).json({ message: 'Split Payment updated successfully', success: true });
+                            }
+                        );
+                    }
                 }
-            );
+            )
         }
     );
 })
