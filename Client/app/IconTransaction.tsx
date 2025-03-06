@@ -20,6 +20,7 @@ export default function IconTransaction() {
   const isDarkMode = theme === "dark";
   const [editIcons, setIcons] = useState(true);
 
+
   // สีขององค์ประกอบใน Dark Mode
   const bgColor = isDarkMode ? "bg-gray-700" : "bg-gray-300";
   const selectedColor = isDarkMode ? "bg-green-500" : "bg-green-600";
@@ -65,9 +66,10 @@ export default function IconTransaction() {
             </Pressable>
           </ThemedView>
         </ThemedView>
+        <ThemedView>
+          
+        </ThemedView>
       </ThemedView>
-
-
     </ThemedSafeAreaView>
   );
 } 
