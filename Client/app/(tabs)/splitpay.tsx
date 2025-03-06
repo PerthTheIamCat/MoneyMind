@@ -19,8 +19,13 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedCard } from "@/components/ThemedCard";
 import BudgetSkeleton from "@/components/BudgetSkeleton";
 import { ThemedInput } from "@/components/ThemedInput";
+import BudgetItem from "@/components/BudgetItem";
 
-import { addSplitpay, getSplitpay } from "@/hooks/auth/SplitpayHandler";
+import {
+  addSplitpay,
+  getSplitpay,
+  updateSplitpay,
+} from "@/hooks/auth/SplitpayHandler";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -32,9 +37,9 @@ import { ServerContext } from "@/hooks/conText/ServerConText";
 import { resultObject } from "@/hooks/auth/GetUserBank";
 
 import Slider from "@react-native-community/slider";
-import { get } from "http";
 
 interface SplitPayProps {
+  id: number;
   user_id: number;
   account_id: number;
   split_name: string;
@@ -54,19 +59,10 @@ const colors = [
   "#DD2929",
 ];
 
-const icons: { [key: number]: JSX.Element } = {
-  1: <MaterialCommunityIcons name="food-fork-drink" size={24} color="black" />,
-  2: <MaterialCommunityIcons name="shopping" size={24} color="black" />,
-  3: <MaterialCommunityIcons name="car" size={24} color="black" />,
-  4: <MaterialCommunityIcons name="home" size={24} color="black" />,
-  5: <MaterialCommunityIcons name="medical-bag" size={24} color="black" />,
-  6: <MaterialCommunityIcons name="school" size={24} color="black" />,
-  7: <MaterialCommunityIcons name="movie" size={24} color="black" />,
-};
-
 export default function SplitPay() {
   const theme = useColorScheme();
 
+  const [budget_name, setBudgetName] = useState<string>("");
   const [name_error, setNameError] = useState<string>("");
   const [limit_error, setLimitError] = useState<string>("");
 
@@ -78,6 +74,13 @@ export default function SplitPay() {
   const [limitValue, setLimitValue] = useState<number>(100);
   const [inputLimitValue, setInputLimitValue] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [editID, setEditID] = useState<number>(0);
+  const [isBudgetOpenIndex, setIsBudgetOpenIndex] = useState<
+    { index: number; isOpen: boolean }[]
+  >([]);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] =
+    useState<boolean>(false);
 
   const { bank, userID } = useContext(UserContext);
   const { URL } = useContext(ServerContext);
@@ -91,6 +94,29 @@ export default function SplitPay() {
   const cardMargin = 18; // ✅ Margin ระหว่างการ์ด
   const snapToInterval = cardWidth + cardMargin * 2; // ✅ ระยะ snap ให้เป๊ะ
 
+  const icons: { [key: number]: JSX.Element } = {
+    1: (
+      <MaterialCommunityIcons
+        name="food-fork-drink"
+        size={24}
+        color={componentIcon}
+      />
+    ),
+    2: (
+      <MaterialCommunityIcons name="shopping" size={24} color={componentIcon} />
+    ),
+    3: <MaterialCommunityIcons name="car" size={24} color={componentIcon} />,
+    4: <MaterialCommunityIcons name="home" size={24} color={componentIcon} />,
+    5: (
+      <MaterialCommunityIcons
+        name="medical-bag"
+        size={24}
+        color={componentIcon}
+      />
+    ),
+    6: <MaterialCommunityIcons name="school" size={24} color={componentIcon} />,
+    7: <MaterialCommunityIcons name="movie" size={24} color={componentIcon} />,
+  };
   const scrollViewRef = useRef<ScrollView>(null);
   const [selectedCard, setSelectedCard] = useState<resultObject | null>(null);
   const [cardPositions, setCardPositions] = useState<
@@ -145,6 +171,8 @@ export default function SplitPay() {
           if (res.success) {
             console.log("🚀 Splitpay Fetched:", res);
             setBudgets(res.result);
+          } else {
+            setBudgets(null);
           }
           setIsLoading(false);
         }
@@ -160,12 +188,23 @@ export default function SplitPay() {
         scrollViewRef.current?.scrollTo({ x: 0, animated: true });
         setSelectedCard(bank[0]); // ✅ ตั้งค่า selectedCard เป็นการ์ดแรก
         console.log("🚀 First Card Selected:", bank[0]);
+        setIsLoading(true);
+        getSplitpay(URL, bank[0].id, auth?.token!).then((res) => {
+          if (res.success) {
+            console.log("🚀 Splitpay Fetched:", res);
+            setBudgets(res.result);
+          } else {
+            setBudgets(null);
+          }
+          setIsLoading(false);
+        });
       }, 500);
     }
   }, [bank]);
 
   const modalHeight = Dimensions.get("window").height;
   const modalAnimation = useRef(new Animated.Value(-modalHeight)).current;
+  const delectModalAnimation = useRef(new Animated.Value(-modalHeight)).current;
 
   useEffect(() => {
     Animated.timing(modalAnimation, {
@@ -175,30 +214,75 @@ export default function SplitPay() {
     }).start();
   }, [modalVisible]);
 
+  useEffect(() => {
+    Animated.timing(delectModalAnimation, {
+      toValue: isDeleteConfirmOpen ? 0 : -modalHeight,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  }, [isDeleteConfirmOpen]);
+
   const saveHandler = () => {
+    if (!budget_name) {
+      setNameError("Please enter a budget name");
+      return;
+    } else {
+      setNameError("");
+    }
+    if (!limitValue) {
+      setLimitError("Please enter a budget limit");
+      return;
+    } else {
+      setLimitError("");
+    }
+
     if (selectedCard) {
       const data: SplitPayProps = {
+        id: editID,
         user_id: userID!,
         account_id: selectedCard.id,
-        split_name: "Test",
+        split_name: budget_name,
         amount_allocated: limitValue,
         remaining_balance: limitValue,
         color_code: selectColor,
         icon_id: selectIcon,
       };
-      addSplitpay(URL, data, auth?.token!).then((res) => {
-        if (res.success) {
-          console.log("🚀 Splitpay Added:", res);
-        }
-        getSplitpay(URL, selectedCard.id, auth?.token!).then((res) => {
+      if (isEdit) {
+        updateSplitpay(URL, data.id, data, auth?.token!).then((res) => {
           if (res.success) {
-            console.log("🚀 Splitpay Fetched:", res);
-            setBudgets(res.result);
+            console.log("🚀 Splitpay Updated:", res);
+            setModalVisible(false);
+            setIsEdit(false);
           } else {
-            setBudgets(null);
+            console.log("🚀 Splitpay Error:", res);
           }
+          getSplitpay(URL, selectedCard.id, auth?.token!).then((res) => {
+            if (res.success) {
+              console.log("🚀 Splitpay Fetched:", res);
+              setBudgets(res.result);
+            } else {
+              setBudgets(null);
+            }
+          });
         });
-      });
+      } else {
+        addSplitpay(URL, data, auth?.token!).then((res) => {
+          if (res.success) {
+            console.log("🚀 Splitpay Added:", res);
+            setModalVisible(false);
+          } else {
+            console.log("🚀 Splitpay Error:", res);
+          }
+          getSplitpay(URL, selectedCard.id, auth?.token!).then((res) => {
+            if (res.success) {
+              console.log("🚀 Splitpay Fetched:", res);
+              setBudgets(res.result);
+            } else {
+              setBudgets(null);
+            }
+          });
+        });
+      }
     }
   };
 
@@ -341,71 +425,97 @@ export default function SplitPay() {
             )}
           </ThemedView>
           {bank ? (
-            <ThemedView className="w-[80%] min-h-72 h-96 ">
+            <ThemedView className="w-[80%] min-h-72 h-[400px]">
               <ThemedText className="w-full font-bold text-xl">
                 Monthly Budgets
               </ThemedText>
               <ThemedView
-                className={`w-full h-full ${componentColor} rounded-[20px]`}
+                className={`w-full h-full ${componentColor} rounded-xl`}
               >
-                {isLoading ? (
-                  <View className="w-full h-full">
-                    <BudgetSkeleton />
-                    <BudgetSkeleton />
-                    <BudgetSkeleton />
-                  </View>
-                ) : Budgets ? (
-                  <ThemedView className="w-full h-full mt-5 !bg-transparent !justify-start">
-                    {Budgets.map((budget, index) => (
-                      <ThemedView
-                        key={index}
-                        className="w-[90%] flex-row !items-start rounded-xl p-5"
+                <ScrollView>
+                  {isLoading ? (
+                    <View className="w-full h-full">
+                      <BudgetSkeleton />
+                      <BudgetSkeleton />
+                      <BudgetSkeleton />
+                    </View>
+                  ) : Budgets ? (
+                    <ThemedView className="w-full h-full mt-5 !bg-transparent !justify-start gap-3">
+                      {Budgets.map((budget, index) => {
+                        const isOpen =
+                          isBudgetOpenIndex.find((item) => item.index === index)
+                            ?.isOpen || false;
+                        return (
+                          <BudgetItem
+                            onDelete={(id: number) => {
+                              setEditID(id);
+                              setIsDeleteConfirmOpen(true);
+                            }}
+                            onEdit={(budget) => {
+                              setIsEdit(true);
+                              setEditID(budget.id);
+                              setBudgetName(budget.split_name);
+                              setLimitValue(budget.amount_allocated);
+                              setInputLimitValue(
+                                budget.amount_allocated.toString()
+                              );
+                              setSelectColor(budget.color_code);
+                              setSelectIcon(budget.icon_id);
+                              setModalVisible(true);
+                            }}
+                            key={index}
+                            budget={budget}
+                            isOpen={isOpen}
+                            onToggle={() =>
+                              setIsBudgetOpenIndex((prev) => {
+                                const newState = [...prev];
+                                const existingItemIndex = newState.findIndex(
+                                  (item) => item.index === index
+                                );
+                                if (existingItemIndex >= 0) {
+                                  newState[existingItemIndex].isOpen =
+                                    !newState[existingItemIndex].isOpen;
+                                } else {
+                                  newState.push({ index: index, isOpen: true });
+                                }
+                                return newState;
+                              })
+                            }
+                            componentIcon={componentIcon}
+                            icons={icons}
+                          />
+                        );
+                      })}
+                    </ThemedView>
+                  ) : (
+                    <ThemedView className="w-full mt-3 !bg-transparent">
+                      <ThemedButton
+                        className={`${componentColor} h-40 rounded-[20] bg-transparent`}
+                        onPress={() => {
+                          setModalVisible(true);
+                        }}
                       >
-                        <ThemedView
-                          className="w-20 h-20 rounded-xl"
-                          style={{ backgroundColor: budget.color_code }}
-                        >
-                          {React.cloneElement(icons[budget.icon_id], {
-                            size: 24,
-                            style: { marginVertical: 5 },
-                          })}
+                        <ThemedView className="bg-transparent">
+                          <AntDesign
+                            name="filetext1"
+                            size={50}
+                            color={`${componentIcon}`}
+                            className="m-3"
+                          />
+                          <ThemedText className=" text-center font-bold">
+                            Let’s get started with your first budget plan!
+                          </ThemedText>
+                          <AntDesign
+                            name="pluscircleo"
+                            size={50}
+                            color={`${componentIcon}`}
+                            className="m-3"
+                          />
                         </ThemedView>
-                        <ThemedView className="gap-2 ml-4 w-[60%] !items-start bg-transparent">
-                          <ThemedView className="w-24 h-5 rounded-xl bg-gray-500" />
-                          <ThemedView className="w-[80%] h-5 rounded-xl bg-gray-500" />
-                          <ThemedView className="w-24 h-5 rounded-xl bg-gray-500" />
-                        </ThemedView>
-                      </ThemedView>
-                    ))}
-                  </ThemedView>
-                ) : (
-                  <ThemedView className="w-full mt-3 !bg-transparent">
-                    <ThemedButton
-                      className={`${componentColor} h-40 rounded-[20] bg-transparent`}
-                      onPress={() => {
-                        setModalVisible(true);
-                      }}
-                    >
-                      <ThemedView className="bg-transparent">
-                        <AntDesign
-                          name="filetext1"
-                          size={50}
-                          color={`${componentIcon}`}
-                          className="m-3"
-                        />
-                        <ThemedText className=" text-center font-bold">
-                          Let’s get started with your first budget plan!
-                        </ThemedText>
-                        <AntDesign
-                          name="pluscircleo"
-                          size={50}
-                          color={`${componentIcon}`}
-                          className="m-3"
-                        />
-                      </ThemedView>
-                    </ThemedButton>
-                  </ThemedView>
-                )}
+                      </ThemedButton>
+                    </ThemedView>
+                  )}
+                </ScrollView>
               </ThemedView>
             </ThemedView>
           ) : (
@@ -443,7 +553,10 @@ export default function SplitPay() {
       >
         <ThemedView
           className="h-[40%] w-full bg-transparent"
-          onTouchEnd={() => setModalVisible(false)}
+          onTouchEnd={() => {
+            setModalVisible(false);
+            setIsEdit(false);
+          }}
         />
         <ThemedView className="h-[60%] w-full border-t-4 border-l-4 border-r-4 border-black/30 rounded-t-3xl">
           <ThemedView
@@ -482,7 +595,8 @@ export default function SplitPay() {
                   setSelectIcon(Number(key));
                 }}
                 style={{
-                  backgroundColor: selectIcon === Number(key) ? "#D9D9D9" : "",
+                  backgroundColor:
+                    selectIcon === Number(key) ? "#D9D9D9" : "transparent",
                 }}
               >
                 {icon}
@@ -490,12 +604,18 @@ export default function SplitPay() {
             ))}
           </ThemedView>
           <ThemedView className="w-[80%]">
-            <ThemedInput title="Budget Name" className="w-full" error="" />
+            <ThemedInput
+              title="Budget Name"
+              className="w-full"
+              error={name_error}
+              onChangeText={setBudgetName}
+              value={budget_name}
+            />
             <ThemedView className="mb-4 w-full">
               <ThemedInput
                 title="Limit"
                 className="w-full"
-                error=""
+                error={limit_error}
                 value={inputLimitValue}
                 onChangeText={(text) => {
                   const numValue = Number(text);
@@ -548,7 +668,6 @@ export default function SplitPay() {
           <ThemedButton
             mode="confirm"
             onPress={() => {
-              setModalVisible(false);
               saveHandler();
             }}
             className="w-1/4 h-10"
@@ -556,6 +675,66 @@ export default function SplitPay() {
             save
           </ThemedButton>
         </ThemedView>
+      </Animated.View>
+      <ThemedView
+        className="w-16 h-16 !bg-[#AACC00] absolute right-6 bottom-16 rounded-full"
+        onTouchEnd={() => setModalVisible(true)}
+      >
+        <MaterialCommunityIcons name="plus" size={40} color="white" />
+      </ThemedView>
+      <Animated.View
+        style={{
+          position: "absolute",
+          bottom: delectModalAnimation,
+          width: "100%",
+          height: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 10,
+          backgroundColor: "transparent",
+        }}
+      >
+        <ThemedView
+          className="w-full h-[30%] bg-transparent"
+          onTouchEnd={() => setIsDeleteConfirmOpen(false)}
+        />
+        <ThemedView
+          className={`w-[80%] h-[40%] border-8 border-black/30 rounded-2xl`}
+        >
+          <View className="bg-[#EA303E] rounded-full">
+            <Ionicons name="alert-outline" size={50} color="white" />
+          </View>
+          <ThemedText className="text-4xl font-bold pb-10">
+            Delete Alert
+          </ThemedText>
+          <ThemedText className="w-[80%] text-lg text-center">
+            The data will be permanently removed with no recovery option.
+            Confirm deletion?
+          </ThemedText>
+          <ThemedView className="flex flex-row !justify-around w-full pt-5">
+            <ThemedButton
+              mode="cancel"
+              className="w-[40%] h-16"
+              onPress={() => {
+                setIsDeleteConfirmOpen(false);
+              }}
+            >
+              Delete
+            </ThemedButton>
+            <ThemedButton
+              className="w-[40%] h-16"
+              onPress={() => {
+                setIsDeleteConfirmOpen(false);
+              }}
+            >
+              Cancel
+            </ThemedButton>
+          </ThemedView>
+        </ThemedView>
+        <ThemedView
+          className="w-full h-[30%] bg-transparent"
+          onTouchEnd={() => setIsDeleteConfirmOpen(false)}
+        />
       </Animated.View>
     </>
   );
