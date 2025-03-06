@@ -24,18 +24,6 @@ export default function TransactionItem({ transaction, theme, onEdit, onDelete }
   const componentcolor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
 
-  // useEffect(() => {
-  //   let timer: ReturnType<typeof setInterval>;
-  //   if (showOverlay && countdown > 0) {
-  //     timer = setInterval(() => {
-  //       setCountdown((prev) => prev - 1);
-  //     }, 1000);
-  //   } else if (countdown === 0) {
-  //     handleConfirmDelete();
-  //   }
-  //   return () => clearInterval(timer);
-  // }, [showOverlay, countdown]);
-
   useEffect(() => {
     let timer: ReturnType<typeof setInterval>;
     if (isDeleteModalVisible && countdown > 0) {
@@ -57,9 +45,6 @@ export default function TransactionItem({ transaction, theme, onEdit, onDelete }
     onDelete(); // เรียก function ที่ส่งมา
   };
 
-  // const handleCancel = () => {
-  //   setShowOverlay(false);
-  // };
 
   return (
     <>
@@ -69,9 +54,14 @@ export default function TransactionItem({ transaction, theme, onEdit, onDelete }
           <ThemedText className="font-bold text-lg">{transaction.transaction_name}</ThemedText>
           <ThemedText>{transaction.note}</ThemedText>
         </View>
-        <Text className={`font-bold text-[16px] ${transaction.transaction_type === "income" ? "text-green-500" : "text-red-500"}`}>
-          {transaction.amount}
-        </Text>
+        <View className="justify-end items-end">
+          <Text className={`font-bold text-[16px] ${transaction.transaction_type === "income" ? "text-green-500" : "text-red-500"}`}>
+            {transaction.amount}
+          </Text>
+          <ThemedText>
+            {new Date(transaction.transaction_date).toLocaleString("th-TH").slice(9,14)}
+          </ThemedText>
+        </View>
         <Pressable onPress={() => setShowDropdown(!showDropdown)}>
           <Entypo name="dots-three-vertical" size={20} color={componenticon} style={{ marginLeft: 8 }} />
         </Pressable>
@@ -87,25 +77,6 @@ export default function TransactionItem({ transaction, theme, onEdit, onDelete }
           </ThemedView>
         )}
       </View>
-
-      {/* {showOverlay && (
-        <Modal>
-        <Pressable className="absolute inset-0 flex items-center justify-center z-50 bg-black/50">
-          <ThemedView className="p-6 rounded-lg w-80 shadow-md text-center h-52">
-            <ThemedText className="text-lg font-bold mb-4">Confirm Deletion</ThemedText>
-            <ThemedText className="mb-4">Are you sure you want to delete this transaction?</ThemedText>
-            <View className="flex-row justify-between gap-5">
-              <Pressable onPress={handleCancel} className="bg-gray-300 px-4 py-2 rounded-lg">
-                <Text>Cancel</Text>
-              </Pressable>
-              <Pressable onPress={handleConfirmDelete} className="bg-red-500 px-4 py-2 rounded-lg">
-                <Text className="text-white">Confirm ({countdown}s)</Text>
-              </Pressable>
-            </View>
-          </ThemedView>
-        </Pressable>
-        </Modal>
-      )} */}
 
 <Modal
         transparent={true}
