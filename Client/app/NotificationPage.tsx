@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import { useColorScheme } from "react-native";
+import { Pressable, useColorScheme } from "react-native";
 
 import { Animated, TouchableHighlight, TouchableOpacity } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
@@ -131,7 +131,7 @@ export default function Index() {
         }}
       >
         <ThemedView className={`mt-2 bg-transparent `}>
-          <TouchableHighlight className={`bg-transparent w-[90%]`} onPress={() => RouterPath(item.id,item.notification_type)}>
+          <Pressable className={`bg-transparent w-[90%]`} onPress={() => RouterPath(item.id,item.notification_type)}>
             <ThemedView
               className={`flex-row  p-3 pl-12 h-fit rounded-3xl  ${bgColor}`}
             >
@@ -155,7 +155,7 @@ export default function Index() {
                 </ThemedText>
               </ThemedView>
             </ThemedView>
-          </TouchableHighlight>
+          </Pressable>
         </ThemedView>
       </Animated.View>
     );

@@ -54,6 +54,8 @@ type ThemedCardProps = {
   className?: string;
   isOptionsVisible?: boolean; // Controlled by parent
   setOptionsVisible?: (visible: boolean) => void; // Controlled by parent
+  isSelected?: boolean; // ✅ บอกว่าการ์ดนี้ถูกเลือกหรือไม่
+  onSelectCard?: () => void; // ✅ ฟังก์ชันเลือกการ์ด
 };
 
 export function ThemedCard({
@@ -66,6 +68,8 @@ export function ThemedCard({
   className,
   isOptionsVisible,
   setOptionsVisible,
+  onSelectCard,
+  isSelected,
 }: ThemedCardProps) {
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const [countdown, setCountdown] = useState(5);
@@ -141,13 +145,15 @@ export function ThemedCard({
     reloadTransaction();
   };
 
-  return (
+    return (
+      <Pressable onPress={onSelectCard} className="relative">
     <ThemedView
       className={`!rounded-2xl !flex-row !justify-start !items-start mr-3 ${
         mode === "small"
           ? "w-[125px] h-[125px]"
           : "w-[280px] h-[180px] mx-[8px]"
-      } ${className}`}
+      } ${className}
+      ${isSelected ? "border-2 border-blue-500" : ""} // ✅ เปลี่ยนสไตล์ถ้าการ์ดถูกเลือก`}
       style={{
         backgroundColor: color || "#f2f2f2",
       }}
@@ -161,7 +167,10 @@ export function ThemedCard({
 
       {mode === "small" && (
         <Pressable
-          onPress={() => setOptionsVisible?.(!isOptionsVisible)}
+        onPress={(e) => {
+          e.stopPropagation(); // ✅ ป้องกันการเลือกการ์ดซ้ำเมื่อกด Edit
+          setOptionsVisible?.(!isOptionsVisible);
+        }}
           className="absolute top-4 right-4 p-2 rounded-md"
         >
           <FontAwesome name="pencil" size={16} color="#f2f2f2" />
@@ -169,51 +178,58 @@ export function ThemedCard({
       )}
 
       {isOptionsVisible && (
-        <TouchableOpacity
-          activeOpacity={1}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 5,
-          }}
-        />
-      )}
-
-      {isOptionsVisible && (
-        <ThemedView
-          className="absolute z-10 rounded-lg shadow-lg"
-          style={{
-            top: 40,
-            right: 4,
-            width: 75,
-          }}
-        >
-          <Pressable
-            className="w-full !justify-center !items-center "
-            onPress={() => {
-              router.push({ pathname: "/Edit_Account", params: { CardID } });
-              setOptionsVisible?.(!isOptionsVisible);
+        <TouchableWithoutFeedback onPress={() => setOptionsVisible?.(false)}>
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0,0,0,0.1)", // ให้มีเอฟเฟกต์เงาเบลอ
+              zIndex: 99, // ทำให้คลิกได้ถูกต้อง
             }}
           >
-            <ThemedText className="text-center text-[16px] text-blue-600 w-full mb-2">
-              Edit
-            </ThemedText>
-          </Pressable>
-          <Pressable
-            className="w-full justify-center items-center"
-            onPress={() => {
-              setOptionsVisible?.(!isOptionsVisible);
-              handleDelete();
-            }}
-          >
-            <ThemedText className="text-center text-[16px] text-red-600">
-              Delete
-            </ThemedText>
-          </Pressable>
-        </ThemedView>
+            {/* ตัวเลือก Edit/Delete */}
+            <Pressable onPress={(e) => e.stopPropagation()}>
+              <ThemedView
+                className="absolute z-10 rounded-lg shadow-lg"
+                style={{
+                  top: 40,
+                  right: 4,
+                  width: 75,
+                  backgroundColor: "white",
+                }}
+              >
+                <Pressable
+                  className="w-full justify-center items-center"
+                  onPress={() => {
+                    router.push({
+                      pathname: "/Edit_Account",
+                      params: { CardID },
+                    });
+                    setOptionsVisible?.(false);
+                  }}
+                >
+                  <ThemedText className="text-center text-[16px] text-blue-600 w-full mb-2">
+                    Edit
+                  </ThemedText>
+                </Pressable>
+                <Pressable
+                  className="w-full justify-center items-center"
+                  onPress={() => {
+                    setOptionsVisible?.(false);
+                    handleDelete();
+                  }}
+                >
+                  <ThemedText className="text-center text-[16px] text-red-600">
+                    Delete
+                  </ThemedText>
+                </Pressable>
+              </ThemedView>
+            </Pressable>
+          </View>
+        </TouchableWithoutFeedback>
       )}
 
       {mode === "small" ? (
@@ -307,5 +323,6 @@ export function ThemedCard({
         </TouchableWithoutFeedback>
       </Modal>
     </ThemedView>
+    </Pressable>
   );
 }
