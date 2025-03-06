@@ -169,51 +169,58 @@ export function ThemedCard({
       )}
 
       {isOptionsVisible && (
-        <TouchableOpacity
-          activeOpacity={1}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 5,
-          }}
-        />
-      )}
-
-      {isOptionsVisible && (
-        <ThemedView
-          className="absolute z-10 rounded-lg shadow-lg"
-          style={{
-            top: 40,
-            right: 4,
-            width: 75,
-          }}
-        >
-          <Pressable
-            className="w-full !justify-center !items-center "
-            onPress={() => {
-              router.push({ pathname: "/Edit_Account", params: { CardID } });
-              setOptionsVisible?.(!isOptionsVisible);
+        <TouchableWithoutFeedback onPress={() => setOptionsVisible?.(false)}>
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0,0,0,0.1)", // ให้มีเอฟเฟกต์เงาเบลอ
+              zIndex: 99, // ทำให้คลิกได้ถูกต้อง
             }}
           >
-            <ThemedText className="text-center text-[16px] text-blue-600 w-full mb-2">
-              Edit
-            </ThemedText>
-          </Pressable>
-          <Pressable
-            className="w-full justify-center items-center"
-            onPress={() => {
-              setOptionsVisible?.(!isOptionsVisible);
-              handleDelete();
-            }}
-          >
-            <ThemedText className="text-center text-[16px] text-red-600">
-              Delete
-            </ThemedText>
-          </Pressable>
-        </ThemedView>
+            {/* ตัวเลือก Edit/Delete */}
+            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+              <ThemedView
+                className="absolute z-10 rounded-lg shadow-lg"
+                style={{
+                  top: 40,
+                  right: 4,
+                  width: 75,
+                  backgroundColor: "white",
+                }}
+              >
+                <Pressable
+                  className="w-full justify-center items-center"
+                  onPress={() => {
+                    router.push({
+                      pathname: "/Edit_Account",
+                      params: { CardID },
+                    });
+                    setOptionsVisible?.(false);
+                  }}
+                >
+                  <ThemedText className="text-center text-[16px] text-blue-600 w-full mb-2">
+                    Edit
+                  </ThemedText>
+                </Pressable>
+                <Pressable
+                  className="w-full justify-center items-center"
+                  onPress={() => {
+                    setOptionsVisible?.(false);
+                    handleDelete();
+                  }}
+                >
+                  <ThemedText className="text-center text-[16px] text-red-600">
+                    Delete
+                  </ThemedText>
+                </Pressable>
+              </ThemedView>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
       )}
 
       {mode === "small" ? (
