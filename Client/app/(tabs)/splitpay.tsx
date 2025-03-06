@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   Image,
+  View,
   useColorScheme,
   Animated,
   ScrollView,
@@ -17,19 +18,24 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedCard } from "@/components/ThemedCard";
 import BudgetSkeleton from "@/components/BudgetSkeleton";
+import { ThemedInput } from "@/components/ThemedInput";
+
+import { addSplitpay, getSplitpay } from "@/hooks/auth/SplitpayHandler";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { UserContext } from "@/hooks/conText/UserContext";
+import { AuthContext } from "@/hooks/conText/AuthContext";
+import { ServerContext } from "@/hooks/conText/ServerConText";
 import { resultObject } from "@/hooks/auth/GetUserBank";
-import { ThemedInput } from "@/components/ThemedInput";
+
 import Slider from "@react-native-community/slider";
-import { View } from "moti";
+import { get } from "http";
 
 interface SplitPayProps {
-  id: number;
+  user_id: number;
   account_id: number;
   split_name: string;
   amount_allocated: number;
@@ -61,6 +67,9 @@ const icons: { [key: number]: JSX.Element } = {
 export default function SplitPay() {
   const theme = useColorScheme();
 
+  const [name_error, setNameError] = useState<string>("");
+  const [limit_error, setLimitError] = useState<string>("");
+
   const [page, setPage] = useState<number>(0);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [Budgets, setBudgets] = useState<SplitPayProps[] | null>(null);
@@ -70,7 +79,9 @@ export default function SplitPay() {
   const [inputLimitValue, setInputLimitValue] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const { bank } = useContext(UserContext);
+  const { bank, userID } = useContext(UserContext);
+  const { URL } = useContext(ServerContext);
+  const auth = useContext(AuthContext);
 
   const animation = useRef(new Animated.Value(0)).current;
   const componentColor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
@@ -128,6 +139,16 @@ export default function SplitPay() {
 
     if (closestCard && (closestCard as resultObject).id !== selectedCard?.id) {
       setSelectedCard(closestCard);
+      setIsLoading(true);
+      getSplitpay(URL, (closestCard as resultObject).id, auth?.token!).then(
+        (res) => {
+          if (res.success) {
+            console.log("🚀 Splitpay Fetched:", res);
+            setBudgets(res.result);
+          }
+          setIsLoading(false);
+        }
+      );
       console.log("🎯 Selected Card:", closestCard);
     }
   };
@@ -153,6 +174,33 @@ export default function SplitPay() {
       useNativeDriver: false,
     }).start();
   }, [modalVisible]);
+
+  const saveHandler = () => {
+    if (selectedCard) {
+      const data: SplitPayProps = {
+        user_id: userID!,
+        account_id: selectedCard.id,
+        split_name: "Test",
+        amount_allocated: limitValue,
+        remaining_balance: limitValue,
+        color_code: selectColor,
+        icon_id: selectIcon,
+      };
+      addSplitpay(URL, data, auth?.token!).then((res) => {
+        if (res.success) {
+          console.log("🚀 Splitpay Added:", res);
+        }
+        getSplitpay(URL, selectedCard.id, auth?.token!).then((res) => {
+          if (res.success) {
+            console.log("🚀 Splitpay Fetched:", res);
+            setBudgets(res.result);
+          } else {
+            setBudgets(null);
+          }
+        });
+      });
+    }
+  };
 
   return (
     <>
@@ -307,7 +355,29 @@ export default function SplitPay() {
                     <BudgetSkeleton />
                   </View>
                 ) : Budgets ? (
-                  <ThemedView></ThemedView>
+                  <ThemedView className="w-full h-full mt-5 !bg-transparent !justify-start">
+                    {Budgets.map((budget, index) => (
+                      <ThemedView
+                        key={index}
+                        className="w-[90%] flex-row !items-start rounded-xl p-5"
+                      >
+                        <ThemedView
+                          className="w-20 h-20 rounded-xl"
+                          style={{ backgroundColor: budget.color_code }}
+                        >
+                          {React.cloneElement(icons[budget.icon_id], {
+                            size: 24,
+                            style: { marginVertical: 5 },
+                          })}
+                        </ThemedView>
+                        <ThemedView className="gap-2 ml-4 w-[60%] !items-start bg-transparent">
+                          <ThemedView className="w-24 h-5 rounded-xl bg-gray-500" />
+                          <ThemedView className="w-[80%] h-5 rounded-xl bg-gray-500" />
+                          <ThemedView className="w-24 h-5 rounded-xl bg-gray-500" />
+                        </ThemedView>
+                      </ThemedView>
+                    ))}
+                  </ThemedView>
                 ) : (
                   <ThemedView className="w-full mt-3 !bg-transparent">
                     <ThemedButton
@@ -477,7 +547,10 @@ export default function SplitPay() {
 
           <ThemedButton
             mode="confirm"
-            onPress={() => setModalVisible(false)}
+            onPress={() => {
+              setModalVisible(false);
+              saveHandler();
+            }}
             className="w-1/4 h-10"
           >
             save
