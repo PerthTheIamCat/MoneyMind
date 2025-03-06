@@ -427,8 +427,29 @@ export default function SplitPay() {
                 className="w-full"
                 error=""
                 value={inputLimitValue}
-                onChangeText={(text) => setInputLimitValue(text)}
-                onEndEditing={() => setLimitValue(Number(inputLimitValue))}
+                onChangeText={(text) => {
+                  const numValue = Number(text);
+                  if (
+                    selectedCard?.balance &&
+                    numValue > selectedCard.balance
+                  ) {
+                    setInputLimitValue(selectedCard.balance.toString());
+                  } else {
+                    setInputLimitValue(text);
+                  }
+                }}
+                onEndEditing={() => {
+                  const numValue = Number(inputLimitValue);
+                  if (
+                    selectedCard?.balance &&
+                    numValue > selectedCard.balance
+                  ) {
+                    setLimitValue(selectedCard.balance);
+                    setInputLimitValue(selectedCard.balance.toString());
+                  } else {
+                    setLimitValue(numValue);
+                  }
+                }}
               />
               <Slider
                 style={{ width: "100%", height: 40 }}
