@@ -97,3 +97,26 @@ export const updateSplitpay = async (
     return (error as SplitpayError).response.data;
   }
 };
+
+export const deleteSplitpay = async (
+  url: string,
+  splitpay_id: number,
+  token: string
+): Promise<SplitpayResponse | SplitpayError["response"]["data"]> => {
+  // console.log("From auth:",data);
+  try {
+    const response = await axios.delete<SplitpayResponse>(
+      `${url}/splitpayments/${splitpay_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log("From splitpayHandler:", response.data);
+    return response.data;
+  } catch (error) {
+    console.log("From splitpayHandler:", error);
+    return (error as SplitpayError).response.data;
+  }
+};
