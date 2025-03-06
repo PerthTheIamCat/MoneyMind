@@ -25,6 +25,7 @@ import {
   addSplitpay,
   getSplitpay,
   updateSplitpay,
+  deleteSplitpay,
 } from "@/hooks/auth/SplitpayHandler";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -37,6 +38,7 @@ import { ServerContext } from "@/hooks/conText/ServerConText";
 import { resultObject } from "@/hooks/auth/GetUserBank";
 
 import Slider from "@react-native-community/slider";
+import { de } from "react-native-paper-dates";
 
 interface SplitPayProps {
   id: number;
@@ -284,6 +286,25 @@ export default function SplitPay() {
         });
       }
     }
+  };
+  const DeleteHandler = () => {
+    deleteSplitpay(URL, editID, auth?.token!).then((res) => {
+      if (res.success) {
+        console.log("🚀 Splitpay Deleted:", res);
+        setIsDeleteConfirmOpen(false);
+        getSplitpay(URL, selectedCard!.id, auth?.token!).then((res) => {
+          if (res.success) {
+            console.log("🚀 Splitpay Fetched:", res);
+            setBudgets(res.result);
+          } else {
+            setBudgets(null);
+          }
+        });
+        setIsDeleteConfirmOpen(false);
+      } else {
+        console.log("🚀 Splitpay Error:", res);
+      }
+    });
   };
 
   return (
@@ -716,7 +737,7 @@ export default function SplitPay() {
               mode="cancel"
               className="w-[40%] h-16"
               onPress={() => {
-                setIsDeleteConfirmOpen(false);
+                DeleteHandler();
               }}
             >
               Delete
