@@ -2,7 +2,7 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Image } from "expo-image";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Pressable } from "react-native";
 import Foundation from "@expo/vector-icons/Foundation";
 import { TextInput } from "react-native-paper";
@@ -18,6 +18,9 @@ import { router } from "expo-router";
 import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { Alert } from "react-native";
+import { ThemedButton } from "@/components/ThemedButton";
+import { UserContext } from "@/hooks/conText/UserContext";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 interface Device {
   device_id: number;
@@ -79,41 +82,43 @@ const mockAccount: Account = {
 };
 
 export default function Account_Detail() {
-  const {URL} = useContext(ServerContext);
+  const { URL } = useContext(ServerContext);
   const [Devices, setDevices] = useState(mockAccount.device);
-  const [bioText, setBioText] = useState("");
+  const [bioText, setBioText] = useState(mockAccount.note);
+
+  const [username, setUsername] = useState(mockAccount.user_name);
+  const [displayUsername, setDisplayUsername] = useState(mockAccount.user_name);
+  const [modalVisible_Username, setModalVisible_Username] = useState(false);
+
+  const [full_name, setFull_name] = useState(mockAccount.full_name);
+  const [displayfull_name, setDisplayfull_name] = useState(
+    mockAccount.full_name
+  );
+  const [modalVisible_Fullname, setModalVisible_Fullname] = useState(false);
+
+  const [displaybirth_day, setDisplaybirth_day] = useState<Date>(new Date(mockAccount.birth_day));
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [modalVisible_Birth_day, setModalVisible_Birth_day] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date(mockAccount.birth_day));
+
+  // ใช้ tempDate เก็บค่าชั่วคราวขณะเลือกวันเกิด
+  const [tempDate, setTempDate] = useState<Date>(new Date(mockAccount.birth_day));
+
   const theme = useColorScheme();
   const [isEditing, setIsEditing] = useState(false);
-  const [editField, setEditField] = useState("");
-  const [modalVisible, setModalVisible] = useState(false);
-  const [tempValue, setTempValue] = useState("");
-  const [account, setAccount] = useState<Account>(mockAccount);
-  const [email, setEmail] = useState<string>("");
-  const [isSending, setIsSending] = useState<"success" | "sending" | "fail" | null>(null);
+
+  // const [email, setEmail] = useState<string>("");
+  const { email } = useContext(UserContext);
+  const [isSending, setIsSending] = useState<
+    "success" | "sending" | "fail" | null
+  >(null);
 
   const [gender, setGender] = useState<"male" | "female" | null>(
     mockAccount.gender
   );
 
-  const handleEditPress = (field: keyof Account) => {
-    if (isEditing) {
-      setModalVisible(true);
-      setEditField(field);
-      setTempValue(String(account[field]));
-    }
-  };
-
-  const handleSave = () => {
-    setAccount({ ...account, [editField]: tempValue });
-    setModalVisible(false);
-  };
-
   const getTextColor = () => {
     return theme === "dark" ? "#FFF" : "#2F2F2F"; // สีข้อความเปลี่ยนตามธีม
-  };
-
-  const getPlaceholderColor = () => {
-    return theme === "dark" ? "#888" : "#fff"; // สีของ placeholder เปลี่ยนตามธีม
   };
 
   const handleSignOutAll = () => {
@@ -126,29 +131,54 @@ export default function Account_Detail() {
     console.log(`Signing out from device ID: ${deviceId}`);
   };
 
+  const showDatePicker = () => {
+    setTempDate(selectedDate); // กำหนด tempDate ให้เท่ากับค่าที่ใช้อยู่
+    setDatePickerVisibility(true);
+  };
+  const hideDatePicker = () => setDatePickerVisibility(false);
+
+  const handleDateConfirm = (date: Date) => {
+    console.log("เลือกวันเกิด: ", date.toLocaleString("th-TH"));
+    setTempDate(date); // กำหนด tempDate เป็นค่าที่เลือกใหม่
+    hideDatePicker();
+  };
+
+  const sendEmail = email ?? "";
   const handleSendOTP = () => {
-      setIsSending("sending");
-      SendOTPHandler(URL, { email })
-        .then((response) => {
-          if (response.success) {
-            setIsSending("success");
-            Alert.alert("Success", "OTP sent to your email address.");
-            router.push({
-              pathname: "/OTPpasswordVerify",
-              params: { email },
-            });
-          } else {
-            setIsSending("fail");
-            Alert.alert("Error", "Failed to send OTP. Please try again.");
-            console.error(response.message);
-          }
-        })
-        .catch((error) => {
+    setIsSending("sending");
+    SendOTPHandler(URL, { email: sendEmail })
+      .then((response) => {
+        if (response.success) {
+          setIsSending("success");
+          Alert.alert("Success", "OTP sent to your email address.");
+          router.push({
+            pathname: "/OTPpasswordVerify",
+            params: { email },
+          });
+        } else {
           setIsSending("fail");
           Alert.alert("Error", "Failed to send OTP. Please try again.");
-          console.error(error);
-        });
-    };
+          console.error(response.message);
+        }
+      })
+      .catch((error) => {
+        setIsSending("fail");
+        Alert.alert("Error", "Failed to send OTP. Please try again.");
+        console.error(error);
+      });
+  };
+
+  useEffect(() => {
+    if (modalVisible_Username) {
+      setUsername(displayUsername);
+    }
+  }, [modalVisible_Username]);
+
+  useEffect(() => {
+    if (modalVisible_Fullname) {
+      setFull_name(displayfull_name);
+    }
+  }, [modalVisible_Fullname]);
 
   return (
     <>
@@ -174,10 +204,10 @@ export default function Account_Detail() {
 
           <ThemedView className="flex-row justify-between items-center w-full pr-8">
             <ThemedText className=" text-xl font-bold pl-3 ">
-              {mockAccount.user_name}{" "}
+              {displayUsername}
             </ThemedText>
             <Pressable
-              onPress={() => handleEditPress("user_name")}
+              onPress={() => setModalVisible_Username(true)}
               disabled={!isEditing}
             >
               <ThemedText style={{ opacity: isEditing ? 1 : 0.5 }}>
@@ -191,10 +221,10 @@ export default function Account_Detail() {
           <ThemedText className=" text-2xl font-bold ">Full Name</ThemedText>
           <ThemedView className="flex-row justify-between items-center w-full pr-8">
             <ThemedText className=" text-xl font-bold pl-3 ">
-              {mockAccount.full_name}{" "}
+              {displayfull_name}{" "}
             </ThemedText>
             <Pressable
-              onPress={() => handleEditPress("full_name")}
+              onPress={() => setModalVisible_Fullname(true)}
               disabled={!isEditing}
             >
               <ThemedText style={{ opacity: isEditing ? 1 : 0.5 }}>
@@ -209,11 +239,15 @@ export default function Account_Detail() {
             Date of Birth
           </ThemedText>
           <ThemedView className="flex-row justify-between items-center w-full pr-8">
-            <ThemedText className=" text-xl font-bold pl-3">
-              {mockAccount.birth_day}
-            </ThemedText>
+          <ThemedText className="text-xl font-bold pl-3">
+        {selectedDate.toLocaleDateString("th-TH", {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+        })}
+      </ThemedText>
             <Pressable
-              onPress={() => handleEditPress("birth_day")}
+              onPress={() => setModalVisible_Birth_day(true)}
               disabled={!isEditing}
             >
               <ThemedText style={{ opacity: isEditing ? 1 : 0.5 }}>
@@ -254,15 +288,15 @@ export default function Account_Detail() {
               style={{
                 flex: 1,
                 backgroundColor: theme === "dark" ? "#121212" : "#f2f2f2",
-                color: getTextColor(),
+                color: theme === "dark" ? "#888" : "#444",
                 borderRadius: 10,
                 borderWidth: 1,
-                borderColor: theme === "dark" ? "#2F2F2F" : "#ffffff",
-                padding: 3,
+                borderColor: theme === "dark" ? "#2F2F2F" : "#0f0f0f",
+                padding: 7,
                 minHeight: 60,
                 maxsssHeight: 100,
               }}
-              placeholderTextColor={getPlaceholderColor()}
+              placeholderTextColor={theme === "dark" ? "#888" : "#444"}
               value={bioText} // ค่าข้อความที่พิมพ์
               onChangeText={(newText) => setBioText(newText)}
               editable={isEditing}
@@ -277,7 +311,7 @@ export default function Account_Detail() {
 
           <ThemedView className="flex-row justify-between items-center w-full pr-8">
             <ThemedText className=" text-xl font-bold pl-3 ">
-              {mockAccount.email}{" "}
+              {email}{" "}
             </ThemedText>
           </ThemedView>
         </ThemedView>
@@ -290,7 +324,9 @@ export default function Account_Detail() {
               {"*".repeat(mockAccount.password.length)}
             </ThemedText>
             <Pressable
-              onPress={() => {handleSendOTP} }
+              onPress={() => {
+                handleSendOTP();
+              }}
               disabled={!isEditing}
             >
               <ThemedText style={{ opacity: isEditing ? 1 : 0.5 }}>
@@ -340,6 +376,7 @@ export default function Account_Detail() {
         </Pressable>
       </ThemedSafeAreaView>
 
+      {/* ปุ่ม save */}
       <Pressable
         onPress={() => setIsEditing(!isEditing)}
         className="absolute top-3 right-3 bg-amber-500 px-4 py-2 rounded-lg shadow-lg"
@@ -349,57 +386,244 @@ export default function Account_Detail() {
         </Text>
       </Pressable>
 
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-          <View
+      {modalVisible_Username && (
+        <TouchableWithoutFeedback
+          onPress={() => setModalVisible_Username(false)}
+        >
+          <ThemedView
             style={{
-              flex: 1,
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
               justifyContent: "center",
               alignItems: "center",
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
             }}
           >
-            <ThemedView
-              className="w-96 h-64 p-4 rounded-2xl"
-              style={{
-                backgroundColor: "red",
-                borderRadius: 10,
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={{ fontSize: 18, fontWeight: "bold", top: 50, left: 50 }}
-              >
-                Edit {editField.replace("_", " ")}
-              </Text>
-              <TextInput
+            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+              <ThemedView
                 style={{
-                  borderBottomWidth: 1,
-                  width: "100%",
-                  marginVertical: 10,
-                  padding: 5,
+                  width: 300,
+                  padding: 20,
+                  borderRadius: 10,
+                  alignItems: "center",
                 }}
-                value={tempValue}
-                onChangeText={setTempValue}
-              />
-              <Pressable onPress={handleSave} style={{ marginTop: 10 }}>
-                <Text style={{ color: "blue", fontWeight: "bold" }}>Save</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setModalVisible(false)}
-                style={{ marginTop: 10 }}
               >
-                <Text style={{ color: "red" }}>Cancel</Text>
-              </Pressable>
-            </ThemedView>
-          </View>
+                <ThemedText
+                  style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}
+                >
+                  What do you want to change your username to?
+                </ThemedText>
+                <ThemedInput
+                  value={username}
+                  onChangeText={setUsername}
+                  placeholder="Enter new username"
+                  style={{
+                    flex: 1,
+                    backgroundColor: theme === "dark" ? "#121212" : "#f2f2f2",
+                    color: theme === "dark" ? "#888" : "#444",
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: theme === "dark" ? "#2F2F2F" : "#0f0f0f",
+                    padding: 7,
+                    minHeight: 60,
+                    maxsssHeight: 100,
+                    fontSize: 16,
+                    marginBottom: 20,
+                  }}
+                  placeholderTextColor={theme === "dark" ? "#888" : "#444"}
+                />
+
+                {/* ปุ่มกด */}
+                <ThemedView style={{ flexDirection: "row", gap: 10 }}>
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: "red",
+                      padding: 10,
+                      borderRadius: 10,
+                    }}
+                    onPress={() => setModalVisible_Username(false)}
+                  >
+                    <ThemedText style={{ color: "white", fontWeight: "bold" }}>
+                      Cancel
+                    </ThemedText>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: "green",
+                      padding: 10,
+                      borderRadius: 10,
+                    }}
+                    onPress={() => {
+                      setDisplayUsername(username);
+                      setModalVisible_Username(false);
+                      // ดำเนินการลบที่นี่
+                    }}
+                  >
+                    <ThemedText style={{ color: "white", fontWeight: "bold" }}>
+                      Confirm
+                    </ThemedText>
+                  </TouchableOpacity>
+                </ThemedView>
+              </ThemedView>
+            </TouchableWithoutFeedback>
+          </ThemedView>
         </TouchableWithoutFeedback>
-      </Modal>
+      )}
+
+      {modalVisible_Fullname && (
+        <TouchableWithoutFeedback
+          onPress={() => setModalVisible_Fullname(false)}
+        >
+          <ThemedView
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+              <ThemedView
+                style={{
+                  width: 300,
+                  padding: 20,
+                  borderRadius: 10,
+                  alignItems: "center",
+                }}
+              >
+                <ThemedText
+                  style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}
+                >
+                  What do you want to change your Full Name to?
+                </ThemedText>
+                <ThemedInput
+                  value={full_name}
+                  onChangeText={setFull_name}
+                  placeholder="Enter new username"
+                  style={{
+                    flex: 1,
+                    backgroundColor: theme === "dark" ? "#121212" : "#f2f2f2",
+                    color: theme === "dark" ? "#888" : "#444",
+                    borderRadius: 10,
+                    borderWidth: 1,
+                    borderColor: theme === "dark" ? "#2F2F2F" : "#0f0f0f",
+                    padding: 7,
+                    minHeight: 60,
+                    maxsssHeight: 100,
+                    fontSize: 16,
+                    marginBottom: 20,
+                  }}
+                  placeholderTextColor={theme === "dark" ? "#888" : "#444"}
+                />
+
+                {/* ปุ่มกด */}
+                <ThemedView style={{ flexDirection: "row", gap: 10 }}>
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: "red",
+                      padding: 10,
+                      borderRadius: 10,
+                    }}
+                    onPress={() => setModalVisible_Fullname(false)}
+                  >
+                    <ThemedText style={{ color: "white", fontWeight: "bold" }}>
+                      Cancel
+                    </ThemedText>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: "green",
+                      padding: 10,
+                      borderRadius: 10,
+                    }}
+                    onPress={() => {
+                      setDisplayfull_name(full_name);
+                      setModalVisible_Fullname(false);
+                      // ดำเนินการลบที่นี่
+                    }}
+                  >
+                    <ThemedText style={{ color: "white", fontWeight: "bold" }}>
+                      Confirm
+                    </ThemedText>
+                  </TouchableOpacity>
+                </ThemedView>
+              </ThemedView>
+            </TouchableWithoutFeedback>
+          </ThemedView>
+        </TouchableWithoutFeedback>
+      )}
+
+      {modalVisible_Birth_day && (
+        <Pressable
+          className="absolute top-0 left-0 w-full h-full bg-black/50 justify-center items-center"
+          onPress={() => setModalVisible_Birth_day(false)}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <View className="bg-white p-5 rounded-2xl w-80 items-center">
+              <Text className="text-lg font-bold mb-3">Select Birth Date</Text>
+
+              {/* DatePicker */}
+              <View className="flex items-center mt-5">
+      {/* Date Picker Modal */}
+      <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                mode="date"
+                onConfirm={handleDateConfirm}
+                onCancel={hideDatePicker}
+                is24Hour={true}
+                date={tempDate} // ใช้ tempDate แทน birth_day
+                maximumDate={new Date()} // ป้องกันเลือกวันในอนาคต
+                locale="th-TH"
+              />
+
+      {/* ปุ่มกดเปิด Date Picker */}
+      <ThemedView className="w-40 bg-transparent">
+        <Pressable onPress={showDatePicker}>
+          <ThemedInput
+            className="w-full"
+            error=""
+            value={tempDate.toLocaleDateString("th-TH", {
+              year: "numeric",
+              month: "numeric",
+              day: "numeric",
+            })}
+            editable={false} // ป้องกันการแก้ไขเอง
+          />
+        </Pressable>
+      </ThemedView>
+    </View>
+            
+              {/* ปุ่มกด */}
+              <View className="flex-row gap-4 mt-5">
+                <Pressable
+                  className="bg-red-500 p-2 rounded-lg"
+                  onPress={() => setModalVisible_Birth_day(false)}
+                >
+                  <Text className="text-white font-bold">Cancel</Text>
+                </Pressable>
+
+                <Pressable
+                  className="bg-green-500 p-2 rounded-lg"
+                  onPress={() => {
+                    setSelectedDate(tempDate); 
+                    setDisplaybirth_day(tempDate);
+                    setModalVisible_Birth_day(false);
+                  }}
+                >
+                  <Text className="text-white font-bold">Confirm</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Pressable>
+        </Pressable>
+      )}
     </>
   );
 }
