@@ -16,6 +16,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedCard } from "@/components/ThemedCard";
+import BudgetSkeleton from "@/components/BudgetSkeleton";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -25,6 +26,7 @@ import { UserContext } from "@/hooks/conText/UserContext";
 import { resultObject } from "@/hooks/auth/GetUserBank";
 import { ThemedInput } from "@/components/ThemedInput";
 import Slider from "@react-native-community/slider";
+import { View } from "moti";
 
 interface SplitPayProps {
   id: number;
@@ -65,6 +67,8 @@ export default function SplitPay() {
   const [selectColor, setSelectColor] = useState<string>("");
   const [selectIcon, setSelectIcon] = useState<number>(0);
   const [limitValue, setLimitValue] = useState<number>(100);
+  const [inputLimitValue, setInputLimitValue] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { bank } = useContext(UserContext);
 
@@ -296,12 +300,18 @@ export default function SplitPay() {
               <ThemedView
                 className={`w-full h-full ${componentColor} rounded-[20px]`}
               >
-                {Budgets ? (
+                {isLoading ? (
+                  <View className="w-full h-full">
+                    <BudgetSkeleton />
+                    <BudgetSkeleton />
+                    <BudgetSkeleton />
+                  </View>
+                ) : Budgets ? (
                   <ThemedView></ThemedView>
                 ) : (
-                  <ThemedView className="mt-3 !bg-transparent">
+                  <ThemedView className="w-full mt-3 !bg-transparent">
                     <ThemedButton
-                      className={`${componentColor} w-4/5 h-40 rounded-[20] bg-transparent`}
+                      className={`${componentColor} h-40 rounded-[20] bg-transparent`}
                       onPress={() => {
                         setModalVisible(true);
                       }}
@@ -313,7 +323,7 @@ export default function SplitPay() {
                           color={`${componentIcon}`}
                           className="m-3"
                         />
-                        <ThemedText className="mx-5 text-center font-bold">
+                        <ThemedText className=" text-center font-bold">
                           Let’s get started with your first budget plan!
                         </ThemedText>
                         <AntDesign
@@ -329,9 +339,9 @@ export default function SplitPay() {
               </ThemedView>
             </ThemedView>
           ) : (
-            <ThemedView className="mt-10">
+            <ThemedView className="w-full mt-10">
               <ThemedButton
-                className={`${componentColor} w-4/5 h-96 rounded-[20px]`}
+                className={`${componentColor} h-96 rounded-[20px]`}
                 onPress={() => router.push("/AddAccount")}
               >
                 <ThemedView className="bg-transparent">
@@ -367,7 +377,7 @@ export default function SplitPay() {
         />
         <ThemedView className="h-[60%] w-full border-t-4 border-l-4 border-r-4 border-black/30 rounded-t-3xl">
           <ThemedView
-            className="w-52 h-52 rounded-2xl"
+            className="w-40 h-40 rounded-2xl"
             style={{ backgroundColor: selectColor ? selectColor : "#D9D9D9" }}
           >
             {selectIcon > 0 && (
@@ -383,7 +393,7 @@ export default function SplitPay() {
             {colors.map((color, index) => (
               <ThemedView
                 key={index}
-                className="w-10 h-10 rounded-full m-2"
+                className="w-8 h-8 rounded-full m-2"
                 style={{
                   backgroundColor: color,
                   borderWidth: selectColor === color ? 3 : 0,
@@ -397,7 +407,7 @@ export default function SplitPay() {
             {Object.entries(icons).map(([key, icon]) => (
               <ThemedView
                 key={key}
-                className="w-10 h-10 rounded-full m-2 items-center justify-center"
+                className="w-8 h-8 rounded-full m-2 items-center justify-center"
                 onTouchEnd={() => {
                   setSelectIcon(Number(key));
                 }}
@@ -412,23 +422,34 @@ export default function SplitPay() {
           <ThemedView className="w-[80%]">
             <ThemedInput title="Budget Name" className="w-full" error="" />
             <ThemedView className="mb-4 w-full">
-              <ThemedText className="mb-2 font-bold">
-                Limit: ${limitValue}
-              </ThemedText>
+              <ThemedInput
+                title="Limit"
+                className="w-full"
+                error=""
+                value={inputLimitValue}
+                onChangeText={(text) => setInputLimitValue(text)}
+                onEndEditing={() => setLimitValue(Number(inputLimitValue))}
+              />
               <Slider
                 style={{ width: "100%", height: 40 }}
                 minimumValue={100}
-                maximumValue={10000}
+                maximumValue={selectedCard?.balance}
                 step={100}
-                value={limitValue}
+                value={inputLimitValue ? Number(inputLimitValue) : 100}
                 onValueChange={(value) => setLimitValue(value)}
+                onSlidingComplete={(value) =>
+                  setInputLimitValue(value.toString())
+                }
                 minimumTrackTintColor="#2B9348"
                 maximumTrackTintColor="#D9D9D9"
                 thumbTintColor="#2B9348"
               />
               <ThemedView className="flex-row justify-between w-full">
-                <ThemedText className="text-xs">$100</ThemedText>
-                <ThemedText className="text-xs">$10,000</ThemedText>
+                <ThemedText className="text-xs">100</ThemedText>
+                <ThemedText>{limitValue}</ThemedText>
+                <ThemedText className="text-xs">
+                  {selectedCard?.balance}
+                </ThemedText>
               </ThemedView>
             </ThemedView>
           </ThemedView>
