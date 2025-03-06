@@ -606,6 +606,8 @@ router.post("/loginpin", async (req, res) => {
 router.get("/getpin/:userID", async (req, res) => {
   const { userID } = req.params;
 
+  console.log("User ID from getPin: ");
+
   db.query("SELECT pin FROM users WHERE id = ?", [userID], (err, result) => {
     if (err) {
       return res.status(500).json({

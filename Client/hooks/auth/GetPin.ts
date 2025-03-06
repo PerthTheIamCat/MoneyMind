@@ -8,17 +8,17 @@ interface GetPinResponse {
 
 export const getPinFromDatabase = async (
   url: string,
-  userID: number,
-  token: string
+  userID: number
+  //  token: string
 ): Promise<string | null> => {
   try {
     const response = await axios.get<GetPinResponse>(
-      `${url}/auth/getpin/${userID}`, // Now matches the fixed backend route
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      `${url}/auth/getpin/${userID}` // Now matches the fixed backend route
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //   }
     );
 
     if (response.data.success) {

@@ -35,23 +35,29 @@ export default function PinPage() {
   };
 
   const handleVerifyPin = async () => {
-    if (!auth || !auth.token) {
+    if (!auth || !auth?.token) {
       Alert.alert("Error", "User authentication is missing.");
       return;
     }
 
-    const storedPin = await auth.verifyPin(pin); // Check local PIN
-    if (storedPin) {
-      console.log("Local PIN Matched ✅");
-      router.replace("/(tabs)");
-      return;
-    }
+    if (code.length !== 6) return; // Ensure PIN is exactly 6 digits before checking
 
     try {
+      console.log("Verifying PIN... ⏳");
+
+      // ✅ Step 1: Check Local Stored PIN
+      const storedPin = await auth.verifyPin(code.join(""));
+      if (storedPin) {
+        console.log("Local PIN Matched ✅");
+        router.replace("/(tabs)");
+        return;
+      }
+
+      // ✅ Step 2: Check PIN with Database
       console.log("Checking PIN with database... ⏳");
       const response = await VerifyPinHandler(URL, auth?.token!, {
         user_id: userID!,
-        pin: pin,
+        pin: code.join(""),
       });
 
       if (response.success) {
@@ -69,21 +75,12 @@ export default function PinPage() {
     }
   };
 
+  // 🔹 Auto-check PIN when it's 6 digits long
   useEffect(() => {
-    if (auth?.canUseBiometrics) {
-      auth?.useAuthenticationWithBiometrics().then((result) => {
-        if (result) {
-          router.replace("/(tabs)");
-        }
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (pin.length === 6) {
+    if (code.length === 6) {
       handleVerifyPin();
     }
-  }, [pin]);
+  }, [code]);
 
   useEffect(() => {
     const verifyPinFromDatabase = async () => {
@@ -93,7 +90,7 @@ export default function PinPage() {
           const token = auth?.token!; // Ensure the token is provided
           const response = await VerifyPinHandler(apiUrl, token, {
             user_id: userID!,
-            pin: pin,
+            pin: code.join(""),
           });
 
           if (response.success) {
@@ -109,10 +106,10 @@ export default function PinPage() {
       }
     };
 
-    if (pin.length === 6) {
+    if (code.length === 6) {
       handleVerifyPin();
     }
-  }, [pin]);
+  }, [code]);
 
   return (
     <ThemedSafeAreaView>
