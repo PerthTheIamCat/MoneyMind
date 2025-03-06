@@ -7,7 +7,6 @@ import { router } from "expo-router";
 import { useColorScheme } from "react-native";
 import { UserContext } from "@/hooks/conText/UserContext";
 
-
 import Feather from "@expo/vector-icons/Feather";
 import { View } from "react-native";
 
@@ -29,7 +28,9 @@ export default function Setting() {
   return (
     <ThemedSafeAreaView>
       {/* Header */}
-      <ThemedText className={`text-[24px] font-bold mx-5 pt-[15%] ${textColor}`}>
+      <ThemedText
+        className={`text-[24px] font-bold mx-5 pt-[15%] ${textColor}`}
+      >
         Setting
       </ThemedText>
 
@@ -66,19 +67,19 @@ export default function Setting() {
           </ThemedText>
           <Feather name="chevron-right" size={24} color={componentIcon} />
         </ThemedButton>
-        
+
         {/* Change Pin Password path */}
         <ThemedButton
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
           mode="normal"
-          onPress={() => router.push("/CreatePinPage")}
+          onPress={() => router.push("../PinRecovery")}
         >
           <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
             Change Pin
           </ThemedText>
           <Feather name="chevron-right" size={24} color={componentIcon} />
         </ThemedButton>
-        
+
         {/* Icon Transaction path */}
         <ThemedButton
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}

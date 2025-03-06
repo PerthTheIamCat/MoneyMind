@@ -14,6 +14,9 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ThemedNumPad } from "@/components/ThemedNumPad";
+import { CreatePinHandler } from "@/hooks/auth/CreatePinHandler";
+import { ServerContext } from "@/hooks/conText/ServerConText";
+import { UserContext } from "@/hooks/conText/UserContext";
 
 export default function CreatePinPage() {
   const auth = useContext(AuthContext);
@@ -22,6 +25,8 @@ export default function CreatePinPage() {
   const [code, setCode] = useState<number[]>([]);
   const theme = useColorScheme();
   const codeLength = Array(6).fill(0);
+  const { URL } = useContext(ServerContext);
+  const { userID } = useContext(UserContext);
 
   // Function to handle biometric authentication
   const handleBiometricAuth = async () => {
@@ -77,6 +82,7 @@ export default function CreatePinPage() {
         setCode([]);
       } else {
         setConfirmPin(code.join(""));
+        CreatePinHandler(URL, { user_id: userID!, pin: pin }, auth?.token!); // เรียกฟังก์ชันเมื่อใส่ PIN ครบ 6 ตัว
       }
     }
   }, [code]);
@@ -108,7 +114,10 @@ export default function CreatePinPage() {
           </ThemedView>
         )}
         <ThemedView className="flex-1 justify-center h-full mb-10">
-          <Image source={require("@/assets/logos/LOGO.png")} style={styles.logo} />
+          <Image
+            source={require("@/assets/logos/LOGO.png")}
+            style={styles.logo}
+          />
         </ThemedView>
         <ThemedText style={styles.greetings}>
           {pin === "" ? "Create your PIN code" : "Enter your PIN again"}
@@ -124,7 +133,10 @@ export default function CreatePinPage() {
             />
           ))}
         </ThemedView>
-        <ThemedView style={styles.numbersView} className="flex-row justify-center gap-5 my-5">
+        <ThemedView
+          style={styles.numbersView}
+          className="flex-row justify-center gap-5 my-5"
+        >
           <ThemedText
             style={[styles.underline, styles.forgot]}
             onPress={() => router.replace("/PinPage")}
