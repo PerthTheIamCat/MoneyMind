@@ -55,6 +55,31 @@ router.post('/forgotpwd', otpValidate, (req, res) => {
 
 })
 
+router.put('/user/setting/:id', jwtValidate, (req, res) => {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
+        return res.status(403).json({ message: 'Unauthorized user', success: false });
+    }
+
+    if (req.body.id || req.body.user_id){
+        console.log('Can not change!')
+        return res.status(400).json({message: 'Can not change!', success: false})
+    }
+    
+    db.query(
+        'UPDATE users SET ? WHERE id = ?', [req.body, req.params.id], (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+            }
+
+            if (result.length === 0) {
+                return res.status(404).json({ message: 'User not found', success: false });
+            }
+
+            return res.status(200).json({ message: 'User Setting updated', success: true });
+        }
+    )
+})
+
 router.get('/:id', jwtValidate, (req, res) => {
     if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
         return res.status(403).json({ message: 'Unauthorized user', success: false });

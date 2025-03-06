@@ -1,113 +1,158 @@
-import React, { useState } from 'react';
+
+import React, { useContext, useState } from 'react';
 import { View, Switch, StyleSheet, useColorScheme, ScrollView } from 'react-native';
 import { ThemedSafeAreaView } from '@/components/ThemedSafeAreaView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { NotificationsPostHandler } from '@/hooks/auth/NotificationSettingHandler';
+import { ServerContext } from '@/hooks/conText/ServerConText';
+import { UserContext } from '@/hooks/conText/UserContext';
+import { AuthContext } from '@/hooks/conText/AuthContext';
+
+interface SettingsState {
+  spending_alert: boolean;
+  saving_goal_alert: boolean;
+  monthly_summary: boolean;
+  debt_payment: boolean;
+  sound_notification: boolean;
+  vibration_shaking: boolean;
+  money_overuse: boolean;
+}
+
+type SettingKeys = keyof Omit<SettingsState, 'timestamp'>; // Exclude timestamp from toggleable keys
 
 const NotificationSettings = () => {
-  const [spendingAlert, setSpendingAlert] = useState(false);
-  const [savingGoalAlert, setSavingGoalAlert] = useState(false);
-  const [monthlySummary, setMonthlySummary] = useState(false);
-  const [debtPayment, setDebtPayment] = useState(false);
-  const [sound, setSound] = useState(false);
-  const [shaking, setShaking] = useState(false);
-  const [moneyOveruse, setMoneyOveruse] = useState(false);
   const theme = useColorScheme();
+  const { URL } = useContext(ServerContext);
+  const [settings, setSettings] = useState<SettingsState>({
+    spending_alert: true,
+    saving_goal_alert: true,
+    monthly_summary: true,
+    debt_payment: true,
+    sound_notification: true,
+    vibration_shaking: true,
+    money_overuse: true,
+  });
+
+  const  auth  = useContext(AuthContext);
+
+  const { userID } = useContext(UserContext);
+  const toggleSetting = async (key: SettingKeys) => {
+    // Create new updated state
+    const newSettings = {
+      ...settings,
+      [key]: !settings[key], // Toggle the specific setting
+      timestamp: Date.now(),
+    };
+  
+    // Update state optimistically
+    setSettings(newSettings);
+  
+    // Convert settings to match backend keys
+    const settingKeys: { [key in SettingKeys]: string } = {
+      spending_alert: "spending alert",
+      saving_goal_alert: "saving goal alert",
+      monthly_summary: "monthly summary",
+      debt_payment: "debt payment reminder",
+      sound_notification: "sound notification",
+      vibration_shaking: "vibration shaking",
+      money_overuse: "money overuse",
+    };
+  
+    // Map newSettings to backend format
+    const updatedSettingList = (Object.keys(settingKeys) as SettingKeys[]).map(
+      (settingKey) => newSettings[settingKey]  // ✅ Use new state
+    );
+  
+    try {
+      const response = await NotificationsPostHandler(URL, {
+        user_id: userID!,
+        settingList: updatedSettingList,
+        update : Date.now().toString()
+      }, auth?.token!);
+  
+      if (!response.success) {
+        console.error("Failed to update settings:", response.result);
+  
+        // Revert toggle if API fails
+        setSettings((prevSettings) => ({
+          ...prevSettings,
+          [key]: !prevSettings[key],
+          timestamp: Date.now(),
+        }));
+      }
+    } catch (error) {
+      console.error("Error updating settings:", error);
+  
+      // Revert toggle on error
+      setSettings((prevSettings) => ({
+        ...prevSettings,
+        [key]: !prevSettings[key],
+        timestamp: Date.now(),
+      }));
+    }
+  };
+  
+  
+  console.log('NotificationSettings component rendered');
+  console.log('Current settings:', settings);
 
   return (
-    <ThemedSafeAreaView >
+    <ThemedSafeAreaView>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* <ThemedText style={[styles.headerText, theme === "dark" && styles.headerTextDark]} className='text-4xl font-bold'>
-          Notification Settings
-        </ThemedText> */}
-        {/* General Notifications (includes Budget Alerts) */}
-        <ThemedView style={theme === "dark" ? styles.sectionDark : styles.section}>
-          <ThemedText style={[styles.sectionTitle, theme === "dark" && styles.sectionTitleDark]}>
+        {/* General Notifications Section */}
+        <ThemedView style={theme === 'dark' ? styles.sectionDark : styles.section}>
+          <ThemedText style={[styles.sectionTitle, theme === 'dark' && styles.sectionTitleDark]}>
             General Notifications
           </ThemedText>
-          <ThemedView style={styles.row} className = "gap-40" >
-            <ThemedText style={[styles.label, theme === "dark" && styles.labelDark]}>
-              Money Overuse
-            </ThemedText>
-            <Switch
-              value={moneyOveruse}
-              trackColor={{ false: "#767577", true: theme === "dark" ? "#2B9348" : "#81b0ff" }}
-              onValueChange={value => setMoneyOveruse(value)}
-              thumbColor={moneyOveruse ? "" : "#f1f1f1"}
-            />
-          </ThemedView>
-          <ThemedView style={styles.row} className = "gap-40" >
-            <ThemedText style={[styles.label, theme === "dark" && styles.labelDark]}>
-              Spending Alert
-            </ThemedText>
-            <Switch
-              value={spendingAlert}
-              trackColor={{ false: "#767577", true: theme === "dark" ? "#2B9348" : "#81b0ff" }}
-              onValueChange={value => setSpendingAlert(value)}
-              thumbColor={spendingAlert ? "#aacc00" : "#f1f1f1"}
-            />
-          </ThemedView>
-          <ThemedView style={styles.row} className = "gap-36" >
-            <ThemedText style={[styles.label, theme === "dark" && styles.labelDark]}>
-              Saving Goal Alert
-            </ThemedText>
-            <Switch
-              value={savingGoalAlert}
-              trackColor={{ false: "#767577", true: theme === "dark" ? "#2B9348" : "#81b0ff" }}
-              onValueChange={value => setSavingGoalAlert(value)}
-              thumbColor={savingGoalAlert ? "#aacc00" : "#f1f1f1"}
-            />
-          </ThemedView>
-          <ThemedView style={styles.row} className = "gap-32" >
-            <ThemedText style={[styles.label, theme === "dark" && styles.labelDark]}>
-              Monthly Summary
-            </ThemedText>
-            <Switch
-              value={monthlySummary}
-              trackColor={{ false: "#767577", true: theme === "dark" ? "#2B9348" : "#81b0ff" }}
-              onValueChange={value => setMonthlySummary(value)}
-              thumbColor={monthlySummary ? "#aacc00" : "#f1f1f1"}
-            />
-          </ThemedView>
-          <ThemedView style={styles.row} className = "gap-20" >
-            <ThemedText style={[styles.label, theme === "dark" && styles.labelDark]}>
-              Debt Payment Reminder
-            </ThemedText>
-            <Switch
-              value={debtPayment}
-              trackColor={{ false: "#767577", true: theme === "dark" ? "#2B9348" : "#81b0ff" }}
-              onValueChange={value => setDebtPayment(value)}
-              thumbColor={debtPayment ? "#aacc00" : "#f1f1f1"}
-            />
-          </ThemedView>
+          {[
+            { label: 'Money Overuse', key: 'moneyOveruse' as SettingKeys },
+            { label: 'Spending Alert', key: 'spendingAlert' as SettingKeys },
+            { label: 'Saving Goal Alert', key: 'savingGoalAlert' as SettingKeys },
+            { label: 'Monthly Summary', key: 'monthlySummary' as SettingKeys },
+            { label: 'Debt Payment Reminder', key: 'debtPayment' as SettingKeys },
+          ].map(({ label, key }) => (
+            <ThemedView key={key} style={styles.row}>
+              <ThemedText style={[styles.label, theme === 'dark' && styles.labelDark]}>
+                {label}
+              </ThemedText>
+              <Switch
+                value={settings[key]}
+                trackColor={{
+                  false: '#767577',
+                  true: theme === 'dark' ? '#2B9348' : '#81b0ff',
+                }}
+                onValueChange={() => toggleSetting(key)}
+                thumbColor={settings[key] ? '#aacc00' : '#f1f1f1'}
+              />
+            </ThemedView>
+          ))}
         </ThemedView>
-        {/* Advanced Settings */}
-        <ThemedView style={theme === "dark" ? styles.sectionDark : styles.section}>
-          <ThemedText style={[styles.sectionTitle, theme === "dark" && styles.sectionTitleDark]}>
+
+        {/* Advanced Settings Section */}
+        <ThemedView style={theme === 'dark' ? styles.sectionDark : styles.section}>
+          <ThemedText style={[styles.sectionTitle, theme === 'dark' && styles.sectionTitleDark]}>
             Advanced Settings
           </ThemedText>
-          <ThemedView style={styles.row} className = "gap-24" >
-            <ThemedText style={[styles.label, theme === "dark" && styles.labelDark]}>
-              Sound Notification
-            </ThemedText>
-            <Switch
-              value={sound}
-              trackColor={{ false: "#767577", true: theme === "dark" ? "#2B9348" : "#81b0ff" }}
-              onValueChange={value => setSound(value)}
-              thumbColor={sound ? "#aacc00" : "#f1f1f1"}
-            />
-          </ThemedView>
-          <ThemedView style={styles.row} className = "gap-24" >
-            <ThemedText style={[styles.label, theme === "dark" && styles.labelDark]}>
-              Vibration / Shaking
-            </ThemedText>
-            <Switch
-              value={shaking}
-              trackColor={{ false: "#767577", true: theme === "dark" ? "#2B9348" : "#81b0ff" }}
-              onValueChange={value => setShaking(value)}
-              thumbColor={shaking ? "#aacc00" : "#f1f1f1"}
-            />
-          </ThemedView>
+          {[
+            { label: 'Sound Notification', key: 'sound' as SettingKeys },
+            { label: 'Vibration / Shaking', key: 'shaking' as SettingKeys },
+          ].map(({ label, key }) => (
+            <ThemedView key={key} style={styles.row}>
+              <ThemedText style={[styles.label, theme === 'dark' && styles.labelDark]}>
+                {label}
+              </ThemedText>
+              <Switch
+                value={settings[key]}
+                trackColor={{
+                  false: '#767577',
+                  true: theme === 'dark' ? '#2B9348' : '#81b0ff',
+                }}
+                onValueChange={() => toggleSetting(key)}
+                thumbColor={settings[key] ? '#aacc00' : '#f1f1f1'}
+              />
+            </ThemedView>
+          ))}
         </ThemedView>
       </ScrollView>
     </ThemedSafeAreaView>
@@ -119,23 +164,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF',
   },
-  safeAreaDark: {
-    backgroundColor: '#121212',
-  },
   scrollContainer: {
     padding: 20,
     paddingBottom: 40,
-  },
-  headerText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    alignSelf: 'flex-start',
-    marginVertical: 20,
-    textAlign: 'left',
-    color: '#000',
-  },
-  headerTextDark: {
-    color: '#FFF',
   },
   section: {
     marginBottom: 30,
@@ -171,13 +202,13 @@ const styles = StyleSheet.create({
     color: '#FFF',
     borderColor: '#555',
   },
-  row:  {
-    flexDirection: "row" ,
-    justifyContent: "space-between", // Positions the switch to the right
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginVertical: 8,
-    width : 320,
-    backgroundColor :"transparent",
+    width: 320,
+    backgroundColor: 'transparent',
   },
   label: {
     fontSize: 16,

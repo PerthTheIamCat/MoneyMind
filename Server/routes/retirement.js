@@ -1,5 +1,4 @@
 const express = require('express');
-const { jwtValidate } = require('./auth');
 const router = express.Router()
 require('dotenv').config();
 
@@ -126,13 +125,60 @@ router.post('/', jwtValidate, (req, res) => {
   // สรุปต้องเก็บต่อเดือน = (ทุนกองทุน) + (ออมเพิ่มถ้าขาด)
   const monthlyNeeded = totalMonthlyFundContribution + monthlySavingsNeeded;
 
-  return res.statusCode(200).json({ message:'Retirement Success', totalCorpusRequired: Number(requiredCorpus.toFixed(2)), monthlyNeeded: Number(monthlyNeeded.toFixed(2)), success: true})
+  db.query(
+    'SELECT * FROM retirementplan WHERE user_id = ?', [req.user.UserID], (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+      }
 
+      if (result.length > 0) {
+        return res.status(400).json({ message: 'Retirement plan already exists', success: false });
+      }
+
+      db.query(
+        'INSERT INTO retirementplan (user_id,  monthly_savings_goal, total_savings_goal) VALUES (?, ?, ?)',
+        [req.user.UserID, monthlyNeeded, requiredCorpus], (err, result) => {
+          if (err) {
+            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+          }
+    
+          return res.status(201).json({ message: 'Retirement Success', totalCorpusRequired: Number(requiredCorpus.toFixed(2)), monthlyNeeded: Number(monthlyNeeded.toFixed(2)), success: true})
+        }
+      )
+    }
+  )
+
+})
+
+router.put('/:id', jwtValidate, (req, res) => {
+  if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
+      return res.status(403).json({ message: 'Unauthorized user', success: false });
+    }
+
+  if (req.body.id || req.body.user_id){
+    console.log('Can not change!')
+    return res.status(400).json({message: 'Can not change!', success: false})
+  }
+
+  db.query(
+    'UPDATE retirementplan SET ? WHERE user_id = ?', [req.body, req.params.id], (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+      }
+
+      if (result.length === 0) {
+        return res.status(404).json({ message: 'User not found', success: false });
+      }
+
+      return res.status(200).json({ message: 'Retirement updated', success: true });
+    }
+  )
 })
 
   module.exports = {
     router
   };
+
   /*
     const params = {
     currentAge: 35,            // อายุปัจจุบัน 35 ปี

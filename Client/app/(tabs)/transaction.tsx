@@ -4,7 +4,7 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { Image } from "expo-image";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView, KeyboardAvoidingView ,Platform, Keyboard} from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { router } from "expo-router";
@@ -17,115 +17,24 @@ import { useState, useEffect } from "react";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { TouchableWithoutFeedback } from "react-native";
 import { Animated, Easing } from "react-native";
-import { UserTransaction } from "@/hooks/auth/GetAllTransaction";
 import TransactionItem from "@/components/TransactionItem";
 import moment from "moment";
-
-const transactions: UserTransaction[] = [
-  {
-    id: 1,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-01",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 2,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-01",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 3,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-04",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 4,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-02",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 5,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-01",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 6,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-01",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 7,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-02",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-  {
-    id: 8,
-    user_id: 1,
-    account_id: 1,
-    split_payment_id: null,
-    transaction_type: "expense",
-    amount: 250.0,
-    color_code: "#FF0000",
-    transaction_date: "2022-01-03",
-    transaction_name: "Food",
-    note: "Lunch",
-  },
-];
 
 export default function Index() {
   const handleEditTransaction = (transactionId: number) => {
     router.push(`../Edit_Transaction?id=${transactionId}`);
   };
+
   
+  const [activeCardID, setActiveCardID] = useState<number | null>(null);
+
+  const handleToggleOptions = (cardID: number) => {
+    setActiveCardID((prevID) => (prevID === cardID ? null : cardID));
+  };
+
   const { bank, transaction } = useContext(UserContext) ?? { bank: [], transaction: [] };;
+
+
 
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
@@ -153,7 +62,11 @@ export default function Index() {
   }, [isOverlayVisible]);
 
   return (
-    <>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={{ flex: 1 }}
+    >
+      <TouchableWithoutFeedback onPress={() => setActiveCardID(null)}>
       <ThemedSafeAreaView>
         <ThemedView
           className={`${componenticon} flex-row items-center justify-between px-4`}
@@ -187,7 +100,15 @@ export default function Index() {
           >
             Connected
           </ThemedText>
-          <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
+          <ThemedText
+            onPress={() => {
+              console.log("Navigating to Account_Detail...");
+              router.push("/Account_Detail");
+            }}
+            className="font-bold text-[24px]"
+          >
+            Accounts
+          </ThemedText>
         </ThemedView>
         <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
           <Pressable
@@ -202,23 +123,25 @@ export default function Index() {
             className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
           >
             <View className="mt-0.5 mb-1 flex-row space-x-1">
-              {bank
-              ?.slice()
-              .sort((a,b)=> a.id-b.id)
-              .map((account, index) => (
-                <ThemedCard
+              {bank  && bank.length > 0 ? (
+                bank.map((account) => (
+                  <ThemedCard
+                  key={account.id}
                   CardID={account.id}
                   name={account.account_name}
                   color={account.color_code}
                   balance={account.balance.toString()}
                   mode="small"
                   imageIndex={Number(account.icon_id)}
-                  onPress={() => setSelectedAccountId(account.id)}
-                  key={account.id}
-                  // image={account.icon_id}
-                  className="!items-center !justify-center w-32 h-32 bg-[#fefefe] rounded-lg"
-                />
-              ))}
+                  isOptionsVisible={activeCardID === account.id}
+                  setOptionsVisible={() => handleToggleOptions(account.id)}
+                  />
+                ))
+              ):(
+                  <ThemedView>
+                    <ThemedText>emptyaccount</ThemedText>
+                  </ThemedView>    
+              )}
             </View>
           </ThemedScrollView>
         </ThemedView>
@@ -248,27 +171,15 @@ export default function Index() {
                           lastDate = formattedDate; */}
 
               {!transaction || transaction.length === 0 ? (
-                <ThemedText className="text-center items-center !ustify-center text-xl mt-20 text-neutral-500 py-4">
+                <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
                   No transactions available
                 </ThemedText>
               ) : (
                 transaction
                   .slice()
-                  .sort(
-                    (a, b) =>
-                      moment(b.transaction_date).valueOf() -
-                      moment(a.transaction_date).valueOf()
-                  )
                   .map((transaction, index, sortedArray) => {
-                    const formattedDate = moment(
-                      transaction.transaction_date
-                    ).format("DD MMM YYYY");
-                    const showDateHeader =
-                      index === 0 ||
-                      formattedDate !==
-                        moment(sortedArray[index - 1].transaction_date).format(
-                          "DD MMM YYYY"
-                        );
+                    const formattedDate = moment(transaction.transaction_date).format("DD MMM YYYY");
+                    const showDateHeader =index === 0 ||formattedDate !==moment(sortedArray[index - 1].transaction_date).format("DD MMM YYYY");
                     return (
                       <View
                         key={transaction.id}
@@ -296,8 +207,6 @@ export default function Index() {
             </View>
           </ThemedView>
         </ScrollView>
-      </ThemedSafeAreaView>
-
       {isOverlayVisible && (
         <TouchableWithoutFeedback
           onPress={() => {
@@ -330,6 +239,7 @@ export default function Index() {
                   <View
                     className={`${componentcolor} px-5 p-1 rounded-lg mx-2`}
                   >
+
                     <Pressable
                       onPress={() => { router.push("/Add_Transaction"); setIsOverlayVisible(false); setIsButtonVisible(true)}}>
                     <MaterialCommunityIcons
@@ -341,6 +251,7 @@ export default function Index() {
                     <ThemedText className="font-bold">
                       Add By Yourself
                     </ThemedText>
+
                     </Pressable>
                   </View>
                   <View
@@ -377,6 +288,8 @@ export default function Index() {
           </View>
         </Pressable>
       )}
-    </>
+    </ThemedSafeAreaView>
+    </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }

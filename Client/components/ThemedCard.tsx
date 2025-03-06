@@ -8,6 +8,7 @@ import { ThemedButton } from "./ThemedButton";
 import { TouchableWithoutFeedback } from "react-native";
 import { router } from "expo-router";
 import { DeleteUserBank, GetUserBank } from "@/hooks/auth/GetUserBank";
+import { GetUserTransaction } from "@/hooks/auth/GetAllTransaction";
 import { response } from "express";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
@@ -39,17 +40,14 @@ const images = [
 
 type ThemedCardProps = {
   CardID: number;
-  icon_id?: number;
   name: string;
   balance: string;
   color?: string;
   mode?: "small" | "large";
   imageIndex?: number;
   className?: string;
-  index?: number;
-  onPress?: () => void;
-  onDelete?: (id: number) => void;
-  style?: ViewStyle;  // ✅ เพิ่มตรงนี้
+  isOptionsVisible: boolean; // Controlled by parent
+  setOptionsVisible: () => void; // Controlled by parent
 };
 
 export function ThemedCard({
@@ -60,11 +58,9 @@ export function ThemedCard({
   mode = "small",
   imageIndex = 0,
   className,
-  onPress,
-  index,
-  onDelete,
+  isOptionsVisible,
+  setOptionsVisible,
 }: ThemedCardProps) {
-  const [isOptionsVisible, setOptionsVisible] = useState(false);
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [isCountdownActive, setCountdownActive] = useState(false);
@@ -80,7 +76,7 @@ export function ThemedCard({
   
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
-  const {userID , bank} = useContext(UserContext);
+  const {userID , setBank,setTransaction} = useContext(UserContext);
   
 
   const locales = Localization.getLocales();
@@ -106,10 +102,25 @@ export function ThemedCard({
     setCountdownActive(true);
   };
 
+  const reloadBank = () => {
+    GetUserBank(URL, userID!, auth?.token!).then((res) => {
+      if (res.success) {
+        setBank(res.result ?? []);
+
+      }
+    });
+  };
+  const reloadTransaction = () => {
+    GetUserTransaction(URL, userID!, auth?.token!).then((res) => {
+      if (res.success) {
+        setTransaction(res.result);
+      }
+    });
+  };
 
   const confirmDelete = async () => {
     setDeleteModalVisible(false);
-  
+    
     try {
       console.log("🔍 Attempting to delete account ID:", CardID);
   
@@ -124,6 +135,8 @@ export function ThemedCard({
     } catch (error) {
       console.error("❌ Error deleting bank:", error);
     }
+    reloadBank();
+    reloadTransaction();
   };
    
   
@@ -147,7 +160,7 @@ export function ThemedCard({
 
       {mode === "small" && (
         <Pressable
-          onPress={() => setOptionsVisible(!isOptionsVisible)}
+          onPress={() => setOptionsVisible()}
           className="absolute top-4 right-4 p-2 rounded-md"
         >
           <FontAwesome name="pencil" size={16} color="#f2f2f2" />
@@ -156,7 +169,7 @@ export function ThemedCard({
 
       {isOptionsVisible && (
         <TouchableOpacity
-          onPress={() => setOptionsVisible(false)}
+          
           activeOpacity={1}
           style={{
             position: "absolute",
@@ -181,8 +194,8 @@ export function ThemedCard({
           <Pressable
             className="w-full !justify-center !items-center "
             onPress={() => {
-              setOptionsVisible(false);
               router.push({ pathname: "/Edit_Account", params: { CardID } });
+              setOptionsVisible(!isOptionsVisible);
             }}
           >
             <ThemedText className="text-center text-[16px] text-blue-600 w-full mb-2">
@@ -192,11 +205,12 @@ export function ThemedCard({
           <Pressable
             className="w-full justify-center items-center"
             onPress={() => {
-              setOptionsVisible(false);
+              setOptionsVisible(!isOptionsVisible);
               handleDelete();
             }}
           >
             <ThemedText className="text-center text-[16px] text-red-600">Delete</ThemedText>
+            
           </Pressable>
         </ThemedView>
       )}
