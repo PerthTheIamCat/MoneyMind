@@ -1,113 +1,113 @@
 import { useState } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import { AuthContext } from "@/hooks/conText/AuthContext";
-import { router } from "expo-router";
-import { Pressable } from "react-native";
+import { Pressable, View } from "react-native";
 import { useColorScheme } from "react-native";
-import { UserContext } from "@/hooks/conText/UserContext";
-import { useContext } from "react";
-import { View } from "react-native";
-
 import Ionicons from "@expo/vector-icons/Ionicons";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import Feather from "@expo/vector-icons/Feather";
-
 
 export default function IconTransaction() {
-  const auth = useContext(AuthContext);
   const theme = useColorScheme();
   const isDarkMode = theme === "dark";
-  const [outcome, income] = useState(true);
-  const [editIcons, setIcons] = useState(true);
+  const [isOutcome, setIsOutcome] = useState(true);
 
   // สีขององค์ประกอบใน Dark Mode
-  const bgColor = isDarkMode ? "bg-gray-700" : "bg-gray-100";
+  const bgColor = isDarkMode ? "bg-gray-700" : "bg-gray-300";
   const textColor = isDarkMode ? "text-white" : "text-black";
-  const componentColor = isDarkMode ? "bg-gray-800" : "bg-white";
-  const borderColor = isDarkMode ? "border-gray-700" : "border-gray-300";
-  const componentIcon = isDarkMode ? "#f2f2f2" : "#2f2f2f";
-  const logoutColor = isDarkMode ? "bg-gray-800" : "bg-gray-200";
-  
-  return (
-    <ThemedSafeAreaView>
-      <ThemedView>
-        {/* Heading Scroll */}
-        <ThemedView className="flex-row w-full h-10 justify-center bg-transparent p-1 mt-6 mb-4">
-          <ThemedView className="flex-row w-72 h-10 rounded-full bg-[#d5d5d5]">
-            <Pressable
-              onPress={() => setIcons(true)}
-              className={`w-32 h-full flex items-center justify-center rounded-full ${
-              editIcons ? "bg-red-400 w-40" : "bg-transparent w-32"
-            }`}
-            >
-              <ThemedText
-                className={`font-bold ${
-                  editIcons ? "text-white" : isDarkMode ? "text-white" : "text-black"
-                }`}
-              >
-              OUTCOME
-              </ThemedText>
-            </Pressable>
+  const cardColor = isDarkMode ? "bg-gray-800" : "bg-gray-100";
+  const borderColor = isDarkMode ? "border-gray-600" : "border-gray-300";
+  const buttonColor = "bg-gray-300"; // สีของปุ่ม "+"
 
-            <Pressable
-              onPress={() => setIcons(false)}
-              className={`w-32 h-full flex items-center justify-center rounded-full ${
-                !editIcons ? "bg-red-400 w-40" : "bg-transparent w-32"
+  // ข้อมูลสำหรับ Outcome และ Income
+  const outcomeData = [
+    { id: 1, name: "ข้าว", icon: "restaurant-outline" },
+    { id: 2, name: "น้ำ", icon: "water-outline" },
+    { id: 3, name: "น้ำมัน", icon: "flame-outline" },
+    { id: 4, name: "วัตถุดิบ", icon: "leaf-outline" },
+    { id: 5, name: "ค่าเดินทาง", icon: "bus-outline" },
+    { id: 6, name: "ที่พัก", icon: "home-outline" },
+    { id: 7, name: "ลงทุน", icon: "cash-outline" },
+  ];
+  const incomeData = [
+    { id: 1, name: "เงินเดือน", icon: "briefcase-outline" },
+    { id: 2, name: "โบนัส", icon: "gift-outline" },
+    { id: 3, name: "รายได้เสริม", icon: "trending-up-outline" },
+    { id: 4, name: "ดอกเบี้ย", icon: "wallet-outline" },
+    { id: 5, name: "เงินปันผล", icon: "pie-chart-outline" },
+  ];
+
+  // เลือกข้อมูลตามสถานะ
+  const transactions = isOutcome ? outcomeData : incomeData;
+
+  return (
+    <ThemedSafeAreaView className={`flex-1 ${bgColor} px-6 pt-6`}>
+      {/* Toggle Income/Outcome */}
+      <ThemedView className="flex-row w-full h-10 justify-center bg-transparent p-1 mt-6 mb-4">
+        <ThemedView className="flex-row w-64 h-10 rounded-full bg-[#d5d5d5]">
+          <Pressable
+            onPress={() => setIsOutcome(true)}
+            className={`w-1/2 h-full flex items-center justify-center rounded-full ${
+              isOutcome ? "bg-red-400" : "bg-transparent"
+            }`}
+          >
+            <ThemedText
+              className={`font-bold ${
+                isOutcome ? "text-white" : textColor
               }`}
             >
-              <ThemedText
-                className={`font-bold ${
-                  !editIcons ? "text-white" : isDarkMode ? "text-white" : "text-black"
-                }`}
-              >
+              OUTCOME
+            </ThemedText>
+          </Pressable>
+
+          <Pressable
+            onPress={() => setIsOutcome(false)}
+            className={`w-1/2 h-full flex items-center justify-center rounded-full ${
+              !isOutcome ? "bg-red-400" : "bg-transparent"
+            }`}
+          >
+            <ThemedText
+              className={`font-bold ${
+                !isOutcome ? "text-white" : textColor
+              }`}
+            >
               INCOME
-              </ThemedText>
-            </Pressable>
-          </ThemedView>
+            </ThemedText>
+          </Pressable>
         </ThemedView>
-        {/* Edit Icon */}
-        <View className="mt-5 space-y-3 mx-4">
-            <ThemedButton
-              className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
-              mode="normal"
-              onPress={() => router.push("../")}
-            >
-              
-              <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
-                ข้าว
-              </ThemedText>
-              <MaterialIcons name="edit" size={22} color="#555" />
-            </ThemedButton>
-            
-            <ThemedButton
-              className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
-              mode="normal"
-              onPress={() => router.push("../")}
-            >
-              
-              <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
-                ข้าว
-              </ThemedText>
-              <MaterialIcons name="edit" size={22} color="#555" />
-            </ThemedButton>
-            
-            <ThemedButton
-              className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
-              mode="normal"
-              onPress={() => router.push("../")}
-            >
-              
-              <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
-                ข้าว
-              </ThemedText>
-              <MaterialIcons name="edit" size={22} color="#555" />
-            </ThemedButton>
-        </View>
       </ThemedView>
+
+      {/* รายการไอคอน */}
+      <View className="mt-1">
+        {transactions.map((item) => (
+          <View
+            key={item.id}
+            className={`flex-row items-center justify-between p-3 rounded-lg border ${cardColor} ${borderColor} w-[80%] mx-auto mt-2`}
+          >
+            {/* ไอคอน + ชื่อรายการ */}
+            <View className="flex-row items-center space-x-3">
+              <Ionicons name={item.icon} size={22} color="#555" />
+              <ThemedText className={`text-[16px] ${textColor}`}>
+                {item.name}
+              </ThemedText>
+            </View>
+
+            {/* ปุ่มแก้ไข */}
+            <Pressable className="p-2 rounded-full">
+              <MaterialIcons name="edit" size={18} color="#555" />
+            </Pressable>
+          </View>
+        ))}
+      </View>
+
+      {/* ปุ่มเพิ่ม (+) */}
+      <Pressable className="mt-5 items-center">
+        <View
+          className={`w-[80%] h-12 ${buttonColor} rounded-lg flex items-center justify-center shadow-lg mx-auto`}
+        >
+          <Ionicons name="add" size={26} color="white" />
+        </View>
+      </Pressable>
     </ThemedSafeAreaView>
   );
-} 
+}
