@@ -26,7 +26,10 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { TouchableWithoutFeedback } from "react-native";
 import { Animated, Easing } from "react-native";
 import TransactionItem from "@/components/TransactionItem";
+import Dropdownfiller from "@/components/Dropdownfiller";
 import moment from "moment";
+import { colorKeys } from "moti";
+
 
 export default function Index() {
   const handleEditTransaction = (transactionId: number) => {
@@ -45,6 +48,7 @@ export default function Index() {
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
     null
   );
+  const [filtermode,setFilltermode] = useState(0);
 
   const theme = useColorScheme() || "light";
   const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
@@ -63,6 +67,13 @@ export default function Index() {
       }).start();
     }
   }, [isOverlayVisible]);
+
+  const data = [
+    { value: '1', label: 'All'},
+    { value: '2', label: 'Category'},
+    { value: '3', label: 'Income'},
+    { value: '4', label: 'Expense'},
+  ];
 
   const [activeCardID, setActiveCardID] = useState<number | null>(null); // เก็บเมนูที่เปิดอยู่
   const [selectedCardID, setSelectedCardID] = useState<number | null>(null); // ✅ เก็บค่าการ์ดที่ถูกเลือก
@@ -173,24 +184,21 @@ export default function Index() {
               </View>
             </ThemedScrollView>
           </ThemedView>
-          <ThemedView className="flex-row items-center bg-[E5E5E5] justify-between px-4">
-            <ThemedText className="text-[20px] pl-[5%] font-bold">
+          <ThemedView className="flex-row  items-center bg-[E5E5E5] justify-between px-4">
+            <ThemedText className="text-[20px] w-[68%] pl-[5%] font-bold">
               Transaction
             </ThemedText>
-            <View className="font-bold flex flex-row mr-6">
-              <ThemedText className="font-bold items-center mt-1 text-[18px]">
-                All
-              </ThemedText>
-              <MaterialIcons
-                name="arrow-drop-down"
-                size={26}
-                color={`${componenticon}`}
-                className="mt-1"
-              />
-            </View>
+          
+            <Dropdownfiller
+              data={data}
+              onChange={(item) => console.log(item.label)}
+            />
+              
+              
+
           </ThemedView>
 
-          <ScrollView className="h-[450px] py-2">
+          <ScrollView className="h-[440px] py-2">
           <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12">
             <View className="w-full !items-center">
               {(() => {
