@@ -191,55 +191,48 @@ export default function Index() {
           </ThemedView>
 
           <ScrollView className="h-[450px] py-2">
-            <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12 ">
-              <View className="w-full !items-center">
-                {/* {transactions.map((transaction) => {
-                const formattedDate = moment(transaction.transaction_date).format("DD MMM YYYY");
-                          const showDateHeader = lastDate !== formattedDate;
-                          lastDate = formattedDate; */}
+          <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12">
+            <View className="w-full !items-center">
+              {(() => {
+                const filteredTransactions =
+                  selectedCardID !== null
+                    ? transaction?.filter((t) => t.account_id === selectedCardID)
+                    : transaction;
+                if (!filteredTransactions || filteredTransactions.length === 0) {
+                  return (
+                    <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
+                      No transactions available
+                    </ThemedText>
+                  );
+                }
 
-                {!transaction || transaction.length === 0 ? (
-                  <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
-                    No transactions available
-                  </ThemedText>
-                ) : (
-                  transaction.slice().map((transaction, index, sortedArray) => {
-                    const formattedDate = moment(
-                      transaction.transaction_date
-                    ).format("DD MMM YYYY");
-                    const showDateHeader =
-                      index === 0 ||
-                      formattedDate !==
-                        moment(sortedArray[index - 1].transaction_date).format(
-                          "DD MMM YYYY"
-                        );
-                    return (
-                      <View
-                        key={transaction.id}
-                        className="w-full items-center "
-                      >
-                        {showDateHeader && (
-                          <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
-                            {formattedDate}
-                          </ThemedText>
-                        )}
-                        <TransactionItem
-                          transaction={transaction}
-                          theme={theme}
-                          onEdit={() =>
-                            handleEditTransaction(transaction.id ?? 0)
-                          }
-                          onDelete={() =>
-                            handleDeleteTransaction(transaction.id ?? 0)
-                          }
-                          checkpage={"transactions"}
-                        />
-                      </View>
-                    );
-                  })
-                )}
-              </View>
-            </ThemedView>
+                return filteredTransactions.map((transaction, index, sortedArray) => {
+                  const formattedDate = moment(transaction.transaction_date).format("DD MMM YYYY");
+                  const showDateHeader =
+                    index === 0 ||
+                    formattedDate !== moment(sortedArray[index - 1].transaction_date).format("DD MMM YYYY");
+
+                  return (
+                    <View key={transaction.id} className="w-full items-center">
+                      {showDateHeader && (
+                        <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
+                          {formattedDate}
+                        </ThemedText>
+                      )}
+                      <TransactionItem
+                        transaction={transaction}
+                        theme={theme}
+                        onEdit={() => handleEditTransaction(transaction.id ?? 0)}
+                        onDelete={() => handleDeleteTransaction(transaction.id ?? 0)}
+                        checkpage={"transactions"}
+                      />
+                    </View>
+                  );
+                });
+              })()}
+            </View>
+          </ThemedView>
+
           </ScrollView>
           {isOverlayVisible && (
             <TouchableWithoutFeedback
