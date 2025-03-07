@@ -26,7 +26,10 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { TouchableWithoutFeedback } from "react-native";
 import { Animated, Easing } from "react-native";
 import TransactionItem from "@/components/TransactionItem";
+import Dropdownfiller from "@/components/Dropdownfiller";
 import moment from "moment";
+import { colorKeys } from "moti";
+
 
 export default function Index() {
   const handleEditTransaction = (transactionId: number) => {
@@ -45,6 +48,7 @@ export default function Index() {
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
     null
   );
+  const [filtermode,setFilltermode] = useState(0);
 
   const theme = useColorScheme() || "light";
   const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
@@ -63,6 +67,13 @@ export default function Index() {
       }).start();
     }
   }, [isOverlayVisible]);
+
+  const data = [
+    { value: '1', label: 'All'},
+    { value: '2', label: 'Category'},
+    { value: '3', label: 'Income'},
+    { value: '4', label: 'Expense'},
+  ];
 
   const [activeCardID, setActiveCardID] = useState<number | null>(null); // เก็บเมนูที่เปิดอยู่
   const [selectedCardID, setSelectedCardID] = useState<number | null>(null); // ✅ เก็บค่าการ์ดที่ถูกเลือก
@@ -169,78 +180,63 @@ export default function Index() {
               </View>
             </ThemedScrollView>
           </ThemedView>
-          <ThemedView className="flex-row items-center bg-[E5E5E5] justify-between px-4">
-            <ThemedText className="text-[20px] pl-[5%] font-bold">
+          <ThemedView className="flex-row  items-center bg-[E5E5E5] justify-between px-4">
+            <ThemedText className="text-[20px] w-[68%] pl-[5%] font-bold">
               Transaction
             </ThemedText>
-            <View className="font-bold flex flex-row mr-6">
-              <ThemedText className="font-bold items-center mt-1 text-[18px]">
-                All
-              </ThemedText>
-              <MaterialIcons
-                name="arrow-drop-down"
-                size={26}
-                color={`${componenticon}`}
-                className="mt-1"
-              />
+          
+            <Dropdownfiller
+              data={data}
+              onChange={(item) => console.log(item.label)}
+            />
+              
+              
+
+          </ThemedView>
+          <ScrollView className="h-[440px] py-2" keyboardShouldPersistTaps="handled">
+          <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12">
+            <View className="w-full !items-center">
+              {(() => {
+                const filteredTransactions =
+                  selectedCardID !== null
+                    ? transaction?.filter((t) => t.account_id === selectedCardID)
+                    : transaction;
+                if (!filteredTransactions || filteredTransactions.length === 0) {
+                  return (
+                    <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
+                      No transactions available
+                    </ThemedText>
+                  );
+                }
+
+                return filteredTransactions.map((transaction, index, sortedArray) => {
+                  const formattedDate = moment(transaction.transaction_date).format("DD MMM YYYY");
+                  const showDateHeader =
+                    index === 0 ||
+                    formattedDate !== moment(sortedArray[index - 1].transaction_date).format("DD MMM YYYY");
+
+                  return (
+                    <View key={transaction.id} className="w-full items-center">
+                      {showDateHeader && (
+                        <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
+                          {formattedDate}
+                        </ThemedText>
+                      )}
+                      <TransactionItem
+                        transaction={transaction}
+                        theme={theme}
+                        onEdit={() => handleEditTransaction(transaction.id ?? 0)}
+                        onDelete={() => handleDeleteTransaction(transaction.id ?? 0)}
+                        checkpage={"transactions"}
+                        isOptionsVisible={activeOptionID?.type === "transaction" && activeOptionID?.id === transaction.id} // ✅ ตรวจสอบว่าเปิดเมนู TransactionItem อยู่หรือไม่
+                        setOptionsVisible={() => handleToggleOptions("transaction", transaction.id)} // ✅ เปิด/ปิดเมนู
+                      />
+                    </View>
+                  );
+                });
+              })()}
             </View>
           </ThemedView>
-
-          <ScrollView
-            className="h-[450px] py-2"
-            keyboardShouldPersistTaps="handled"
-          >
-            <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12 ">
-              <View className="w-full !items-center">
-                {/* {transactions.map((transaction) => {
-                const formattedDate = moment(transaction.transaction_date).format("DD MMM YYYY");
-                          const showDateHeader = lastDate !== formattedDate;
-                          lastDate = formattedDate; */}
-
-                {!transaction || transaction.length === 0 ? (
-                  <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
-                    No transactions available
-                  </ThemedText>
-                ) : (
-                  transaction.slice().map((transaction, index, sortedArray) => {
-                    const formattedDate = moment(
-                      transaction.transaction_date
-                    ).format("DD MMM YYYY");
-                    const showDateHeader =
-                      index === 0 ||
-                      formattedDate !==
-                        moment(sortedArray[index - 1].transaction_date).format(
-                          "DD MMM YYYY"
-                        );
-                    return (
-                      <View
-                        key={transaction.id}
-                        className="w-full items-center "
-                      >
-                        {showDateHeader && (
-                          <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
-                            {formattedDate}
-                          </ThemedText>
-                        )}
-                        <TransactionItem
-                          transaction={transaction}
-                          theme={theme}
-                          onEdit={() =>
-                            handleEditTransaction(transaction.id ?? 0)
-                          }
-                          onDelete={() =>
-                            handleDeleteTransaction(transaction.id ?? 0)
-                          }
-                          checkpage={"transactions"}
-                          isOptionsVisible={activeOptionID?.type === "transaction" && activeOptionID?.id === transaction.id} // ✅ ตรวจสอบว่าเปิดเมนู TransactionItem อยู่หรือไม่
-                          setOptionsVisible={() => handleToggleOptions("transaction", transaction.id)} // ✅ เปิด/ปิดเมนู
-                        />
-                      </View>
-                    );
-                  })
-                )}
-              </View>
-            </ThemedView>
           </ScrollView>
           {isOverlayVisible && (
             <TouchableWithoutFeedback
