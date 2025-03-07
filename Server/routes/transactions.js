@@ -164,6 +164,26 @@ router.get('/:id', jwtValidate, (req, res) => {
     )
 })
 
+router.get('/account_id/:id', jwtValidate, (req, res) => {
+    if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
+        return res.status(403).json({ message: 'Unauthorized user', success: false });
+    }
+
+    db.query(
+        'SELECT * FROM transactions WHERE account_id = ? ORDER BY transaction_date desc', [req.params.account_id], (err, result) => {
+            if (err) {
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+            }
+
+            if (result.length === 0) {
+                return res.status(404).json({ message: 'Transactions not found', success: false });
+            }
+
+            return res.status(200).json({result, message: 'Get transaction successfully', success: true});
+        }
+    )
+})
+
 router.put('/:id', jwtValidate, (req, res) => {
     const transactionId = req.params.id;
     const { account_id, split_payment_id, transaction_name, amount, transaction_type, note, color_code } = req.body;
