@@ -20,7 +20,7 @@ interface DeviceProps {
 
 const ExpandableDeviceCard: React.FC<DeviceProps> = ({ deviceDetails, onSignOut}) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const [showConfirm, setShowConfirm] = useState(false);
+    // const [showConfirm, setShowConfirm] = useState(false);
 
       const theme = useColorScheme();
       const componentcolor = theme === "dark" ? "#181818" : "#d8d8d8";
@@ -49,7 +49,7 @@ const ExpandableDeviceCard: React.FC<DeviceProps> = ({ deviceDetails, onSignOut}
                     </View>
 
                     <TouchableOpacity
-                        onPress={() => setShowConfirm(true)} 
+                        onPress={() => onSignOut()} 
                         style={{
                             position: "absolute",
                             right: 0, // ชิดขวา
@@ -80,66 +80,6 @@ const ExpandableDeviceCard: React.FC<DeviceProps> = ({ deviceDetails, onSignOut}
                     </ThemedView>
                 )}
 
-{showConfirm && (
-                    <TouchableOpacity
-                        activeOpacity={1} 
-                        onPress={() => setShowConfirm(false)} 
-                        style={{
-                            width:"100%",
-                            height:"100%",
-                            position: "absolute",
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            backgroundColor: "rgba(255, 0, 0, 0.7)",
-                            justifyContent: "center",
-                            alignItems: "center",
-                        }}
-                    >
-                        <TouchableOpacity activeOpacity={1} style={{
-                            width: Dimensions.get("window").width * 0.8,
-                            padding: 20,
-                            backgroundColor: "white",
-                            borderRadius: 10,
-                            alignItems: "center",
-                            shadowColor: "#000",
-                            shadowOffset: { width: 0, height: 3 },
-                            shadowOpacity: 0.3,
-                            shadowRadius: 4,
-                            elevation: 5,
-                        }}>
-                            <ThemedText className="text-xl font-bold mb-2">Confirm Sign Out</ThemedText>
-                            <ThemedText>Are you sure you want to sign out from this device?</ThemedText>
-
-                            <View style={{ flexDirection: "row", marginTop: 20 }}>
-                                <TouchableOpacity
-                                    onPress={() => setShowConfirm(false)}
-                                    style={{
-                                        marginRight: 15,
-                                        padding: 10,
-                                        backgroundColor: "#ddd",
-                                        borderRadius: 8,
-                                    }}
-                                >
-                                    <ThemedText className="text-red-600">Cancel</ThemedText>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        onSignOut();
-                                        setShowConfirm(false);
-                                    }}
-                                    style={{
-                                        padding: 10,
-                                        backgroundColor: "#007bff",
-                                        borderRadius: 8,
-                                    }}
-                                >
-                                    <ThemedText className="text-white">OK</ThemedText>
-                                </TouchableOpacity>
-                            </View>
-                        </TouchableOpacity>
-                    </TouchableOpacity>
-                )}
-                
             </MotiView>
         </TouchableOpacity>
     );
