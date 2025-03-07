@@ -8,27 +8,39 @@ router.use(express.urlencoded({ extended: false }))
 
 const {router: authRouter, jwtValidate, otpValidate, getUserIDbyusername, getUserIDbyemail} = require('./auth')
 const db = require('./db');
+const e = require('express');
 
 router.get('/', jwtValidate, (req, res) => {
 
     db.query('SELECT * FROM users', (err, result) => {
         if (err) {
+            console.log('Error from .get/ from SELECT * FROM users');
+            console.log('Database query failed');
+            console.log('Error:', err)
             return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
         }
+
+        console.log("Users Retrieved")
         return res.status(200).json(result);
     });
 });
 
 router.post('/forgotpwd', otpValidate, (req, res) => {
-    const { password} = req.body
+    const { password } = req.body
+
+    console.log("DATA:", password)
 
     if (password.length < 8) {
+        console.log('Error from /forgotpwd from password.length < 8');
+        console.log('Password must be at least 8 characters')
         return res.status(400).json({ message: 'Password must be at least 8 characters', success: false});
     }
 
     if(req.user.otpValidate){
         bcrypt.hash(password, 10, (err, hash) => {
             if (err) {
+                console.log('Error from /forgotpwd from bcrypt.hash(password, 10, (err, hash)');
+                console.log("Error:", err)
                 console.error('Error hashing password:', err)
                 return res.status(500).json({ message: 'Password hashing failed', error: err.message, success: false});
             }
@@ -36,31 +48,43 @@ router.post('/forgotpwd', otpValidate, (req, res) => {
             db.query(
                 'UPDATE users SET password = ? WHERE email = ?', [hash, req.user.email], (err, result) => {
                     if (err) {
+                        console.log('Error from /forgotpwd from UPDATE users SET password = ? WHERE email = ?');
+                        console.log('Database query failed');
+                        console.log('Error:', err)
                         return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
                     }
         
                     if (result.length === 0) {
+                        console.log('Error from /forgotpwd from result.length === 0');
+                        console.log('User not found')
                         return res.status(404).json({ message: 'User not found', success: false });
                        }
     
                        req.user.otpValidate = false
         
+                       console.log("Password Changed")
                        return res.status(200).json({ message: 'Password Changed', success: true });
                 }
             )
         })
     }else{
+        console.log('Error from /forgotpwd from req.user.otpValidate');
+        console.log('OTP not validated')
         return res.status(400).json({ message: 'Cannot validate OTP', success: false });
     }
 
 })
 
-router.put('/user/setting/:id', jwtValidate, (req, res) => {
+router.put('/user/setting/:id', jwtValidate, (req, res) => { //user_id
+    console.log("User ID:", req.params.id)
+    
     if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
+        console.log("Unauthorized user")
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
     if (req.body.id || req.body.user_id){
+        console.log("Error from /user/setting/:id from req.body.id || req.body.user_id");
         console.log('Can not change!')
         return res.status(400).json({message: 'Can not change!', success: false})
     }
@@ -68,78 +92,112 @@ router.put('/user/setting/:id', jwtValidate, (req, res) => {
     db.query(
         'UPDATE users SET ? WHERE id = ?', [req.body, req.params.id], (err, result) => {
             if (err) {
+                console.log("Error from /user/setting/:id from UPDATE users SET ? WHERE id = ?");
+                console.log("Database query failed");
+                console.log("Error:", err);
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
             }
 
             if (result.length === 0) {
+                console.log("Error from /user/setting/:id from result.length === 0");
+                console.log("User not found")
                 return res.status(404).json({ message: 'User not found', success: false });
             }
 
+            console.log("User Setting updated")
             return res.status(200).json({ message: 'User Setting updated', success: true });
         }
     )
 })
 
-router.get('/:id', jwtValidate, (req, res) => {
+router.get('/:id', jwtValidate, (req, res) => { //user_id
+    console.log("User ID:", req.params.id)
+
     if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
+        console.log("Unauthorized user")
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
     db.query(
         'SELECT * FROM users WHERE id = ?', [req.params.id], (err, result) => {
             if (err) {
+                console.log("Error from .get/:id from SELECT * FROM users WHERE id = ?");
+                console.log("Database query failed");
+                console.log("Error:", err)
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
             }
 
             if (result.length === 0) {
+                console.log("From .get/:id from result.length === 0")
+                console.log("User not found")
                 return res.status(404).json({ message: 'User not found', success: false });
             }
 
-            return res.status(200).json({result, success: true});
+            console.log("Get User")
+            return res.status(200).json({result, message: "Get User", success: true});
         }
     )
 })
 
-router.put('/:id', jwtValidate, (req, res) => {
+router.put('/:id', jwtValidate, (req, res) => { //user_id
+    console.log("User ID:", req.params.id)
+
     if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
+        console.log("Unauthorized user")
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
     if (req.body.id || req.body.password || req.body.email){
+        console.log("Error from .put/:id from req.body.id || req.body.password || req.body.email");
         console.log('Can not change!')
         return res.status(400).json({message: 'Can not change!', success: false})
     }else{
         db.query(
             'UPDATE users SET ? WHERE id = ?', [req.body, req.params.id], (err, result) => {
                 if (err) {
+                    console.log("Error from .put/:id from UPDATE users SET ? WHERE id = ?");
+                    console.log("Database query failed");
+                    console.log("Error:", err)
                     return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
                 }
     
                 if (result.length === 0) {
+                    console.log("From .put/:id from result.length === 0")
+                    console.log("User not found")
                     return res.status(404).json({ message: 'User not found', success: false });
                 }
     
+                console.log("User updated");
                 return res.status(200).json({ message: 'User updated', success: true });
             }
         )
     }
 })
 
-router.delete('/:id', jwtValidate, (req, res) => {
+router.delete('/:id', jwtValidate, (req, res) => { //user_id
+    console.log("User ID:", req.params.id)
+
     if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
+        console.log("Unauthorized user")
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
     db.query(
         'DELETE FROM users WHERE id = ?', [req.params.id], (err, result) => {
             if (err) {
+                console.log("Error from .delete/:id from DELETE FROM users WHERE id = ?");
+                console.log("Database query failed");
+                console.log("Error:", err)
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
             }
 
             if (result.length === 0) {
+                console.log("From .delete/:id from result.length === 0")
+                console.log("User not found")
                 return res.status(404).json({ message: 'User not found', success: false });
             }
 
+            console.log("User deleted")
             res.status(200).json({ message: 'User deleted', success: true });
         }
     )
