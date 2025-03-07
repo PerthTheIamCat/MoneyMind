@@ -21,6 +21,8 @@ import { Alert } from "react-native";
 import { ThemedButton } from "@/components/ThemedButton";
 import { UserContext } from "@/hooks/conText/UserContext";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import Entypo from "@expo/vector-icons/Entypo";
 
 interface Device {
   device_id: number;
@@ -85,6 +87,14 @@ export default function Account_Detail() {
   const { URL } = useContext(ServerContext);
   const [Devices, setDevices] = useState(mockAccount.device);
   const [bioText, setBioText] = useState(mockAccount.note);
+  const [showConfirmDeleteDevice, setShowConfirmDeleteDevice] = useState(false);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(null);
+
+  const [showConfirmAll, setShowConfirmAll] = useState(false);
+
+  const [showConfirmDeleteAccount, setShowConfirmDeleteAccount] =
+    useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
 
   const [username, setUsername] = useState(mockAccount.user_name);
   const [displayUsername, setDisplayUsername] = useState(mockAccount.user_name);
@@ -96,16 +106,23 @@ export default function Account_Detail() {
   );
   const [modalVisible_Fullname, setModalVisible_Fullname] = useState(false);
 
-  const [displaybirth_day, setDisplaybirth_day] = useState<Date>(new Date(mockAccount.birth_day));
+  const [displaybirth_day, setDisplaybirth_day] = useState<Date>(
+    new Date(mockAccount.birth_day)
+  );
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [modalVisible_Birth_day, setModalVisible_Birth_day] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date(mockAccount.birth_day));
+  const [selectedDate, setSelectedDate] = useState<Date>(
+    new Date(mockAccount.birth_day)
+  );
 
   // ใช้ tempDate เก็บค่าชั่วคราวขณะเลือกวันเกิด
-  const [tempDate, setTempDate] = useState<Date>(new Date(mockAccount.birth_day));
+  const [tempDate, setTempDate] = useState<Date>(
+    new Date(mockAccount.birth_day)
+  );
 
   const theme = useColorScheme();
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsloading] = useState(false);
 
   // const [email, setEmail] = useState<string>("");
   const { email } = useContext(UserContext);
@@ -117,13 +134,29 @@ export default function Account_Detail() {
     mockAccount.gender
   );
 
-  const getTextColor = () => {
-    return theme === "dark" ? "#FFF" : "#2F2F2F"; // สีข้อความเปลี่ยนตามธีม
+  const handleSignOutAll = () => setShowConfirmAll(true);
+  {
+  }
+
+  const handleDeleteAccount = () => {
+    console.log("User deleted account");
+    setIsloading(true);
+    setIsDeleted(true);
+
+    setTimeout(() => {
+      setIsloading(false);
+    }, 2000);
+
+    setTimeout(() => {
+      setShowConfirmDeleteAccount(false);
+      router.push("/Welcome");
+    }, 5000);
   };
 
-  const handleSignOutAll = () => {
+  const confirmSignOutAll = () => {
     setDevices([]);
     console.log("All devices have been signed out.");
+    setShowConfirmAll(false);
   };
 
   const handleSignOut = (deviceId: number) => {
@@ -138,7 +171,7 @@ export default function Account_Detail() {
   const hideDatePicker = () => setDatePickerVisibility(false);
 
   const handleDateConfirm = (date: Date) => {
-    console.log("เลือกวันเกิด: ", date.toLocaleString("th-TH"));
+    console.log("Choose birthday: ", date.toLocaleString("th-TH"));
     setTempDate(date); // กำหนด tempDate เป็นค่าที่เลือกใหม่
     hideDatePicker();
   };
@@ -239,13 +272,13 @@ export default function Account_Detail() {
             Date of Birth
           </ThemedText>
           <ThemedView className="flex-row justify-between items-center w-full pr-8">
-          <ThemedText className="text-xl font-bold pl-3">
-        {selectedDate.toLocaleDateString("th-TH", {
-          year: "numeric",
-          month: "numeric",
-          day: "numeric",
-        })}
-      </ThemedText>
+            <ThemedText className="text-xl font-bold pl-3">
+              {selectedDate.toLocaleDateString("th-TH", {
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+              })}
+            </ThemedText>
             <Pressable
               onPress={() => setModalVisible_Birth_day(true)}
               disabled={!isEditing}
@@ -344,8 +377,10 @@ export default function Account_Detail() {
               <ExpandableDeviceCard
                 key={device.device_id}
                 deviceDetails={device}
-                onSignOut={() => handleSignOut(device.device_id)}
-                onSignOutAll={handleSignOutAll}
+                onSignOut={() => {
+                  setSelectedDeviceId(device.device_id);
+                  setShowConfirmDeleteDevice(true);
+                }}
               />
             ))}
             {mockAccount.device.length > 0 && (
@@ -369,7 +404,10 @@ export default function Account_Detail() {
           </ThemedView>
         </ThemedView>
 
-        <Pressable className="!items-center mb-10">
+        <Pressable
+          className="!items-center mb-10"
+          onPress={() => setShowConfirmDeleteAccount(true)}
+        >
           <ThemedView className="!justify-center !items-center flex pt-2 mt-5 rounded-2xl border-2 w-96">
             <ThemedText className="text-3xl">Delete Account</ThemedText>
           </ThemedView>
@@ -385,6 +423,211 @@ export default function Account_Detail() {
           {isEditing ? "Save" : "Edit"}
         </Text>
       </Pressable>
+
+      {showConfirmDeleteDevice && (
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setShowConfirmDeleteDevice(false)}
+          style={{
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+            <ThemedView
+              activeOpacity={1}
+              style={{
+                padding: 20,
+                borderRadius: 10,
+                alignItems: "center",
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 3 },
+                shadowOpacity: 0.3,
+                shadowRadius: 4,
+                elevation: 5,
+              }}
+            >
+              <ThemedText className="text-xl font-bold mb-2">
+                Confirm Sign Out
+              </ThemedText>
+              <ThemedText>
+                Are you sure you want to sign out from this device?
+              </ThemedText>
+
+              <ThemedView
+                className="bg-transparent pt-3"
+                style={{
+                  flexDirection: "row",
+                  marginTop: 10,
+                  justifyContent: "space-between",
+                  gap: 32,
+                }}
+              >
+                <TouchableOpacity
+                  className="p-3 w-24 bg-red-500 !items-center rounded-xl"
+                  onPress={() => {
+                    if (selectedDeviceId !== null) {
+                      handleSignOut(selectedDeviceId); 
+                      setSelectedDeviceId(null); 
+                    }
+                    setShowConfirmDeleteDevice(false); 
+                  }}
+                >
+                  <ThemedText className="text-white">Confirm</ThemedText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="p-3 bg-gray-400 w-24 !items-center rounded-xl"
+                  onPress={() => setShowConfirmDeleteDevice(false)}
+                >
+                  <ThemedText className="text-white ">Cancel</ThemedText>
+                </TouchableOpacity>
+              </ThemedView>
+            </ThemedView>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
+      )}
+
+      {showConfirmAll && (
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setShowConfirmAll(false)}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+            <ThemedView
+              activeOpacity={1}
+              style={{
+                padding: 20,
+                borderRadius: 10,
+                alignItems: "center",
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 3 },
+                shadowOpacity: 0.3,
+                shadowRadius: 4,
+                elevation: 5,
+              }}
+            >
+              <ThemedText className="text-xl font-bold mb-2">
+                Confirm Sign Out All
+              </ThemedText>
+              <ThemedText>
+                Are you sure you want to sign out from all devices?
+              </ThemedText>
+
+              <ThemedView
+                className="bg-transparent pt-3"
+                style={{
+                  flexDirection: "row",
+                  marginTop: 10,
+                  justifyContent: "space-between",
+                  gap: 32,
+                }}
+              >
+                <TouchableOpacity
+                  className="p-3 w-24 bg-red-500 !items-center rounded-xl"
+                  onPress={confirmSignOutAll}
+                >
+                  <ThemedText className="text-white ">Confirm</ThemedText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="p-3 bg-gray-400 w-24 !items-center rounded-xl"
+                  onPress={() => setShowConfirmAll(false)}
+                >
+                  <ThemedText className="text-white ">Cancel</ThemedText>
+                </TouchableOpacity>
+              </ThemedView>
+            </ThemedView>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
+      )}
+
+      {showConfirmDeleteAccount && (
+        <Pressable
+          onPress={() => setShowConfirmDeleteAccount(false)}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <ThemedView className="p-5 rounded-2xl items-center shadow-lg w-96">
+              {/*  ถ้ายังไม่กดยืนยัน แสดง Modal ปกติ */}
+              {!isDeleted ? (
+                <>
+                  <ThemedText className="text-xl font-bold mb-2">
+                    Confirm Account Deletion
+                  </ThemedText>
+                  <ThemedText className="w-96 text-center">
+                    Are you sure you want to permanently delete your account?
+                    This action cannot be undone.
+                  </ThemedText>
+
+                  {/* ปุ่มกด Confirm & Cancel */}
+                  <ThemedView className="bg-transparent pt-3 flex-row justify-between gap-8">
+                    <TouchableOpacity
+                      className="p-3 w-24 bg-red-500 items-center rounded-xl"
+                      onPress={handleDeleteAccount}
+                    >
+                      <ThemedText className="text-white">Confirm</ThemedText>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      className="p-3 bg-gray-400 w-24 items-center rounded-xl"
+                      onPress={() => setShowConfirmDeleteAccount(false)}
+                    >
+                      <ThemedText className="text-white">Cancel</ThemedText>
+                    </TouchableOpacity>
+                  </ThemedView>
+                </>
+              ) : (
+                <ThemedView>
+                  <ThemedText className="text-xl font-bold mb-2">
+                    Account Deleted Successfully
+                  </ThemedText>
+                  <ThemedText className="w-96 text-center">
+                    The account has been successfully deleted.
+                  </ThemedText>
+                  <ThemedView className="mt-3">
+                    {isLoading ? (
+                      <AntDesign
+                        key={"loading1"}
+                        name="loading2"
+                        size={44}
+                        color="#CEB036"
+                        className="animate-spin-ease"
+                      />
+                    ) : (
+                      <AntDesign name="checkcircle" size={44} color="#2B9348" />
+                    )}
+                  </ThemedView>
+                </ThemedView>
+              )}
+            </ThemedView>
+          </Pressable>
+        </Pressable>
+      )}
 
       {modalVisible_Username && (
         <TouchableWithoutFeedback
@@ -566,40 +809,40 @@ export default function Account_Detail() {
           onPress={() => setModalVisible_Birth_day(false)}
         >
           <Pressable onPress={(e) => e.stopPropagation()}>
-            <View className="bg-white p-5 rounded-2xl w-80 items-center">
-              <Text className="text-lg font-bold mb-3">Select Birth Date</Text>
+            <ThemedView birthdayView className=" p-5 rounded-2xl w-80 items-center">
+              <ThemedText className="text-lg font-bold mb-0">Select Birth Date</ThemedText>
 
               {/* DatePicker */}
-              <View className="flex items-center mt-5">
-      {/* Date Picker Modal */}
-      <DateTimePickerModal
-                isVisible={isDatePickerVisible}
-                mode="date"
-                onConfirm={handleDateConfirm}
-                onCancel={hideDatePicker}
-                is24Hour={true}
-                date={tempDate} // ใช้ tempDate แทน birth_day
-                maximumDate={new Date()} // ป้องกันเลือกวันในอนาคต
-                locale="th-TH"
-              />
+              <ThemedView className="flex items-center mt-5">
+                {/* Date Picker Modal */}
+                <DateTimePickerModal
+                  isVisible={isDatePickerVisible}
+                  mode="date"
+                  onConfirm={handleDateConfirm}
+                  onCancel={hideDatePicker}
+                  is24Hour={true}
+                  date={tempDate} // ใช้ tempDate แทน birth_day
+                  maximumDate={new Date()} // ป้องกันเลือกวันในอนาคต
+                  locale="th-TH"
+                />
 
-      {/* ปุ่มกดเปิด Date Picker */}
-      <ThemedView className="w-40 bg-transparent">
-        <Pressable onPress={showDatePicker}>
-          <ThemedInput
-            className="w-full"
-            error=""
-            value={tempDate.toLocaleDateString("th-TH", {
-              year: "numeric",
-              month: "numeric",
-              day: "numeric",
-            })}
-            editable={false} // ป้องกันการแก้ไขเอง
-          />
-        </Pressable>
-      </ThemedView>
-    </View>
-            
+                {/* ปุ่มกดเปิด Date Picker */}
+                <ThemedView className="w-40 bg-transparent">
+                  <Pressable onPress={showDatePicker}>
+                    <ThemedInput
+                      className="w-full"
+                      error=""
+                      value={tempDate.toLocaleDateString("th-TH", {
+                        year: "numeric",
+                        month: "numeric",
+                        day: "numeric",
+                      })}
+                      editable={false} // ป้องกันการแก้ไขเอง
+                    />
+                  </Pressable>
+                </ThemedView>
+              </ThemedView>
+
               {/* ปุ่มกด */}
               <View className="flex-row gap-4 mt-5">
                 <Pressable
@@ -612,7 +855,7 @@ export default function Account_Detail() {
                 <Pressable
                   className="bg-green-500 p-2 rounded-lg"
                   onPress={() => {
-                    setSelectedDate(tempDate); 
+                    setSelectedDate(tempDate);
                     setDisplaybirth_day(tempDate);
                     setModalVisible_Birth_day(false);
                   }}
@@ -620,7 +863,7 @@ export default function Account_Detail() {
                   <Text className="text-white font-bold">Confirm</Text>
                 </Pressable>
               </View>
-            </View>
+            </ThemedView>
           </Pressable>
         </Pressable>
       )}
