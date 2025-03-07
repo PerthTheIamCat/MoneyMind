@@ -3,7 +3,13 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedView } from "@/components/ThemedView";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { CreateUserTransaction } from "@/hooks/auth/CreateTransaction";
 import { AuthContext } from "@/hooks/conText/AuthContext";
@@ -57,7 +63,11 @@ export default function Index() {
     useState(false);
   const [Amount, setAmount] = useState(0);
   const [Note, setNote] = useState("");
-  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryName, setNewCategoryNameState] = useState("");
+
+  const setNewCategoryName = useCallback((text: string) => {
+    setNewCategoryNameState(text);
+  }, []);
   const [selectedIcon, setSelectedIcon] = useState("plus");
   const [date, setDate] = useState(new Date().getTime() + 7 * 60 * 60 * 1000); // เก็บค่า Date
   const [time, setTime] = useState(new Date().getTime()); // เก็บค่า Time
@@ -141,7 +151,7 @@ export default function Index() {
 
   const [categories, setCategories] = useState(incomeCategories);
 
-  const [budgetPlan, setBudgetPlan] = useState("");
+  const [budgetPlan, setBudgetPlan] = useState<number>(-1);
   const [selectedBudget, setSelectedBudget] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
@@ -265,7 +275,14 @@ export default function Index() {
     console.log(isIncome ? selectedIncomeCategory : selectedExpenseCategory);
     console.log(Amount);
     console.log(isIncome ? "income" : "expense");
-    console.log(selectedDate.toISOString().split("T")[0]+" "+selectedTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }));
+    console.log(
+      selectedDate.toISOString().split("T")[0] +
+        " " +
+        selectedTime.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+    );
     console.log(Note);
     if (!selectedCard) {
       console.log("⚠️ No selectedCard, using default account");
@@ -292,13 +309,19 @@ export default function Index() {
         id: (transaction?.length || 0) + 1,
         user_id: userID!,
         account_id: selectedCard?.id,
-        split_payment_id: 0,
+        split_payment_id: budgetPlan,
         transaction_name: isIncome
           ? selectedIncomeCategory
           : selectedExpenseCategory,
         amount: Amount,
         transaction_type: isIncome ? "income" : "expense",
-        transaction_date: selectedDate.toISOString().split("T")[0]+" "+selectedTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+        transaction_date:
+          selectedDate.toISOString().split("T")[0] +
+          " " +
+          selectedTime.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
         note: Note,
         color_code: "#FFFFFF",
       },
@@ -317,7 +340,13 @@ export default function Index() {
               : selectedExpenseCategory,
             amount: Amount,
             transaction_type: isIncome ? "income" : "expense",
-            transaction_date: selectedDate.toISOString().split("T")[0]+" "+selectedTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+            transaction_date:
+              selectedDate.toISOString().split("T")[0] +
+              " " +
+              selectedTime.toLocaleTimeString("en-GB", {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
             note: Note,
             color_code: "#FFFFFF",
           },
@@ -472,12 +501,17 @@ export default function Index() {
                         mode="large"
                         imageIndex={Number(account.icon_id)}
                         className={`!items-center !justify-center bg-[#fefefe] rounded-lg 
-                          ${selectedCard?.id === account.id
-                            ? "border-4 border-[#03A696]"
-                            : "border-0"}
-                        `} isOptionsVisible={false} setOptionsVisible={function (): void {
+                          ${
+                            selectedCard?.id === account.id
+                              ? "border-4 border-[#03A696]"
+                              : "border-0"
+                          }
+                        `}
+                        isOptionsVisible={false}
+                        setOptionsVisible={function (): void {
                           throw new Error("Function not implemented.");
-                        } }                      />
+                        }}
+                      />
                     </ThemedView>
                   </Pressable>
                 ))}
@@ -545,7 +579,10 @@ export default function Index() {
                 Select Budget Plan
               </ThemedText>
               <ThemedView className="w-full bg-transparent">
-                <DropdownComponent />
+                <DropdownComponent
+                  account_id={selectedCard?.id!}
+                  onChange={(id) => setBudgetPlan(id)}
+                />
               </ThemedView>
             </ThemedView>
 

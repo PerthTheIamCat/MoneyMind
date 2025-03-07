@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet } from "react-native";
 import { SelectCountry } from "react-native-element-dropdown";
 import { ThemedView } from "./ThemedView";
+import { getSplitpay } from "@/hooks/auth/SplitpayHandler";
+import { AuthContext } from "@/hooks/conText/AuthContext";
+import { ServerContext } from "@/hooks/conText/ServerConText";
 
 const BudgetPlan_data = [
   {
@@ -41,13 +44,52 @@ const BudgetPlan_data = [
   },
 ];
 
-const SelectBudgetPlanScreen = (_props: any) => {
-  const [BudgetPlan, setBudgetPlan] = useState("");
+interface SplitpayData {
+  id: number;
+  user_id: number;
+  account_id: number;
+  split_name: string;
+  amount_allocated: number;
+  remaining_balance: number;
+  color_code: string;
+  icon_id: number;
+}
+
+const SelectBudgetPlanScreen = ({
+  account_id,
+  onChange,
+}: {
+  account_id: number;
+  onChange: (id: number) => void;
+}) => {
+  console.log("account_id", account_id);
+  const [BudgetPlanData, setBudgetPlanData] = useState<SplitpayData[]>([]);
+  const [BudgetPlanSelected, setBudgetPlanSelected] = useState<SplitpayData[]>(
+    []
+  );
+  const { URL } = useContext(ServerContext);
+  const auth = useContext(AuthContext);
+  useEffect(() => {
+    async function fetchData() {
+      const response = await getSplitpay(URL, account_id, auth?.token!);
+      if (response.success) {
+        setBudgetPlanData(response.result);
+      }
+    }
+    fetchData();
+  }, [account_id]);
 
   return (
     <ThemedView className="bg-transparent">
       <SelectCountry
-        containerStyle={{ width: 340, height: 200, marginTop: 5, zIndex: 9999, elevation: 10,  borderRadius: 15}}
+        containerStyle={{
+          width: 340,
+          height: 200,
+          marginTop: 5,
+          zIndex: 9999,
+          elevation: 10,
+          borderRadius: 15,
+        }}
         mode="default"
         dropdownPosition="bottom"
         style={styles.dropdown}
@@ -56,15 +98,16 @@ const SelectBudgetPlanScreen = (_props: any) => {
         imageStyle={styles.imageStyle}
         iconStyle={styles.iconStyle}
         maxHeight={200}
-        value={BudgetPlan}
-        data={BudgetPlan_data}
-        valueField="value"
-        labelField="lable"
-        imageField="image"
+        value={BudgetPlanSelected}
+        data={BudgetPlanData}
+        valueField="id"
+        labelField="split_name"
+        imageField="icon_id"
         placeholder="Select Your Budget Plan"
         searchPlaceholder="Search..."
         onChange={(e) => {
-          setBudgetPlan(e.value);
+          setBudgetPlanSelected(e.id);
+          onChange(e.id);
         }}
       />
     </ThemedView>
