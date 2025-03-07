@@ -45,7 +45,7 @@ const BudgetPlan_data = [
 ];
 
 interface SplitpayData {
-  id: number;
+  id: number | null;
   user_id: number;
   account_id: number;
   split_name: string;
@@ -74,6 +74,19 @@ const SelectBudgetPlanScreen = ({
       const response = await getSplitpay(URL, account_id, auth?.token!);
       if (response.success) {
         setBudgetPlanData(response.result);
+        setBudgetPlanData((prev) => [
+          {
+            id: null,
+            user_id: 0,
+            account_id: 0,
+            split_name: "Select Budget Plan",
+            amount_allocated: 0,
+            remaining_balance: 0,
+            color_code: "0",
+            icon_id: -1,
+          },
+          ...prev,
+        ]);
       }
     }
     fetchData();
@@ -84,8 +97,8 @@ const SelectBudgetPlanScreen = ({
       <SelectCountry
         containerStyle={{
           width: 340,
-          height: 200,
-          marginTop: 5,
+          height: "auto",
+          marginTop: 115,
           zIndex: 9999,
           elevation: 10,
           borderRadius: 15,
