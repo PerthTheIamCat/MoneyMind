@@ -14,9 +14,9 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ThemedNumPad } from "@/components/ThemedNumPad";
-import { CreatePinHandler } from "@/hooks/auth/CreatePinHandler";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { UserContext } from "@/hooks/conText/UserContext";
+import axios from "axios";
 
 export default function CreatePinPage() {
   const auth = useContext(AuthContext);
@@ -53,8 +53,26 @@ export default function CreatePinPage() {
 
   const handleSetPin = () => {
     if (confirmPin === pin) {
-      auth?.setPinCode(pin);
-      router.replace("/(tabs)");
+      axios
+        .post(
+          `${URL}/auth/createpin`,
+          { user_id: userID!, pin: pin },
+          {
+            headers: {
+              Authorization: `Bearer ${auth?.token}`,
+            },
+          }
+        )
+        .then((response) => {
+          if (response.data.success) {
+            router.replace("/(tabs)");
+          } else {
+            setPin("");
+            setConfirmPin("");
+            setCode([]);
+            Alert.alert("Error setting PIN");
+          }
+        });
     } else {
       setPin("");
       setConfirmPin("");
@@ -82,7 +100,7 @@ export default function CreatePinPage() {
         setCode([]);
       } else {
         setConfirmPin(code.join(""));
-        CreatePinHandler(URL, { user_id: userID!, pin: pin }, auth?.token!); // เรียกฟังก์ชันเมื่อใส่ PIN ครบ 6 ตัว
+        setCode([]);
       }
     }
   }, [code]);
@@ -145,7 +163,7 @@ export default function CreatePinPage() {
           </ThemedText>
         </ThemedView>
         <ThemedNumPad
-          haveBiometric={true} // Ensure biometric is available
+          haveBiometric={false} // Ensure biometric is available
           onPress={handlePress}
           onPressBack={handlePressBack}
           onPressBiometric={handleBiometricAuth} // Assign biometric function

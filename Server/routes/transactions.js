@@ -1,25 +1,25 @@
 const express = require('express')  // Import express
 const router = express.Router()     // Create express app
-require('dotenv').config();      
+require('dotenv').config();
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: false }))
 
-const {router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail} = require('./auth')
+const { router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail } = require('./auth')
 const db = require('./db');
 
 router.post('/create', jwtValidate, (req, res) => {
-    const { user_id, 
-            account_id, 
-            split_payment_id, 
-            transaction_name, 
-            amount,
-            transaction_type,
-            transaction_date,
-            note,
-            color_code
-        } = req.body;
-
+    const { user_id,
+        account_id,
+        split_payment_id,
+        transaction_name,
+        amount,
+        transaction_type,
+        transaction_date,
+        note,
+        color_code
+    } = req.body;
+    console.log(req.body);
     if (req.user.UserID !== user_id) { //user_id
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
@@ -87,12 +87,12 @@ router.post('/create', jwtValidate, (req, res) => {
                             if (err) {
                                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
                             }
-                            
+
                             if (split_payment_id) {
-                                let splitUpdateQuery = transaction_type === 'expense' 
-                                    ? 'UPDATE splitpayments SET remaining_balance = remaining_balance - ? WHERE id = ?' 
+                                let splitUpdateQuery = transaction_type === 'expense'
+                                    ? 'UPDATE splitpayments SET remaining_balance = remaining_balance - ? WHERE id = ?'
                                     : 'UPDATE splitpayments SET remaining_balance = remaining_balance + ? WHERE id = ?';
-                                
+
                                 db.query(splitUpdateQuery, [amount, split_payment_id], (err) => {
                                     if (err) {
                                         return res.status(500).json({ message: 'Failed to update split payment', error: err.message, success: false });
@@ -159,7 +159,7 @@ router.get('/:id', jwtValidate, (req, res) => {
                 return res.status(404).json({ message: 'Transactions not found', success: false });
             }
 
-            return res.status(200).json({result, message: 'Get transaction successfully', success: true});
+            return res.status(200).json({ result, message: 'Get transaction successfully', success: true });
         }
     )
 })
@@ -179,7 +179,7 @@ router.get('/account_id/:id', jwtValidate, (req, res) => {
                 return res.status(404).json({ message: 'Transactions not found', success: false });
             }
 
-            return res.status(200).json({result, message: 'Get transaction successfully', success: true});
+            return res.status(200).json({ result, message: 'Get transaction successfully', success: true });
         }
     )
 })
@@ -245,12 +245,12 @@ router.put('/:id', jwtValidate, (req, res) => {
                                     if (err) {
                                         return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
                                     }
-                                    
+
                                     if (split_payment_id) {
-                                        let splitUpdateQuery = transaction_type === 'expense' 
-                                            ? 'UPDATE splitpayments SET remaining_balance = remaining_balance - ? WHERE id = ?' 
+                                        let splitUpdateQuery = transaction_type === 'expense'
+                                            ? 'UPDATE splitpayments SET remaining_balance = remaining_balance - ? WHERE id = ?'
                                             : 'UPDATE splitpayments SET remaining_balance = remaining_balance + ? WHERE id = ?';
-                                        
+
                                         db.query(
                                             splitUpdateQuery,
                                             [amount, split_payment_id],
