@@ -16,8 +16,10 @@ type AuthContextType = {
   token: string | null;
   authLoading: boolean;
   isPinSet: boolean;
+  pin: string | null;
+  setPin: (pin: string | null) => void;
   setToken: (token: string) => Promise<void>;
-  setPinCode: (pin: string) => Promise<void>;
+  setPinCodeLocal: (pin: string) => Promise<void>;
   setIsPinSet: (value: boolean) => void;
   verifyPin: (userID: number, enteredPin: string) => Promise<boolean>;
   logout: () => void;
@@ -32,6 +34,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 );
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [pin, setPin] = useState<string | null>("");
   const [token, setToken] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [isPinSet, setIsPinSet] = useState<boolean>(false);
@@ -87,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(null);
   };
 
-  const setPinCode = async (newPin: string) => {
+  const setPinCodeLocal = async (newPin: string) => {
     try {
       await SecureStore.setItemAsync("userPin", newPin);
       setIsPinSet(true);
@@ -152,11 +155,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
+        pin,
+        setPin,
         token,
         authLoading,
         isPinSet,
         canUseBiometrics,
-        setPinCode,
+        setPinCodeLocal,
         verifyPin,
         setIsPinSet,
         setToken: saveToken,
