@@ -40,18 +40,28 @@ export default function Index() {
 
       setIsLoading(true);
 
+      const timeout = setTimeout(() => {
+        setIsLoading(false);
+        alert(
+          "Sign in request timed out. Please try again. Cant connect to server"
+        );
+      }, 5000);
       await SignInHandler(URL, {
         input: usernameEmail,
         password: password,
       }).then(async (response) => {
         if (response.success) {
           await auth?.setToken(response.accessToken);
-          if (await auth?.isPinSet) {
+          if ((await auth?.pin) !== null) {
             router.push("/(tabs)");
           } else {
             router.push("/CreatePinPage");
           }
+        } else {
+          alert(response.message);
         }
+        clearTimeout(timeout);
+        setIsLoading(false);
       });
     } catch (error) {
       console.error(error);
