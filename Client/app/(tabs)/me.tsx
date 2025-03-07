@@ -4,7 +4,7 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { useContext } from "react";
 import { router } from "expo-router";
-import { useColorScheme } from "react-native";
+import { Pressable, useColorScheme } from "react-native";
 import { UserContext } from "@/hooks/conText/UserContext";
 
 import Feather from "@expo/vector-icons/Feather";
@@ -15,7 +15,6 @@ export default function Setting() {
   const theme = useColorScheme();
   const isDarkMode = theme === "dark";
 
-  // สีขององค์ประกอบใน Dark Mode
   const bgColor = isDarkMode ? "bg-gray-700" : "bg-gray-100";
   const textColor = isDarkMode ? "text-white" : "text-black";
   const componentColor = isDarkMode ? "bg-gray-800" : "bg-white";
@@ -36,13 +35,13 @@ export default function Setting() {
 
       {/* Profile Account Setting */}
       <View className="mt-5 mb-[15%] mx-4">
-        <ThemedButton
+        <Pressable
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
-          mode="normal"
           onPress={() => router.push("/Account_Detail")}
         >
-          <View className="pl-2 pr-4"> {/* ใส่ padding ซ้ายและขวาให้ไอคอน */}
-            <Feather name="circle" size={30} color={componentIcon}/>
+          <View className="pl-2 pr-4">
+            {/* ใส่ padding ซ้ายและขวาให้ไอคอน */}
+            <Feather name="circle" size={30} color={componentIcon} />
           </View>
           <View className="flex-1">
             <ThemedText className={`text-[18px] font-bold ${textColor}`}>
@@ -53,46 +52,43 @@ export default function Setting() {
             </ThemedText>
           </View>
           <Feather name="chevron-right" size={24} color={componentIcon} />
-        </ThemedButton>
+        </Pressable>
       </View>
 
       {/* เมนูตั้งค่า */}
       <View className="mt-5 space-y-3 mx-4">
         {/* Notification Setting path */}
-        <ThemedButton
+        <Pressable
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
-          mode="normal"
           onPress={() => router.push("../NotificationSetting")}
         >
           <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
             Notification
           </ThemedText>
           <Feather name="chevron-right" size={24} color={componentIcon} />
-        </ThemedButton>
+        </Pressable>
 
         {/* Change Pin Password path */}
-        <ThemedButton
+        <Pressable
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
-          mode="normal"
           onPress={() => router.push("../PinRecovery")}
         >
           <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
             Change Pin
           </ThemedText>
           <Feather name="chevron-right" size={24} color={componentIcon} />
-        </ThemedButton>
+        </Pressable>
 
         {/* Icon Transaction path */}
-        <ThemedButton
+        <Pressable
           className={`flex-row items-center !justify-start px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
-          mode="normal"
           onPress={() => router.push("../IconTransaction")}
         >
           <ThemedText className={`flex-1 text-[18px] font-bold ${textColor}`}>
             Icon Transaction
           </ThemedText>
           <Feather name="chevron-right" size={24} color={componentIcon} />
-        </ThemedButton>
+        </Pressable>
       </View>
 
       {/* Logout */}
@@ -106,7 +102,9 @@ export default function Setting() {
             router.replace("/Welcome");
           }}
         >
-          Log Out
+          <ThemedText className="text-[18px] font-bold">
+            Logout
+          </ThemedText>
         </ThemedButton>
       </View>
     </ThemedSafeAreaView>
