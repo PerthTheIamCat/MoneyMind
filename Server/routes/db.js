@@ -16,9 +16,12 @@ const db = mysql.createPool({
 
 db.getConnection((err, connection) => {
     if (err) {
+        console.log('Error connecting to database');
+        console.log('Error:', err);
         console.error('Error connecting to database:', err);
         return;
     }
+    
     console.log('Connected to database');
     connection.release(); // ปล่อย connection กลับไปที่ pool
 });
