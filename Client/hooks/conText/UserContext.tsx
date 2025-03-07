@@ -121,9 +121,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             if (response.data.pin) {
               console.log("set pin true");
               auth?.setIsPinSet(true);
+              auth?.setPin(response.data.pin);
             } else {
               console.log("set pin false");
               auth?.setIsPinSet(false);
+              auth?.setPin(null);
             }
           } else {
             console.log("fail to get pin:", response.data.message);
@@ -133,7 +135,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, [auth?.token, userID]);
 
   useEffect(() => {
-    if (userID && auth?.token) {
+    if (userID && auth?.token && auth?.isPinSet) {
       GetUserBank(URL, userID!, auth.token)
         .then((response) => {
           if (response.success) {
@@ -169,7 +171,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
     }
-  }, [fullname, userID, auth?.token]);
+  }, [fullname, userID, auth?.token, auth?.isPinSet]);
 
   return (
     <UserContext.Provider
