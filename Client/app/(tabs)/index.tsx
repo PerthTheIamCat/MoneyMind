@@ -228,7 +228,7 @@ export default function Index() {
                   </ThemedText>
                 )}
                 <ThemedView className="w-[400px]" onTouchEnd={() => router.push("/(tabs)/transaction")}>
-                  <TransactionItem 
+                  <TransactionItem
                     transaction={transaction}
                     theme={theme}
                     checkpage={"Home"}

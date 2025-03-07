@@ -43,11 +43,29 @@ export default function PinPage() {
     });
   };
 
+  const handleBiometric = async () => {
+    await auth?.useAuthenticationWithBiometrics().then((result) => {
+      if (result) {
+        router.replace("/(tabs)");
+      }
+    });
+  };
+
   useEffect(() => {
     if (code.length === 6) {
       handleVerifyPin();
     }
   }, [code]);
+
+  useEffect(() => {
+    if (auth?.canUseBiometrics) {
+      auth?.useAuthenticationWithBiometrics().then((result) => {
+        if (result) {
+          router.replace("/(tabs)");
+        }
+      });
+    }
+  }, []);
 
   return (
     <ThemedSafeAreaView>
@@ -86,7 +104,11 @@ export default function PinPage() {
             Forgot PIN?
           </ThemedText>
         </ThemedView>
-        <ThemedNumPad onPress={handlePress} onPressBack={handlePressBack} />
+        <ThemedNumPad
+          onPress={handlePress}
+          onPressBack={handlePressBack}
+          onPressBiometric={handleBiometric}
+        />
       </ThemedView>
     </ThemedSafeAreaView>
   );

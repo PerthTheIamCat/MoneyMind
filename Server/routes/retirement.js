@@ -1,204 +1,464 @@
+/******************************************************
+ * retirementRouter.js
+ ******************************************************/
 const express = require('express');
-const router = express.Router()
+const router = express.Router();
 require('dotenv').config();
 
-const {router: authRouter, jwtValidate, otpValidate, getUserIDbyusername, getUserIDbyemail} = require('./auth')
-const db = require('./db');
+const { jwtValidate } = require('./auth'); // สมมติว่ามี middleware ตรวจสอบ token
+const db = require('./db');               // ถ้ามี DB ก็ require มา (ถ้าไม่ใช้ก็ลบทิ้ง)
 
-router.use(express.json())
-router.use(express.urlencoded({ extended: false }))
+router.use(express.json());
+router.use(express.urlencoded({ extended: false }));
 
+/**
+ * =============================
+ * 1) Helper Functions ของกองทุน
+ * =============================
+ */
+
+/**
+ * Future Value ของเงินสมทบประกันสังคม (Social Security)
+ */
+function calculateFutureValueSocialSecurityFunds(fundsArray, retirementAge, initialSalary, nominalRate) {
+  let totalFV = 0;
+
+  fundsArray.forEach((fund) => {
+    const { startWorkingYear, currentYear, salaryIncreaseRate } = fund;
+
+    let yearsWorked = currentYear - startWorkingYear;
+    let yearsToRetirement = retirementAge - yearsWorked;
+    let individualFV = 0;
+
+    for (let t = 0; t < yearsToRetirement; t++) {
+      let salary = initialSalary * Math.pow(1 + salaryIncreaseRate, t);
+      // 0.05 * 12 = 5% ของเงินเดือน ตลอดปี
+      // จำกัดที่ 9000 บาท/ปี
+      let annualContribution = Math.min(salary * 0.05 * 12, 9000);
+      individualFV += annualContribution * Math.pow(1 + nominalRate, yearsToRetirement - t);
+    }
+
+    totalFV += individualFV;
+  });
+
+  return totalFV;
+}
+
+/**
+ * Future Value ของกองทุนการออมแห่งชาติ (NSF)
+ */
+function calculateFutureValueNSF(fundsArray, currentAge, retirementAge, nominalRate) {
+  let yearsToRetirement = retirementAge - currentAge;
+  let totalFV = 0;
+
+  fundsArray.forEach((fund) => {
+    const { ageStarted, savingsPerYear } = fund;
+
+    if (yearsToRetirement > 0) {
+      // FV ของ Annuity (เงินออมรายปี)
+      let individualFV = savingsPerYear * (
+        (Math.pow(1 + nominalRate, yearsToRetirement) - 1) / nominalRate
+      );
+      totalFV += individualFV;
+    }
+  });
+
+  return totalFV;
+}
+
+/**
+ * Future Value ของกองทุนสำรองเลี้ยงชีพ (PVD)
+ */
+function calculateFutureValuePvdFunds(fundsArray, initialSalary, yearsToRetirement) {
+  let totalFV = 0;
+
+  fundsArray.forEach((fund) => {
+    const {
+      salaryIncreaseRate = 0,
+      savingsRate = 0,
+      contributionRate = 0,
+      investmentReturnRate = 0,
+      accumulatedMoney = 0,
+      employeeContributions = 0,
+      accumulatedBenefits = 0,
+      contributionBenefits = 0
+    } = fund;
+
+    // รวมยอดเงินตั้งต้นทั้งหมด
+    let totalFundMoney = accumulatedMoney + employeeContributions + accumulatedBenefits + contributionBenefits;
+    // งอกเงยจากการลงทุน
+    let futureValCurrent = totalFundMoney * Math.pow(1 + investmentReturnRate, yearsToRetirement);
+
+    // คำนวณเงินสมทบในอนาคต
+    let futureValContrib = 0;
+    for (let year = 0; year < yearsToRetirement; year++) {
+      let salary = initialSalary * Math.pow(1 + salaryIncreaseRate, year);
+      let employeeSavings = salary * (savingsRate / 100);
+      let employerContribution = salary * (contributionRate / 100);
+
+      // สมมติว่ามี Matching 50% ตามโค้ดเดิม
+      let annualCont = (employeeSavings + employerContribution) * 12 * 1.5;
+
+      // ไปทบต้นจนถึงปีเกษียณ
+      futureValContrib += annualCont * Math.pow(1 + investmentReturnRate, yearsToRetirement - year);
+    }
+
+    totalFV += (futureValCurrent + futureValContrib);
+  });
+
+  return totalFV;
+}
+
+/**
+ * Future Value ของ RMF
+ */
+function calculateFutureValueRMF(fundsArray, yearsToRetirement) {
+  let totalFV = 0;
+  let n = yearsToRetirement;
+
+  fundsArray.forEach((fund) => {
+    const { currentBalance, annualInvestment, rateOfReturn } = fund;
+
+    let futureValueCurrent = currentBalance * Math.pow(1 + rateOfReturn, n);
+    let futureValueDCA = annualInvestment * ((Math.pow(1 + rateOfReturn, n) - 1) / rateOfReturn);
+
+    totalFV += (futureValueCurrent + futureValueDCA);
+  });
+
+  return totalFV;
+}
+
+/**
+ * Future Value ของ SSF
+ */
+function calculateFutureValueSsfFunds(fundsArray, yearsToRetirement) {
+  let totalFV = 0;
+  let n = yearsToRetirement;
+
+  fundsArray.forEach((fund) => {
+    const { currentBalance, annualInvestment, rateOfReturn } = fund;
+
+    let futureValueCurrent = currentBalance * Math.pow(1 + rateOfReturn, n);
+    let futureValueDCA = annualInvestment * ((Math.pow(1 + rateOfReturn, n) - 1) / rateOfReturn);
+
+    totalFV += (futureValueCurrent + futureValueDCA);
+  });
+
+  return totalFV;
+}
+
+/**
+ * Future Value ของกองทุนบำเหน็จบำนาญข้าราชการ (GPF)
+ */
+function calculateFutureValueGPF(fundsArray, retirementAge, initialSalary, salaryIncreaseRateOrReturn) {
+  let totalFV = 0;
+
+  fundsArray.forEach((fund) => {
+    const {
+      yearStartedWorking,
+      currentYear,
+      savingsRate,
+      contributionRate,
+      rateOfReturn,
+      accumulatedMoney,
+      employeeContributions,
+      compensation,
+      initialMoney,
+      accumulatedBenefits,
+      contributionBenefits,
+      compensationBenefits,
+      initialBenefits
+    } = fund;
+
+    // รวมยอดเงินตั้งต้น
+    let totalFundMoney = (
+      accumulatedMoney +
+      employeeContributions +
+      initialMoney +
+      compensationBenefits +
+      initialBenefits +
+      compensation +
+      accumulatedBenefits +
+      contributionBenefits
+    );
+
+    let yearsWorked = currentYear - yearStartedWorking;
+    let yearsToRetirement = retirementAge - yearsWorked;
+    let r = rateOfReturn; // ผลตอบแทน GPF
+
+    // มูลค่าอนาคตของเงินต้น
+    let futureValueCurrent = totalFundMoney * Math.pow(1 + r, yearsToRetirement);
+
+    // คำนวณเงินสะสมเพิ่มเติมในแต่ละปี
+    let futureValueContrib = 0;
+    for (let year = 0; year < yearsToRetirement; year++) {
+      let salary = initialSalary * Math.pow(1 + salaryIncreaseRateOrReturn, year);
+      let employeeSavings = salary * (savingsRate / 100);
+      let governmentContribution = salary * (contributionRate / 100);
+      let totalContribution = (employeeSavings + governmentContribution) * 12;
+
+      futureValueContrib += totalContribution * Math.pow(1 + r, yearsToRetirement - year);
+    }
+
+    totalFV += (futureValueCurrent + futureValueContrib);
+  });
+
+  return totalFV;
+}
+
+/**
+ * Future Value ของ Life Insurance (สมมุติแบบสะสมทรัพย์)
+ */
+function calculateFutureValueLifeInsurance(lifeInsuranceFund, rateOfReturn, yearsToRetirement) {
+  // ตัวอย่างสมมติ แค่ทบต้น
+  return lifeInsuranceFund * Math.pow(1 + rateOfReturn, yearsToRetirement);
+}
+
+/**
+ * =============================
+ * 2) ฟังก์ชันคำนวณหลัก
+ * =============================
+ */
+
+/**
+ * (A) หาเงินก้อนที่ต้องมีเมื่อเกษียณ (Target Retirement Fund)
+ *     โดยคิดจากรายจ่ายปีละเท่าๆ กัน (annualExpense) เป็นเวลาหลังเกษียณ n ปี
+ */
+function calculateTargetRetirementFund(annualExpense, postRetirementReturn, yearsInRetirement) {
+  if (postRetirementReturn <= 0) {
+    // ถ้าผลตอบแทนน้อยกว่าหรือเท่ากับ 0 ก็คิดเส้นตรง
+    return annualExpense * yearsInRetirement;
+  }
+  return (
+    annualExpense *
+    (1 - Math.pow(1 + postRetirementReturn, -yearsInRetirement)) /
+    postRetirementReturn
+  );
+}
+
+/**
+ * (B) หา "ต้องออมเท่าไหร่ต่อปี" ให้ได้ FV = netShortfall
+ *     สูตร Annuity: C * [((1+r)^n - 1) / r] = FV
+ *     => C = FV * r / [((1+r)^n - 1)]
+ */
+function calculateAnnualSavingRequired(netShortfall, annualReturn, years) {
+  if (netShortfall <= 0) return 0; // ไม่ขาด ก็ไม่ต้องออมเพิ่ม
+  if (annualReturn <= 0 || years <= 0) {
+    // ถ้าผลตอบแทน <= 0 ก็ต้องหารเส้นตรง
+    return netShortfall / years;
+  }
+  const numerator = netShortfall * annualReturn;
+  const denominator = Math.pow(1 + annualReturn, years) - 1;
+  return numerator / denominator; // เงินออมต่อปี
+}
+
+/**
+ * =============================
+ * 3) Router Handler
+ * =============================
+ */
 router.post('/', jwtValidate, (req, res) => {
   const {
     currentAge,
     retirementAge,
     lifeExpectancy,
-    monthlyExpense,
-    expectedReturn,       // %/ปี (Nominal)
-    inflationRate,        // %/ปี
-    initialCapital = 0,   // เงินต้นรวมของผู้ใช้
-    funds                 // กองทุน (array) แต่ละกองสามารถมี initialFundCapital
+
+    monthlySalary,
+    monthlyExpenses,
+    expectedReturn, // ผลตอบแทนต่อปีก่อนเกษียณ
+
+    monthlyExpensePostRetirement, // เงินที่ต้องใช้ต่อเดือนหลังเกษียณ (ค่าเงินปัจจุบัน)
+    inflationRate,
+    expectedPostRetirementReturn, // ผลตอบแทนต่อปีหลังเกษียณ
+
+    // กองทุนต่าง ๆ
+    socialSecurityFunds = [],
+    nsfFunds = [],
+    pvdFunds = [],
+    rmfFunds = [],
+    ssfFunds = [],
+    gpfFunds = [],
+    lifeInsurance = []
   } = req.body;
 
+  // =====================
+  // 1) Basic Validation
+  // =====================
   if (
     currentAge == null ||
     retirementAge == null ||
     lifeExpectancy == null ||
-    monthlyExpense == null ||
+    monthlySalary == null ||
+    monthlyExpensePostRetirement == null ||
+    inflationRate == null ||
     expectedReturn == null ||
-    inflationRate == null
+    expectedPostRetirementReturn == null
   ) {
-    return res.statusCode(400).json({ message: "ข้อมูลไม่ครบถ้วน", success: false})
+    return res.status(400).json({
+      success: false,
+      message: 'ข้อมูลไม่ครบถ้วน'
+    });
   }
+
   if (retirementAge >= lifeExpectancy) {
-    return res.statusCode(400).json({ message: "lifeExpectancy ต้องมากกว่า retirementAge", success: false})
-  }
-  if (initialCapital < 0) {
-    return res.statusCode(400).json({ message: "initialCapital ต้องไม่ติดลบ", success: false})
+    return res.status(400).json({
+      success: false,
+      message: 'lifeExpectancy ต้องมากกว่า retirementAge'
+    });
   }
 
   const yearsToRetirement = retirementAge - currentAge;
   if (yearsToRetirement <= 0) {
-    return res.statusCode(400).json({ message: "อายุเกษียณต้องมากกว่าปัจจุบัน", success: false})
-  }
-  const totalMonths = yearsToRetirement * 12;
-
-  const retirementPeriod = lifeExpectancy - retirementAge;
-  const r_nominal = expectedReturn / 100;
-  const i = inflationRate / 100;
-  if (r_nominal <= i) {
-    return res.statusCode(400).json({ message: "expectedReturn ต้องมากกว่า inflationRate", success: false})
-  }
-
-  const inflationFactor = Math.pow(1 + i, yearsToRetirement);
-  const monthlyExpenseAtRetirement = monthlyExpense * inflationFactor;
-  const annualExpenseAtRetirement = monthlyExpenseAtRetirement * 12;
-  const realReturn = r_nominal - i;
-  if (realReturn <= 0) {
-    return res.statusCode(400).json({ message: "realReturn <= 0 ไม่สามารถคำนวณได้", success: false})
-  }
-
-  // เงินก้อนที่ต้องมีตอนเกษียณ (PV of Annuity)
-  const requiredCorpus =
-    annualExpenseAtRetirement *
-    (1 - Math.pow(1 + realReturn, -retirementPeriod)) /
-    realReturn;
-
-  // Future Value ของเงินต้นรวมของผู้ใช้ (initialCapital)
-  let futureValueUserLumpSum = 0;
-  if (initialCapital > 0) {
-    const monthlyRateUser = r_nominal / 12;
-    futureValueUserLumpSum = initialCapital * Math.pow(1 + monthlyRateUser, totalMonths);
-  }
-
-  let totalMonthlyFundContribution = 0;
-  let futureValueFunds = 0;
-
-  if (Array.isArray(funds)) {
-    funds.forEach(fund => {
-      // แต่ละกองทุนมี initialFundCapital, monthlyContribution, fundReturn
-      const {
-        initialFundCapital = 0,
-        monthlyContribution = 0,
-        fundReturn
-      } = fund;
-      if (fundReturn == null) {
-        return res.statusCode(400).json({ message: "ข้อมูลกองทุนไม่ครบ (fundReturn)", success: false})
-      }
-      if (initialFundCapital < 0 || monthlyContribution < 0) {
-        return res.statusCode(400).json({ message: "initialFundCapital, monthlyContribution ต้องไม่ติดลบ", success: false})
-      }
-
-      // FV ของเงินต้นกองทุน
-      const monthlyRateFund = (fundReturn / 100) / 12;
-      let fundLumpSumFV = 0;
-      if (initialFundCapital > 0) {
-        fundLumpSumFV = initialFundCapital * Math.pow(1 + monthlyRateFund, totalMonths);
-      }
-
-      // FV ของ DCA
-      let fundDCAFV = 0;
-      if (monthlyContribution > 0) {
-        fundDCAFV = monthlyContribution *
-          ((Math.pow(1 + monthlyRateFund, totalMonths) - 1) / monthlyRateFund);
-      }
-
-      futureValueFunds += (fundLumpSumFV + fundDCAFV);
-      totalMonthlyFundContribution += monthlyContribution;
+    return res.status(400).json({
+      success: false,
+      message: 'อายุเกษียณต้องมากกว่าปัจจุบัน'
     });
   }
 
-  // รวม FV ทั้งหมด (เงินต้นผู้ใช้ + ทุกกองทุน)
-  const totalFutureValue = futureValueUserLumpSum + futureValueFunds;
+  // =====================
+  // 2) คำนวณ "เงินก้อนที่ต้องมี" ณ วันเกษียณ
+  // =====================
+  const futureMonthlyExpenseAtRetirement = monthlyExpensePostRetirement * Math.pow(1 + inflationRate, yearsToRetirement);
+  const annualExpenseAtRetirement = futureMonthlyExpenseAtRetirement * 12;
+  const yearsInRetirement = lifeExpectancy - retirementAge;
 
-  // คำนวณ shortfall ถ้ายังไม่ถึง requiredCorpus
-  const shortfall = Math.max(requiredCorpus - totalFutureValue, 0);
+  // เงินก้อนที่ต้องมี (Target Retirement Fund)
+  const totalNeededAtRetirement = calculateTargetRetirementFund(
+    annualExpenseAtRetirement,
+    expectedPostRetirementReturn,
+    yearsInRetirement
+  );
 
-  // แปลง shortfall เป็น "ออมเพิ่มรายเดือน"
-  let monthlySavingsNeeded = 0;
-  if (shortfall > 0) {
-    const r_monthly = r_nominal / 12;
-    const factor = Math.pow(1 + r_monthly, totalMonths) - 1;
-    monthlySavingsNeeded = shortfall * (r_monthly / factor);
-  }
+  // =====================
+  // 3) รวม Future Value ของกองทุนต่าง ๆ (เงินที่ "คาดว่าจะมี")
+  // =====================
+  const currentIncome = monthlySalary * 12;
+  const fvSocialSecurity = calculateFutureValueSocialSecurityFunds(
+    socialSecurityFunds, retirementAge, currentIncome, 0.035
+  );
+  const fvNsf = calculateFutureValueNSF(
+    nsfFunds, currentAge, retirementAge, 0.035
+  );
+  const fvPvd = calculateFutureValuePvdFunds(
+    pvdFunds, currentIncome, yearsToRetirement
+  );
+  const fvRmf = calculateFutureValueRMF(rmfFunds, yearsToRetirement);
+  const fvSsf = calculateFutureValueSsfFunds(ssfFunds, yearsToRetirement);
 
-  // สรุปต้องเก็บต่อเดือน = (ทุนกองทุน) + (ออมเพิ่มถ้าขาด)
-  const monthlyNeeded = totalMonthlyFundContribution + monthlySavingsNeeded;
+  // สมมติว่าใน GPF จะใช้ expectedReturn เป็นตัว rateOfReturn หรือตามที่กำหนด
+  const fvGpf = calculateFutureValueGPF(gpfFunds, retirementAge, currentIncome, expectedReturn);
 
-  db.query(
-    'SELECT * FROM retirementplan WHERE user_id = ?', [req.user.UserID], (err, result) => {
-      if (err) {
-        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
-      }
+  // สมมติว่า lifeInsurance เป็นตัวเลขกองเดียว
+  const fvLifeIns = calculateFutureValueLifeInsurance(
+    lifeInsurance, 0.035, yearsToRetirement
+  );
 
-      if (result.length > 0) {
-        return res.status(400).json({ message: 'Retirement plan already exists', success: false });
-      }
+  // รวมทั้งหมด
+  const totalFundFV = fvSocialSecurity + fvNsf + fvPvd + fvRmf + fvSsf + fvGpf + fvLifeIns;
 
-      db.query(
-        'INSERT INTO retirementplan (user_id,  monthly_savings_goal, total_savings_goal) VALUES (?, ?, ?)',
-        [req.user.UserID, monthlyNeeded, requiredCorpus], (err, result) => {
-          if (err) {
-            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
-          }
-    
-          return res.status(201).json({ message: 'Retirement Success', totalCorpusRequired: Number(requiredCorpus.toFixed(2)), monthlyNeeded: Number(monthlyNeeded.toFixed(2)), success: true})
-        }
-      )
-    }
-  )
+  // สมมติว่า futureSavings ถ้าไม่มีข้อมูลในระบบ ก็ตั้งต้นเป็น 0 ไปก่อน
+  const futureSavings = 0;
 
-})
+  // =====================
+  // 4) เงินที่ขาด (Net Shortfall)
+  // =====================
+  const netShortfallAtRetirement = totalNeededAtRetirement - (totalFundFV + futureSavings);
 
-router.put('/:id', jwtValidate, (req, res) => {
-  if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
-      return res.status(403).json({ message: 'Unauthorized user', success: false });
-    }
+  // =====================
+  // 5) ถ้ายังขาด => หาค่า "ต้องออมต่อเดือน"
+  // =====================
+  const annualSavingNeeded = calculateAnnualSavingRequired(
+    netShortfallAtRetirement,
+    expectedReturn,
+    yearsToRetirement
+  );
+  const monthlySavingNeeded = annualSavingNeeded / 12;
 
-  if (req.body.id || req.body.user_id){
-    console.log('Can not change!')
-    return res.status(400).json({message: 'Can not change!', success: false})
-  }
+  // =====================
+  // ส่งผลลัพธ์กลับ
+  // =====================
+  return res.status(200).json({
+    success: true,
+    totalNeededAtRetirement,   // เงินก้อนที่ต้องมี ณ วันเกษียณ
+    totalFundFV,               // รวม FV ของกองทุนทั้งหมด
+    netShortfallAtRetirement,  // เงินที่ขาด
+    monthlySavingNeeded        // ต้องออม/เดือน ตั้งแต่วันนี้จนวันเกษียณ
+  });
+});
 
-  db.query(
-    'UPDATE retirementplan SET ? WHERE user_id = ?', [req.body, req.params.id], (err, result) => {
-      if (err) {
-        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
-      }
+module.exports = {
+  router
+};
+/*
+  {
+    "currentAge": 30,
+    "retirementAge": 60,
+    "lifeExpectancy": 85,
 
-      if (result.length === 0) {
-        return res.status(404).json({ message: 'User not found', success: false });
-      }
+    "monthlySalary": 30000,
+    "monthlyExpenses": 20000,
 
-      return res.status(200).json({ message: 'Retirement updated', success: true });
-    }
-  )
-})
+    "expectedReturn": 0.05,              // ผลตอบแทนก่อนเกษียณ (ต่อปี)
+    "monthlyExpensePostRetirement": 15000,
+    "inflationRate": 0.03,
+    "expectedPostRetirementReturn": 0.03,
 
-  module.exports = {
-    router
-  };
-
-  /*
-    const params = {
-    currentAge: 35,            // อายุปัจจุบัน 35 ปี
-    retirementAge: 65,         // อายุเกษียณที่ตั้งไว้ 65 ปี
-    lifeExpectancy: 90,        // อายุคาดหมายอยู่ 90 ปี
-    monthlyExpense: 25000,     // ค่าใช้จ่ายรายเดือน ณ ปัจจุบัน 25,000 บาท
-    expectedReturn: 7,         // ผลตอบแทนรายปีสำหรับเงินต้นผู้ใช้ 7%
-    inflationRate: 3,          // อัตราเงินเฟ้อ 3%/ปี
-    initialCapital: 2000000,   // เงินต้นส่วนตัว 2,000,000 บาท
-    funds: [
+    "socialSecurityFunds": [
       {
-        initialFundCapital: 1000000, // เงินต้นเริ่มต้นในกองทุนแรก 1,000,000 บาท
-        monthlyContribution: 5000,   // ฝากเงินรายเดือนในกองทุนแรก 5,000 บาท
-        fundReturn: 8                // ผลตอบแทนของกองทุนแรก 8%/ปี
-      },
-      {
-        initialFundCapital: 500000,  // เงินต้นเริ่มต้นในกองทุนที่สอง 500,000 บาท
-        monthlyContribution: 7000,   // ฝากเงินรายเดือนในกองทุนที่สอง 7,000 บาท
-        fundReturn: 10               // ผลตอบแทนของกองทุนที่สอง 10%/ปี
+        "startWorkingYear": 2010,
+        "currentYear": 2023,
+        "salaryIncreaseRate": 0.03
       }
-    ]
-  };
-  */
+    ],
+    "nsfFunds": [
+      {
+        "ageStarted": 30,
+        "savingsPerYear": 20000
+      }
+    ],
+    "pvdFunds": [
+      {
+        "salaryIncreaseRate": 0.03,
+        "savingsRate": 5,
+        "contributionRate": 5,
+        "investmentReturnRate": 0.04,
+        "accumulatedMoney": 100000,
+        "employeeContributions": 0,
+        "accumulatedBenefits": 0,
+        "contributionBenefits": 0
+      }
+    ],
+    "rmfFunds": [
+      {
+        "currentBalance": 50000,
+        "annualInvestment": 20000,
+        "rateOfReturn": 0.05
+      }
+    ],
+    "ssfFunds": [
+      {
+        "currentBalance": 30000,
+        "annualInvestment": 15000,
+        "rateOfReturn": 0.04
+      }
+    ],
+    "gpfFunds": [
+      {
+        "yearStartedWorking": 2010,
+        "currentYear": 2023,
+        "savingsRate": 3,
+        "contributionRate": 3,
+        "rateOfReturn": 0.035,
+        "accumulatedMoney": 50000,
+        "employeeContributions": 0,
+        "compensation": 0,
+        "initialMoney": 0,
+        "accumulatedBenefits": 0,
+        "contributionBenefits": 0,
+        "compensationBenefits": 0,
+        "initialBenefits": 0
+      }
+    ],
+    "lifeInsurance": 50000
+  }
+*/

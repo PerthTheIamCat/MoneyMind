@@ -12,12 +12,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  Alert,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { router } from "expo-router";
 import { ThemedCard } from "@/components/ThemedCard";
-import Entypo from "@expo/vector-icons/Entypo";
 import { useColorScheme } from "react-native";
 import { UserContext } from "@/hooks/conText/UserContext";
 import React, { useContext } from "react";
@@ -26,13 +26,16 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { TouchableWithoutFeedback } from "react-native";
 import { Animated, Easing } from "react-native";
 import TransactionItem from "@/components/TransactionItem";
+import * as ImagePicker from "expo-image-picker";
 import moment from "moment";
+import axios from "axios";
+import { ServerContext } from "@/hooks/conText/ServerConText";
 
-export default function Index() {
+export default function TransactionPage() {
   const handleEditTransaction = (transactionId: number) => {
     router.push(`../Edit_Transaction?id=${transactionId}`);
   };
-
+  const { URL } = useContext(ServerContext);
   const { bank, transaction } = useContext(UserContext) ?? {
     bank: [],
     transaction: [],
@@ -78,7 +81,10 @@ export default function Index() {
     }
   };
 
-  const [activeOptionID, setActiveOptionID] = useState<{ type: "card" | "transaction"; id: number } | null>(null);
+  const [activeOptionID, setActiveOptionID] = useState<{
+    type: "card" | "transaction";
+    id: number;
+  } | null>(null);
 
   const handleToggleOptions = (type: "card" | "transaction", id: number) => {
     if (activeOptionID?.id === id && activeOptionID?.type === type) {
@@ -87,15 +93,64 @@ export default function Index() {
       setActiveOptionID({ type, id }); // ✅ เปิดเมนูใหม่ และปิดเมนูอื่น
     }
   };
+  const [image, setImage] = useState<string | null>(null);
+
+  const uploadImage = async (imageUri: string) => {
+    const formData = new FormData();
+
+    const response = await fetch(imageUri);
+    const blob = await response.blob();
+
+    formData.append("image", {
+      uri: imageUri,
+      name: "upload.jpg",
+      type: "image/jpeg",
+    } as any);
+
+    try {
+      const uploadResponse = await axios.post(`${URL}/ocr`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      console.log("OCR Response:", uploadResponse.data);
+      if (uploadResponse.data.success) {
+        Alert.alert(
+          "ผลลัพธ์ OCR",
+          JSON.stringify(uploadResponse.data.extractedData, null, 2)
+        );
+      } else {
+        Alert.alert("OCR ไม่สำเร็จ", uploadResponse.data.message);
+      }
+    } catch (error: any) {
+      console.error("Upload Error:", error.response?.data || error.message);
+      Alert.alert(
+        "Error",
+        `เกิดข้อผิดพลาด: ${error.response?.data?.message || error.message}`
+      );
+    }
+  };
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      await uploadImage(result.assets[0].uri);
+    }
+  };
 
   return (
     <TouchableWithoutFeedback
-    onPress={() => {
-      console.log("🔻 Closing all menus");
-      setActiveOptionID(null);
-      setSelectedCardID(null);
-    }}
-    accessible={false}
+      onPress={() => {
+        console.log("🔻 Closing all menus");
+        setActiveOptionID(null);
+        setSelectedCardID(null);
+      }}
+      accessible={false}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -155,8 +210,13 @@ export default function Index() {
                       balance={account.balance.toString()}
                       mode="small"
                       imageIndex={Number(account.icon_id)}
-                      isOptionsVisible={activeOptionID?.type === "card" && activeOptionID?.id === account.id}
-                      setOptionsVisible={() => handleToggleOptions("card", account.id)}
+                      isOptionsVisible={
+                        activeOptionID?.type === "card" &&
+                        activeOptionID?.id === account.id
+                      }
+                      setOptionsVisible={() =>
+                        handleToggleOptions("card", account.id)
+                      }
                       isSelected={selectedCardID === account.id} // ✅ ส่งค่าการ์ดที่เลือก
                       onSelectCard={() => handleSelectCard(account.id)} // ✅ ฟังก์ชันเลือกการ์ด
                     />
@@ -232,8 +292,13 @@ export default function Index() {
                             handleDeleteTransaction(transaction.id ?? 0)
                           }
                           checkpage={"transactions"}
-                          isOptionsVisible={activeOptionID?.type === "transaction" && activeOptionID?.id === transaction.id} // ✅ ตรวจสอบว่าเปิดเมนู TransactionItem อยู่หรือไม่
-                          setOptionsVisible={() => handleToggleOptions("transaction", transaction.id)} // ✅ เปิด/ปิดเมนู
+                          isOptionsVisible={
+                            activeOptionID?.type === "transaction" &&
+                            activeOptionID?.id === transaction.id
+                          } // ✅ ตรวจสอบว่าเปิดเมนู TransactionItem อยู่หรือไม่
+                          setOptionsVisible={() =>
+                            handleToggleOptions("transaction", transaction.id)
+                          } // ✅ เปิด/ปิดเมนู
                         />
                       </View>
                     );
@@ -299,6 +364,7 @@ export default function Index() {
                           onPress={() => {
                             setIsOverlayVisible(false);
                             setIsButtonVisible(true);
+                            pickImage();
                           }}
                         >
                           <Ionicons

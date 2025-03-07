@@ -5,6 +5,7 @@
     "express": "^4.21.2",
     "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
     "nodemailer": "^6.10.0",
     "otp-generator": "^4.0.1",
@@ -20,6 +21,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {},
   "description": ""
 }

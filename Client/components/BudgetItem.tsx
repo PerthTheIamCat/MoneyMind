@@ -49,7 +49,7 @@ const BudgetItem: React.FC<BudgetItemProps> = ({
   }, [isOpen, contentHeight]);
 
   return (
-    <ThemedView className="w-[90%] flex-col !items-start rounded-xl p-5">
+    <ThemedView className="w-full flex-col !items-start rounded-xl p-5">
       {/* Header */}
       <ThemedView className="w-full flex-row !items-start">
         <ThemedView
