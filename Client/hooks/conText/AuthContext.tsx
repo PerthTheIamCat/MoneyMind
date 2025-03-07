@@ -1,7 +1,16 @@
-import React, { createContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useContext,
+} from "react";
 import * as SecureStore from "expo-secure-store";
 import * as LocalAuthentication from "expo-local-authentication";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import { ServerContext } from "./ServerConText";
+import { UserContext } from "./UserContext";
 
 type AuthContextType = {
   token: string | null;
@@ -9,7 +18,8 @@ type AuthContextType = {
   isPinSet: boolean;
   setToken: (token: string) => Promise<void>;
   setPinCode: (pin: string) => Promise<void>;
-  verifyPin: (pin: string) => Promise<boolean>;
+  setIsPinSet: (value: boolean) => void;
+  verifyPin: (userID: number, enteredPin: string) => Promise<boolean>;
   logout: () => void;
   checkAuthenticateWithBiometrics: () => Promise<boolean>;
   useAuthenticationWithBiometrics: () => Promise<boolean>;
@@ -26,6 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authLoading, setAuthLoading] = useState(true);
   const [isPinSet, setIsPinSet] = useState<boolean>(false);
   const [canUseBiometrics, setCanUseBiometrics] = useState<boolean>(false);
+  const { URL } = useContext(ServerContext);
 
   const saveToken = async (newToken: string) => {
     try {
@@ -45,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error decoding token:", error);
       return null;
     }
-  }
+  };
 
   const loadToken = async () => {
     setAuthLoading(true);
@@ -76,17 +87,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(null);
   };
 
-  const loadPin = async () => {
-    try {
-      const storedPin = await SecureStore.getItemAsync("userPin");
-      if (storedPin) {
-        setIsPinSet(true);
-      }
-    } catch (error) {
-      console.error("Error loading PIN:", error);
-    }
-  };
-
   const setPinCode = async (newPin: string) => {
     try {
       await SecureStore.setItemAsync("userPin", newPin);
@@ -96,14 +96,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const verifyPin = async (enteredPin: string) => {
+  const verifyPin = async (
+    userID: number,
+    enteredPin: string
+  ): Promise<boolean> => {
     try {
-      const storedPin = await SecureStore.getItemAsync("userPin");
-      if (storedPin === enteredPin) {
-        return true;
-      } else {
-        return false;
+      console.log("Verifying PIN:", enteredPin, "for user ID:", userID);
+      const response = await axios.get(`${URL}/auth/getpin/${userID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.data.success) {
+        const storedPin = response.data.pin;
+        console.log("Stored PIN:", response.data.pin);
+        return enteredPin === storedPin;
       }
+      return false;
     } catch (error) {
       console.log("Error verifying PIN:", error);
       return false;
@@ -135,7 +144,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     loadToken();
-    loadPin();
     checkAuthenticateWithBiometrics().then((result) => {
       setCanUseBiometrics(result);
     });
@@ -150,6 +158,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         canUseBiometrics,
         setPinCode,
         verifyPin,
+        setIsPinSet,
         setToken: saveToken,
         logout,
         checkAuthenticateWithBiometrics,

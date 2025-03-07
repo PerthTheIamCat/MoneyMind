@@ -40,46 +40,19 @@ export default function Index() {
 
       setIsLoading(true);
 
-      const response = await SignInHandler(URL, {
+      await SignInHandler(URL, {
         input: usernameEmail,
-        password,
-      });
-
-      if (response.success) {
-        // clearTimeout(timeoutId);
-        await auth?.setToken(response.accessToken);
-
-        // Fetch the PIN from the database
-        setTimeout(async () => {
-          const databasePin = await getPinFromDatabase(
-            URL,
-            userID!
-            // auth?.token!
-          );
-
-          console.log(
-            "Database PIN:",
-            databasePin,
-            "Auth isPinSet:",
-            auth?.isPinSet
-          );
-          setIsLoading(false);
-
-          if (databasePin === null || databasePin.trim() === "") {
-            console.log("No PIN found. Redirecting to CreatePinPage...");
-            router.replace("/CreatePinPage");
-            return;
+        password: password,
+      }).then(async (response) => {
+        if (response.success) {
+          await auth?.setToken(response.accessToken);
+          if (await auth?.isPinSet) {
+            router.push("/(tabs)");
+          } else {
+            router.push("/CreatePinPage");
           }
-
-          // Otherwise, redirect to Account Details
-          router.replace("/(tabs)");
-        }, 1000);
-
-        // If PIN is missing (null or empty), redirect to CreatePinPage
-      } else {
-        setIsLoading(false);
-        setErrorUsernameEmail(response.message);
-      }
+        }
+      });
     } catch (error) {
       console.error(error);
       setIsLoading(false);

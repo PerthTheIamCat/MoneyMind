@@ -107,14 +107,40 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, [auth?.token, userID]);
 
   useEffect(() => {
+    (async () => {
+      await axios
+        .get(`${URL}/auth/getpin/${userID}`, {
+          headers: {
+            Authorization: `Bearer ${auth?.token}`,
+          },
+        })
+        .then((response) => {
+          console.log("get pin response:", response.data);
+          if (response.data.success) {
+            console.log("get pin success:", response.data.pin);
+            if (response.data.pin) {
+              console.log("set pin true");
+              auth?.setIsPinSet(true);
+            } else {
+              console.log("set pin false");
+              auth?.setIsPinSet(false);
+            }
+          } else {
+            console.log("fail to get pin:", response.data.message);
+          }
+        });
+    })();
+  }, [auth?.token, userID]);
+
+  useEffect(() => {
     if (userID && auth?.token) {
       GetUserBank(URL, userID!, auth.token)
         .then((response) => {
           if (response.success) {
             setBank(response.result);
-            console.log("get back success:", response.result);
+            console.log("get bank success:", response.result);
           } else {
-            console.log("fail to get back:", response.message);
+            console.log("fail to get bank:", response.message);
           }
         })
         .catch((error) => {

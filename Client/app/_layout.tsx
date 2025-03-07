@@ -49,14 +49,13 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <UserProvider>
-        <ServerProvider>
+    <ServerProvider>
+      <AuthProvider>
+        <UserProvider>
           <TermsProvider>
             <Stack
               screenOptions={{
                 headerStyle: {
-                  
                   backgroundColor: theme === "dark" ? "#2F2F2F" : "#E5E5E5",
                 },
                 headerTintColor: theme === "dark" ? "#E5E5E5" : "#2F2F2F",
@@ -109,24 +108,85 @@ export default function RootLayout() {
                 options={{ headerShown: false, animation: "none" }}
               />
 
-              <Stack.Screen name="NotificationPage" options={{ headerTitle: "Notification" , presentation: "modal"}} />
-              <Stack.Screen name="PinRecovery" options={{ headerShown: false }} />
-              <Stack.Screen name="PinRecovery2" options={{ headerShown: false }} />
-              <Stack.Screen name="NoticePage" options={{ headerShown: false }} />
-              <Stack.Screen name="Edit_Transaction" options={{ headerTitle: "Edit Transaction" , presentation: "modal" }} />
-              <Stack.Screen name="Edit_Account" options={{ headerTitle: "Edit Account" , presentation: "modal" }} />
-              <Stack.Screen name="Month_Summary" options={{ headerTitle: "Monthly Summary" , presentation: "modal" }} />
-              <Stack.Screen name="Retire_form" options={{ headerTitle: "Retire" , presentation: "modal", gestureEnabled: false }} />
-              <Stack.Screen name="NewPassword1" options={{headerShown : false}} />
-              <Stack.Screen name="Account_Detail" options={{ headerTitle: "Account Detail", presentation: "modal" }} />
-              <Stack.Screen name="NotificationSetting" options={{headerTitle : "Notification Settings" , presentation : "modal"}}/>
-              <Stack.Screen name="IconTransaction" options={{headerTitle : "Icon Transaction" , presentation : "modal"}}/>
-              <Stack.Screen name="AccountSetting" options={{headerTitle : "Account Detail" , presentation : "modal"}}/>
+              <Stack.Screen
+                name="NotificationPage"
+                options={{ headerTitle: "Notification", presentation: "modal" }}
+              />
+              <Stack.Screen
+                name="PinRecovery"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="PinRecovery2"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="NoticePage"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Edit_Transaction"
+                options={{
+                  headerTitle: "Edit Transaction",
+                  presentation: "modal",
+                }}
+              />
+              <Stack.Screen
+                name="Edit_Account"
+                options={{ headerTitle: "Edit Account", presentation: "modal" }}
+              />
+              <Stack.Screen
+                name="Month_Summary"
+                options={{
+                  headerTitle: "Monthly Summary",
+                  presentation: "modal",
+                }}
+              />
+              <Stack.Screen
+                name="Retire_form"
+                options={{
+                  headerTitle: "Retire",
+                  presentation: "modal",
+                  gestureEnabled: false,
+                }}
+              />
+              <Stack.Screen
+                name="NewPassword1"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Account_Detail"
+                options={{
+                  headerTitle: "Account Detail",
+                  presentation: "modal",
+                }}
+              />
+              <Stack.Screen
+                name="NotificationSetting"
+                options={{
+                  headerTitle: "Notification Settings",
+                  presentation: "modal",
+                }}
+              />
+              <Stack.Screen
+                name="IconTransaction"
+                options={{
+                  headerTitle: "Icon Transaction",
+                  presentation: "modal",
+                }}
+              />
+              <Stack.Screen
+                name="AccountSetting"
+                options={{
+                  headerTitle: "Account Detail",
+                  presentation: "modal",
+                }}
+              />
             </Stack>
             <StatusBar style="auto" />
           </TermsProvider>
-        </ServerProvider>
-      </UserProvider>
-    </AuthProvider>
+        </UserProvider>
+      </AuthProvider>
+    </ServerProvider>
   );
 }

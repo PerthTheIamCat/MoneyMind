@@ -515,116 +515,84 @@ router.post("/otpVerify", (req, res) => {
   });
 });
 
-router.put("/createpin", jwtValidate, (req, res) => {
-  const { user_id, pin } = req.body;
+router.put("/createpin", jwtValidate, async (req, res) => {
+  try {
+    const { user_id, pin } = req.body;
 
-  if (req.user.UserID !== parseInt(user_id, 10)) {
-    //user_id
-    return res
-      .status(403)
-      .json({ message: "Unauthorized user", success: false });
-  }
-
-  if (!user_id || !pin) {
-    return res
-      .status(jwtAccessTokenGenrate00)
-      .json({ message: "Please fill all needed fields", success: false });
-  }
-
-  console.log("Decoded JWT UserID:", req.user.UserID);
-  console.log("Received user_id:", user_id, "Parsed:", parseInt(user_id, 10));
-
-  db.query(
-    "UPDATE users SET pin = ? WHERE id = ?",
-    [pin, user_id],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({
-          message: "Database query failed",
-          error: err.message,
-          success: false,
-        });
-      }
-      UserID;
-
-      if (result.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "User not found", success: false });
-      }
-
-      return res.status(200).json({ message: "Pin updated", success: true });
+    if (req.user.UserID !== parseInt(user_id, 10)) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized user", success: false });
     }
-  );
-});
 
-router.post("/loginpin", async (req, res) => {
-  const { user_id, pin } = req.body;
+    if (!user_id || !pin) {
+      return res
+        .status(400)
+        .json({ message: "Please fill all needed fields", success: false });
+    }
 
-  db.query(
-    "SELECT * FROM users WHERE id = ?",
-    [user_id],
-    async (err, result) => {
-      if (err) {
-        return res.status(500).json({
-          message: "Database query failed",
-          error: err.message,
-          success: false,
-        });
-      }
+    console.log("Decoded JWT UserID:", req.user.UserID);
+    console.log("Received user_id:", user_id, "Parsed:", parseInt(user_id, 10));
 
-      if (result.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "User not found", success: false });
-      }
-
-      const user = result[0];
-
-      // Check if the PIN is correct
-      if (user.pin === pin) {
-        // If the user already has a valid token, return it
-        if (req.headers.authorization) {
-          const token = req.headers.authorization.split(" ")[1]; // Extract token from "Bearer <token>"
-          return res.status(200).json({
-            accessToken: token,
-            message: "Login successful",
-            success: true,
-          });
+    const result = await new Promise((resolve, reject) => {
+      db.query(
+        "UPDATE users SET pin = ? WHERE id = ?",
+        [pin, user_id],
+        (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
         }
+      );
+    });
 
-        return res
-          .status(200)
-          .json({ accessToken, message: "Login successful", success: true });
-      } else {
-        return res.status(401).json({ message: "Invalid pin", success: false });
-      }
-    }
-  );
-});
-
-router.get("/getpin/:userID", async (req, res) => {
-  const { userID } = req.params;
-
-  console.log("User ID from getPin: ");
-
-  db.query("SELECT pin FROM users WHERE id = ?", [userID], (err, result) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        message: "Database error",
-        error: err.message,
-      });
-    }
-
-    if (result.length === 0) {
+    if (result.affectedRows === 0) {
       return res
         .status(404)
-        .json({ success: false, message: "User not found" });
+        .json({ message: "User not found", success: false });
+    }
+
+    return res.status(200).json({ message: "Pin updated", success: true });
+  } catch (error) {
+    console.error("Error updating PIN:", error);
+    return res.status(500).json({
+      message: "Database query failed",
+      error: error.message,
+      success: false,
+    });
+  }
+});
+
+router.get("/getpin/:userID", jwtValidate, async (req, res) => {
+  const { userID } = req.params;
+
+  if (req.user.UserID !== parseInt(userID)) { //user_id
+    return res.status(403).json({ message: 'Unauthorized user', success: false });
+  }
+
+
+  console.log("User ID from getPin: ", userID);
+
+  try {
+    const result = await new Promise((resolve, reject) => {
+      db.query("SELECT pin FROM users WHERE id = ?", [userID], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+    console.log("Result: ", result);
+
+    if (result.length === 0) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     res.json({ success: true, pin: result[0].pin });
-  });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Database error",
+      error: err.message,
+    });
+  }
 });
 
 module.exports = {
