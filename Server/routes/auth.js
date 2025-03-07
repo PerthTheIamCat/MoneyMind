@@ -146,8 +146,12 @@ const otpValidate = (req, res, next) => {
 router.post("/register", (req, res) => {
   const { username, email, password, password2, otp } = req.body;
 
+  console.log("DATA:", username, email, password, password2, otp);
+
   const usernameRegex = /^[a-zA-Z0-9_]+$/;
   if (!usernameRegex.test(username)) {
+    console.log("From /register from !usernameRegex.test(username)");
+    console.log("Username cannot contain whitespace or special characters");
     return res.status(400).json({
       message: "Username cannot contain whitespace or special characters",
       success: false,
@@ -156,6 +160,8 @@ router.post("/register", (req, res) => {
 
   const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
   if (!emailRegex.test(`${email}`)) {
+    console.log("From /register from !emailRegex.test(`${email}`)");
+    console.log("Invalid email format");
     return res
       .status(400)
       .json({ message: "Invalid email format", success: false });
@@ -166,6 +172,9 @@ router.post("/register", (req, res) => {
     [username],
     async (err, result) => {
       if (err) {
+        console.log("Error from /register from SELECT * FROM users WHERE username = ?");
+        console.log("Database query failed");
+        console.log("Error:", err);
         return res.status(500).json({
           message: "Database query failed",
           error: err.message,
@@ -174,6 +183,8 @@ router.post("/register", (req, res) => {
       }
 
       if (result.length > 0) {
+        console.log("Error from /register from SELECT * FROM users WHERE username = ?");
+        console.log("Username already exists");
         return res
           .status(409)
           .json({ message: "Username already exists", success: false });
@@ -184,6 +195,9 @@ router.post("/register", (req, res) => {
         [email],
         async (err, result) => {
           if (err) {
+            console.log("Error from /register from SELECT * FROM users WHERE email = ?");
+            console.log("Database query failed");
+            console.log("Error:", err);
             return res.status(500).json({
               message: "Database query failed",
               error: err.message,
@@ -192,12 +206,16 @@ router.post("/register", (req, res) => {
           }
 
           if (result.length > 0) {
+            console.log("Error from /register from SELECT * FROM users WHERE email = ?");
+            console.log("Email already exists");
             return res
               .status(409)
               .json({ message: "Email already exists", success: false });
           }
 
           if (password.length < 8) {
+            console.log("From /register from password.length < 8");
+            console.log("Password must be at least 8 characters");
             return res.status(400).json({
               message: "Password must be at least 8 characters",
               success: false,
@@ -205,6 +223,8 @@ router.post("/register", (req, res) => {
           }
 
           if (password !== password2) {
+            console.log("From /register from password !== password2");
+            console.log("Passwords do not match");
             return res
               .status(400)
               .json({ message: "Passwords do not match", success: false });
@@ -215,6 +235,9 @@ router.post("/register", (req, res) => {
             [email],
             async (err, result) => {
               if (err) {
+                console.log("From /register from SELECT * FROM otp WHERE email = ?");
+                console.log("Database query failed");
+                console.log("Error:", err);
                 return res.status(500).json({
                   message: "Database query failed",
                   error: err.message,
@@ -229,13 +252,19 @@ router.post("/register", (req, res) => {
 
               if (otpData.otp_code === otp) {
                 if (otpData.expires_at < new Date()) {
+                  console.log("From /register from otpData.otp_code === otp");
+                  console.log("In case otpData.expires_at < new Date()");
+                  console.log("OTP expired");
                   return res
                     .status(400)
                     .json({ message: "OTP expired", success: false });
                 } else {
+                  console.log("From /register from otpData.otp_code === otp");
+                  console.log("In case NOT otpData.expires_at < new Date()");
                   console.log("OTP verified");
                   bcrypt.hash(password, 10, (err, hash) => {
                     if (err) {
+                      console.log("Error hashing password", err);
                       console.error("Error hashing password:", err);
                       return res.status(500).json({
                         message: "Password hashing failed",
@@ -249,6 +278,10 @@ router.post("/register", (req, res) => {
                       [username, email, hash],
                       async (err, result) => {
                         if (err) {
+                          console.log("From /register from INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+                          console.log(username, email, hash);
+                          console.log("Database query failed");
+                          console.log("Error:", err);
                           return res.status(500).json({
                             message: "Database query failed",
                             error: err.message,
@@ -265,6 +298,9 @@ router.post("/register", (req, res) => {
                           [UserID],
                           (err, result) => {
                             if (err) {
+                              console.log("From /register from INSERT INTO user_setting (user_id) VALUES (?)");
+                              console.log("Error inserting user settings");
+                              console.log("Error:", err);
                               console.error(
                                 "Error inserting user settings:",
                                 err
@@ -296,6 +332,8 @@ router.post("/register", (req, res) => {
                   });
                 }
               } else {
+                console.log("From /register from NOT otpData.otp_code === otp");
+                console.log("Invalid OTP");
                 return res
                   .status(400)
                   .json({ message: "Invalid OTP", success: false });
@@ -317,6 +355,9 @@ router.post("/login", (req, res) => {
     userOrEmail = "email";
   }
 
+  console.log("DATA:", input, password);
+  console.log("Input Type:", userOrEmail);
+
   //console.log(`SELECT * FROM users WHERE ${userOrEmail} = ?`, [input]);
 
   db.query(
@@ -324,6 +365,9 @@ router.post("/login", (req, res) => {
     [input],
     (err, result) => {
       if (err) {
+        console.log("From /login from SELECT * FROM users WHERE ${userOrEmail} = ?");
+        console.log("Database query failed");
+        console.log("Error:", err);
         return res.status(500).json({
           message: "Database query failed",
           error: err.message,
@@ -332,16 +376,22 @@ router.post("/login", (req, res) => {
       }
 
       if (result.length === 0) {
+        console.log("From /login from result.length === 0");
+        console.log("User or Email not found");
         return res
           .status(404)
           .json({ message: "User or Email not found", success: false });
       }
 
       const user = result[0];
-      //console.log(user)
+      console.log("User Data: ");
+      console.log(user)
 
       bcrypt.compare(password, user.password, async (err, match) => {
         if (err) {
+          console.log("From /login from SELECT * FROM users WHERE ${userOrEmail} = ?");
+          console.log("Password comparison failed")
+          console.log("Error:", err);
           return res.status(500).json({
             message: "Password comparison failed",
             error: err.message,
@@ -350,6 +400,8 @@ router.post("/login", (req, res) => {
         }
 
         if (!match) {
+          console.log("From /login from password NOT match");
+          console.log("Invalid password")
           return res
             .status(401)
             .json({ message: "Invalid password", success: false });
@@ -367,6 +419,7 @@ router.post("/login", (req, res) => {
         );
         //console.log(user)UserID
 
+        console.log("Login successful")
         return res
           .status(200)
           .json({ accessToken, message: "Login successful", success: true });
@@ -378,8 +431,12 @@ router.post("/login", (req, res) => {
 router.post("/otpSend", (req, res) => {
   const { email } = req.body;
 
+  console.log("DATA:", email);
+
   const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
   if (!emailRegex.test(email)) {
+    console.log("From /otpSend from !emailRegex.test(email)");
+    console.log("Invalid email format");
     return res
       .status(400)
       .json({ message: "Invalid email format", success: false });
@@ -400,6 +457,9 @@ router.post("/otpSend", (req, res) => {
     [email],
     async (err, result) => {
       if (err) {
+        console.log("From /otpSend from SELECT * FROM otp WHERE email = ?");
+        console.log("Database query failed")
+        console.log("Error:", err);
         return res.status(500).json({
           message: "Database query failed",
           error: err.message,
@@ -416,20 +476,26 @@ router.post("/otpSend", (req, res) => {
         console.log(emailResult);
 
         if (emailResult.success) {
+          console.log("From /otpSend from emailResult.success");
+          console.log("OTP sent successfully");
           if (result.length > 0) {
             db.query(
               "UPDATE otp SET otp_code = ?, created_at = ?, expires_at = ?, is_used = 0 WHERE email = ?",
               [otp, created_at, expires_at, email],
               (err) => {
                 if (err) {
-                  return res.status(500);
-                  jwtAccessTokenGenrate.json({
+                  console.log("result.length > 0");
+                  console.log("From /otpSend from UPDATE otp SET otp_code = ?, created_at = ?, expires_at = ?, is_used = 0 WHERE email = ?");
+                  console.log("Database update failed");
+                  console.log("Error:", err);
+                  return res.status(500).json({
                     message: "Database update failed",
                     error: err.message,
                     success: false,
                   });
                 }
 
+                console.log("OTP resent successfully");
                 return res
                   .status(200)
                   .json({ message: "OTP resent successfully", success: true });
@@ -441,6 +507,10 @@ router.post("/otpSend", (req, res) => {
               [email, otp, created_at, expires_at],
               (err) => {
                 if (err) {
+                  console.log("in NOT result.length > 0");
+                  console.log("From /otpSend from INSERT INTO otp (email, otp_code, created_at, expires_at) VALUES (?, ?, ?, ?)");
+                  console.log("Database insert failed");
+                  console.log("Error:", err);
                   return res.status(500).json({
                     message: "Database insert failed",
                     error: err.message,
@@ -448,18 +518,23 @@ router.post("/otpSend", (req, res) => {
                   });
                 }
 
+                console.log("OTP create and sent successfully");
                 return res
                   .status(200)
-                  .json({ message: "OTP sent successfully", success: true });
+                  .json({ message: "OTP create and sent successfully", success: true });
               }
             );
           }
         } else {
+          console.log("From /otpSend from NOT emailResult.success");
+          console.log("Failed to send OTP email");
           return res
             .status(500)
             .json({ message: "Failed to send OTP email", success: false });
         }
       } catch (error) {
+        console.log("In Catch Block")
+        console.log("Error sending OTP email");
         console.error("Error sending OTP email:", error);
         return res.status(500).json({
           message: "Failed to send OTP email",
@@ -476,6 +551,9 @@ router.post("/otpVerify", (req, res) => {
 
   db.query("SELECT * FROM otp WHERE email = ?", [email], (err, result) => {
     if (err) {
+      console.log("From /otpVerify from SELECT * FROM otp WHERE email = ?");
+      console.log("Database query failed");
+      console.log("Error:", err);
       return res.status(500).json({
         message: "Database query failed",
         error: err.message,
@@ -487,6 +565,8 @@ router.post("/otpVerify", (req, res) => {
 
     if (otpData.otp_code === otp && otpData.is_used === 0) {
       if (otpData.expires_at < new Date()) {
+        console.log("From /otpVerify from otpData.expires_at < new Date()");
+        console.log("OTP expired");
         return res.status(400).json({ message: "OTP expired", success: false });
       } else {
         db.query(
@@ -494,6 +574,9 @@ router.post("/otpVerify", (req, res) => {
           [email],
           (err, result) => {
             if (err) {
+              console.log("From /otpVerify from UPDATE otp SET is_used = 1 where email = ?");
+              console.log("Database query failed");
+              console.log("Error:", err);
               return res.status(500).json({
                 message: "Database query failed",
                 error: err.message,
@@ -501,6 +584,7 @@ router.post("/otpVerify", (req, res) => {
               });
             }
 
+            console.log("OTP verified");
             return res
               .status(200)
               .json({ message: "OTP verified", success: true });
@@ -508,6 +592,8 @@ router.post("/otpVerify", (req, res) => {
         );
       }
     } else {
+      console.log("From /otpVerify from NOT otpData.otp_code === otp");
+      console.log("Invalid OTP or OTP is used");
       return res
         .status(400)
         .json({ message: "Invalid OTP or OTP is used", success: false });
@@ -515,116 +601,103 @@ router.post("/otpVerify", (req, res) => {
   });
 });
 
-router.put("/createpin", jwtValidate, (req, res) => {
-  const { user_id, pin } = req.body;
+router.put("/createpin", jwtValidate, async (req, res) => {
+  try {
+    const { user_id, pin } = req.body;
 
-  if (req.user.UserID !== parseInt(user_id, 10)) {
-    //user_id
-    return res
-      .status(403)
-      .json({ message: "Unauthorized user", success: false });
-  }
+    consogle.log("DATA:", user_id, pin);
 
-  if (!user_id || !pin) {
-    return res
-      .status(jwtAccessTokenGenrate00)
-      .json({ message: "Please fill all needed fields", success: false });
-  }
-
-  console.log("Decoded JWT UserID:", req.user.UserID);
-  console.log("Received user_id:", user_id, "Parsed:", parseInt(user_id, 10));
-
-  db.query(
-    "UPDATE users SET pin = ? WHERE id = ?",
-    [pin, user_id],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({
-          message: "Database query failed",
-          error: err.message,
-          success: false,
-        });
-      }
-      UserID;
-
-      if (result.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "User not found", success: false });
-      }
-
-      return res.status(200).json({ message: "Pin updated", success: true });
+    if (req.user.UserID !== parseInt(user_id, 10)) {
+      console.log("From /createpin from req.user.UserID !== parseInt(user_id, 10)");
+      console.log("Unauthorized user");
+      return res
+        .status(403)
+        .json({ message: "Unauthorized user", success: false });
     }
-  );
-});
 
-router.post("/loginpin", async (req, res) => {
-  const { user_id, pin } = req.body;
+    if (!user_id || !pin) {
+      console.log("From /createpin from !user_id || !pin");
+      console.log("Please fill all needed fields");
+      return res
+        .status(400)
+        .json({ message: "Please fill all needed fields", success: false });
+    }
 
-  db.query(
-    "SELECT * FROM users WHERE id = ?",
-    [user_id],
-    async (err, result) => {
-      if (err) {
-        return res.status(500).json({
-          message: "Database query failed",
-          error: err.message,
-          success: false,
-        });
-      }
+    console.log("Decoded JWT UserID:", req.user.UserID);
+    console.log("Received user_id:", user_id, "Parsed:", parseInt(user_id, 10));
 
-      if (result.length === 0) {
-        return res
-          .status(404)
-          .json({ message: "User not found", success: false });
-      }
-
-      const user = result[0];
-
-      // Check if the PIN is correct
-      if (user.pin === pin) {
-        // If the user already has a valid token, return it
-        if (req.headers.authorization) {
-          const token = req.headers.authorization.split(" ")[1]; // Extract token from "Bearer <token>"
-          return res.status(200).json({
-            accessToken: token,
-            message: "Login successful",
-            success: true,
-          });
+    const result = await new Promise((resolve, reject) => {
+      db.query(
+        "UPDATE users SET pin = ? WHERE id = ?",
+        [pin, user_id],
+        (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
         }
+      );
+    });
 
-        return res
-          .status(200)
-          .json({ accessToken, message: "Login successful", success: true });
-      } else {
-        return res.status(401).json({ message: "Invalid pin", success: false });
-      }
-    }
-  );
-});
-
-router.get("/getpin/:userID", async (req, res) => {
-  const { userID } = req.params;
-
-  console.log("User ID from getPin: ");
-
-  db.query("SELECT pin FROM users WHERE id = ?", [userID], (err, result) => {
-    if (err) {
-      return res.status(500).json({
-        success: false,
-        message: "Database error",
-        error: err.message,
-      });
-    }
-
-    if (result.length === 0) {
+    if (result.affectedRows === 0) {
+      console.log("From /createpin from result.affectedRows === 0");
+      console.log("User not found");
       return res
         .status(404)
-        .json({ success: false, message: "User not found" });
+        .json({ message: "User not found", success: false });
     }
 
-    res.json({ success: true, pin: result[0].pin });
-  });
+    console.log("Pin created");
+    return res.status(200).json({ message: "Pin updated", success: true });
+  } catch (error) {
+    console.log("In Catch Block")
+    console.log("Error updating PIN");
+    console.error("Error updating PIN:", error);
+    return res.status(500).json({
+      message: "Database query failed",
+      error: error.message,
+      success: false,
+    });
+  }
+});
+
+router.get("/getpin/:userID", jwtValidate, async (req, res) => {
+  const { userID } = req.params;
+
+  console.log("User ID from getPin: ", userID);
+
+  if (req.user.UserID !== parseInt(userID)) { //user_id
+    console.log("From /getpin from req.user.UserID !== parseInt(userID)");
+    console.log("Unauthorized user");
+    return res.status(403).json({ message: 'Unauthorized user', success: false });
+  }
+
+  try {
+    const result = await new Promise((resolve, reject) => {
+      db.query("SELECT pin FROM users WHERE id = ?", [userID], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+    console.log("Result: ", result);
+
+    if (result.length === 0) {
+      console.log("From /getpin from result.length === 0");
+      console.log("User not found");
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    console.log("Pin retrieved");
+    return res.json({ success: true, pin: result[0].pin ,message: "Pin retrieved" });
+  } catch (err) {
+    console.log("In Catch Block")
+    console.log("Error retrieving PIN");
+    console.log("Erorr: ", err);
+    console.error("Error retrieving PIN:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Database error",
+      error: err.message,
+    });
+  }
 });
 
 module.exports = {

@@ -1,15 +1,27 @@
-import React, { createContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useContext,
+} from "react";
 import * as SecureStore from "expo-secure-store";
 import * as LocalAuthentication from "expo-local-authentication";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import { ServerContext } from "./ServerConText";
+import { UserContext } from "./UserContext";
 
 type AuthContextType = {
   token: string | null;
   authLoading: boolean;
   isPinSet: boolean;
+  pin: string | null;
+  setPin: (pin: string | null) => void;
   setToken: (token: string) => Promise<void>;
-  setPinCode: (pin: string) => Promise<void>;
-  verifyPin: (pin: string) => Promise<boolean>;
+  setPinCodeLocal: (pin: string) => Promise<void>;
+  setIsPinSet: (value: boolean) => void;
+  verifyPin: (userID: number, enteredPin: string) => Promise<boolean>;
   logout: () => void;
   checkAuthenticateWithBiometrics: () => Promise<boolean>;
   useAuthenticationWithBiometrics: () => Promise<boolean>;
@@ -22,10 +34,12 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 );
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [pin, setPin] = useState<string | null>("");
   const [token, setToken] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [isPinSet, setIsPinSet] = useState<boolean>(false);
   const [canUseBiometrics, setCanUseBiometrics] = useState<boolean>(false);
+  const { URL } = useContext(ServerContext);
 
   const saveToken = async (newToken: string) => {
     try {
@@ -45,7 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error decoding token:", error);
       return null;
     }
-  }
+  };
 
   const loadToken = async () => {
     setAuthLoading(true);
@@ -76,18 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(null);
   };
 
-  const loadPin = async () => {
-    try {
-      const storedPin = await SecureStore.getItemAsync("userPin");
-      if (storedPin) {
-        setIsPinSet(true);
-      }
-    } catch (error) {
-      console.error("Error loading PIN:", error);
-    }
-  };
-
-  const setPinCode = async (newPin: string) => {
+  const setPinCodeLocal = async (newPin: string) => {
     try {
       await SecureStore.setItemAsync("userPin", newPin);
       setIsPinSet(true);
@@ -96,14 +99,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const verifyPin = async (enteredPin: string) => {
+  const verifyPin = async (
+    userID: number,
+    enteredPin: string
+  ): Promise<boolean> => {
     try {
-      const storedPin = await SecureStore.getItemAsync("userPin");
-      if (storedPin === enteredPin) {
-        return true;
-      } else {
-        return false;
+      console.log("Verifying PIN:", enteredPin, "for user ID:", userID);
+      const response = await axios.get(`${URL}/auth/getpin/${userID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.data.success) {
+        const storedPin = response.data.pin;
+        console.log("Stored PIN:", response.data.pin);
+        return enteredPin === storedPin;
       }
+      return false;
     } catch (error) {
       console.log("Error verifying PIN:", error);
       return false;
@@ -135,7 +147,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     loadToken();
-    loadPin();
     checkAuthenticateWithBiometrics().then((result) => {
       setCanUseBiometrics(result);
     });
@@ -144,12 +155,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
+        pin,
+        setPin,
         token,
         authLoading,
         isPinSet,
         canUseBiometrics,
-        setPinCode,
+        setPinCodeLocal,
         verifyPin,
+        setIsPinSet,
         setToken: saveToken,
         logout,
         checkAuthenticateWithBiometrics,

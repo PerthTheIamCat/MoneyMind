@@ -3,7 +3,13 @@ import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedView } from "@/components/ThemedView";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { CreateUserTransaction } from "@/hooks/auth/CreateTransaction";
 import { AuthContext } from "@/hooks/conText/AuthContext";
@@ -33,6 +39,7 @@ import { th } from "react-native-paper-dates";
 
 import { GetUserTransaction } from "@/hooks/auth/GetAllTransaction";
 import { transform } from "@babel/core";
+import AddCategory from "@/components/AddCategory"; // ✅ นำเข้าไฟล์ที่แยกไว้
 // import DatePicker from "react-native-date-picker";
 
 type ThemedInputProps = {
@@ -57,7 +64,12 @@ export default function Index() {
     useState(false);
   const [Amount, setAmount] = useState(0);
   const [Note, setNote] = useState("");
-  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryName, setNewCategoryNameState] = useState("");
+
+  const setNewCategoryName = (text: string) => {
+    setNewCategoryNameState(text);
+  };
+
   const [selectedIcon, setSelectedIcon] = useState("plus");
   const [date, setDate] = useState(new Date().getTime() + 7 * 60 * 60 * 1000); // เก็บค่า Date
   const [time, setTime] = useState(new Date().getTime()); // เก็บค่า Time
@@ -87,7 +99,7 @@ export default function Index() {
   const auth = useContext(AuthContext);
   const { URL } = useContext(ServerContext);
 
-  const iconList = [
+  const incomeIconList = [
     "dollar-sign",
     "gift",
     "trending-up",
@@ -99,9 +111,21 @@ export default function Index() {
     "shopping-cart",
     "users",
     "bar-chart",
-    "more-horizontal",
-    "clock",
   ];
+
+  const expenseIconList = [
+    "coffee",
+    "home",
+    "shopping-bag",
+    "film",
+    "heart",
+    "book",
+    "file-text",
+    "shield",
+    "credit-card",
+    "shopping-cart",
+  ];
+
   const [incomeCategories, setIncomeCategories] = useState([
     { name: "Salary", icon: "dollar-sign" },
     { name: "Bonus", icon: "gift" },
@@ -141,7 +165,7 @@ export default function Index() {
 
   const [categories, setCategories] = useState(incomeCategories);
 
-  const [budgetPlan, setBudgetPlan] = useState("");
+  const [budgetPlan, setBudgetPlan] = useState<number>(-1);
   const [selectedBudget, setSelectedBudget] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
@@ -156,7 +180,15 @@ export default function Index() {
   };
 
   useEffect(() => {
-    setCategories(isIncome ? [...incomeCategories] : [...expenseCategories]);
+    if (isIncome) {
+      setCategories((prev) =>
+        prev !== incomeCategories ? [...incomeCategories] : prev
+      );
+    } else {
+      setCategories((prev) =>
+        prev !== expenseCategories ? [...expenseCategories] : prev
+      );
+    }
   }, [isIncome, incomeCategories, expenseCategories]);
 
   // ฟังก์ชันแบ่งหมวดหมู่เป็น 2 แถวเสมอ
@@ -232,40 +264,20 @@ export default function Index() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<Date>(new Date());
 
-  // ✅ ฟังก์ชันบันทึกหมวดหมู่ใหม่
-  const onSaveCategory = () => {
-    if (newCategoryName.trim() === "") return; // ✅ ป้องกันหมวดหมู่ที่เป็นค่าว่าง
-
-    const newCategory = { name: newCategoryName, icon: selectedIcon };
-    const addCategory = { name: "add", icon: "plus" };
-
-    if (isIncome) {
-      setIncomeCategories((prev) => {
-        const filteredCategories = prev.filter((cat) => cat.name !== "add");
-        return [...filteredCategories, newCategory, addCategory]; // ✅ สร้าง array ใหม่เพื่อ trigger render
-      });
-    } else {
-      setExpenseCategories((prev) => {
-        const filteredCategories = prev.filter((cat) => cat.name !== "add");
-        return [...filteredCategories, newCategory, addCategory]; // ✅ สร้าง array ใหม่เพื่อ trigger render
-      });
-    }
-
-    setNewCategoryName(""); // ✅ รีเซ็ตค่า
-    setSelectedIcon("plus"); // ✅ รีเซ็ตไอคอน
-
-    setTimeout(() => {
-      setIsAddCategoryModalVisible(false); // ✅ ปิด Modal
-    }, 0);
-  };
-
   const saveTransaction = () => {
     console.log(userID!);
     console.log(selectedCard?.id);
     console.log(isIncome ? selectedIncomeCategory : selectedExpenseCategory);
     console.log(Amount);
     console.log(isIncome ? "income" : "expense");
-    console.log(selectedDate.toISOString().split("T")[0]+" "+selectedTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }));
+    console.log(
+      selectedDate.toISOString().split("T")[0] +
+        " " +
+        selectedTime.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+    );
     console.log(Note);
     if (!selectedCard) {
       console.log("⚠️ No selectedCard, using default account");
@@ -292,13 +304,19 @@ export default function Index() {
         id: (transaction?.length || 0) + 1,
         user_id: userID!,
         account_id: selectedCard?.id,
-        split_payment_id: 0,
+        split_payment_id: budgetPlan,
         transaction_name: isIncome
           ? selectedIncomeCategory
           : selectedExpenseCategory,
         amount: Amount,
         transaction_type: isIncome ? "income" : "expense",
-        transaction_date: selectedDate.toISOString().split("T")[0]+" "+selectedTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+        transaction_date:
+          selectedDate.toISOString().split("T")[0] +
+          " " +
+          selectedTime.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
         note: Note,
         color_code: "#FFFFFF",
       },
@@ -317,7 +335,13 @@ export default function Index() {
               : selectedExpenseCategory,
             amount: Amount,
             transaction_type: isIncome ? "income" : "expense",
-            transaction_date: selectedDate.toISOString().split("T")[0]+" "+selectedTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+            transaction_date:
+              selectedDate.toISOString().split("T")[0] +
+              " " +
+              selectedTime.toLocaleTimeString("en-GB", {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
             note: Note,
             color_code: "#FFFFFF",
           },
@@ -329,104 +353,6 @@ export default function Index() {
         console.log(response);
       }
     });
-  };
-
-  const AddCategory = () => {
-    return (
-      <ThemedView
-        className={`flex-1 items-center justify-center ${
-          theme === "dark" ? "bg-black/80" : "bg-black/50"
-        }`}
-      >
-        <ThemedView
-          className={`w-4/5 p-6 rounded-3xl shadow-lg ${
-            theme === "dark" ? "bg-[#2F2F2F]" : "bg-white"
-          }`}
-        >
-          <ThemedText
-            className={`text-xl font-bold mb-3 ${
-              theme === "dark" ? "text-white" : "text-black"
-            }`}
-          >
-            Add New Category
-          </ThemedText>
-
-          {/* Input ชื่อหมวดหมู่ */}
-          <ThemedText
-            className={`text-lg font-semibold mb-2 ${
-              theme === "dark" ? "text-white" : "text-black"
-            }`}
-          >
-            Category Name
-          </ThemedText>
-          <TextInput
-            placeholder="Enter category name"
-            value={newCategoryName}
-            onChangeText={setNewCategoryName}
-            className={`border ${
-              theme === "dark"
-                ? "border-gray-600 text-white"
-                : "border-gray-300"
-            } rounded-lg p-3 mb-4 w-full`}
-            placeholderTextColor={theme === "dark" ? "#BBB" : "#777"}
-            style={{
-              backgroundColor: theme === "dark" ? "#222" : "#FFF",
-            }}
-          />
-
-          {/* เลือกไอคอน */}
-          <ThemedText
-            className={`text-lg font-semibold mb-2 ${
-              theme === "dark" ? "text-white" : "text-black"
-            }`}
-          >
-            Select Icon
-          </ThemedText>
-          <ScrollView
-            horizontal
-            className="flex-row gap-2"
-            showsHorizontalScrollIndicator={false}
-          >
-            {iconList.map((icon) => (
-              <Pressable
-                key={icon}
-                onPress={() => setSelectedIcon(icon)}
-                className={`p-3 m-1 rounded-full ${
-                  selectedIcon === icon
-                    ? "bg-green-500"
-                    : theme === "dark"
-                    ? "bg-gray-400"
-                    : "bg-gray-200"
-                }`}
-              >
-                <Icon
-                  name={icon}
-                  size={24}
-                  color={selectedIcon === icon ? "white" : "black"}
-                />
-              </Pressable>
-            ))}
-          </ScrollView>
-
-          {/* ปุ่ม Save & Cancel */}
-          <ThemedView className="flex-row justify-between mt-10 gap-8 bg-transparent">
-            <ThemedButton
-              className="bg-gray-400 h-11 w-28"
-              onPress={() => setIsAddCategoryModalVisible(false)}
-            >
-              <ThemedText>Cancel</ThemedText>
-            </ThemedButton>
-
-            <ThemedButton
-              className="bg-green-500 h-11 w-28"
-              onPress={onSaveCategory} // ✅ เรียกฟังก์ชันเพิ่มหมวดหมู่
-            >
-              <ThemedText>Save</ThemedText>
-            </ThemedButton>
-          </ThemedView>
-        </ThemedView>
-      </ThemedView>
-    );
   };
 
   return (
@@ -472,12 +398,17 @@ export default function Index() {
                         mode="large"
                         imageIndex={Number(account.icon_id)}
                         className={`!items-center !justify-center bg-[#fefefe] rounded-lg 
-                          ${selectedCard?.id === account.id
-                            ? "border-4 border-[#03A696]"
-                            : "border-0"}
-                        `} isOptionsVisible={false} setOptionsVisible={function (): void {
+                          ${
+                            selectedCard?.id === account.id
+                              ? "border-4 border-[#03A696]"
+                              : "border-0"
+                          }
+                        `}
+                        isOptionsVisible={false}
+                        setOptionsVisible={function (): void {
                           throw new Error("Function not implemented.");
-                        } }                      />
+                        }}
+                      />
                     </ThemedView>
                   </Pressable>
                 ))}
@@ -545,7 +476,10 @@ export default function Index() {
                 Select Budget Plan
               </ThemedText>
               <ThemedView className="w-full bg-transparent">
-                <DropdownComponent />
+                <DropdownComponent
+                  account_id={selectedCard?.id!}
+                  onChange={(id) => setBudgetPlan(id)}
+                />
               </ThemedView>
             </ThemedView>
 
@@ -749,15 +683,19 @@ export default function Index() {
         </ThemedScrollView>
       </ThemedView>
 
-      <Modal
-        key={isAddCategoryModalVisible ? "visible" : "hidden"}
-        transparent
-        visible={isAddCategoryModalVisible}
-        animationType={Platform.OS === "ios" ? "none" : "fade"}
-        onRequestClose={() => setIsAddCategoryModalVisible(false)}
-      >
-        <AddCategory />
-      </Modal>
+      {isAddCategoryModalVisible && (
+        <AddCategory
+          isIncome={isIncome}
+          newCategoryName={newCategoryName}
+          setNewCategoryNameState={setNewCategoryNameState}
+          selectedIcon={selectedIcon}
+          setSelectedIcon={setSelectedIcon}
+          iconList={isIncome ? incomeIconList : expenseIconList}
+          setIsAddCategoryModalVisible={setIsAddCategoryModalVisible}
+          setIncomeCategories={setIncomeCategories} // ✅ ส่งไปให้ AddCategory อัปเดตหมวดหมู่
+          setExpenseCategories={setExpenseCategories} // ✅ ส่งไปให้ AddCategory อัปเดตหมวดหมู่
+        />
+      )}
 
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
