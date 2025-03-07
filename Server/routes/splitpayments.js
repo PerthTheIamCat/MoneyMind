@@ -84,11 +84,11 @@ router.post('/create', jwtValidate, (req, res) => {
 router.get('/:id', jwtValidate, (req, res) => { //account_id
 
     db.query(
-        'SELECT * FROM splitpayments WHERE account_id = ? AND user_id = ?',
+        'SELECT * FROM splitpayments WHERE account_id = ?',
         [req.params.id, req.user.UserID], 
         (err, result) => {
             if (err) {
-                console.log("Error from .get/:id from SELECT * FROM splitpayments WHERE account_id = ? AND user_id = ?");
+                console.log("Error from .get/:id from SELECT * FROM splitpayments WHERE account_id = ?");
                 console.log("Database query failed");
                 console.log("Error:", err)
                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
