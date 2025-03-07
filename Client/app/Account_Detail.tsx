@@ -85,6 +85,7 @@ export default function Account_Detail() {
   const { URL } = useContext(ServerContext);
   const [Devices, setDevices] = useState(mockAccount.device);
   const [bioText, setBioText] = useState(mockAccount.note);
+  const [showConfirmAll, setShowConfirmAll] = useState(false);
 
   const [username, setUsername] = useState(mockAccount.user_name);
   const [displayUsername, setDisplayUsername] = useState(mockAccount.user_name);
@@ -121,10 +122,16 @@ export default function Account_Detail() {
     return theme === "dark" ? "#FFF" : "#2F2F2F"; // สีข้อความเปลี่ยนตามธีม
   };
 
-  const handleSignOutAll = () => {
+  const handleSignOutAll = () => 
+    setShowConfirmAll(true);{
+;
+  };
+
+  const confirmSignOutAll = () => {
     setDevices([]);
     console.log("All devices have been signed out.");
-  };
+    setShowConfirmAll(false);
+};
 
   const handleSignOut = (deviceId: number) => {
     setDevices(Devices.filter((device) => device.device_id !== deviceId)); // ใช้ `devices` ที่มาจาก useState
@@ -345,7 +352,6 @@ export default function Account_Detail() {
                 key={device.device_id}
                 deviceDetails={device}
                 onSignOut={() => handleSignOut(device.device_id)}
-                onSignOutAll={handleSignOutAll}
               />
             ))}
             {mockAccount.device.length > 0 && (
@@ -385,6 +391,44 @@ export default function Account_Detail() {
           {isEditing ? "Save" : "Edit"}
         </Text>
       </Pressable>
+
+      {showConfirmAll && (
+        <TouchableOpacity 
+            activeOpacity={1} 
+            onPress={() => setShowConfirmAll(false)} 
+            style={{
+                position: "absolute",
+                top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: "rgba(0, 0, 0, 0.7)",
+                justifyContent: "center",
+                alignItems: "center",
+            }}
+        >
+            <TouchableOpacity activeOpacity={1} style={{
+                padding: 20,
+                backgroundColor: "white",
+                borderRadius: 10,
+                alignItems: "center",
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 3 },
+                shadowOpacity: 0.3,
+                shadowRadius: 4,
+                elevation: 5,
+            }}>
+                <ThemedText className="text-xl font-bold mb-2">Confirm Sign Out All</ThemedText>
+                <ThemedText>Are you sure you want to sign out from all devices?</ThemedText>
+
+                <ThemedView style={{ flexDirection: "row", marginTop: 10,justifyContent: "space-between",gap:32 }}>
+                  <TouchableOpacity className="p-3 w-24 bg-red-500 !items-center rounded-xl" onPress={confirmSignOutAll}>
+                        <ThemedText className="text-white ">Confirm</ThemedText>
+                    </TouchableOpacity>
+                    <TouchableOpacity className="p-3 bg-gray-400 w-24 !items-center rounded-xl" onPress={() => setShowConfirmAll(false)}>
+                        <ThemedText className="text-white ">Cancel</ThemedText>
+                    </TouchableOpacity>
+                </ThemedView>
+            </TouchableOpacity>
+        </TouchableOpacity>
+    )}
 
       {modalVisible_Username && (
         <TouchableWithoutFeedback
