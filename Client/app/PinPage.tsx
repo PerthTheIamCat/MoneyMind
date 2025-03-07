@@ -2,16 +2,14 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Image } from "expo-image";
 import { useEffect, useState, useContext } from "react";
-import { Alert, StyleSheet, useColorScheme } from "react-native";
+import { StyleSheet, useColorScheme } from "react-native";
 import { router } from "expo-router";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ThemedNumPad } from "@/components/ThemedNumPad";
-import { VerifyPinHandler } from "@/hooks/auth/VerifyPin";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { ServerContext } from "@/hooks/conText/ServerConText";
-import { verify } from "crypto";
 
 export default function PinPage() {
   const auth = useContext(AuthContext);
@@ -35,77 +33,17 @@ export default function PinPage() {
   };
 
   const handleVerifyPin = async () => {
-    if (!auth || !auth?.token) {
-      Alert.alert("Error", "User authentication is missing.");
-      return;
-    }
-
-    if (code.length !== 6) return; // Ensure PIN is exactly 6 digits before checking
-
-    try {
-      console.log("Verifying PIN... ⏳");
-
-      // ✅ Step 1: Check Local Stored PIN
-      const storedPin = await auth.verifyPin(code.join(""));
-      if (storedPin) {
-        console.log("Local PIN Matched ✅");
-        router.replace("/(tabs)");
-        return;
-      }
-
-      // ✅ Step 2: Check PIN with Database
-      console.log("Checking PIN with database... ⏳");
-      const response = await VerifyPinHandler(URL, auth?.token!, {
-        user_id: userID!,
-        pin: code.join(""),
-      });
-
-      if (response.success) {
-        console.log("Database PIN Matched ✅");
-        router.replace("/(tabs)");
+    await auth?.verifyPin(userID!, code.join("")).then((res) => {
+      if (res) {
+        router.push("/(tabs)");
       } else {
-        console.log("PIN incorrect ❌");
-        setPin("");
         setCode([]);
-        Alert.alert("Invalid PIN", response.message);
+        alert("Invalid PIN");
       }
-    } catch (error) {
-      console.error("Error verifying PIN:", error);
-      Alert.alert("Error", "Something went wrong while verifying PIN.");
-    }
+    });
   };
 
-  // 🔹 Auto-check PIN when it's 6 digits long
   useEffect(() => {
-    if (code.length === 6) {
-      handleVerifyPin();
-    }
-  }, [code]);
-
-  useEffect(() => {
-    const verifyPinFromDatabase = async () => {
-      if (pin.length === 6) {
-        try {
-          const apiUrl = URL; // Replace with your actual API URL
-          const token = auth?.token!; // Ensure the token is provided
-          const response = await VerifyPinHandler(apiUrl, token, {
-            user_id: userID!,
-            pin: code.join(""),
-          });
-
-          if (response.success) {
-            router.replace("/(tabs)");
-          } else {
-            setPin("");
-            setCode([]);
-            Alert.alert("Invalid PIN", response.message);
-          }
-        } catch (error) {
-          Alert.alert("Error", "Something went wrong while verifying PIN.");
-        }
-      }
-    };
-
     if (code.length === 6) {
       handleVerifyPin();
     }

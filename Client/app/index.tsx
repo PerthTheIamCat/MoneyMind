@@ -12,9 +12,13 @@ export default function Index() {
       setTimeout(() => {
         router.replace("/Welcome");
       }, 1000);
-    } else if (!auth?.authLoading && auth?.token) {
+    } else if (!auth?.authLoading && auth?.token && auth?.isPinSet) {
       setTimeout(() => {
         router.replace("/PinPage");
+      }, 1000);
+    } else {
+      setTimeout(() => {
+        router.replace("/CreatePinPage");
       }, 1000);
     }
   }, [auth?.authLoading]);
