@@ -21,6 +21,8 @@ import { Alert } from "react-native";
 import { ThemedButton } from "@/components/ThemedButton";
 import { UserContext } from "@/hooks/conText/UserContext";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import AntDesign from '@expo/vector-icons/AntDesign';
+import Entypo from "@expo/vector-icons/Entypo";
 
 interface Device {
   device_id: number;
@@ -87,6 +89,9 @@ export default function Account_Detail() {
   const [bioText, setBioText] = useState(mockAccount.note);
   const [showConfirmAll, setShowConfirmAll] = useState(false);
 
+  const [showConfirmDeleteAccount,setShowConfirmDeleteAccount] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
+
   const [username, setUsername] = useState(mockAccount.user_name);
   const [displayUsername, setDisplayUsername] = useState(mockAccount.user_name);
   const [modalVisible_Username, setModalVisible_Username] = useState(false);
@@ -107,6 +112,7 @@ export default function Account_Detail() {
 
   const theme = useColorScheme();
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsloading] = useState(false);
 
   // const [email, setEmail] = useState<string>("");
   const { email } = useContext(UserContext);
@@ -118,13 +124,25 @@ export default function Account_Detail() {
     mockAccount.gender
   );
 
-  const getTextColor = () => {
-    return theme === "dark" ? "#FFF" : "#2F2F2F"; // สีข้อความเปลี่ยนตามธีม
-  };
-
   const handleSignOutAll = () => 
     setShowConfirmAll(true);{
 ;
+  };
+
+  const handleDeleteAccount = () => {
+    console.log("User deleted account");
+    setIsloading(true);
+    setIsDeleted(true); // ✅ แสดงข้อความ "ทำการลบบัญชีนี้แล้ว"
+
+    setTimeout(() => {
+      setIsloading(false)
+    }, 2000);
+
+    // ✅ หลังจาก 2 วินาที ให้นำทางไปหน้า "HomeScreen"
+    setTimeout(() => {
+      setShowConfirmDeleteAccount(false);
+      // router.push("/Welcome"); // 🔹 แทนที่ Route ปัจจุบัน
+    }, 5000);
   };
 
   const confirmSignOutAll = () => {
@@ -375,7 +393,7 @@ export default function Account_Detail() {
           </ThemedView>
         </ThemedView>
 
-        <Pressable className="!items-center mb-10">
+        <Pressable className="!items-center mb-10" onPress={() => setShowConfirmDeleteAccount(true)}>
           <ThemedView className="!justify-center !items-center flex pt-2 mt-5 rounded-2xl border-2 w-96">
             <ThemedText className="text-3xl">Delete Account</ThemedText>
           </ThemedView>
@@ -404,9 +422,9 @@ export default function Account_Detail() {
                 alignItems: "center",
             }}
         >
-            <TouchableOpacity activeOpacity={1} style={{
+          <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+            <ThemedView activeOpacity={1} style={{
                 padding: 20,
-                backgroundColor: "white",
                 borderRadius: 10,
                 alignItems: "center",
                 shadowColor: "#000",
@@ -418,7 +436,7 @@ export default function Account_Detail() {
                 <ThemedText className="text-xl font-bold mb-2">Confirm Sign Out All</ThemedText>
                 <ThemedText>Are you sure you want to sign out from all devices?</ThemedText>
 
-                <ThemedView style={{ flexDirection: "row", marginTop: 10,justifyContent: "space-between",gap:32 }}>
+                <ThemedView className="bg-transparent pt-3" style={{ flexDirection: "row", marginTop: 10,justifyContent: "space-between",gap:32 }}>
                   <TouchableOpacity className="p-3 w-24 bg-red-500 !items-center rounded-xl" onPress={confirmSignOutAll}>
                         <ThemedText className="text-white ">Confirm</ThemedText>
                     </TouchableOpacity>
@@ -426,9 +444,74 @@ export default function Account_Detail() {
                         <ThemedText className="text-white ">Cancel</ThemedText>
                     </TouchableOpacity>
                 </ThemedView>
-            </TouchableOpacity>
+            </ThemedView>
+          </TouchableWithoutFeedback>
         </TouchableOpacity>
     )}
+
+{showConfirmDeleteAccount && (
+  <Pressable 
+    onPress={() => setShowConfirmDeleteAccount(false)} 
+    style={{
+      position: "absolute",
+      top: 0, left: 0, right: 0, bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <Pressable onPress={(e) => e.stopPropagation()}>
+      <ThemedView className="p-5 rounded-2xl items-center shadow-lg w-96">
+        {/*  ถ้ายังไม่กดยืนยัน แสดง Modal ปกติ */}
+        {!isDeleted ? (
+          <>
+            <ThemedText className="text-xl font-bold mb-2">Confirm Account Deletion</ThemedText>
+            <ThemedText className="w-96 text-center">
+              Are you sure you want to permanently delete your account? This action cannot be undone.
+            </ThemedText>
+
+            {/* ปุ่มกด Confirm & Cancel */}
+            <ThemedView className="bg-transparent pt-3 flex-row justify-between gap-8">
+              <TouchableOpacity 
+                className="p-3 w-24 bg-red-500 items-center rounded-xl"  
+                onPress={handleDeleteAccount}
+              >
+                <ThemedText className="text-white">Confirm</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                className="p-3 bg-gray-400 w-24 items-center rounded-xl" 
+                onPress={() => setShowConfirmDeleteAccount(false)}
+              >
+                <ThemedText className="text-white">Cancel</ThemedText>
+              </TouchableOpacity>
+            </ThemedView>
+          </>
+        ) : (
+          <ThemedView>
+          <ThemedText className="text-xl font-bold mb-2">Account Deleted Successfully</ThemedText>
+            <ThemedText className="w-96 text-center">
+            The account has been successfully deleted.
+            </ThemedText>
+            <ThemedView className="mt-3">
+            {isLoading  ? (
+              <AntDesign
+                key={"loading1"}
+                name="loading2"
+                size={44}
+                color="#CEB036"
+                className="animate-spin-ease"
+              />
+            )
+           : (
+            <AntDesign name="checkcircle" size={44} color="#2B9348" />
+          )}
+          </ThemedView>
+          </ThemedView>
+        )}
+      </ThemedView>
+    </Pressable>
+  </Pressable>
+)}
 
       {modalVisible_Username && (
         <TouchableWithoutFeedback
