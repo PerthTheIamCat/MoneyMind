@@ -77,22 +77,25 @@ export default function Index() {
       setSelectedCardID(cardID); // ✅ เลือกการ์ดใหม่
     }
   };
-  
-  const handleToggleOptions = (cardID: number) => {
-    if (activeCardID === cardID) {
-      setActiveCardID(null); // ถ้ากดซ้ำ ให้ปิดเมนู
+
+  const [activeOptionID, setActiveOptionID] = useState<{ type: "card" | "transaction"; id: number } | null>(null);
+
+  const handleToggleOptions = (type: "card" | "transaction", id: number) => {
+    if (activeOptionID?.id === id && activeOptionID?.type === type) {
+      setActiveOptionID(null); // ✅ ปิดเมนูถ้ากดซ้ำ
     } else {
-      setActiveCardID(null); // ปิดเมนูเดิมก่อน
-      setTimeout(() => {
-        setActiveCardID(cardID); // เปิดเมนูใหม่หลังจากปิดเดิมแล้ว
-      }, 100);
+      setActiveOptionID({ type, id }); // ✅ เปิดเมนูใหม่ และปิดเมนูอื่น
     }
   };
 
   return (
     <TouchableWithoutFeedback
-      onPress={() => setActiveCardID(null)} // กดที่ไหนก็ปิดเมนู
-      accessible={false}
+    onPress={() => {
+      console.log("🔻 Closing all menus");
+      setActiveOptionID(null);
+      setSelectedCardID(null);
+    }}
+    accessible={false}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -125,16 +128,8 @@ export default function Index() {
             />
           </ThemedView>
           <ThemedView className="!items-start pl-[10%] pt-[2%] bg-[E5E5E5]">
-            <ThemedText
-              className=" text-[18px]"
-            >
-              Connected
-            </ThemedText>
-            <ThemedText
-              className="font-bold text-[24px]"
-            >
-              Accounts
-            </ThemedText>
+            <ThemedText className=" text-[18px]">Connected</ThemedText>
+            <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
           </ThemedView>
           <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
             <Pressable
@@ -146,6 +141,7 @@ export default function Index() {
             </Pressable>
             <ThemedScrollView
               horizontal={true}
+              keyboardShouldPersistTaps="handled" // ✅ ให้สามารถกดที่อื่นเพื่อปิดเมนู
               className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
             >
               <View className="mt-0.5 mb-1 flex-row space-x-1">
@@ -159,8 +155,8 @@ export default function Index() {
                       balance={account.balance.toString()}
                       mode="small"
                       imageIndex={Number(account.icon_id)}
-                      isOptionsVisible={activeCardID === account.id}
-                      setOptionsVisible={() => handleToggleOptions(account.id)}
+                      isOptionsVisible={activeOptionID?.type === "card" && activeOptionID?.id === account.id}
+                      setOptionsVisible={() => handleToggleOptions("card", account.id)}
                       isSelected={selectedCardID === account.id} // ✅ ส่งค่าการ์ดที่เลือก
                       onSelectCard={() => handleSelectCard(account.id)} // ✅ ฟังก์ชันเลือกการ์ด
                     />
@@ -190,7 +186,10 @@ export default function Index() {
             </View>
           </ThemedView>
 
-          <ScrollView className="h-[450px] py-2">
+          <ScrollView
+            className="h-[450px] py-2"
+            keyboardShouldPersistTaps="handled"
+          >
             <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12 ">
               <View className="w-full !items-center">
                 {/* {transactions.map((transaction) => {
@@ -233,6 +232,8 @@ export default function Index() {
                             handleDeleteTransaction(transaction.id ?? 0)
                           }
                           checkpage={"transactions"}
+                          isOptionsVisible={activeOptionID?.type === "transaction" && activeOptionID?.id === transaction.id} // ✅ ตรวจสอบว่าเปิดเมนู TransactionItem อยู่หรือไม่
+                          setOptionsVisible={() => handleToggleOptions("transaction", transaction.id)} // ✅ เปิด/ปิดเมนู
                         />
                       </View>
                     );
