@@ -10,7 +10,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   // Colors based on theme
   const primaryColor = "#2B9348";
   const greyColor = "#737373";
-  const darkBackground = "#1c1c1e";
+  const darkBackground = "#3f3f3f";
   const lightBackground = "white";
   const darkTabTextColor = "#f2f2f2";
   const lightTabTextColor = "#2f2f2f";
