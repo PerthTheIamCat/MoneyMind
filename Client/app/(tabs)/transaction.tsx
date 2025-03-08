@@ -13,6 +13,7 @@ import {
   Platform,
   Keyboard,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
@@ -175,7 +176,8 @@ export default function TransactionPage() {
   };
 
   // 📌 ฟังก์ชันอัปโหลดภาพไปยัง `ocr.js`
-  const uploadImage = async (imageUri: string) => {
+  const uploadImage = async (imageUri: string, retryCount = 1) => {
+    setLoading(true);
     let formData = new FormData();
     formData.append("image", {
       uri: imageUri,
@@ -188,31 +190,39 @@ export default function TransactionPage() {
         `${URL}/ocr`,
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
+          headers: { "Content-Type": "multipart/form-data" },
+          onUploadProgress: (progressEvent) => {
+            const total = progressEvent.total || 1;
+            const progress = Math.round((progressEvent.loaded * 100) / total);
+            console.log(`Upload progress: ${progress}%`);
           },
         }
       );
 
-      let result = response.data;
-      console.log("📜 OCR Result:", result);
+      console.log("📜 OCR Result:", response.data);
 
-      if (result.success) {
+      if (response.data.success) {
         Alert.alert(
           "OCR สำเร็จ",
-          `ข้อมูลที่อ่านได้: ${JSON.stringify(result.extractedData)}`
+          `ข้อมูลที่อ่านได้: ${JSON.stringify(response.data.extractedData)}`
         );
         router.push(
           `/Add_Transaction?extractedData=${encodeURIComponent(
-            JSON.stringify(result.extractedData)
+            JSON.stringify(response.data.extractedData)
           )}`
         );
       } else {
-        Alert.alert("OCR ล้มเหลว", result.message);
+        throw new Error(response.data.message);
       }
     } catch (error) {
       console.error("❌ Upload Error:", error);
-      Alert.alert("เกิดข้อผิดพลาด", "ไม่สามารถอัปโหลดรูปได้");
+
+      if (retryCount > 0) {
+        console.log("🔄 Retrying...");
+        return uploadImage(imageUri, retryCount - 1);
+      } else {
+        Alert.alert("เกิดข้อผิดพลาด", "ไม่สามารถอัปโหลดรูปได้");
+      }
     } finally {
       setLoading(false);
     }
@@ -476,6 +486,16 @@ export default function TransactionPage() {
                 <AntDesign name="plus" size={32} color="#ffffff" />
               </View>
             </Pressable>
+          )}
+          {loading && (
+            <View className="absolute inset-0 flex items-center justify-center bg-transparent">
+              <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">
+                <ThemedText className="font-bold mb-2">
+                  Uploading Image...
+                </ThemedText>
+                <ActivityIndicator size="large" color="#AACC00" />
+              </ThemedView>
+            </View>
           )}
         </ThemedSafeAreaView>
       </KeyboardAvoidingView>
