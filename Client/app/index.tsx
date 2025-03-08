@@ -11,13 +11,18 @@ export default function Index() {
     setTimeout(() => {
       if (!auth?.authLoading && !auth?.token) {
         router.replace("/Welcome");
-      } else if (!auth?.authLoading && auth?.token && auth?.isPinSet) {
+      } else if (
+        !auth?.authLoading &&
+        auth?.token &&
+        auth?.isPinSet &&
+        auth?.pin !== null
+      ) {
         router.replace("/PinPage");
       } else if (!auth?.authLoading && auth?.token && auth?.pin === null) {
         router.replace("/CreatePinPage");
       }
     }, 1000);
-  }, [auth?.authLoading, auth?.token, auth?.isPinSet]);
+  }, [auth?.authLoading, auth?.token, auth?.isPinSet, auth?.pin]);
   return (
     <ThemedView className="flex-1 h-full">
       <ThemedView className="animate-pulse z-10 bg-transparent">
