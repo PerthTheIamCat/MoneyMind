@@ -96,6 +96,8 @@ function cleanText(text) {
         .replace(/[^\w\dก-ฮ๐-๙.,:/-]/g, '') // ลบอักขระพิเศษ
         .replace(/บท/g, 'บาท') // แก้ OCR อ่านผิดจาก 'บท' เป็น 'บาท'
         .replace(/php/g, '') // ลบอักขระที่ผิดพลาด
+        .replace(/ยอดสทธ/g, 'ยอดสุทธิ') // แก้คำผิดที่พบบ่อย
+        .replace(/รวม/g, 'รวม') // แก้คำผิดที่พบบ่อย
         .trim();
 }
 
@@ -106,41 +108,68 @@ function extractReceiptData(text) {
     const bankOrShop = text.match(bankOrShopRegex)?.[0] || 'ไม่พบข้อมูล';
 
     // 📅 แปลง "วันที่" ให้อยู่ใน `Date` format
-    const dateRegex = /(\d{1,2})\s*(ม\.?ค\.?|ก\.?พ\.?|มี\.?ค\.?|เม\.?ย\.?|พ\.?ค\.?|มิ\.?ย\.?|ก\.?ค\.?|ส\.?ค\.?|ก\.?ย\.?|ต\.?ค\.?|พ\.?ย\.?|ธ\.?ค\.?)\s*(\d{2,4})/;
-    const dateMatch = text.match(dateRegex);
+    const dateRegexThai = /(\d{1,2})\s*(ม\.?ค\.?|ก\.?พ\.?|มี\.?ค\.?|เม\.?ย\.?|พ\.?ค\.?|มิ\.?ย\.?|ก\.?ค\.?|ส\.?ค\.?|ก\.?ย\.?|ต\.?ค\.?|พ\.?ย\.?|ธ\.?ค\.?)\s*(\d{2,4})/;
+    const dateRegexNumeric = /(?:วัน[ที่ที]\s*[:：]?\s*)?(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/;
+
     let formattedDate = null;
 
-    if (dateMatch) {
-        let [_, day, monthThai, year] = dateMatch;
+    // ✅ ตรวจสอบ "DD เดือน YYYY" (ไทย)
+    const dateMatchThai = text.match(dateRegexThai);
+    if (dateMatchThai) {
+        let [_, day, monthThai, year] = dateMatchThai;
         const monthMap = {
             "ม.ค.": "01", "ก.พ.": "02", "มี.ค.": "03", "เม.ย.": "04",
             "พ.ค.": "05", "มิ.ย.": "06", "ก.ค.": "07", "ส.ค.": "08",
             "ก.ย.": "09", "ต.ค.": "10", "พ.ย.": "11", "ธ.ค.": "12"
         };
-        let month = monthMap[monthThai] || "01"; // เผื่อ OCR อ่านผิด
+        let month = monthMap[monthThai] || "01"; // กันกรณี OCR อ่านผิด
 
-        // 🔥 แปลงปี พ.ศ. -> ค.ศ.
+        if (parseInt(year) > 2500) {
+            year = parseInt(year) - 543; // แปลง พ.ศ. -> ค.ศ.
+        }
+
+        formattedDate = dayjs(`${year}-${month}-${day}`, "YYYY-MM-DD").toDate();
+    }
+
+    // ✅ ตรวจสอบ "DD/MM/YYYY" (เลขล้วน)
+    const dateMatchNumeric = text.match(dateRegexNumeric);
+    if (dateMatchNumeric && !formattedDate) { // ใช้เฉพาะถ้ายังไม่ได้ค่า formattedDate
+        let [_, day, month, year] = dateMatchNumeric;
+
         if (parseInt(year) > 2500) {
             year = parseInt(year) - 543;
         }
 
-        // 🔥 แปลงเป็น `Date` format
         formattedDate = dayjs(`${year}-${month}-${day}`, "YYYY-MM-DD").toDate();
     }
 
     // ⏰ เวลา
-    const timeRegex = /(\d{1,2}):(\d{2})/;
+    const timeRegex = /(\d{1,2}):(\d{2})(?::(\d{2}))?/;  // ✅ รองรับทั้ง HH:mm และ HH:mm:ss
     const timeMatch = text.match(timeRegex);
-    const formattedTime = timeMatch ? dayjs(`${timeMatch[1]}:${timeMatch[2]}`, "HH:mm").toDate() : null;
+
+    let formattedTime = null;
+    if (timeMatch) {
+        let hours = timeMatch[1];
+        let minutes = timeMatch[2];
+        let seconds = timeMatch[3] || "00"; // ถ้าไม่มีวินาทีให้ใช้ "00"
+
+        formattedTime = dayjs(`${hours}:${minutes}:${seconds}`, "HH:mm:ss").toDate();
+    }
 
     // 🔢 หมายเลขอ้างอิง
     const refRegex = /(INV|RECEIPT|TAX|BAYM|SCB|KTB|KBank|TTB|UOB|CIMB|GSB|BBL|TMB|QR|PAYMENT|REF)\d+/;
     const referenceNo = text.match(refRegex)?.[0] || 'ไม่พบข้อมูล';
 
     // 💰 จำนวนเงิน
-    const moneyRegex = /([\d,]+(?:\.\d{1,2})?)\s*(THB|บาทถ้วน|บาท)/g;
-    let moneyMatches = [...text.matchAll(moneyRegex)].map(m => parseFloat(m[1].replace(/,/g, '')));
+    const moneyRegex = /(?:จำนวนเงิน|รวม|ยอดสุทธิ|โอนเงิน)?\s*[:：]?\s*([\d]{1,3}(?:,\d{3})*(?:\.\d{1,2})?)\s*(THB|บาทถ้วน|บาท)?/gi;
+
+    let moneyMatches = [...text.matchAll(moneyRegex)]
+        .filter(m => m[1] && (m[2] || /(?:จำนวนเงิน|รวม|ยอดสุทธิ|โอนเงิน)/.test(text.substring(m.index - 15, m.index))))
+        .map(m => parseFloat(m[1].replace(/,/g, '')));
+
     const totalAmount = moneyMatches.length > 0 ? Math.max(...moneyMatches).toFixed(2) : 'ไม่พบข้อมูล';
+
+    console.log(totalAmount);
 
     // 💲 VAT 7%
     const vatRegex = /ภาษีมูลค่าเพิ่ม\s*([\d,]+(?:\.\d{1,2})?)\s*(THB|บาท)/;
