@@ -1,17 +1,27 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
-import React from 'react'
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { View, Text, StyleSheet, useColorScheme } from "react-native";
+import React from "react";
 import TabBarButton from "./TabbarIcon";
-
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
+  const theme = useColorScheme();
+  const isDarkMode = theme === "dark";
 
+  // Colors based on theme
+  const primaryColor = "#2B9348";
+  const greyColor = "#737373";
+  const darkBackground = "#1c1c1e";
+  const lightBackground = "white";
+  const darkTabTextColor = "#f2f2f2";
+  const lightTabTextColor = "#2f2f2f";
 
-    const primaryColor = '#2B9348';
-    const greyColor = '#737373';
   return (
-    <View style={styles.tabbar}>
+    <View
+      style={[
+        styles.tabbar,
+        { backgroundColor: isDarkMode ? darkBackground : lightBackground },
+      ]}
+    >
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label =
@@ -21,13 +31,13 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
             ? options.title
             : route.name;
 
-        if(['_sitemap', '+not-found'].includes(route.name)) return null;
+        if (["_sitemap", "+not-found"].includes(route.name)) return null;
 
         const isFocused = state.index === index;
 
         const onPress = () => {
           const event = navigation.emit({
-            type: 'tabPress',
+            type: "tabPress",
             target: route.key,
             canPreventDefault: true,
           });
@@ -39,73 +49,56 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 
         const onLongPress = () => {
           navigation.emit({
-            type: 'tabLongPress',
+            type: "tabLongPress",
             target: route.key,
           });
         };
 
         return (
-          <TabBarButton 
+          <TabBarButton
             key={route.name}
-            onPress = { () => onPress()}
+            onPress={onPress}
             onLongPress={onLongPress}
             isFocused={isFocused}
-            routeName={route.name as 'index' | 'splitpay' | 'retire' | 'me' | 'transaction'}
-            color={isFocused? primaryColor: greyColor}
-            label={typeof label === 'string' ? label : ''}
+            routeName={
+              route.name as
+                | "index"
+                | "splitpay"
+                | "retire"
+                | "me"
+                | "transaction"
+            }
+            color={
+              isFocused
+                ? primaryColor
+                : isDarkMode
+                ? darkTabTextColor
+                : greyColor
+            }
+            label={typeof label === "string" ? label : ""}
           />
-        )
-
-        // return (
-        //   <TouchableOpacity
-        //     key={route.name}
-        //     style={styles.tabbarItem}
-        //     accessibilityRole="button"
-        //     accessibilityState={isFocused ? { selected: true } : {}}
-        //     accessibilityLabel={options.tabBarAccessibilityLabel}
-        //     testID={options.tabBarTestID}
-        //     onPress={onPress}
-        //     onLongPress={onLongPress}
-        //   >
-        //     {
-        //         icons[route.name]({
-        //             color: isFocused? primaryColor: greyColor
-        //         })
-        //     }
-        //     <Text style={{ 
-        //         color: isFocused ? primaryColor : greyColor,
-        //         fontSize: 11
-        //     }}>
-        //       {label}
-        //     </Text>
-        //   </TouchableOpacity>
-        // );
+        );
       })}
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
-    tabbar: {
-        position: 'absolute', 
-        bottom: 25,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: 'white',
-        marginHorizontal: 20,
-        paddingVertical: 15,
-        borderRadius: 25,
-        borderCurve: 'continuous',
-        shadowColor: 'black',
-        shadowOffset: {width: 0, height: 10},
-        shadowRadius: 10,
-        shadowOpacity: 0.1
-    },
-    tabbarItem: {
-        flex: 1,
-        alignItems: 'center',
-    }
-})
+  tabbar: {
+    position: "absolute",
+    bottom: 25,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginHorizontal: 20,
+    paddingVertical: 15,
+    borderRadius: 25,
+    borderCurve: "continuous",
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 10,
+    shadowOpacity: 0.1,
+  },
+});
 
-export default TabBar
+export default TabBar;
