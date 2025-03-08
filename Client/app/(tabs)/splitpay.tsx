@@ -698,7 +698,7 @@ export default function SplitPay() {
         </ThemedView>
       </Animated.View>
       <ThemedView
-        className="w-16 h-16 !bg-[#AACC00] absolute right-6 bottom-16 rounded-full"
+        className="w-16 h-16 !bg-[#AACC00] absolute right-6 bottom-36 rounded-full"
         onTouchEnd={() => setModalVisible(true)}
       >
         <MaterialCommunityIcons name="plus" size={40} color="white" />

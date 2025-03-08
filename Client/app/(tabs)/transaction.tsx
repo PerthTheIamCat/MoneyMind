@@ -307,9 +307,7 @@ export default function TransactionPage() {
                     />
                   ))
                 ) : (
-                  <ThemedView>
-                    <ThemedText>emptyaccount</ThemedText>
-                  </ThemedView>
+                  <ThemedView></ThemedView>
                 )}
               </View>
             </ThemedScrollView>
