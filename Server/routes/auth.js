@@ -605,7 +605,7 @@ router.put("/createpin", jwtValidate, async (req, res) => {
   try {
     const { user_id, pin } = req.body;
 
-    consogle.log("DATA:", user_id, pin);
+    console.log("DATA:", user_id, pin);
 
     if (req.user.UserID !== parseInt(user_id, 10)) {
       console.log("From /createpin from req.user.UserID !== parseInt(user_id, 10)");
@@ -686,7 +686,7 @@ router.get("/getpin/:userID", jwtValidate, async (req, res) => {
     }
 
     console.log("Pin retrieved");
-    return res.json({ success: true, pin: result[0].pin ,message: "Pin retrieved" });
+    return res.json({ success: true, pin: result[0].pin, message: "Pin retrieved" });
   } catch (err) {
     console.log("In Catch Block")
     console.log("Error retrieving PIN");
