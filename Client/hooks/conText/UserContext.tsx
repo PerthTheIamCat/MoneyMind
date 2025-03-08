@@ -182,7 +182,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
     }
-  }, [fullname, userID, auth?.token, auth?.isPinSet]);
+  }, [fullname, userID, auth?.token, auth?.isPinSet, auth?.pin]);
 
   return (
     <UserContext.Provider
