@@ -210,7 +210,7 @@ export default function SplitPay() {
 
   useEffect(() => {
     Animated.timing(modalAnimation, {
-      toValue: modalVisible ? 0 : -modalHeight,
+      toValue: modalVisible ? 100 : -modalHeight,
       duration: 300,
       useNativeDriver: false,
     }).start();
