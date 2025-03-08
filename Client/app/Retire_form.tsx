@@ -21,6 +21,7 @@ import {
 } from "@/hooks/auth/retirementHandler";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
+import { UserContext } from "@/hooks/conText/UserContext";
 
 // Helper to convert text into a number or fallback to 0
 function safeNumber(text: string): number {
@@ -38,6 +39,7 @@ export default function Retire_form() {
   // Context
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
+  const { setRetire, userID } = useContext(UserContext);
 
   // State
   const [step, setStep] = useState<number>(0);
@@ -117,6 +119,19 @@ export default function Retire_form() {
   const [netShortfallAtRetirement, setNetShortfallAtRetirement] =
     useState<number>(0);
   const [monthlySavingNeeded, setMonthlySavingNeeded] = useState<number>(0);
+
+  const handleFinish = () => {
+    setRetire([
+      {
+        id: 1,
+        current_savings: 0,
+        monthly_savings_goal: monthlySavingNeeded,
+        total_savings_goal: totalNeededAtRetirement,
+        user_id: userID!,
+      },
+    ]);
+    router.back();
+  };
 
   const calculate_retirement = () => {
     CalculateRetirement(
@@ -964,13 +979,17 @@ export default function Retire_form() {
               step === 0 ? router.back() : setStep(step - 1);
             }}
           >
-            {step === 3 ? "Recalculate" : "Back"}
+            {step === 3 ? "Recalculate" : step === 0 ? "cancel" : "back"}
           </ThemedButton>
           <ThemedButton
             mode="confirm"
             className="px-14 py-5"
             onPress={() => {
-              step === 2 ? calculate_retirement() : setStep(step + 1);
+              step === 3
+                ? handleFinish()
+                : step === 2
+                ? calculate_retirement()
+                : setStep(step + 1);
             }}
           >
             {step === 2
@@ -984,7 +1003,7 @@ export default function Retire_form() {
                 ? "Skip and Calculate"
                 : "Calculate"
               : step === 3
-              ? "Finish"
+              ? "Finish Plan"
               : "Next"}
           </ThemedButton>
         </ThemedView>

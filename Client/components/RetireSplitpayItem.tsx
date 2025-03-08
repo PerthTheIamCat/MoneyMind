@@ -7,35 +7,28 @@ import Feather from "@expo/vector-icons/Feather";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 
-interface SplitPayProps {
+type UserRetire = {
   id: number;
   user_id: number;
-  account_id: number;
-  split_name: string;
-  amount_allocated: number;
-  remaining_balance: number;
-  color_code: string;
-  icon_id: number;
-}
+  monthly_savings_goal: number;
+  total_savings_goal: number;
+  current_savings: number;
+};
 
-interface BudgetItemProps {
-  budget: SplitPayProps;
+interface RetireItemProps {
+  retire: UserRetire;
   isOpen: boolean;
   onToggle: () => void;
   componentIcon: string;
-  icons: { [key: number]: JSX.Element };
-  onEdit: (budget: SplitPayProps) => void;
   onDelete: (id: number) => void;
 }
 
-const BudgetItem: React.FC<BudgetItemProps> = ({
-  budget,
+const RetireItem: React.FC<RetireItemProps> = ({
+  retire,
   isOpen,
   onToggle,
   componentIcon,
-  onEdit,
   onDelete,
-  icons,
 }) => {
   const [contentHeight, setContentHeight] = useState(120);
   const animatedHeight = useRef(new Animated.Value(0)).current;
@@ -54,40 +47,24 @@ const BudgetItem: React.FC<BudgetItemProps> = ({
       <ThemedView className="w-full flex-row !items-start">
         <ThemedView
           className="w-20 h-20 rounded-xl"
-          style={{ backgroundColor: budget.color_code }}
+          style={{ backgroundColor: "#80B918" }}
         >
-          {React.cloneElement(icons[budget.icon_id], {
-            size: 24,
-            style: { marginVertical: 5 },
-          })}
+          <Feather name="dollar-sign" size={24} color="#fff" />
         </ThemedView>
         <ThemedView className="gap-2 ml-4 w-[60%] !items-start bg-transparent">
-          <ThemedView className="w-full flex flex-row justify-between">
-            <ThemedText className="text-xl font-bold pt-2">
-              {budget.split_name}
-            </ThemedText>
-            <Feather
-              name="edit-3"
-              size={24}
-              color={componentIcon}
-              onPress={() => {
-                onEdit(budget);
-              }}
-            />
-          </ThemedView>
           <View className="w-full h-4 bg-[#D9D9D9] mt-2 rounded-full">
             <View
               className="h-4 rounded-full"
               style={{
-                backgroundColor: budget.color_code,
+                backgroundColor: "#80B918",
                 width: `${
-                  (budget.remaining_balance / budget.amount_allocated) * 100
+                  (retire.current_savings / retire.total_savings_goal) * 100
                 }%`,
               }}
             ></View>
             <ThemedText className="absolute text-xs pl-1 font-bold text-white">
               {Math.round(
-                (budget.remaining_balance / budget.amount_allocated) * 100
+                (retire.current_savings / retire.total_savings_goal) * 100
               )}
               %
             </ThemedText>
@@ -114,23 +91,25 @@ const BudgetItem: React.FC<BudgetItemProps> = ({
       >
         <View>
           <ThemedView className="w-full bg-transparent pb-2 !items-start">
-            <ThemedText className="font-semibold">Budget Details</ThemedText>
+            <ThemedText className="font-semibold">
+              Retirement Details
+            </ThemedText>
             <ThemedView className="w-full flex-row justify-between mt-2">
-              <ThemedText className="font-bold">Allocated:</ThemedText>
+              <ThemedText className="font-bold">Total:</ThemedText>
               <ThemedText className="font-bold">
-                {budget.amount_allocated.toFixed(2)}
+                {retire.total_savings_goal.toFixed(2)}
+              </ThemedText>
+            </ThemedView>
+            <ThemedView className="w-full flex-row justify-between">
+              <ThemedText className="font-bold">Saving:</ThemedText>
+              <ThemedText className="font-bold">
+                {retire.current_savings.toFixed(2)}
               </ThemedText>
             </ThemedView>
             <ThemedView className="w-full flex-row justify-between">
               <ThemedText className="font-bold">Remaining:</ThemedText>
               <ThemedText className="font-bold">
-                {budget.remaining_balance.toFixed(2)}
-              </ThemedText>
-            </ThemedView>
-            <ThemedView className="w-full flex-row justify-between">
-              <ThemedText className="font-bold">Spent:</ThemedText>
-              <ThemedText className="font-bold">
-                {(budget.amount_allocated - budget.remaining_balance).toFixed(
+                {(retire.total_savings_goal - retire.current_savings).toFixed(
                   2
                 )}
               </ThemedText>
@@ -143,7 +122,7 @@ const BudgetItem: React.FC<BudgetItemProps> = ({
             size={24}
             color={"#C93540"}
             onPress={() => {
-              onDelete(budget.id);
+              onDelete(retire.id);
             }}
           />
         </View>
@@ -152,4 +131,4 @@ const BudgetItem: React.FC<BudgetItemProps> = ({
   );
 };
 
-export default BudgetItem;
+export default RetireItem;
