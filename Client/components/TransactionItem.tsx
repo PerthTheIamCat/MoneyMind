@@ -11,12 +11,12 @@ import { TouchableWithoutFeedback } from "react-native";
 
 interface TransactionItemProps {
   transaction: UserTransaction;
-  theme: "light" | "dark";
-  onEdit: () => void;
-  onDelete: () => void;
-  checkpage: string;
-  isOptionsVisible: boolean; // ✅ เพิ่มตัวแปรนี้
-  setOptionsVisible: () => void; // ✅ เพิ่มตัวแปรนี้
+  theme?: "light" | "dark";
+  onEdit?: () => void;
+  onDelete?: () => void;
+  checkpage?: string;
+  isOptionsVisible?: boolean; // ✅ เพิ่มตัวแปรนี้
+  setOptionsVisible?: () => void; // ✅ เพิ่มตัวแปรนี้
 }
 export default function TransactionItem({
   transaction,
@@ -86,57 +86,55 @@ export default function TransactionItem({
           </ThemedText>
         </View>
         {checkpage === "transactions" ? (
-  <Pressable
-    onPress={() => {
-      console.log("🔹 Toggle menu for transaction", transaction.id);
-      setOptionsVisible?.(); // ✅ ใช้เปิด/ปิดเมนู
-    }}
-  >
-    <Entypo
-      name="dots-three-vertical"
-      size={20}
-      color={componenticon}
-      style={{ marginLeft: 8 }}
-    />
-  </Pressable>
-) : (
-  <View className="ml-3"></View>
-)}
-
-
-{isOptionsVisible && (
-  <TouchableWithoutFeedback onPress={() => setOptionsVisible?.()}>
-    <View style={{ position: "absolute", top: 18, right: 30, zIndex: 100 }}>
-      <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-        <ThemedView className="flex-row border border-gray-300 shadow-md rounded-lg w-fit z-50">
           <Pressable
             onPress={() => {
-              console.log("✏️ Editing transaction", transaction.id);
-              onEdit?.();
-              setOptionsVisible?.();
+              console.log("🔹 Toggle menu for transaction", transaction.id);
+              setOptionsVisible?.(); // ✅ ใช้เปิด/ปิดเมนู
             }}
-            className="p-2 border-b border-gray-200"
           >
-            <Text className="text-green-500">Edit</Text>
+            <Entypo
+              name="dots-three-vertical"
+              size={20}
+              color={componenticon}
+              style={{ marginLeft: 8 }}
+            />
           </Pressable>
-          <Pressable
-            onPress={() => {
-              console.log("🗑️ Deleting transaction", transaction.id);
-              handleDelete();
-              setOptionsVisible?.();
-            }}
-            className="p-2"
-          >
-            <Text className="text-red-600">Delete</Text>
-          </Pressable>
-        </ThemedView>
-      </TouchableWithoutFeedback>
-    </View>
-  </TouchableWithoutFeedback>
-)}
+        ) : (
+          <View className="ml-3"></View>
+        )}
 
-
-
+        {isOptionsVisible && (
+          <TouchableWithoutFeedback onPress={() => setOptionsVisible?.()}>
+            <View
+              style={{ position: "absolute", top: 18, right: 30, zIndex: 100 }}
+            >
+              <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+                <ThemedView className="flex-row border border-gray-300 shadow-md rounded-lg w-fit z-50">
+                  <Pressable
+                    onPress={() => {
+                      console.log("✏️ Editing transaction", transaction.id);
+                      onEdit?.();
+                      setOptionsVisible?.();
+                    }}
+                    className="p-2 border-b border-gray-200"
+                  >
+                    <Text className="text-green-500">Edit</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => {
+                      console.log("🗑️ Deleting transaction", transaction.id);
+                      handleDelete();
+                      setOptionsVisible?.();
+                    }}
+                    className="p-2"
+                  >
+                    <Text className="text-red-600">Delete</Text>
+                  </Pressable>
+                </ThemedView>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        )}
       </View>
 
       <Modal

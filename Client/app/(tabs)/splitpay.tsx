@@ -20,6 +20,7 @@ import { ThemedCard } from "@/components/ThemedCard";
 import BudgetSkeleton from "@/components/BudgetSkeleton";
 import { ThemedInput } from "@/components/ThemedInput";
 import BudgetItem from "@/components/BudgetItem";
+import RetireItem from "@/components/RetireSplitpayItem";
 
 import {
   addSplitpay,
@@ -38,7 +39,7 @@ import { ServerContext } from "@/hooks/conText/ServerConText";
 import { resultObject } from "@/hooks/auth/GetUserBank";
 
 import Slider from "@react-native-community/slider";
-import { de } from "react-native-paper-dates";
+import { de, tr } from "react-native-paper-dates";
 
 interface SplitPayProps {
   id: number;
@@ -83,8 +84,9 @@ export default function SplitPay() {
   >([]);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] =
     useState<boolean>(false);
+  const [timer, setTimer] = useState<number>(5);
 
-  const { bank, userID } = useContext(UserContext);
+  const { bank, userID, retire } = useContext(UserContext);
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
 
@@ -210,7 +212,7 @@ export default function SplitPay() {
 
   useEffect(() => {
     Animated.timing(modalAnimation, {
-      toValue: modalVisible ? 0 : -modalHeight,
+      toValue: modalVisible ? 100 : -modalHeight,
       duration: 300,
       useNativeDriver: false,
     }).start();
@@ -425,9 +427,9 @@ export default function SplitPay() {
                 </ThemedView>
               </ThemedView>
             ) : (
-              <ThemedView className="mt-3">
+              <ThemedView className="mt-3 w-full px-5">
                 <ThemedButton
-                  className={`${componentColor} w-4/5 h-40 rounded-[20]`}
+                  className={`${componentColor} w-[80%] h-40 rounded-[20]`}
                   onPress={() => router.push("/AddAccount")}
                 >
                   <ThemedView className="bg-transparent">
@@ -460,7 +462,7 @@ export default function SplitPay() {
                       <BudgetSkeleton />
                       <BudgetSkeleton />
                     </View>
-                  ) : Budgets ? (
+                  ) : Budgets && page === 0 ? (
                     <ThemedView className="w-full h-full mt-5 px-5 !bg-transparent !justify-start gap-3">
                       {Budgets.map((budget, index) => {
                         const isOpen =
@@ -471,6 +473,18 @@ export default function SplitPay() {
                             onDelete={(id: number) => {
                               setEditID(id);
                               setIsDeleteConfirmOpen(true);
+                              setTimer(5);
+                              const thisTimer = setInterval(() => {
+                                setTimer((prevTimer) => {
+                                  if (prevTimer <= 1) {
+                                    clearInterval(thisTimer);
+                                    return 0;
+                                  } else {
+                                    console.log("Timer:", prevTimer - 1);
+                                    return prevTimer - 1;
+                                  }
+                                });
+                              }, 1000);
                             }}
                             onEdit={(budget) => {
                               setIsEdit(true);
@@ -508,13 +522,11 @@ export default function SplitPay() {
                         );
                       })}
                     </ThemedView>
-                  ) : (
-                    <ThemedView className="w-full mt-3 !bg-transparent">
+                  ) : !Budgets && page === 0 ? (
+                    <ThemedView className="w-full mt-10 bg-transparent">
                       <ThemedButton
-                        className={`${componentColor} h-40 rounded-[20] bg-transparent`}
-                        onPress={() => {
-                          setModalVisible(true);
-                        }}
+                        className={`${componentColor} h-96 rounded-[20px]`}
+                        onPress={() => setModalVisible(true)}
                       >
                         <ThemedView className="bg-transparent">
                           <AntDesign
@@ -523,15 +535,75 @@ export default function SplitPay() {
                             color={`${componentIcon}`}
                             className="m-3"
                           />
-                          <ThemedText className=" text-center font-bold">
-                            Let’s get started with your first budget plan!
+                          <ThemedText className="mx-5 text-center font-bold">
+                            Let's start you budget plan!
                           </ThemedText>
+                        </ThemedView>
+                      </ThemedButton>
+                    </ThemedView>
+                  ) : retire && page === 1 ? (
+                    <ThemedView className="w-full h-full mt-5 px-5 !bg-transparent !justify-start gap-3">
+                      {retire.map((retire, index) => {
+                        const isOpen =
+                          isBudgetOpenIndex.find((item) => item.index === index)
+                            ?.isOpen || false;
+                        return (
+                          <RetireItem
+                            onDelete={(id: number) => {
+                              setEditID(id);
+                              setIsDeleteConfirmOpen(true);
+                              setTimer(5);
+                              const thisTimer = setInterval(() => {
+                                setTimer((prevTimer) => {
+                                  if (prevTimer <= 1) {
+                                    clearInterval(thisTimer);
+                                    return 0;
+                                  } else {
+                                    console.log("Timer:", prevTimer - 1);
+                                    return prevTimer - 1;
+                                  }
+                                });
+                              }, 1000);
+                            }}
+                            key={index}
+                            retire={retire}
+                            isOpen={isOpen}
+                            onToggle={() =>
+                              setIsBudgetOpenIndex((prev) => {
+                                const newState = [...prev];
+                                const existingItemIndex = newState.findIndex(
+                                  (item) => item.index === index
+                                );
+                                if (existingItemIndex >= 0) {
+                                  newState[existingItemIndex].isOpen =
+                                    !newState[existingItemIndex].isOpen;
+                                } else {
+                                  newState.push({ index: index, isOpen: true });
+                                }
+                                return newState;
+                              })
+                            }
+                            componentIcon={componentIcon}
+                          />
+                        );
+                      })}
+                    </ThemedView>
+                  ) : (
+                    <ThemedView className="w-full mt-10 bg-transparent">
+                      <ThemedButton
+                        className={`${componentColor} h-96 rounded-[20px]`}
+                        onPress={() => router.push("/(tabs)/retire")}
+                      >
+                        <ThemedView className="bg-transparent">
                           <AntDesign
-                            name="pluscircleo"
+                            name="filetext1"
                             size={50}
                             color={`${componentIcon}`}
                             className="m-3"
                           />
+                          <ThemedText className="mx-5 text-center font-bold">
+                            Let's start you retirement plan!
+                          </ThemedText>
                         </ThemedView>
                       </ThemedButton>
                     </ThemedView>
@@ -540,7 +612,7 @@ export default function SplitPay() {
               </ThemedView>
             </ThemedView>
           ) : (
-            <ThemedView className="w-full mt-10">
+            <ThemedView className="w-[80%] mt-10">
               <ThemedButton
                 className={`${componentColor} h-96 rounded-[20px]`}
                 onPress={() => router.push("/AddAccount")}
@@ -739,8 +811,9 @@ export default function SplitPay() {
               onPress={() => {
                 DeleteHandler();
               }}
+              isLoading={timer !== 0}
             >
-              Delete
+              Delete {timer === 0 ? "" : `(${timer})`}
             </ThemedButton>
             <ThemedButton
               className="w-[40%] h-16"
