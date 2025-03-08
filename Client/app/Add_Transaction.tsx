@@ -28,7 +28,7 @@ import {
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedInput } from "@/components/ThemedInput";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import DropdownComponent from "@/components/Dropdown";
 import { ThemedScrollViewCenter } from "@/components/ThemedScrollViewCenter";
 import Icon from "react-native-vector-icons/Feather";
@@ -52,7 +52,29 @@ type ThemedInputProps = {
   [key: string]: any;
 };
 
+interface extractedData {
+  bankOrShop: any;
+  date: Date | undefined;
+  time: Date | undefined;
+  referenceNo: any;
+  totalAmount: string;
+  vat: string;
+}
+
 export default function Index() {
+  const searchParams = useLocalSearchParams();
+  const extractedData: extractedData = searchParams.extractedData
+    ? JSON.parse(
+        decodeURIComponent(
+          Array.isArray(searchParams.extractedData)
+            ? searchParams.extractedData[0]
+            : searchParams.extractedData
+        )
+      )
+    : null;
+
+  console.log("Extracted Data:", extractedData);
+
   const { bank, setTransaction, setBank, transaction, userID } =
     useContext(UserContext);
   const theme = useColorScheme();
@@ -71,8 +93,6 @@ export default function Index() {
   };
 
   const [selectedIcon, setSelectedIcon] = useState("plus");
-  const [date, setDate] = useState(new Date().getTime() + 7 * 60 * 60 * 1000); // เก็บค่า Date
-  const [time, setTime] = useState(new Date().getTime()); // เก็บค่า Time
   const [openDate, setOpenDate] = useState(false);
   const [openTime, setOpenTime] = useState(false);
   const today = new Date();
@@ -263,6 +283,42 @@ export default function Index() {
   // ✅ เก็บวันที่และเวลาที่เลือกไว้ใน State
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<Date>(new Date());
+
+  useEffect(() => {
+    if (extractedData) {
+      if (extractedData.date) {
+        const dateObj = new Date(extractedData.date);
+        setSelectedDate(dateObj);
+        console.log(
+          "date",
+          dateObj.toLocaleDateString("th-TH", {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            timeZone: "Asia/Bangkok",
+          })
+        );
+      }
+      if (extractedData.time) {
+        const timeObj = new Date(extractedData.time);
+        setSelectedTime(timeObj);
+        console.log(
+          "time",
+          timeObj.toLocaleTimeString("th-TH", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+            timeZone: "Asia/Bangkok",
+          })
+        );
+      }
+      if (extractedData.totalAmount) {
+        const parsedAmount = parseInt(extractedData.totalAmount, 10);
+        setAmount(isNaN(parsedAmount) ? 0 : parsedAmount);
+        console.log("amount", extractedData.totalAmount);
+      }
+    }
+  }, []);
 
   const saveTransaction = () => {
     console.log(userID!);
@@ -636,6 +692,7 @@ export default function Index() {
                     borderRadius: 12,
                     padding: 10,
                   }}
+                  value={Amount.toString()}
                   onChangeText={(text) => setAmount(parseInt(text))}
                   placeholderTextColor={theme === "dark" ? "#888" : "#555"} // ✅ รองรับ Dark Mode
                   className="w-full"

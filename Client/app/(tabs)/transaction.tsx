@@ -12,6 +12,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
@@ -27,11 +29,13 @@ import { TouchableWithoutFeedback } from "react-native";
 import { Animated, Easing } from "react-native";
 import TransactionItem from "@/components/TransactionItem";
 import Dropdownfiller from "@/components/Dropdownfiller";
+import { ServerContext } from "@/hooks/conText/ServerConText";
 import moment from "moment";
 import { colorKeys } from "moti";
+import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
 
-
-export default function Index() {
+export default function TransactionPage() {
   const handleEditTransaction = (transactionId: number) => {
     router.push(`../Edit_Transaction?id=${transactionId}`);
   };
@@ -40,6 +44,7 @@ export default function Index() {
     bank: [],
     transaction: [],
   };
+  const { URL } = useContext(ServerContext);
 
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
@@ -48,7 +53,7 @@ export default function Index() {
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
     null
   );
-  const [filtermode,setFilltermode] = useState(0);
+  const [filtermode, setFilltermode] = useState(0);
 
   const theme = useColorScheme() || "light";
   const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
@@ -69,10 +74,10 @@ export default function Index() {
   }, [isOverlayVisible]);
 
   const data = [
-    { value: '1', label: 'All'},
-    { value: '2', label: 'Category'},
-    { value: '3', label: 'Income'},
-    { value: '4', label: 'Expense'},
+    { value: "1", label: "All" },
+    { value: "2", label: "Category" },
+    { value: "3", label: "Income" },
+    { value: "4", label: "Expense" },
   ];
 
   const [activeCardID, setActiveCardID] = useState<number | null>(null); // เก็บเมนูที่เปิดอยู่
@@ -89,7 +94,10 @@ export default function Index() {
     }
   };
 
-  const [activeOptionID, setActiveOptionID] = useState<{ type: "card" | "transaction"; id: number } | null>(null);
+  const [activeOptionID, setActiveOptionID] = useState<{
+    type: "card" | "transaction";
+    id: number;
+  } | null>(null);
 
   const handleToggleOptions = (type: "card" | "transaction", id: number) => {
     if (activeOptionID?.id === id && activeOptionID?.type === type) {
@@ -99,14 +107,135 @@ export default function Index() {
     }
   };
 
+  interface extractedData {
+    bankOrShop: any;
+    date: Date | undefined;
+    time: Date | undefined;
+    referenceNo: any;
+    totalAmount: string;
+    vat: string;
+  }
+
+  interface OcrSuccessResponse {
+    message: "OCR success";
+    success: true;
+    imagePath: string;
+    extractedData: extractedData;
+    savedFiles: {
+      rawTextPath: string;
+      cleanedTextPath: string;
+      extractedDataPath: string;
+    };
+  }
+  const [image, setImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // 📸 📂 ฟังก์ชันเปิดเมนูให้เลือกถ่ายรูป หรือ เลือกจากแกลเลอรี
+  const selectImageOption = () => {
+    Alert.alert("อัปโหลดรูปภาพ", "เลือกวิธีอัปโหลดรูปภาพ", [
+      { text: "📸 ถ่ายรูป", onPress: openCamera },
+      { text: "🖼️ เลือกจากแกลเลอรี", onPress: pickImage },
+      { text: "❌ ยกเลิก", style: "cancel" },
+    ]);
+  };
+
+  // 📸 ฟังก์ชันเปิดกล้อง
+  const openCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("ต้องการสิทธิ์", "กรุณาให้สิทธิ์เข้าถึงกล้อง");
+      return;
+    }
+
+    let result = await ImagePicker.launchCameraAsync({
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      uploadImage(result.assets[0].uri);
+    }
+  };
+
+  // 📂 ฟังก์ชันเลือกภาพจากแกลเลอรี
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("ต้องการสิทธิ์", "กรุณาให้สิทธิ์เข้าถึงแกลเลอรี");
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      uploadImage(result.assets[0].uri);
+    }
+  };
+
+  // 📌 ฟังก์ชันอัปโหลดภาพไปยัง `ocr.js`
+  const uploadImage = async (imageUri: string, retryCount = 1) => {
+    setLoading(true);
+    let formData = new FormData();
+    formData.append("image", {
+      uri: imageUri,
+      name: "receipt.jpg",
+      type: "image/jpeg",
+    } as any);
+
+    try {
+      let response = await axios.post<OcrSuccessResponse>(
+        `${URL}/ocr`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          onUploadProgress: (progressEvent) => {
+            const total = progressEvent.total || 1;
+            const progress = Math.round((progressEvent.loaded * 100) / total);
+            console.log(`Upload progress: ${progress}%`);
+          },
+        }
+      );
+
+      console.log("📜 OCR Result:", response.data);
+
+      if (response.data.success) {
+        Alert.alert(
+          "OCR สำเร็จ",
+          `ข้อมูลที่อ่านได้: ${JSON.stringify(response.data.extractedData)}`
+        );
+        router.push(
+          `/Add_Transaction?extractedData=${encodeURIComponent(
+            JSON.stringify(response.data.extractedData)
+          )}`
+        );
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error) {
+      console.error("❌ Upload Error:", error);
+
+      if (retryCount > 0) {
+        console.log("🔄 Retrying...");
+        return uploadImage(imageUri, retryCount - 1);
+      } else {
+        Alert.alert("เกิดข้อผิดพลาด", "ไม่สามารถอัปโหลดรูปได้");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <TouchableWithoutFeedback
-    onPress={() => {
-      console.log("🔻 Closing all menus");
-      setActiveOptionID(null);
-      setSelectedCardID(null);
-    }}
-    accessible={false}
+      onPress={() => {
+        console.log("🔻 Closing all menus");
+        setActiveOptionID(null);
+        setSelectedCardID(null);
+      }}
+      accessible={false}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -166,8 +295,13 @@ export default function Index() {
                       balance={account.balance.toString()}
                       mode="small"
                       imageIndex={Number(account.icon_id)}
-                      isOptionsVisible={activeOptionID?.type === "card" && activeOptionID?.id === account.id}
-                      setOptionsVisible={() => handleToggleOptions("card", account.id)}
+                      isOptionsVisible={
+                        activeOptionID?.type === "card" &&
+                        activeOptionID?.id === account.id
+                      }
+                      setOptionsVisible={() =>
+                        handleToggleOptions("card", account.id)
+                      }
                       isSelected={selectedCardID === account.id} // ✅ ส่งค่าการ์ดที่เลือก
                       onSelectCard={() => handleSelectCard(account.id)} // ✅ ฟังก์ชันเลือกการ์ด
                     />
@@ -184,59 +318,83 @@ export default function Index() {
             <ThemedText className="text-[20px] w-[68%] pl-[5%] font-bold">
               Transaction
             </ThemedText>
-          
+
             <Dropdownfiller
               data={data}
               onChange={(item) => console.log(item.label)}
             />
-              
-              
-
           </ThemedView>
-          <ScrollView className="h-[440px] py-2" keyboardShouldPersistTaps="handled">
-          <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12">
-            <View className="w-full !items-center">
-              {(() => {
-                const filteredTransactions =
-                  selectedCardID !== null
-                    ? transaction?.filter((t) => t.account_id === selectedCardID)
-                    : transaction;
-                if (!filteredTransactions || filteredTransactions.length === 0) {
-                  return (
-                    <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
-                      No transactions available
-                    </ThemedText>
-                  );
-                }
+          <ScrollView
+            className="h-[440px] py-2"
+            keyboardShouldPersistTaps="handled"
+          >
+            <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12">
+              <View className="w-full !items-center">
+                {(() => {
+                  const filteredTransactions =
+                    selectedCardID !== null
+                      ? transaction?.filter(
+                          (t) => t.account_id === selectedCardID
+                        )
+                      : transaction;
+                  if (
+                    !filteredTransactions ||
+                    filteredTransactions.length === 0
+                  ) {
+                    return (
+                      <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
+                        No transactions available
+                      </ThemedText>
+                    );
+                  }
 
-                return filteredTransactions.map((transaction, index, sortedArray) => {
-                  const formattedDate = moment(transaction.transaction_date).format("DD MMM YYYY");
-                  const showDateHeader =
-                    index === 0 ||
-                    formattedDate !== moment(sortedArray[index - 1].transaction_date).format("DD MMM YYYY");
+                  return filteredTransactions.map(
+                    (transaction, index, sortedArray) => {
+                      const formattedDate = moment(
+                        transaction.transaction_date
+                      ).format("DD MMM YYYY");
+                      const showDateHeader =
+                        index === 0 ||
+                        formattedDate !==
+                          moment(
+                            sortedArray[index - 1].transaction_date
+                          ).format("DD MMM YYYY");
 
-                  return (
-                    <View key={transaction.id} className="w-full items-center">
-                      {showDateHeader && (
-                        <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
-                          {formattedDate}
-                        </ThemedText>
-                      )}
-                      <TransactionItem
-                        transaction={transaction}
-                        theme={theme}
-                        onEdit={() => handleEditTransaction(transaction.id ?? 0)}
-                        onDelete={() => handleDeleteTransaction(transaction.id ?? 0)}
-                        checkpage={"transactions"}
-                        isOptionsVisible={activeOptionID?.type === "transaction" && activeOptionID?.id === transaction.id} // ✅ ตรวจสอบว่าเปิดเมนู TransactionItem อยู่หรือไม่
-                        setOptionsVisible={() => handleToggleOptions("transaction", transaction.id)} // ✅ เปิด/ปิดเมนู
-                      />
-                    </View>
+                      return (
+                        <View
+                          key={transaction.id}
+                          className="w-full items-center"
+                        >
+                          {showDateHeader && (
+                            <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
+                              {formattedDate}
+                            </ThemedText>
+                          )}
+                          <TransactionItem
+                            transaction={transaction}
+                            theme={theme}
+                            onEdit={() =>
+                              handleEditTransaction(transaction.id ?? 0)
+                            }
+                            onDelete={() =>
+                              handleDeleteTransaction(transaction.id ?? 0)
+                            }
+                            checkpage={"transactions"}
+                            isOptionsVisible={
+                              activeOptionID?.type === "transaction" &&
+                              activeOptionID?.id === transaction.id
+                            } // ✅ ตรวจสอบว่าเปิดเมนู TransactionItem อยู่หรือไม่
+                            setOptionsVisible={() =>
+                              handleToggleOptions("transaction", transaction.id)
+                            } // ✅ เปิด/ปิดเมนู
+                          />
+                        </View>
+                      );
+                    }
                   );
-                });
-              })()}
-            </View>
-          </ThemedView>
+                })()}
+              </View>
+            </ThemedView>
           </ScrollView>
           {isOverlayVisible && (
             <TouchableWithoutFeedback
@@ -295,6 +453,7 @@ export default function Index() {
                           onPress={() => {
                             setIsOverlayVisible(false);
                             setIsButtonVisible(true);
+                            selectImageOption();
                           }}
                         >
                           <Ionicons
@@ -321,12 +480,22 @@ export default function Index() {
                 setIsOverlayVisible(true);
                 setIsButtonVisible(false);
               }}
-              className="!absolute bottom-6 right-6 bg-transparent"
+              className="!absolute bottom-16 right-6 bg-transparent"
             >
               <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16 rounded-full ">
                 <AntDesign name="plus" size={32} color="#ffffff" />
               </View>
             </Pressable>
+          )}
+          {loading && (
+            <View className="absolute inset-0 flex items-center justify-center bg-transparent">
+              <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">
+                <ThemedText className="font-bold mb-2">
+                  Uploading Image...
+                </ThemedText>
+                <ActivityIndicator size="large" color="#AACC00" />
+              </ThemedView>
+            </View>
           )}
         </ThemedSafeAreaView>
       </KeyboardAvoidingView>
