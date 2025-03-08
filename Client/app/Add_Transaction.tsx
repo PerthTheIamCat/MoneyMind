@@ -313,7 +313,8 @@ export default function Index() {
         );
       }
       if (extractedData.totalAmount) {
-        setAmount(parseInt(extractedData.totalAmount));
+        const parsedAmount = parseInt(extractedData.totalAmount, 10);
+        setAmount(isNaN(parsedAmount) ? 0 : parsedAmount);
         console.log("amount", extractedData.totalAmount);
       }
     }

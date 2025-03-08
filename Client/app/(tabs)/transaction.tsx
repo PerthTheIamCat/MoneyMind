@@ -129,21 +129,48 @@ export default function TransactionPage() {
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // 📌 เลือกภาพและอัปโหลดทันที
-  const pickAndUploadImage = async () => {
-    setLoading(true);
+  // 📸 📂 ฟังก์ชันเปิดเมนูให้เลือกถ่ายรูป หรือ เลือกจากแกลเลอรี
+  const selectImageOption = () => {
+    Alert.alert("อัปโหลดรูปภาพ", "เลือกวิธีอัปโหลดรูปภาพ", [
+      { text: "📸 ถ่ายรูป", onPress: openCamera },
+      { text: "🖼️ เลือกจากแกลเลอรี", onPress: pickImage },
+      { text: "❌ ยกเลิก", style: "cancel" },
+    ]);
+  };
 
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  // 📸 ฟังก์ชันเปิดกล้อง
+  const openCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("ต้องการสิทธิ์", "กรุณาให้สิทธิ์เข้าถึงกล้อง");
+      return;
+    }
+
+    let result = await ImagePicker.launchCameraAsync({
       quality: 1,
     });
 
     if (!result.canceled) {
-      const imageUri = result.assets[0].uri;
-      setImage(imageUri);
-      await uploadImage(imageUri);
-    } else {
-      setLoading(false);
+      setImage(result.assets[0].uri);
+      uploadImage(result.assets[0].uri);
+    }
+  };
+
+  // 📂 ฟังก์ชันเลือกภาพจากแกลเลอรี
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("ต้องการสิทธิ์", "กรุณาให้สิทธิ์เข้าถึงแกลเลอรี");
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      uploadImage(result.assets[0].uri);
     }
   };
 
@@ -416,7 +443,7 @@ export default function TransactionPage() {
                           onPress={() => {
                             setIsOverlayVisible(false);
                             setIsButtonVisible(true);
-                            pickAndUploadImage();
+                            selectImageOption();
                           }}
                         >
                           <Ionicons
