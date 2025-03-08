@@ -461,7 +461,7 @@ export default function SplitPay() {
                       <BudgetSkeleton />
                     </View>
                   ) : Budgets ? (
-                    <ThemedView className="w-full h-full mt-5 !bg-transparent !justify-start gap-3">
+                    <ThemedView className="w-full h-full mt-5 px-5 !bg-transparent !justify-start gap-3">
                       {Budgets.map((budget, index) => {
                         const isOpen =
                           isBudgetOpenIndex.find((item) => item.index === index)
