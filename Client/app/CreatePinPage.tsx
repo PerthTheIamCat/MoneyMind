@@ -53,8 +53,18 @@ export default function CreatePinPage() {
 
   const handleSetPin = () => {
     if (confirmPin === pin) {
-      auth?.setPinCode(pin);
-      router.replace("/(tabs)");
+      CreatePinHandler(URL, { user_id: userID!, pin: pin }, auth?.token!).then(
+        (res) => {
+          if (res.success) {
+            router.replace("/(tabs)");
+          } else {
+            setPin("");
+            setConfirmPin("");
+            setCode([]);
+            Alert.alert(res.message);
+          }
+        }
+      );
     } else {
       setPin("");
       setConfirmPin("");
@@ -82,13 +92,13 @@ export default function CreatePinPage() {
         setCode([]);
       } else {
         setConfirmPin(code.join(""));
-        CreatePinHandler(URL, { user_id: userID!, pin: pin }, auth?.token!); // เรียกฟังก์ชันเมื่อใส่ PIN ครบ 6 ตัว
+        setCode([]);
       }
     }
   }, [code]);
 
   useEffect(() => {
-    if (confirmPin !== "" && pin !== "" && confirmPin === pin) {
+    if (confirmPin !== "" && pin !== "") {
       handleSetPin();
     }
   }, [confirmPin, pin]);
