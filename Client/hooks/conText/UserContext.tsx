@@ -97,11 +97,22 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [retire, setRetire] = useState<Array<UserRetire> | null>(null);
 
   useEffect(() => {
-    if (auth?.token) {
-      const decoded = auth.decodeToken(auth.token);
+    if (auth?.token !== null) {
+      const decoded = auth?.decodeToken(auth?.token);
       setUsername(decoded.username);
       setUserID(decoded.UserID);
       setEmail(decoded.email);
+      setLoading(false);
+    } else if (auth?.token === null) {
+      setUsername(null);
+      setUserID(null);
+      setEmail(null);
+      setFullname(null);
+      setBirthdate(null);
+      setBank(null);
+      setTransaction(null);
+      setNotification(null);
+      setRetire(null);
       setLoading(false);
     }
   }, [auth?.token, userID]);
