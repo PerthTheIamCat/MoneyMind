@@ -88,6 +88,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     await SecureStore.deleteItemAsync("userToken");
     setToken(null);
+    setPin("");
+    setIsPinSet(false);
   };
 
   const setPinCodeLocal = async (newPin: string) => {
