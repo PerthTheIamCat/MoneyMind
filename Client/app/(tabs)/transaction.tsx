@@ -480,7 +480,7 @@ export default function TransactionPage() {
                 setIsOverlayVisible(true);
                 setIsButtonVisible(false);
               }}
-              className="!absolute bottom-6 right-6 bg-transparent"
+              className="!absolute bottom-16 right-6 bg-transparent"
             >
               <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16 rounded-full ">
                 <AntDesign name="plus" size={32} color="#ffffff" />
