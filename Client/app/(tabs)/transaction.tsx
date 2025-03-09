@@ -34,11 +34,9 @@ import moment from "moment";
 import { colorKeys } from "moti";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
-const [selectedEdits , setSelectedEdits] = useState<number | null>(null);
 
 export default function TransactionPage() {
   const handleEditTransaction = (transactionId: number) => {
-    setSelectedEdits(transactionId);
     router.push({
       pathname: "../Edit_Transaction",
       params: { transactionId },
