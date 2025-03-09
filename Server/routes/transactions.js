@@ -124,6 +124,83 @@ router.post('/create', jwtValidate, (req, res) => {
                             }
                             
                             if (split_payment_id) {
+                                db.query(
+                                    'SELECT * FROM splitpayments WHERE id = ? AND account_id = ?',
+                                    [split_payment_id, account_id],
+                                    (err, splitResult) => {
+                                        if (err) {
+                                            console.log("Error from /create from SELECT * FROM splitpayments WHERE id = ? AND account_id = ?");
+                                            console.log("Database query failed");
+                                            console.log("Error:", err);
+                                            return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                                        }
+
+                                        if (splitResult.length === 0) {
+                                            console.log("Error from /create from splitResult.length === 0");
+                                            console.log("Split payment not found")
+                                            return res.status(404).json({ message: 'Split payment not found', success: false });
+                                        }
+
+                                        let splitPayment = splitResult[0];
+                                        console.log("Split Payment:", splitPayment);
+
+                                        if (splitPayment.split_name === "Retirement") {
+                                            let splitUpdateQuery = transaction_type === 'expense' 
+                                            ? 'UPDATE splitpayments SET remaining_balance = remaining_balance - ? WHERE id = ?' 
+                                            : 'UPDATE splitpayments SET remaining_balance = remaining_balance + ? WHERE id = ?';
+                                        
+                                            db.query(
+                                                'UPDATE retirementplan SET current_balance = current_balance - ? WHERE user_id = ?',
+                                                [amount, user_id],
+                                                (err) => {
+                                                    if (err) {
+                                                        console.log("Error from /create from UPDATE retirementplan SET current_balance = current_balance - ? WHERE user_id = ?");
+                                                        console.log("Failed to update retirement plan balance");
+                                                        console.log("Error:", err);
+                                                        return res.status(500).json({ message: 'Failed to update retirement plan balance', error: err.message, success: false });
+                                                    }
+
+                                                    db.query(
+                                                        splitUpdateQuery,
+                                                        [amount, split_payment_id],
+                                                        (err) => {
+                                                            if (err) {
+                                                                console.log("Error from /create from splitUpdateQuery");
+                                                                console.log("Failed to update split payment");
+                                                                console.log("Error:", err);
+                                                                return res.status(500).json({ message: 'Failed to update split payment', error: err.message, success: false });
+                                                            }
+        
+                                                            console.log("Transaction and split payment created successfully")
+                                                            return res.status(200).json({ message: 'Transaction and split payment created successfully', success: true });
+                                                        }
+                                                    );
+                                                }
+                                            )
+                                        }else{
+                                            let splitUpdateQuery = transaction_type === 'expense' 
+                                            ? 'UPDATE splitpayments SET remaining_balance = remaining_balance - ? WHERE id = ?' 
+                                            : 'UPDATE splitpayments SET remaining_balance = remaining_balance + ? WHERE id = ?';
+                                        
+                                            db.query(
+                                                splitUpdateQuery,
+                                                [amount, split_payment_id],
+                                                (err) => {
+                                                    if (err) {
+                                                        console.log("Error from /create from splitUpdateQuery");
+                                                        console.log("Failed to update split payment");
+                                                        console.log("Error:", err);
+                                                        return res.status(500).json({ message: 'Failed to update split payment', error: err.message, success: false });
+                                                    }
+
+                                                    console.log("Transaction and split payment created successfully")
+                                                    return res.status(200).json({ message: 'Transaction and split payment created successfully', success: true });
+                                                }
+                                            );
+                                        }
+
+                                    }
+                                )
                                 let splitUpdateQuery = transaction_type === 'expense' 
                                     ? 'UPDATE splitpayments SET remaining_balance = remaining_balance - ? WHERE id = ?' 
                                     : 'UPDATE splitpayments SET remaining_balance = remaining_balance + ? WHERE id = ?';
