@@ -2,9 +2,11 @@ import { View, Text, Pressable, StyleSheet } from 'react-native'
 import React, { useEffect } from 'react'
 import { icons } from "../assets/icon";
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import ColorList from '@/components/ColorList';
 
 interface TabBarButtonProps {
     onPress: () => void;
+    onLongPress: () => void;
     isFocused: boolean;
     label: string;
     routeName: 'index' | 'splitpay' | 'retire' | 'me' | 'transaction';
@@ -59,9 +61,7 @@ const TabBarButton = (props: TabBarButtonProps) => {
     <Pressable {...props} style={styles.container}>
         <Animated.View style={[animatedIconStyle]}>
             {
-                icons[routeName]({
-                    color
-                })
+                React.cloneElement(icons[routeName]({}), { color: color })
             }
         </Animated.View>
         
