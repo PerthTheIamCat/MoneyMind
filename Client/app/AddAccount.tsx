@@ -188,6 +188,7 @@ export default function Index() {
           <ThemedInput
             title="Account Balance"
             error={errorAccountBalance}
+            keyboardType="numeric"
             className="w-full"
             onChangeText={(text) => setAccountBalance(text)}
           />
