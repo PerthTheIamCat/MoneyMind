@@ -52,3 +52,22 @@ export const GetUserTransaction = async (
     return (error as GetUserTransactionError).response.data;
   }
 };
+
+
+export const GetUserIDTransaction = async (
+  url: string,
+  id: number,
+): Promise<
+  GetUserTransactionResponse | GetUserTransactionError["response"]["data"]
+> => {
+  try {
+    console.log("id:", id);
+    const response = await axios.get<GetUserTransactionResponse>(
+      `${url}/transactions/transactionID/${id}`,
+    );
+
+    return response.data;
+  } catch (error) {
+    return (error as GetUserTransactionError).response.data;
+  }
+};

@@ -34,10 +34,15 @@ import moment from "moment";
 import { colorKeys } from "moti";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
+const [selectedEdits , setSelectedEdits] = useState<number | null>(null);
 
 export default function TransactionPage() {
   const handleEditTransaction = (transactionId: number) => {
-    router.push(`../Edit_Transaction?id=${transactionId}`);
+    setSelectedEdits(transactionId);
+    router.push({
+      pathname: "../Edit_Transaction",
+      params: { transactionId },
+    });
   };
 
   const { bank, transaction } = useContext(UserContext) ?? {
@@ -48,7 +53,6 @@ export default function TransactionPage() {
 
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
-  // const handleEditTransaction = (transactionId: number) => {};
   const handleDeleteTransaction = (transactionId: number) => {};
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
     null

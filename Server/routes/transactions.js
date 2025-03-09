@@ -230,6 +230,23 @@ router.get('/:id', jwtValidate, (req, res) => { //user_id
     )
 })
 
+router.get('/transactionID/:id', (req, res) => { //transaction_id
+    const transactionId = req.params.id;
+    console.log("Transaction ID:", transactionId)
+    db.query(
+        'SELECT * FROM transactions WHERE id = ?', [req.params.id], (err, result) => {
+            if (err) {
+                console.log("Error from /:id from SELECT * FROM transactions WHERE user_id = ? ORDER BY transaction_date desc");
+                console.log("Database query failed");
+                console.log("Error:", err);
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+            }
+            return res.status(200).json({result, message: 'Get transaction successfully', success: true});
+        }
+    )
+})
+
+
 router.put('/:id', jwtValidate, (req, res) => { //transaction_id
     const transactionId = req.params.id;
     const { account_id, split_payment_id, transaction_name, amount, transaction_type, note, color_code } = req.body;
