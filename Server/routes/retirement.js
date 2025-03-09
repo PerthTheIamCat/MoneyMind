@@ -453,10 +453,10 @@ router.post('/', jwtValidate, (req, res) => {
           VALUES (?, ?, ?, ?, ?)`,
           [
             req.user.UserID,
-            totalNeededAtRetirement,
-            totalFundFV,
-            netShortfallAtRetirement,
-            monthlySavingNeeded
+            totalNeededAtRetirement ? totalNeededAtRetirement : 0,
+            totalFundFV ? totalFundFV : 0,
+            netShortfallAtRetirement ? netShortfallAtRetirement : 0,
+            monthlySavingNeeded ? monthlySavingNeeded : 0
           ],
           (err, result) => {
             if (err) {
@@ -483,10 +483,10 @@ router.post('/', jwtValidate, (req, res) => {
            SET total_savings_goal = ?, total_fund_fv = ?, netShortfallAtRetirement = ?, monthly_savings_goal = ? 
            WHERE user_id = ?`,
           [
-            totalNeededAtRetirement,
-            totalFundFV,
-            netShortfallAtRetirement,
-            monthlySavingNeeded,
+            totalNeededAtRetirement ? totalNeededAtRetirement : 0,
+            totalFundFV ? totalFundFV : 0,
+            netShortfallAtRetirement ? netShortfallAtRetirement : 0,
+            monthlySavingNeeded ? monthlySavingNeeded : 0,
             req.user.UserID
           ],
           (err, result) => {

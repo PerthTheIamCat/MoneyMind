@@ -5,7 +5,7 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedInputHorizontal } from "@/components/ThemedInputHorizontal";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 
-import { BarChart, StackedBarChart } from "react-native-chart-kit";
+import { StackedBarChart } from "react-native-chart-kit";
 import { Dimensions, useColorScheme } from "react-native";
 
 import { useEffect, useState, useContext } from "react";
@@ -19,6 +19,8 @@ import {
   CalculateRetirement,
   RetirementRequest,
 } from "@/hooks/auth/retirementHandler";
+import { SplitpaymentsPostHandler } from "@/hooks/auth/SplitpaymentsHandler";
+
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { UserContext } from "@/hooks/conText/UserContext";
@@ -146,63 +148,75 @@ export default function Retire_form() {
         monthlyExpensePostRetirement: monthlySalary,
         inflationRate: inflationRate / 100,
         expectedPostRetirementReturn: expectedRateFromSaving2 / 100,
-        socialSecurityFunds: [
-          {
-            startWorkingYear: startWorkingAge,
-            currentYear: currentWorkingYear,
-            salaryIncreaseRate: salaryIncreaseRate / 100,
-          },
-        ],
-        nsfFunds: [
-          {
-            ageStarted: ageSavingsStarted,
-            savingsPerYear: savingsAmount,
-          },
-        ],
-        pvdFunds: [
-          {
-            salaryIncreaseRate: salaryIncreaseRate2 / 100,
-            savingsRate: savingsRate / 100,
-            contributionRate: contributionRate / 100,
-            investmentReturnRate: investmentReturnRate / 100,
-            accumulatedMoney: accumulatedMoney,
-            employeeContributions: employeeContributions,
-            accumulatedBenefits: accumulatedBenefits,
-            contributionBenefits: contributionBenefits,
-          },
-        ],
-        rmfFunds: [
-          {
-            currentBalance: currentBalanceRMF,
-            annualInvestment: RMFInvestmentAmount,
-            rateOfReturn: rateOfReturn / 100,
-          },
-        ],
-        ssfFunds: [
-          {
-            currentBalance: currentBalanceSSF,
-            annualInvestment: SSFInvestmentAmount,
-            rateOfReturn: rateOfReturn2 / 100,
-          },
-        ],
-        gpfFunds: [
-          {
-            yearStartedWorking: yearStartedWorking,
-            currentYear: currentYear,
-            savingsRate: savingsRate2 / 100,
-            contributionRate: contributionRate2 / 100,
-            rateOfReturn: rateOfReturn3 / 100,
-            accumulatedMoney: accumulatedMoney2,
-            employeeContributions: employeeContributions2,
-            compensation: compensation,
-            initialMoney: initialMoney,
-            accumulatedBenefits: accumulatedBenefits2,
-            contributionBenefits: contributionBenefits2,
-            compensationBenefits: compensationBenefits,
-            initialBenefits: initialBenefits,
-          },
-        ],
-        lifeInsurance: lifeInsuranceFund,
+        socialSecurityFunds: isSocialSecurityFund
+          ? [
+              {
+                startWorkingYear: startWorkingAge,
+                currentYear: currentWorkingYear,
+                salaryIncreaseRate: salaryIncreaseRate / 100,
+              },
+            ]
+          : [],
+        nsfFunds: isNationalSavingsFund
+          ? [
+              {
+                ageStarted: ageSavingsStarted,
+                savingsPerYear: savingsAmount,
+              },
+            ]
+          : [],
+        pvdFunds: isProvidentFund
+          ? [
+              {
+                salaryIncreaseRate: salaryIncreaseRate2 / 100,
+                savingsRate: savingsRate / 100,
+                contributionRate: contributionRate / 100,
+                investmentReturnRate: investmentReturnRate / 100,
+                accumulatedMoney: accumulatedMoney,
+                employeeContributions: employeeContributions,
+                accumulatedBenefits: accumulatedBenefits,
+                contributionBenefits: contributionBenefits,
+              },
+            ]
+          : [],
+        rmfFunds: isRetirementMutualFund
+          ? [
+              {
+                currentBalance: currentBalanceRMF,
+                annualInvestment: RMFInvestmentAmount,
+                rateOfReturn: rateOfReturn / 100,
+              },
+            ]
+          : [],
+        ssfFunds: isSuperSavingsFund
+          ? [
+              {
+                currentBalance: currentBalanceSSF,
+                annualInvestment: SSFInvestmentAmount,
+                rateOfReturn: rateOfReturn2 / 100,
+              },
+            ]
+          : [],
+        gpfFunds: isGovernmentPensionFund
+          ? [
+              {
+                yearStartedWorking: yearStartedWorking,
+                currentYear: currentYear,
+                savingsRate: savingsRate2 / 100,
+                contributionRate: contributionRate2 / 100,
+                rateOfReturn: rateOfReturn3 / 100,
+                accumulatedMoney: accumulatedMoney2,
+                employeeContributions: employeeContributions2,
+                compensation: compensation,
+                initialMoney: initialMoney,
+                accumulatedBenefits: accumulatedBenefits2,
+                contributionBenefits: contributionBenefits2,
+                compensationBenefits: compensationBenefits,
+                initialBenefits: initialBenefits,
+              },
+            ]
+          : [],
+        lifeInsurance: isLifeInsurance ? lifeInsuranceFund : 0,
       },
       auth?.token!
     ).then((res) => {
@@ -246,9 +260,9 @@ export default function Retire_form() {
       year++;
       accumulated += monthlySavingNeeded * 12;
 
-      const inflationPortion = accumulated * (inflationRate / 100);
+      const inflationPortion = accumulated * (expectedRateFromSaving / 100);
 
-      data.push([accumulated, inflationPortion]);
+      data.push([accumulated - inflationPortion, inflationPortion]);
 
       labels.push(`${year}`);
     }
@@ -863,12 +877,12 @@ export default function Retire_form() {
                   Must save to retire according to plan per month
                 </ThemedText>
                 <ThemedView className="flex-row gap-5 !items-end py-5">
-                  <ThemedText className="text-5xl font-bold text-[#36CE85]">
+                  <ThemedText className="text-5xl font-bold !text-[#36CE85]">
                     {monthlySavingNeeded.toLocaleString("en-EN", {
                       maximumFractionDigits: 0,
                     })}
                   </ThemedText>
-                  <ThemedText className="pb-1 text-xl text-[#36CE85] font-bold">
+                  <ThemedText className="pb-1 text-xl !text-[#36CE85] font-bold">
                     BATH
                   </ThemedText>
                 </ThemedView>
@@ -913,9 +927,17 @@ export default function Retire_form() {
               <ThemedView className="w-[80%] gap-5">
                 <ThemedView className="flex-row w-full !justify-between !items-start">
                   <ThemedText className="max-w-[60%]">
-                    Amount of money use after retirement
+                    Amount of money use after retirement per month
                   </ThemedText>
-                  <ThemedText className="font-bold ">100 Bath</ThemedText>
+                  <ThemedText className="font-bold ">
+                    {Number(
+                      totalNeededAtRetirement /
+                        ((ageAfterRetire - ageToRetire) * 12)
+                    ).toLocaleString("en-EN", {
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    Bath
+                  </ThemedText>
                 </ThemedView>
                 <ThemedView className="flex-row w-full !justify-between !items-start">
                   <ThemedText className="max-w-[60%]">
@@ -943,12 +965,11 @@ export default function Retire_form() {
                 <ThemedView className="flex-row w-full !justify-between !items-start">
                   <ThemedText className="max-w-[60%]">Still need</ThemedText>
                   <ThemedText className="font-bold ">
-                    {(totalNeededAtRetirement - totalFundFV).toLocaleString(
-                      "en-EN",
-                      {
-                        maximumFractionDigits: 0,
-                      }
-                    )}{" "}
+                    {Number(
+                      totalNeededAtRetirement - totalFundFV
+                    ).toLocaleString("en-EN", {
+                      maximumFractionDigits: 0,
+                    })}{" "}
                     Bath
                   </ThemedText>
                 </ThemedView>
@@ -957,7 +978,7 @@ export default function Retire_form() {
                     Must save to retire according to plan per month
                   </ThemedText>
                   <ThemedText className="font-bold">
-                    {monthlySavingNeeded.toLocaleString("en-EN", {
+                    {Number(netShortfallAtRetirement).toLocaleString("en-EN", {
                       maximumFractionDigits: 0,
                     })}{" "}
                     Bath
