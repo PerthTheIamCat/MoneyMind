@@ -512,6 +512,39 @@ router.post('/', jwtValidate, (req, res) => {
   )
 });
 
+router.get('/', jwtValidate, (req, res) => {
+  db.query(
+    'SELECT * FROM retirementplan WHERE user_id = ?',
+    [req.user.UserID],
+    (err, result) => {
+      if (err) {
+        console.log("Error from SELECT * FROM retirementplan WHERE user_id = ?");
+        console.log("Error:", err);
+        return res.status(500).json({
+          success: false,
+          message: 'Database query failed'
+        });
+      }
+
+      if (result.length === 0) {
+        console.log("No retirement plan found for user");
+        return res.status(404).json({
+          success: false,
+          message: 'No retirement plan found for user'
+        });
+      }
+
+      console.log(result[0]);
+
+      console.log("Returning response with retirement plan values");
+      return res.status(200).json({
+        success: true,
+        data: result[0]
+      });
+    }
+  );
+});
+
 router.put('/', jwtValidate, (req, res) => {
   const {
     monthly_savings_goal,
@@ -584,6 +617,52 @@ router.put('/', jwtValidate, (req, res) => {
           return res.status(200).json({
             success: true,
             message: 'Updated retirement plan'
+          });
+        }
+      );
+    }
+  );
+});
+
+router.delete('/', jwtValidate, (req, res) => {
+  db.query(
+    'SELECT * FROM retirementplan WHERE user_id = ?',
+    [req.user.UserID],
+    (err, result) => {
+      if (err) {
+        console.log("Error from SELECT * FROM retirementplan WHERE user_id = ?");
+        console.log("Error:", err);
+        return res.status(500).json({
+          success: false,
+          message: 'Database query failed'
+        });
+      }
+
+      if (result.length === 0) {
+        console.log("No retirement plan found for user");
+        return res.status(404).json({
+          success: false,
+          message: 'No retirement plan found for user'
+        });
+      }
+
+      db.query(
+        'DELETE FROM retirementplan WHERE user_id = ?',
+        [req.user.UserID],
+        (err, result) => {
+          if (err) {
+            console.log("Error from DELETE FROM retirementplan WHERE user_id = ?");
+            console.log("Error:", err);
+            return res.status(500).json({
+              success: false,
+              message: 'Database query failed'
+            });
+          }
+
+          console.log("Returning response with success message");
+          return res.status(200).json({
+            success: true,
+            message: 'Deleted retirement plan'
           });
         }
       );
