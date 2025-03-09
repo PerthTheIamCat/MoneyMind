@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import { GetUserBank, resultObject } from "../auth/GetUserBank";
+import { GetRetirement, RetirementResponse } from "../auth/retirementHandler";
 import { GetUserTransaction } from "../auth/GetAllTransaction";
 import { ServerContext } from "../conText/ServerConText";
 import { NotificationsGetHandler } from "../auth/NotificationsHandler";
@@ -187,7 +188,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       });
       NotificationsGetHandler(URL, userID, auth?.token!)
         .then((response) => {
-          console.log("get notification success:", response); // ดูข้อมูลทั้งหมดที่ตอบกลับมาจาก API
+          console.log("get notification success:", response);
           if (response.result && response.result.length > 0) {
             console.log(response.result);
             setNotification(
@@ -204,6 +205,24 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           console.error("Failed to fetch notifications:", error);
           setNotification([]);
         });
+      GetRetirement(URL, userID.toString(), auth?.token!).then((response) => {
+        if (response.success && "result" in response) {
+          console.log("get retirement success:", response);
+          setRetire([
+            {
+              id: response.result.id,
+              user_id: response.result.user_id,
+              monthly_savings_goal: response.result.monthly_savings_goal,
+              total_savings_goal: response.result.total_savings_goal,
+              current_savings: response.result.current_savings,
+            },
+          ]);
+        } else if ("message" in response) {
+          console.log("fail to get retirement:", response.message);
+        } else {
+          console.log("fail to get retirement: Unknown error");
+        }
+      });
     }
   }, [fullname, userID, auth?.token, auth?.isPinSet, auth?.pin]);
 

@@ -3,14 +3,13 @@ import { router } from "expo-router";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedInput } from "@/components/ThemedInput";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
 import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
 import { TextInput, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { AuthContext } from "@/hooks/conText/AuthContext";
-
+import { CreateUserBank } from "@/hooks/auth/CreateUserBank";
 
 const OTP_LENGTH = 6;
 
@@ -26,7 +25,7 @@ export default function OTP() {
   const inputRefs = useRef<TextInput[]>([]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const auth = useContext(AuthContext);
-  
+
   const handleChange = (text: string, index: number) => {
     if (/^\d$/.test(text)) {
       const newOtp = [...otp];
@@ -48,7 +47,6 @@ export default function OTP() {
       }
     }
   };
-
 
   const resendOTPHandler = () => {
     setIsSending("sending");
@@ -88,7 +86,24 @@ export default function OTP() {
         setIsVerifying(false);
         auth?.setToken(response.accessToken);
         clearTimeout(timeout);
-        router.replace("/CreatePinPage");
+        CreateUserBank(
+          URL,
+          {
+            user_id: auth?.decodeToken(response.accessToken).user_id,
+            account_name: "Retirement",
+            balance: 0,
+            color_code: "#80B918",
+            icon_id: "",
+          },
+          response.accessToken
+        ).then((response) => {
+          if (response.success) {
+            router.replace("/CreatePinPage");
+          } else {
+            alert(response.message);
+            console.error(response.message);
+          }
+        });
       } else {
         setIsVerifying(false);
         clearTimeout(timeout);
@@ -115,7 +130,7 @@ export default function OTP() {
   }, []);
 
   return (
-<ThemedSafeAreaView>
+    <ThemedSafeAreaView>
       <ThemedView className="my-5">
         <Image
           source={require("@/assets/logos/LOGO.png")}
@@ -126,11 +141,10 @@ export default function OTP() {
           }}
         />
         <ThemedView className="flex-column mt-5 w-[75%]">
-          <ThemedText style={styles.greetings}>
-            Email Verification
-          </ThemedText>
+          <ThemedText style={styles.greetings}>Email Verification</ThemedText>
           <ThemedText style={styles.explain} className="justify-center">
-            OTP will be sent to your email address. Please check your email to proceed.
+            OTP will be sent to your email address. Please check your email to
+            proceed.
           </ThemedText>
         </ThemedView>
         <ThemedView className="w-[80%] mt-5 px-5 gap-5">
@@ -141,7 +155,12 @@ export default function OTP() {
                 ref={(ref) => (inputRefs.current[index] = ref!)}
                 style={[
                   styles.otpInput,
-                  { borderBottomColor: focusedIndex === index || otp[index] !== "" ? "#4CAF50" : "grey" },
+                  {
+                    borderBottomColor:
+                      focusedIndex === index || otp[index] !== ""
+                        ? "#4CAF50"
+                        : "grey",
+                  },
                 ]}
                 keyboardType="numeric"
                 maxLength={1}
@@ -170,9 +189,13 @@ export default function OTP() {
             </TouchableOpacity>
           </ThemedText>
           <ThemedText>
-            <TouchableOpacity onPress={resendOTPHandler} disabled={(resendTimeout ?? 0) > 0}>
+            <TouchableOpacity
+              onPress={resendOTPHandler}
+              disabled={(resendTimeout ?? 0) > 0}
+            >
               <ThemedText style={[styles.resend]}>
-                Resend OTP {(resendTimeout ?? 0) > 0 ? `in ${resendTimeout} seconds` : ""}
+                Resend OTP{" "}
+                {(resendTimeout ?? 0) > 0 ? `in ${resendTimeout} seconds` : ""}
               </ThemedText>
             </TouchableOpacity>
           </ThemedText>

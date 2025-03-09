@@ -5,7 +5,7 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedInputHorizontal } from "@/components/ThemedInputHorizontal";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 
-import { BarChart, StackedBarChart } from "react-native-chart-kit";
+import { StackedBarChart } from "react-native-chart-kit";
 import { Dimensions, useColorScheme } from "react-native";
 
 import { useEffect, useState, useContext } from "react";
@@ -19,6 +19,8 @@ import {
   CalculateRetirement,
   RetirementRequest,
 } from "@/hooks/auth/retirementHandler";
+import { SplitpaymentsPostHandler } from "@/hooks/auth/SplitpaymentsHandler";
+
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { UserContext } from "@/hooks/conText/UserContext";

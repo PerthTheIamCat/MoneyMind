@@ -95,13 +95,33 @@ export const CalculateRetirement = async (
   }
 };
 
+interface RetirementValues {
+  id: number;
+  user_id: number;
+  monthly_savings_goal: number;
+  total_savings_goal: number;
+  current_savings: number;
+  total_fund_fv: number;
+  netShortfallAtRetirement: number;
+}
+
+interface RetirementValuesResponse {
+  success: boolean;
+  result: RetirementValues;
+}
+
+interface RetirementValuesError {
+  success: boolean;
+  message: string;
+}
+
 export const GetRetirement = async (
   url: string,
   userID: string,
   token: string
-): Promise<RetirementError | RetirementResponse> => {
+): Promise<RetirementValuesError | RetirementValuesResponse> => {
   try {
-    const response = await axios.get<RetirementResponse>(
+    const response = await axios.get<RetirementValuesResponse>(
       `${url}/retirement/${userID}`,
       {
         headers: {
