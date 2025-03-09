@@ -3,18 +3,31 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedInput } from "@/components/ThemedInput";
 import { ThemedText } from "@/components/ThemedText";
+
 import { SignInHandler } from "@/hooks/auth/SignInHandler";
+import { NotificationsPostHandler } from "@/hooks/auth/NotificationsHandler";
+
 import { Image } from "expo-image";
+
 import { useState, useContext, useEffect } from "react";
+
+
 import { router } from "expo-router";
+
+import { useState, useContext, useEffect } from "react";
+import { TouchableOpacity } from "react-native";
+
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
-import { TouchableOpacity } from "react-native";
-import { getPinFromDatabase } from "@/hooks/auth/GetPin";
 import { UserContext } from "@/hooks/conText/UserContext";
+import * as Device from "expo-device";
 
 export default function Index() {
   const [usernameEmail, setUsernameEmail] = useState<string>("");
+  const [isSendNotificationSuccess, setIsSendNotificationSuccess] =
+    useState<boolean>(false);
+  const [isSending, setIsSending] = useState<boolean>(false);
+  const [isLoginSuccess, setIsLoginSuccess] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [errorUsernameEmail, setErrorUsernameEmail] = useState<string>("");
   const [errorPassword, setErrorPassword] = useState<string>("");
@@ -26,6 +39,11 @@ export default function Index() {
 
   const handleSignIn = async () => {
     console.log("Sign In:", usernameEmail, password);
+    setErrorUsernameEmail("");
+    setErrorPassword("");
+    setIsLoading(false);
+    setIsLoginSuccess(false);
+    setIsSendNotificationSuccess(false);
 
     try {
       if (usernameEmail.trim() === "") {
@@ -52,11 +70,7 @@ export default function Index() {
       }).then(async (response) => {
         if (response.success) {
           await auth?.setToken(response.accessToken);
-          if ((await auth?.pin) !== null) {
-            router.push("/(tabs)");
-          } else {
-            router.push("/CreatePinPage");
-          }
+          setIsLoginSuccess(true);
         } else {
           alert(response.message);
         }
@@ -71,8 +85,60 @@ export default function Index() {
   };
 
   useEffect(() => {
+
     console.log("Updated Auth Token:", auth?.token);
   }, [auth?.token]); // ✅ Logs when token is updated
+
+    async function sendNotification() {
+      const deviceNumber = await Device.getDeviceTypeAsync();
+      const deviceTypes: { [key: number]: string } = {
+        1: "Phone",
+        2: "Tablet",
+        3: "Desktop",
+      };
+      const deviceName = deviceTypes[deviceNumber] || "Unknown";
+      await NotificationsPostHandler(
+        URL,
+        {
+          user_id: userID!,
+          notification_type: "security",
+          message: "Sign In with new device: " + deviceName,
+          color_type: "yellow",
+        },
+        auth?.token!
+      ).then((res) => {
+        if (res.success) {
+          setIsSendNotificationSuccess(true);
+          setIsSending(false);
+          console.log("Notification Post Response:", res.result);
+        } else {
+          console.log("Notification Post Error:", res);
+          setIsSending(false);
+        }
+      });
+    }
+    if (isLoginSuccess && !isSending && !isSendNotificationSuccess) {
+      sendNotification();
+      setIsSending(true);
+    }
+    if (isSendNotificationSuccess && isLoginSuccess && auth?.isPinSet) {
+      router.push("/(tabs)");
+    } else if (
+      isSendNotificationSuccess &&
+      isLoginSuccess &&
+      auth?.token &&
+      !auth?.isPinSet
+    ) {
+      router.push("/CreatePinPage");
+    }
+  }, [
+    auth?.token,
+    userID,
+    isLoginSuccess,
+    isSendNotificationSuccess,
+    isSending,
+  ]);
+
 
   return (
     <ThemedSafeAreaView>

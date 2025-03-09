@@ -4,6 +4,7 @@ import { AuthContext } from "./AuthContext";
 import { GetUserBank, resultObject } from "../auth/GetUserBank";
 import { GetUserTransaction } from "../auth/GetAllTransaction";
 import { ServerContext } from "../conText/ServerConText";
+import { NotificationsGetHandler } from "../auth/NotificationsHandler";
 
 type UserTransaction = {
   id: number;
@@ -20,9 +21,12 @@ type UserTransaction = {
 
 type UserNotification = {
   id: number;
-  mode: string;
-  Header: string;
-  Description: string;
+  user_id: number;
+  notification_type: "security" | "monthly_summary";
+  message: string;
+  is_read: boolean;
+  created_at: string;
+  color_type: "green" | "yellow" | "red";
 };
 
 type UserRetire = {
@@ -181,6 +185,25 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           console.log("fail to get transaction:", response.message);
         }
       });
+      NotificationsGetHandler(URL, userID, auth?.token!)
+        .then((response) => {
+          console.log("get notification success:", response); // ดูข้อมูลทั้งหมดที่ตอบกลับมาจาก API
+          if (response.result && response.result.length > 0) {
+            console.log(response.result);
+            setNotification(
+              response.result.map((item: any) => ({
+                ...item,
+                id: item.id !== undefined ? item.id : 0,
+              }))
+            );
+          } else {
+            setNotification([]);
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to fetch notifications:", error);
+          setNotification([]);
+        });
     }
   }, [fullname, userID, auth?.token, auth?.isPinSet, auth?.pin]);
 

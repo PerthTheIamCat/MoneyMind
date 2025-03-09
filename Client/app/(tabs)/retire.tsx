@@ -16,7 +16,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function Index() {
   const theme = useColorScheme();
-  const { retire } = useContext(UserContext);
+  const { retire, notification } = useContext(UserContext);
 
   return (
     <ThemedSafeAreaView>
@@ -44,6 +44,9 @@ export default function Index() {
                   marginRight: "5%",
                 }}
               />
+              {notification?.find((noti) => !noti.is_read) && (
+                <View className="w-3 h-3 bg-red-500 absolute rounded-full right-10 animate-pulse" />
+              )}
             </ThemedView>
             <ThemedView className="w-[80%] pt-5 !items-start">
               <ThemedText className="text-3xl font-bold">Retire</ThemedText>
@@ -158,6 +161,9 @@ export default function Index() {
                   marginRight: "5%",
                 }}
               />
+              {notification?.find((noti) => !noti.is_read) && (
+                <View className="w-3 h-3 bg-red-500 absolute rounded-full right-10 animate-pulse" />
+              )}
             </ThemedView>
             <ThemedView className="w-[80%] pt-5">
               <ThemedText className="text-4xl font-bold w-full">

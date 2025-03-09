@@ -56,7 +56,8 @@ export default function Index() {
   const [retireAmount, setretire] = useState(5000);
   const [retireGoal, setretireGoal] = useState(10000);
 
-  const { username, bank, transaction, retire } = useContext(UserContext);
+  const { username, bank, transaction, retire, notification } =
+    useContext(UserContext);
   let lastDate = "";
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export default function Index() {
 
   return (
     <ThemedSafeAreaView key={"home"}>
-      <ThemedView className="">
+      <ThemedView key={"home"}>
         <ThemedView
           className={`${componentIcon} flex-row !items-center !justify-between w-full px-4`}
         >
@@ -93,6 +94,9 @@ export default function Index() {
               marginRight: "5%",
             }}
           />
+          {notification?.find((noti) => !noti.is_read) && (
+            <View className="w-3 h-3 bg-red-500 absolute rounded-full right-10 animate-pulse" />
+          )}
         </ThemedView>
 
         <ThemedView className="!justify-start mt-5 w-[80%] flex-row">

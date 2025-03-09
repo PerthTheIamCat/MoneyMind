@@ -26,15 +26,15 @@ const formatBalance = (balance: string): string => {
   const num = parseFloat(balance);
   if (isNaN(num)) return balance; // ถ้าไม่ใช่ตัวเลข ให้คืนค่าเดิม
 
-  // ฟังก์ชันสำหรับตัดเลขให้เหลือทศนิยมสองตำแหน่งโดยไม่ปัดเศษ
+  // ฟังก์ชันสำหรับตัดเลขให้เหลือทศนิยม 2 ตำแหน่งโดยไม่ปัดเศษ
   const truncateTwoDecimal = (value: number) => Math.floor(value * 100) / 100;
 
   if (num >= 1_000_000_000) {
-    return `${truncateTwoDecimal(num / 1_000_000_000).toFixed(2)} B฿`;
+    return `${truncateTwoDecimal(num / 1_000_000_000).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} B฿`;
   } else if (num >= 1_000_000) {
-    return `${truncateTwoDecimal(num / 1_000_000).toFixed(2)} M฿`;
+    return `${truncateTwoDecimal(num / 1_000_000).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} M฿`;
   } else {
-    return `${truncateTwoDecimal(num).toFixed(2)} ฿`;
+    return `${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿`;
   }
 };
 
@@ -255,8 +255,8 @@ export function ThemedCard({
         )}
 
         {mode === "small" ? (
-          <ThemedView className="absolute bottom-4 right-4 bg-transparent">
-            <ThemedText className="text-[18px] !text-[#f2f2f2] font-semibold">
+          <ThemedView className="absolute bottom-4 right-2 bg-transparent">
+            <ThemedText className="text-[16px] !text-[#f2f2f2] font-semibold">
               {formatBalance(balance)}
             </ThemedText>
           </ThemedView>

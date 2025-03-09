@@ -692,8 +692,11 @@ export default function Index() {
                     borderRadius: 12,
                     padding: 10,
                   }}
-                  value={Amount.toString()}
-                  onChangeText={(text) => setAmount(parseInt(text))}
+                  value={Amount === 0 ? "" : Amount.toString()} // ✅ ป้องกัน NaN
+                  onChangeText={(text) => {
+                    let numericValue = text.replace(/[^0-9]/g, ""); // ✅ รับเฉพาะตัวเลข 0-9
+                    setAmount(numericValue === "" ? 0 : parseInt(numericValue)); // ✅ ป้องกัน NaN
+                  }}
                   placeholderTextColor={theme === "dark" ? "#888" : "#555"} // ✅ รองรับ Dark Mode
                   className="w-full"
                 />
