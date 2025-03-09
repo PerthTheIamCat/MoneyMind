@@ -105,11 +105,6 @@ router.get('/:id', jwtValidate,(req, res) => { //user_id
 router.put('/:id', jwtValidate,(req, res) => { //noti_id
     console.log("Notification ID:", req.params.id)
 
-    if (req.user.UserID !== parseInt(req.params.id, 10)) { //user_id
-        console.log("Unauthorized user")
-        return res.status(403).json({ message: 'Unauthorized user', success: false });
-    }
-
     db.query(
         'UPDATE notifications SET ? WHERE id = ?', [req.body, req.params.id], (err, result) => { //noti_id
             if (err) {
