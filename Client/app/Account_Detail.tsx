@@ -125,8 +125,10 @@ export default function Account_Detail() {
     "success" | "sending" | "fail" | null
   >(null);
 
-  const [gender, setGender] = useState<"male" | "female" | null>(
-    mockAccount.gender
+  // Gender
+  const {gender,setGender } = useContext(UserContext);
+  const [selectedGender, setSelectedGender] = useState<"male" | "female" | null>(
+    gender
   );
 
   const handleSignOutAll = () => setShowConfirmAll(true);
@@ -286,20 +288,20 @@ export default function Account_Detail() {
         </ThemedView>
         <ThemedView className="justify-start !items-start pl-8 pt-2">
           <ThemedText className=" text-2xl font-bold ">Gender</ThemedText>
-          <ThemedView className="flex flex-row items-center ml-3 mt-2 border rounded-lg overflow-hidden w-96">
+          <ThemedView className="flex flex-row items-center ml-3 mt-2 border rounded-3xl overflow-hidden w-96">
             <Pressable
               className={`flex-1 p-2 flex items-center border justify-center transition ${
-                gender === "male" ? "bg-blue-500 " : "bg-gray-100"
+                selectedGender === "male" ? "bg-blue-500 " : "bg-gray-100"
               }`}
-              onPress={() => isEditing && setGender("male")}
+              onPress={() => isEditing && setSelectedGender(selectedGender === "male" ? null : "male")}
             >
               <Foundation name="male-symbol" size={24} color="black" />
             </Pressable>
             <Pressable
               className={`flex-1 p-2 flex items-center border justify-center transition ${
-                gender === "female" ? "bg-pink-500 " : "bg-gray-100"
+                selectedGender === "female" ? "bg-pink-500 " : "bg-gray-100"
               }`}
-              onPress={() => isEditing && setGender("female")}
+              onPress={() => isEditing && setSelectedGender(selectedGender === "female" ? null : "female")}
             >
               <Foundation name="female-symbol" size={24} color="black" />
             </Pressable>
@@ -416,6 +418,7 @@ export default function Account_Detail() {
             setUsername(displayUsername ?? ""); // อัปเดตค่า Context
             setFullname(displayfull_name ?? "");
             setBirthdate(selectedDate.toISOString().split("T")[0]);
+            setGender(selectedGender); // อัปเดตค่าไปยัง Context
           }
           setIsEditing(!isEditing)}}
         className="absolute top-3 right-3 bg-amber-500 px-4 py-2 rounded-lg shadow-lg"
