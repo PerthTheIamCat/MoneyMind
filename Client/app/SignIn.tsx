@@ -82,7 +82,6 @@ export default function Index() {
   };
 
   useEffect(() => {
-
     async function sendNotification() {
       const deviceNumber = await Device.getDeviceTypeAsync();
       const deviceTypes: { [key: number]: string } = {
@@ -132,7 +131,6 @@ export default function Index() {
     isSendNotificationSuccess,
     isSending,
   ]);
-
 
   return (
     <ThemedSafeAreaView>
