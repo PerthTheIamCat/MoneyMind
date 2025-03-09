@@ -337,7 +337,6 @@ export default function TransactionPage() {
             <TouchableWithoutFeedback
               onPress={() => {
                 setActiveOptionID(null);
-                setSelectedCardID(null);
                 console.log(
                   "🔵 Clearing active option ID and selected card ID"
                 );
