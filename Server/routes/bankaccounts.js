@@ -8,10 +8,66 @@ router.use(express.urlencoded({ extended: false }))
 const {router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail} = require('./auth')
 const db = require('./db');
 
+router.post('/retirement', jwtValidate, (req, res) => {
+    const { user_id, color_code, icon_id } = req.body;
+
+    if(!user_id) {
+        console.log("Please fill all fields")
+        return res.status(400).json({ message: 'Please fill all fields', success: false });
+    }
+
+    if (req.user.UserID !== user_id) { //user_id
+        console.log("Unauthorized user")
+        return res.status(403).json({ message: 'Unauthorized user', success: false });
+    }
+
+    db.query(
+        'SELECT * FROM bankaccounts WHERE user_id = ? AND account_name = "Retirement"', 
+        [user_id], 
+        (err, result) => {
+            if (err) {
+                console.log("Error from /retirement from SELECT * FROM bankaccounts WHERE user_id = ? AND account_name = 'Retirement'");
+                console.log("Database query failed");
+                console.log("Error:", err)
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+            }
+
+            if (result.length > 0) {
+                console.log("From /retirement from result.length > 0")
+                console.log("Retirement account already exists")
+                return res.status(403).json({ message: 'Retirement account already exists', success: false });
+            }
+
+            db.query(
+                'INSERT INTO bankaccounts (user_id, account_name, balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?)',
+                [user_id, "Retirement", 0, color_code || null, icon_id || null],
+                (err, result) => {
+                    if (err) {
+                        console.log("Error from /retirement from INSERT INTO bankaccounts (user_id, account_name, balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?)");
+                        console.log("Database query failed");
+                        console.log("Error:", err);
+                        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                    }
+        
+                    console.log("Retirement account created")
+                    return res.status(201).json({ message: 'Retirement account created', success: true });
+                }
+            )
+        }
+    )
+
+
+});
+
 router.post('/create', jwtValidate, (req, res) => {
     const { user_id, account_name, balance, color_code, icon_id } = req.body;
 
     console.log("DATA:", req.body)
+
+    if (account_name === "Retirement" || account_name === "retirement") {
+        console.log("Cant use Retirement account name")
+        return res.status(403).json({ message: 'Cant use Retirement account name', success: false });
+    }
 
     if (req.user.UserID !== user_id) { //user_id
         console.log("Unauthorized user")
