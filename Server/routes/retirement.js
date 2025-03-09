@@ -407,14 +407,127 @@ router.post('/', jwtValidate, (req, res) => {
   // =====================
   // ส่งผลลัพธ์กลับ
   // =====================
-  console.log("Returning response with calculated values");
-  return res.status(200).json({
-    success: true,
-    totalNeededAtRetirement,   // เงินก้อนที่ต้องมี ณ วันเกษียณ
-    totalFundFV,               // รวม FV ของกองทุนทั้งหมด
-    netShortfallAtRetirement,  // เงินที่ขาด
-    monthlySavingNeeded        // ต้องออม/เดือน ตั้งแต่วันนี้จนวันเกษียณ
-  });
+
+  db.query(
+    'SELECT * FROM retirementplan WHERE user_id = ?',
+    [req.user.UserID],
+    (err, result) => {
+      if (err) {
+        console.log("Error from SELECT * FROM retirementplan WHERE user_id = ?");
+        console.log("Error:", err);
+        return res.status(500).json({
+          success: false,
+          message: 'Database query failed'
+        });
+      }
+
+      if (result.length === 0) {
+        db.query(
+          'INSERT INTO retirementplan (user_id, total_savings_goal, total_fund_fv, netShortfallAtRetirement, monthly_savings_goal) VALUES (?, ?, ?, ?, ?)',
+          [req.user.UserID, totalNeededAtRetirement, totalFundFV, netShortfallAtRetirement, monthlySavingNeeded],
+          (err, result) => {
+            if (err) {
+              console.log("Error from INSERT INTO retirementplan");
+              console.log("Error:", err);
+              return res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล'
+              });
+            }
+
+            console.log("Returning response with calculated values");
+            return res.status(200).json({
+              success: true,
+              totalNeededAtRetirement,   // เงินก้อนที่ต้องมี ณ วันเกษียณ
+              totalFundFV,               // รวม FV ของกองทุนทั้งหมด
+              netShortfallAtRetirement,  // เงินที่ขาด
+              monthlySavingNeeded        // ต้องออม/เดือน ตั้งแต่วันนี้จนวันเกษียณ
+            });
+          }
+        );
+      } else {
+        db.query(
+          'UPDATE retirementplan SET total_savings_goal = ?, total_fund_fv = ?, netShortfallAtRetirement = ?, monthly_savings_goal = ? WHERE user_id = ?',
+          [totalNeededAtRetirement, totalFundFV, netShortfallAtRetirement, monthlySavingNeeded, req.user.UserID],
+          (err, result) => {
+            if (err) {
+              console.log(err);
+              return res.status(500).json({
+                success: false,
+                message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล'
+              });
+            }
+
+            console.log("Returning response with calculated values");
+            return res.status(200).json({
+              success: true,
+              totalNeededAtRetirement,   // เงินก้อนที่ต้องมี ณ วันเกษียณ
+              totalFundFV,               // รวม FV ของกองทุนทั้งหมด
+              netShortfallAtRetirement,  // เงินที่ขาด
+              monthlySavingNeeded        // ต้องออม/เดือน ตั้งแต่วันนี้จนวันเกษียณ
+            });
+          }
+        );
+      }
+    }
+  )
+});
+
+router.put('/', jwtValidate, (req, res) => {
+  const {monthly_savings_goal, total_savings_goal, current_savings, total_fund_fv, netShortfallAtRetirement} = req.body;
+  console.log("PUT / called with body:", req.body);
+
+  if(monthly_savings_goal == null || total_savings_goal == null || current_savings == null || total_fund_fv == null || netShortfallAtRetirement == null) {
+    console.log("Validation failed: Missing required fields");
+    return res.status(400).json({
+      success: false,
+      message: 'Please provide all required fields'
+    });
+  }
+
+  db.query(
+    'SELECT * FROM retirementplan WHERE user_id = ?',
+    [req.user.UserID],
+    (err, result) => {
+      if (err) {
+        console.log("Error from SELECT * FROM retirementplan WHERE user_id = ?");
+        console.log("Error:", err);
+        return res.status(500).json({
+          success: false,
+          message: 'Database query failed'
+        });
+      }
+
+      if(result.length === 0) {
+        console.log("No retirement plan found for user");
+        return res.status(404).json({
+          success: false,
+          message: 'No retirement plan found for user'
+        });
+      }
+
+      db.query(
+        'UPDATE retirementplan SET monthly_savings_goal = ?, total_savings_goal = ?, current_savings = ?, total_fund_fv = ?, netShortfallAtRetirement = ? WHERE user_id = ?',
+        [monthly_savings_goal, total_savings_goal, current_savings, total_fund_fv, netShortfallAtRetirement, req.user.UserID],
+        (err, result) => {
+          if (err) {
+            console.log("Error from UPDATE retirementplan SET ... WHERE user_id = ?");
+            console.log("Error:", err);
+            return res.status(500).json({
+              success: false,
+              message: 'Database query failed'
+            });
+          }
+
+          console.log("Returning response with updated values");
+          return res.status(200).json({
+            success: true,
+            message: 'Updated retirement plan'
+          });
+        })
+    }
+  )
+
 });
 
 module.exports = {
