@@ -2,8 +2,7 @@ import { useState } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import { Pressable, View } from "react-native";
-import { useColorScheme } from "react-native";
+import { Pressable, View, useColorScheme, Modal } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
@@ -11,6 +10,7 @@ export default function IconTransaction() {
   const theme = useColorScheme();
   const isDarkMode = theme === "dark";
   const [isOutcome, setIsOutcome] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false); // ✅ เพิ่ม State สำหรับ Modal
 
   // สีขององค์ประกอบใน Dark Mode
   const bgColor = isDarkMode ? "bg-gray-700" : "bg-gray-300";
@@ -52,9 +52,7 @@ export default function IconTransaction() {
             }`}
           >
             <ThemedText
-              className={`font-bold ${
-                isOutcome ? "text-white" : textColor
-              }`}
+              className={`font-bold ${isOutcome ? "text-white" : textColor}`}
             >
               OUTCOME
             </ThemedText>
@@ -67,9 +65,7 @@ export default function IconTransaction() {
             }`}
           >
             <ThemedText
-              className={`font-bold ${
-                !isOutcome ? "text-white" : textColor
-              }`}
+              className={`font-bold ${!isOutcome ? "text-white" : textColor}`}
             >
               INCOME
             </ThemedText>
@@ -101,13 +97,52 @@ export default function IconTransaction() {
       </View>
 
       {/* ปุ่มเพิ่ม (+) */}
-      <Pressable className="mt-5 items-center">
+      <Pressable className="mt-5 items-center" onPress={() => setModalVisible(true)}>
         <View
           className={`w-[80%] h-12 ${buttonColor} rounded-lg flex items-center justify-center shadow-lg mx-auto`}
         >
           <Ionicons name="add" size={26} color="white" />
         </View>
       </Pressable>
+
+      {/* ✅ Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View className="flex-1 items-center justify-center bg-black/50">
+          <View className="w-[90%] bg-white p-5 rounded-lg shadow-lg">
+            <ThemedText className="text-lg font-bold mb-3 text-center">เพิ่มรายการใหม่</ThemedText>
+
+            {/* ช่องเพิ่มข้อมูล */}
+            <View className="mt-4">
+              {transactions.map((item) => (
+                <View
+                  key={item.id}
+                  className="flex-row items-center justify-between p-3 rounded-lg border bg-gray-100 border-gray-300 w-full mb-2"
+                >
+                  <View className="flex-row items-center space-x-3">
+                    <Ionicons name={item.icon} size={22} color="#555" />
+                    <ThemedText className="text-[16px] text-black">
+                      {item.name}
+                    </ThemedText>
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            {/* ปุ่มปิด Modal */}
+            <Pressable
+              className="mt-5 px-4 py-2 bg-red-500 rounded-lg"
+              onPress={() => setModalVisible(false)}
+            >
+              <ThemedText className="text-white text-center">ปิด</ThemedText>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </ThemedSafeAreaView>
   );
 }
