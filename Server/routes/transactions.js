@@ -230,13 +230,31 @@ router.get('/:id', jwtValidate, (req, res) => { //user_id
     )
 })
 
+router.get('/transactionID/:id', (req, res) => { //transaction_id
+    const transactionId = req.params.id;
+    console.log("Transaction ID:", transactionId)
+    db.query(
+        'SELECT * FROM transactions WHERE id = ?', [req.params.id], (err, result) => {
+            if (err) {
+                console.log("Error from /:id from SELECT * FROM transactions WHERE user_id = ? ORDER BY transaction_date desc");
+                console.log("Database query failed");
+                console.log("Error:", err);
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+            }
+            return res.status(200).json({result, message: 'Get transaction successfully', success: true});
+        }
+    )
+})
+
+
 router.put('/:id', jwtValidate, (req, res) => { //transaction_id
     const transactionId = req.params.id;
-    const { account_id, split_payment_id, transaction_name, amount, transaction_type, note, color_code } = req.body;
+    const { account_id, split_payment_id, transaction_name, amount, transaction_type,transaction_date, note, color_code } = req.body;
 
     console.log("Transaction ID:", transactionId)
-    console.log("DATA:", account_id, split_payment_id, transaction_name, amount, transaction_type, note, color_code)
-
+    console.log("DateTIME:", transaction_date)
+    console.log("DATA:", account_id, split_payment_id, transaction_name, amount, transaction_type, transaction_date,note, color_code)
+    
     db.query(
         'SELECT * FROM transactions WHERE id = ? AND user_id = ?',
         [transactionId, req.user.UserID],
@@ -296,11 +314,11 @@ router.put('/:id', jwtValidate, (req, res) => { //transaction_id
                     }
 
                     db.query(
-                        'UPDATE transactions SET account_id = ?, split_payment_id = ?, transaction_name = ?, amount = ?, transaction_type = ?, note = ?, color_code = ? WHERE id = ?',
-                        [account_id, split_payment_id || null, transaction_name, amount, transaction_type, note || null, color_code, transactionId],
+                        'UPDATE transactions SET account_id = ?, split_payment_id = ?, transaction_name = ?, amount = ?, transaction_type = ?,transaction_date = ?, note = ?, color_code = ? WHERE id = ?',
+                        [account_id, split_payment_id || null, transaction_name, amount, transaction_type, transaction_date ,note || null, color_code, transactionId],
                         (err, updateResult) => {
                             if (err) {
-                                console.log("Error from .put/:id from UPDATE transactions SET account_id = ?, split_payment_id = ?, transaction_name = ?, amount = ?, transaction_type = ?, note = ?, color_code = ? WHERE id = ?");
+                                console.log("Error from .put/:id from UPDATE transactions SET account_id = ?, split_payment_id = ?, transaction_name = ?, amount = ?, transaction_type = ?, transaction_date = ?,note = ?, color_code = ? WHERE id = ?");
                                 console.log("Database query failed");
                                 console.log("Error:", err);
                                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });

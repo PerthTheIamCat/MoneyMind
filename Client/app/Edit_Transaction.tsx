@@ -1,5 +1,4 @@
 import { ThemedCard } from "@/components/ThemedCard";
-import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedView } from "@/components/ThemedView";
@@ -8,18 +7,14 @@ import React, {
   useEffect,
   useRef,
   useState,
-  useCallback,
 } from "react";
 import { UserContext } from "@/hooks/conText/UserContext";
-import { CreateUserTransaction } from "@/hooks/auth/CreateTransaction";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import {
   Dimensions,
-  Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Platform,
   Pressable,
   ScrollView,
   TextInput,
@@ -28,19 +23,13 @@ import {
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedInput } from "@/components/ThemedInput";
-import { router } from "expo-router";
+import { router ,useLocalSearchParams} from "expo-router";
 import DropdownComponent from "@/components/Dropdown";
-import { ThemedScrollViewCenter } from "@/components/ThemedScrollViewCenter";
 import Icon from "react-native-vector-icons/Feather";
-// import DateTimePickerInput from "@/components/Date_and_Time";
-// import CustomDateTimePicker from "@/components/Date_and_Time";
 import { GetUserBank, resultObject } from "@/hooks/auth/GetUserBank";
-import { th } from "react-native-paper-dates";
 
-import { GetUserTransaction } from "@/hooks/auth/GetAllTransaction";
-import { transform } from "@babel/core";
+import { GetUserTransaction,EditIDTransaction } from "@/hooks/auth/GetAllTransaction";
 import AddCategory from "@/components/AddCategory"; // ✅ นำเข้าไฟล์ที่แยกไว้
-// import DatePicker from "react-native-date-picker";
 
 type ThemedInputProps = {
   className?: string;
@@ -53,27 +42,26 @@ type ThemedInputProps = {
 };
 
 export default function Index() {
+  const { transactionId } = useLocalSearchParams();
+  console.log(transactionId);
   const { bank, setTransaction, setBank, transaction, userID } =
-    useContext(UserContext);
+  useContext(UserContext);
   const theme = useColorScheme();
   const [isIncome, setIsIncome] = useState(true);
   // หมวดหมู่ของ Income และ Expense พร้อมโลโก้
   const [selectedIncomeCategory, setSelectedIncomeCategory] = useState("");
   const [selectedExpenseCategory, setSelectedExpenseCategory] = useState("");
   const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] =
-    useState(false);
+  useState(false);
   const [Amount, setAmount] = useState(0);
   const [Note, setNote] = useState("");
   const [newCategoryName, setNewCategoryNameState] = useState("");
-
+  
   const setNewCategoryName = (text: string) => {
     setNewCategoryNameState(text);
   };
-
+  
   const [selectedIcon, setSelectedIcon] = useState("plus");
-  const [date, setDate] = useState(new Date().getTime() + 7 * 60 * 60 * 1000); // เก็บค่า Date
-  const [time, setTime] = useState(new Date().getTime()); // เก็บค่า Time
-  const [openDate, setOpenDate] = useState(false);
   const [openTime, setOpenTime] = useState(false);
   const today = new Date();
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -95,10 +83,10 @@ export default function Index() {
     setSelectedTime(localTime);
     hideTimePicker();
   };
-
+  
   const auth = useContext(AuthContext);
   const { URL } = useContext(ServerContext);
-
+  
   const incomeIconList = [
     "dollar-sign",
     "gift",
@@ -112,7 +100,7 @@ export default function Index() {
     "users",
     "bar-chart",
   ];
-
+  
   const expenseIconList = [
     "coffee",
     "home",
@@ -125,7 +113,7 @@ export default function Index() {
     "credit-card",
     "shopping-cart",
   ];
-
+  
   const [incomeCategories, setIncomeCategories] = useState([
     { name: "Salary", icon: "dollar-sign" },
     { name: "Bonus", icon: "gift" },
@@ -144,7 +132,7 @@ export default function Index() {
     { name: "Part-time Job", icon: "clock" },
     { name: "add", icon: "plus" },
   ]);
-
+  
   const [expenseCategories, setExpenseCategories] = useState([
     { name: "Food", icon: "coffee" },
     { name: "Transport", icon: "car" },
@@ -162,37 +150,43 @@ export default function Index() {
     { name: "Other", icon: "more-horizontal" },
     { name: "add", icon: "plus" },
   ]);
-
-  const [categories, setCategories] = useState(incomeCategories);
-
-  const [budgetPlan, setBudgetPlan] = useState<number>(-1);
-  const [selectedBudget, setSelectedBudget] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-
-  // ฟังก์ชันเพิ่มหมวดหมู่ โดยให้ปุ่ม `+` คงอยู่ท้ายสุดเสมอ
-  const addNewCategory = () => {
-    console.log("Add Category Clicked");
-    setCategories([
-      ...categories.slice(0, -1),
-      { name: `New ${categories.length - 1}`, icon: "file-plus" },
-      { name: "add", icon: "plus" },
-    ]);
+  
+  const reloadTransaction = () => {
+    
+    GetUserTransaction(URL, Number(userID),auth?.token!).then((res) => {
+      if (res.success) {
+        setTransaction(res.result);
+      }
+    });
+    GetUserBank(URL, userID!, auth?.token!).then((res) => {
+      if (res.success) {
+        setBank(res.result);
+      }
+    });
   };
 
+  
+  
+  const [categories, setCategories] = useState(incomeCategories);
+  
+  const [budgetPlan, setBudgetPlan] = useState<number|null>(null);
+  
   useEffect(() => {
     if (isIncome) {
       setCategories((prev) =>
         prev !== incomeCategories ? [...incomeCategories] : prev
-      );
-    } else {
-      setCategories((prev) =>
-        prev !== expenseCategories ? [...expenseCategories] : prev
+    );
+  } else {
+    setCategories((prev) =>
+      prev !== expenseCategories ? [...expenseCategories] : prev
       );
     }
+    
   }, [isIncome, incomeCategories, expenseCategories]);
-
+  
+  
   // ฟังก์ชันแบ่งหมวดหมู่เป็น 2 แถวเสมอ
-  const splitIntoTwoRows = (arr: any[]) => {
+  const splitIntoTwoRows = (arr: any[],) => {
     if (!Array.isArray(arr) || arr.length === 0) return [[], []]; // ป้องกัน error ถ้า categories เป็น undefined
     const row1: any[] = [];
     const row2: any[] = [];
@@ -206,35 +200,35 @@ export default function Index() {
     return [row1, row2]; // ต้อง return array of arrays เสมอ
   };
 
-  const categoryRows = splitIntoTwoRows(categories) ?? [[], []]; // ป้องกัน undefined
+  const categoryRows = splitIntoTwoRows(categories); // ป้องกัน undefined
   const screenWidth = Dimensions.get("window").width; // ✅ ความกว้างของหน้าจอ
   const cardWidth = 280; // ✅ ความกว้างของ Card
   const cardMargin = 18; // ✅ Margin ระหว่างการ์ด
   const snapToInterval = cardWidth + cardMargin * 2; // ✅ ระยะ snap ให้เป๊ะ
-
+  
   const scrollViewRef = useRef<ScrollView>(null);
   const [selectedCard, setSelectedCard] = useState<resultObject | null>(null);
   const [cardPositions, setCardPositions] = useState<
     { id: number; x: number }[]
-  >([]);
-
-  // ✅ เก็บตำแหน่ง X ของแต่ละ Card
-  const storeCardPosition = (id: number, x: number) => {
-    setCardPositions((prev) => {
+    >([]);
+    
+    // ✅ เก็บตำแหน่ง X ของแต่ละ Card
+    const storeCardPosition = (id: number, x: number) => {
+      setCardPositions((prev) => {
       const exists = prev.some((item) => item.id === id);
       if (!exists) return [...prev, { id, x }];
       return prev;
     });
   };
-
+  
   // ✅ ตรวจจับ Card ที่อยู่กลางหน้าจอ
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollX = event.nativeEvent.contentOffset.x;
     const centerScreen = scrollX + screenWidth / 2;
-
+    
     let closestCard: resultObject | null = null as resultObject | null;
     let minDistance = Number.MAX_VALUE;
-
+    
     cardPositions.forEach((cardPos) => {
       const distance = Math.abs(cardPos.x - centerScreen);
       if (distance < minDistance) {
@@ -242,29 +236,66 @@ export default function Index() {
         closestCard = bank?.find((item) => item.id === cardPos.id) || null;
       }
     });
-
+    
     if (closestCard && (closestCard as resultObject).id !== selectedCard?.id) {
       setSelectedCard(closestCard);
       console.log("🎯 Selected Card:", closestCard);
     }
   };
-
-  // ✅ เลื่อน ScrollView ให้การ์ดแรกอยู่กลางตอนเริ่ม
-  useEffect(() => {
-    if (bank && bank.length > 0 && scrollViewRef.current) {
-      setTimeout(() => {
-        scrollViewRef.current?.scrollTo({ x: 0, animated: true });
-        setSelectedCard(bank[0]); // ✅ ตั้งค่า selectedCard เป็นการ์ดแรก
-        console.log("🚀 First Card Selected:", bank[0]);
-      }, 500);
+  
+  useEffect(() =>  {
+    if (!transaction || !transactionId) return;
+        const TransactionEdit = transaction.find((item) => item.id === Number(transactionId));
+    if (TransactionEdit) {
+      const ISincome = TransactionEdit.transaction_type==="income";
+      setIsIncome(ISincome);
+      if (ISincome) {
+        setSelectedIncomeCategory(TransactionEdit.transaction_name);
+        setCategories(incomeCategories);
+      } else {
+        setSelectedExpenseCategory(TransactionEdit.transaction_name);
+        setCategories(expenseCategories);
+      }
+      
+      // setBudgetPlan(TransactionEdit);
+      if (TransactionEdit.transaction_date) {
+        const timestamp = Date.parse(TransactionEdit.transaction_date);
+        if (!isNaN(timestamp)) {
+          setSelectedDate(new Date(timestamp));
+          setSelectedTime(new Date(timestamp));
+        }
+      }
+      setBudgetPlan(TransactionEdit.split_payment_id);
+      setAmount(TransactionEdit.amount);
+      setNote(TransactionEdit.note);
     }
-  }, [bank]);
+  
+    console.log(TransactionEdit?.transaction_type);
+    console.log(selectedDate);
+    console.log(selectedTime);
+    console.log(Amount);
+    console.log(Note);
 
+    if (bank && bank.length > 0 && scrollViewRef.current && TransactionEdit?.account_id) {
+      const targetIndex = bank.findIndex((account) => account.id === TransactionEdit?.account_id);
+      
+      if(targetIndex !== -1){
+        setTimeout(() => {
+          const cardWidth = 280+36 ;
+          const scrollPosition = targetIndex * cardWidth ;
+          scrollViewRef.current?.scrollTo({ x: scrollPosition, animated: true });
+          setSelectedCard(bank[targetIndex]); // ✅ ตั้งค่า selectedCard เป็นการ์ดแรก
+          console.log("🚀 First Card Selected:", bank[targetIndex]);
+        }, 500);
+      }
+    }
+  },[transaction,bank]);
+  
   // ✅ เก็บวันที่และเวลาที่เลือกไว้ใน State
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<Date>(new Date());
-
-  const saveTransaction = () => {
+  
+  const updateTransaction = async () => {
     console.log(userID!);
     console.log(selectedCard?.id);
     console.log(isIncome ? selectedIncomeCategory : selectedExpenseCategory);
@@ -284,30 +315,12 @@ export default function Index() {
       return;
     }
 
-    console.log("✅ Selected transaction ID:", (transaction?.length || 0) + 1);
-
-    const reloadTransaction = () => {
-      GetUserTransaction(URL, userID!, auth?.token!).then((res) => {
-        if (res.success) {
-          setTransaction(res.result);
-        }
-      });
-      GetUserBank(URL, userID!, auth?.token!).then((res) => {
-        if (res.success) {
-          setBank(res.result);
-        }
-      });
-    };
-    CreateUserTransaction(
-      URL,
-      {
-        id: (transaction?.length || 0) + 1,
+    try {
+      const updatedTransaction = {
         user_id: userID!,
         account_id: selectedCard?.id,
         split_payment_id: budgetPlan,
-        transaction_name: isIncome
-          ? selectedIncomeCategory
-          : selectedExpenseCategory,
+        transaction_name: isIncome? selectedIncomeCategory: selectedExpenseCategory,
         amount: Amount,
         transaction_type: isIncome ? "income" : "expense",
         transaction_date:
@@ -319,40 +332,42 @@ export default function Index() {
           }),
         note: Note,
         color_code: "#FFFFFF",
-      },
-      auth?.token!
-    ).then((response) => {
+      };
+  
+      console.log("🔄 Updating account with data:", updatedTransaction);
+  
+
+      const response = await EditIDTransaction(URL, Number(transactionId),
+      {
+        user_id: userID!,
+        account_id: selectedCard?.id,
+        split_payment_id: budgetPlan,
+        transaction_name: isIncome? selectedIncomeCategory: selectedExpenseCategory,
+        amount: Amount,
+        transaction_type: isIncome ? "income" : "expense",
+        transaction_date:
+          selectedDate.toISOString().split("T")[0] +
+          " " +
+          selectedTime.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        note: Note,
+        color_code: "#FFFFFF",   
+      } ,auth?.token!);
+  
       if (response.success) {
-        setTransaction([
-          ...(transaction || []),
-          {
-            id: (transaction?.length || 0) + 1,
-            user_id: userID!,
-            account_id: selectedCard?.id,
-            split_payment_id: 0,
-            transaction_name: isIncome
-              ? selectedIncomeCategory
-              : selectedExpenseCategory,
-            amount: Amount,
-            transaction_type: isIncome ? "income" : "expense",
-            transaction_date:
-              selectedDate.toISOString().split("T")[0] +
-              " " +
-              selectedTime.toLocaleTimeString("en-GB", {
-                hour: "2-digit",
-                minute: "2-digit",
-              }),
-            note: Note,
-            color_code: "#FFFFFF",
-          },
-        ]);
-        reloadTransaction();
-        router.replace("/(tabs)/transaction");
-      } else {
-        alert(response.message);
-        console.log(response);
-      }
-    });
+        console.log("✅ Successfully updated bank data:", response.result);
+        setTransaction(response.result); // อัปเดต state ทันที
+  
+        // ✅ โหลดข้อมูลบัญชีใหม่หลังจากอัปเดต
+        await reloadTransaction();
+  
+        router.replace("/(tabs)/transaction"); // กลับไปหน้าธุรกรรม
+      } 
+    } catch (error) {
+      console.error("❌ Error updating account:", error);
+    }
   };
 
   return (
@@ -499,7 +514,7 @@ export default function Index() {
                   alignItems: "center", // จัดให้แถว 1 และ 2 เริ่มใกล้กันมากขึ้น
                 }}
               >
-                {/* 2 แถวแน่นอน */}
+                2 แถวแน่นอน
                 {categoryRows.map((row, rowIndex) => (
                   <ThemedView
                     key={rowIndex}
@@ -576,7 +591,7 @@ export default function Index() {
                                   ? "text-white"
                                   : "black"
                               }`}
-                            >
+                            > 
                               {category.name}
                             </ThemedText>
                           </>
@@ -628,7 +643,7 @@ export default function Index() {
               </ThemedText>
               <ThemedView className="w-full flex-row">
                 <TextInput
-                  placeholder="Enter Amount"
+                  placeholder={"Enter Amount"}
                   keyboardType="numeric"
                   style={{
                     backgroundColor: theme === "dark" ? "#121212" : "#D9D9D9",
@@ -637,6 +652,7 @@ export default function Index() {
                     padding: 10,
                   }}
                   onChangeText={(text) => setAmount(parseInt(text))}
+                  value={Amount.toString()}
                   placeholderTextColor={theme === "dark" ? "#888" : "#555"} // ✅ รองรับ Dark Mode
                   className="w-full"
                 />
@@ -657,6 +673,7 @@ export default function Index() {
                   multiline={true}
                   textAlignVertical="top"
                   onChangeText={(text) => setNote(text)}
+                  value={Note??""}
                   style={{
                     backgroundColor: theme === "dark" ? "#121212" : "#D9D9D9",
                     color: theme === "dark" ? "#FFF" : "#2F2F2F",
@@ -672,10 +689,10 @@ export default function Index() {
                 <ThemedButton
                   className=" px-10 w-56 h-12 bg-green-500"
                   onPress={async () => {
-                    saveTransaction();
+                    updateTransaction();
                   }}
                 >
-                  Add Transaction
+                  Update Transaction
                 </ThemedButton>
               </ThemedView>
             </ThemedView>
@@ -703,7 +720,7 @@ export default function Index() {
         onConfirm={handleDateConfirm}
         onCancel={hideDatePicker}
         is24Hour={true}
-        date={today}
+        date={selectedDate}
         maximumDate={today}
         timeZoneName="Asia/Bangkok"
         locale="th-TH"
@@ -716,7 +733,7 @@ export default function Index() {
         onConfirm={handleTimeConfirm}
         onCancel={hideTimePicker}
         is24Hour={true}
-        date={today}
+        date={selectedDate}
         maximumDate={today}
         timeZoneName="Asia/Bangkok"
         locale="th-TH"

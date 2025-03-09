@@ -185,7 +185,7 @@ export default function Index() {
 
   const [categories, setCategories] = useState(incomeCategories);
 
-  const [budgetPlan, setBudgetPlan] = useState<number>(-1);
+  const [budgetPlan, setBudgetPlan] = useState<number|null>(null);
   const [selectedBudget, setSelectedBudget] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 

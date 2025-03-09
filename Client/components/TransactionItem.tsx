@@ -6,7 +6,6 @@ import { View, Text, Pressable, Modal } from "react-native";
 import { useState, useEffect } from "react";
 import Entypo from "@expo/vector-icons/Entypo";
 import { UserTransaction } from "@/hooks/auth/GetAllTransaction";
-import { router } from "expo-router";
 import { TouchableWithoutFeedback } from "react-native";
 
 interface TransactionItemProps {
