@@ -37,7 +37,7 @@ interface Account {
   full_name: string;
   birth_day: string;
   gender: "female" | "male" | null;
-  note: string;
+  bio: string;
   email: string;
   password: string;
   device: Device[];
@@ -48,7 +48,7 @@ const mockAccount: Account = {
   full_name: "Pawarit",
   birth_day: "2022-01-01",
   gender: null,
-  note: "Bankai",
+  bio: "Bankai",
   email: "PS@gmail.com",
   password: "123456789",
   device: [
@@ -86,7 +86,10 @@ const mockAccount: Account = {
 export default function Account_Detail() {
   const { URL } = useContext(ServerContext);
   const [Devices, setDevices] = useState(mockAccount.device);
-  const [bioText, setBioText] = useState(mockAccount.note);
+
+  const {bioText, setBioText} = useContext(UserContext); // ค่าแสดงผล
+  const [editBioText, setEditBioText] = useState(bioText); // ค่าแก้ไข
+
   const [showConfirmDeleteDevice, setShowConfirmDeleteDevice] = useState(false);
   const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(null);
 
@@ -327,8 +330,8 @@ export default function Account_Detail() {
                 maxsssHeight: 100,
               }}
               placeholderTextColor={theme === "dark" ? "#888" : "#444"}
-              value={bioText} // ค่าข้อความที่พิมพ์
-              onChangeText={(newText) => setBioText(newText)}
+              value={editBioText} // ค่าข้อความที่พิมพ์
+              onChangeText={(newText) => setEditBioText(newText)}
               editable={isEditing}
             />
           </ThemedView>
@@ -419,6 +422,7 @@ export default function Account_Detail() {
             setFullname(displayfull_name ?? "");
             setBirthdate(selectedDate.toISOString().split("T")[0]);
             setGender(selectedGender); // อัปเดตค่าไปยัง Context
+            setBioText(editBioText ?? ""); // อัปเดตค่าที่แสดงผล
           }
           setIsEditing(!isEditing)}}
         className="absolute top-3 right-3 bg-amber-500 px-4 py-2 rounded-lg shadow-lg"
