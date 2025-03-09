@@ -50,18 +50,50 @@ router.post('/retirement', jwtValidate, (req, res) => {
             const account_id = result[0].id
 
             db.query(
-                'INSERT INTO splitpayments (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)',
-                [account_id, split_name, amount_allocated, 0, color_code || null, icon_id || null],
-                (err, splitpeyResult) => {
+                'SELECT * FROM splitpayments WHERE account_id = ? AND split_name = "Retirement"',
+                [account_id],
+                (err, result) => {
                     if (err) {
-                        console.log("Error from /retirement from INSERT INTO splitpayments (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)");
+                        console.log("Error from /retirement from SELECT * FROM splitpayments WHERE account_id = ? AND split_name = 'Retirement'");
                         console.log("Database query failed");
                         console.log("Error:", err);
                         return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
                     }
 
-                    console.log('Splitpayment Created')
-                    return res.status(201).json({splitpeyResult, message: 'Splitpayment Created', success: true })
+                    const splitResult = result[0];
+
+                    if (result.length > 0) {
+                       db.query(
+                        'UPDATE splitpayments SET (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)',
+                        [account_id, split_name, amount_allocated, splitResult.remaining_balance, color_code || null, icon_id || null],
+                        (err, result) => {
+                            if (err) {
+                                console.log("Error from /retirement from UPDATE splitpayments SET (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)");
+                                console.log("Database query failed");
+                                console.log("Error:", err);
+                                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                            }
+
+                            console.log('Retirement Splitpayment Updated')
+                            return res.status(200).json({result, message: 'Retirement Splitpayment Updated', success: true })
+                        })
+                    } else {
+                        db.query(
+                            'INSERT INTO splitpayments (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)',
+                            [account_id, split_name, amount_allocated, amount_allocated, color_code || null, icon_id || null],
+                            (err, splitpeyResult) => {
+                                if (err) {
+                                    console.log("Error from /retirement from INSERT INTO splitpayments (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)");
+                                    console.log("Database query failed");
+                                    console.log("Error:", err);
+                                    return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                                }
+    
+                                console.log('Retirement Splitpayment Created')
+                                return res.status(201).json({splitpeyResult, message: 'Retirement Splitpayment Created', success: true })
+                            }
+                        )
+                    }
                 }
             )
         }
