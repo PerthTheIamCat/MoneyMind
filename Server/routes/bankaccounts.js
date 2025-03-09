@@ -9,7 +9,7 @@ const {router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail} =
 const db = require('./db');
 
 router.post('/retirement', jwtValidate, (req, res) => {
-    const { user_id, color_code, icon_id } = req.body;
+    const { user_id, color_code = "#80B918", icon_id } = req.body;
 
     if(!user_id) {
         console.log("Please fill all fields")
@@ -187,6 +187,11 @@ router.delete('/:id', jwtValidate, (req, res) => {
                 console.log("From .delete/:id from result.length === 0")
                 console.log("Bank Account not found or Unauthorized user")
                 return res.status(403).json({ message: 'Unauthorized user or account not found', success: false });
+            }
+
+            if (result[0].account_name === "Retirement") {
+                console.log("Cant delete Retirement account")
+                return res.status(403).json({ message: 'Cant delete Retirement account', success: false });
             }
 
             db.query('DELETE FROM transactions WHERE user_id = ?', [req.user.UserID], (err, result) => {
