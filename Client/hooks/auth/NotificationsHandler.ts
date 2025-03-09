@@ -1,11 +1,13 @@
 import axios from "axios";
 
 interface NoticePut {
-  id: number;
+  id?: number;
   user_id: number;
-  notification_type: string;
+  notification_type: "security" | "monthly_summary";
   message: string;
-  color_type: string;
+  is_read?: boolean;
+  created_at?: string;
+  color_type: "green" | "yellow" | "red";
 }
 
 interface NoticeResponse {
@@ -25,12 +27,18 @@ interface NoticeError {
 
 export const NotificationsPostHandler = async (
   url: string,
-  data: NoticePut
+  data: NoticePut,
+  token: string
 ): Promise<NoticeResponse | NoticeError["response"]["data"]> => {
   try {
     const response = await axios.post<NoticeResponse>(
       `${url}/notifications/create`,
-      data
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     return response.data;
   } catch (error) {
@@ -61,7 +69,7 @@ export const NotificationsGetHandler = async (
 export const NotificationsDeleteHandler = async (
   url: string,
   id: number,
-  token: string,
+  token: string
 ): Promise<NoticeResponse | NoticeError["response"]["data"]> => {
   try {
     const response = await axios.delete<NoticeResponse>(
@@ -72,7 +80,30 @@ export const NotificationsDeleteHandler = async (
         },
       }
     );
-    console.log(id)
+    console.log(id);
+    return response.data;
+  } catch (error) {
+    return (error as NoticeError).response.data;
+  }
+};
+
+export const NotificationsPutHandler = async (
+  url: string,
+  id: number,
+  data: NoticePut,
+  token: string
+): Promise<NoticeResponse | NoticeError["response"]["data"]> => {
+  try {
+    const response = await axios.put<NoticeResponse>(
+      `${url}/notifications/${id}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log(id + " " + data);
     return response.data;
   } catch (error) {
     return (error as NoticeError).response.data;

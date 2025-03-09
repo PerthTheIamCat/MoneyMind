@@ -19,6 +19,7 @@ export default function Index() {
       ) {
         router.replace("/PinPage");
       } else if (!auth?.authLoading && auth?.token && auth?.pin === null) {
+        console.log("Pin is not set");
         router.replace("/CreatePinPage");
       }
     }, 1000);
