@@ -43,6 +43,7 @@ type UserContextType = {
   transaction: Array<UserTransaction> | null;
   notification: Array<UserNotification> | null;
   retire: Array<UserRetire> | null;
+  gender: "female" | "male" | null;
   setUsername: (user: string) => void;
   setUserID: (id: number) => void;
   setEmail: (email: string) => void;
@@ -52,6 +53,7 @@ type UserContextType = {
   setNotification: (transaction: Array<UserNotification>) => void;
   setBank: (bank: Array<resultObject>) => void;
   setRetire: (retire: Array<UserRetire>) => void;
+  setGender: (gender: "female" | "male" | null) => void;
   loading: boolean;
 };
 
@@ -65,6 +67,7 @@ export const UserContext = React.createContext<UserContextType>({
   transaction: null,
   notification: null,
   retire: null,
+  gender: null,
 
   setUsername: () => {},
   setUserID: () => {},
@@ -75,6 +78,7 @@ export const UserContext = React.createContext<UserContextType>({
   setNotification: () => {},
   setBank: () => {},
   setRetire: () => {},
+  setGender: () => {},
   loading: true,
 });
 
@@ -92,6 +96,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [transaction, setTransaction] = useState<Array<UserTransaction> | null>(
     null
   );
+  const [gender, setGender] = useState<"female" | "male" | null>(null);
   const [notification, setNotification] =
     useState<Array<UserNotification> | null>(null);
   const [retire, setRetire] = useState<Array<UserRetire> | null>(null);
@@ -196,6 +201,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         transaction,
         notification,
         retire,
+        gender,
         setUsername,
         setEmail,
         setUserID,
@@ -205,6 +211,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setNotification,
         setBank,
         setRetire,
+        setGender,
         loading,
       }}
     >
