@@ -9,6 +9,66 @@ const {router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail} =
 const db = require('./db');
 const { use } = require('./ocr');
 
+router.post('/retirement', jwtValidate, (req, res) => {
+    const { user_id,
+            amount_allocated, 
+            color_code,
+            icon_id
+        } = req.body;
+
+    const split_name = "Retirement"
+
+    console.log("DATA:", user_id, split_name, amount_allocated, color_code, icon_id)
+    
+    if(req.user.UserID !== user_id) {
+        console.log("Unauthorized user")
+        return res.status(403).json({ message: 'Unauthorized user', success: false });
+    }
+
+    if (!user_id || !amount_allocated) {
+        console.log("Please fill all fields")
+        return res.status(400).json({ message: 'Please fill all fields', success: false });
+    }
+
+    db.query(
+        'SELECT * FROM bankaccounts WHERE user_id = ? AND account_name = "Retirement"',
+        [user_id],
+        (err, result) => {
+            if (err) {
+                console.log("Error from /retirement from SELECT * FROM bankaccounts WHERE user_id = ? AND account_name = 'Retirement'");
+                console.log("Database query failed");
+                console.log("Error:", err);
+                return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+            }
+
+            if (result.length === 0) {
+                console.log("Error from /retirement from result.length === 0");
+                console.log("Bankaccount not found");
+                return res.status(403).json({ message: 'Bankaccount not found', success: false });
+            }
+
+            const account_id = result[0].id
+
+            db.query(
+                'INSERT INTO splitpayments (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)',
+                [account_id, split_name, amount_allocated, 0, color_code || null, icon_id || null],
+                (err, splitpeyResult) => {
+                    if (err) {
+                        console.log("Error from /retirement from INSERT INTO splitpayments (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)");
+                        console.log("Database query failed");
+                        console.log("Error:", err);
+                        return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
+                    }
+
+                    console.log('Splitpayment Created')
+                    return res.status(201).json({splitpeyResult, message: 'Splitpayment Created', success: true })
+                }
+            )
+        }
+    )
+
+});
+
 router.post('/create', jwtValidate, (req, res) => {
     const { user_id,
             account_id, 
@@ -28,7 +88,12 @@ router.post('/create', jwtValidate, (req, res) => {
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
-    if (!user_id || !account_id || !split_name || !amount_allocated || !color_code) {
+    if(split_name === "Retirement") {
+        console.log("Split name cannot be Retirement")
+        return res.status(400).json({ message: 'Split name cannot be Retirement', success: false });
+    }
+
+    if (!user_id || !account_id || !split_name || !amount_allocated) {
         console.log("Please fill all fields")
         return res.status(400).json({ message: 'Please fill all fields', success: false });
     }
@@ -64,7 +129,7 @@ router.post('/create', jwtValidate, (req, res) => {
 
             db.query(
                 'INSERT INTO splitpayments (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)',
-                [account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id || null],
+                [account_id, split_name, amount_allocated, remaining_balance, color_code || null, icon_id || null],
                 (err, splitpeyResult) => {
                     if (err) {
                         console.log("Error from /create from INSERT INTO splitpayments (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)");
