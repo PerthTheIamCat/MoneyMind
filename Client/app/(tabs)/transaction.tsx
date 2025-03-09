@@ -231,9 +231,9 @@ export default function TransactionPage() {
   return (
     <TouchableWithoutFeedback
       onPress={() => {
-        console.log("🔻 Closing all menus");
         setActiveOptionID(null);
         setSelectedCardID(null);
+        console.log("🔵 Clearing active option ID and selected card ID");
       }}
       accessible={false}
     >
@@ -282,6 +282,7 @@ export default function TransactionPage() {
             <ThemedScrollView
               horizontal={true}
               keyboardShouldPersistTaps="handled" // ✅ ให้สามารถกดที่อื่นเพื่อปิดเมนู
+              onStartShouldSetResponder={() => true} // ✅ บังคับให้ ScrollView ตอบสนองการสัมผัส
               className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
             >
               <View className="mt-0.5 mb-1 flex-row space-x-1">
@@ -322,78 +323,94 @@ export default function TransactionPage() {
               onChange={(item) => console.log(item.label)}
             />
           </ThemedView>
-          <ScrollView
+          <ThemedScrollView
             className="h-[440px] py-2"
-            keyboardShouldPersistTaps="handled"
+            keyboardShouldPersistTaps="away" // ✅ ให้สามารถกดที่อื่นเพื่อปิดเมนู
+            onStartShouldSetResponder={() => true} // ✅ บังคับให้ ScrollView รับการสัมผัส
+            nestedScrollEnabled={true}
           >
-            <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-20">
-              <View className="w-full !items-center">
-                {(() => {
-                  const filteredTransactions =
-                    selectedCardID !== null
-                      ? transaction?.filter(
-                          (t) => t.account_id === selectedCardID
-                        )
-                      : transaction;
-                  if (
-                    !filteredTransactions ||
-                    filteredTransactions.length === 0
-                  ) {
-                    return (
-                      <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
-                        No transactions available
-                      </ThemedText>
-                    );
-                  }
-
-                  return filteredTransactions.map(
-                    (transaction, index, sortedArray) => {
-                      const formattedDate = moment(
-                        transaction.transaction_date
-                      ).format("DD MMM YYYY");
-                      const showDateHeader =
-                        index === 0 ||
-                        formattedDate !==
-                          moment(
-                            sortedArray[index - 1].transaction_date
-                          ).format("DD MMM YYYY");
-
+            <TouchableWithoutFeedback
+              onPress={() => {
+                setActiveOptionID(null);
+                setSelectedCardID(null);
+                console.log(
+                  "🔵 Clearing active option ID and selected card ID"
+                );
+              }}
+              accessible={false}
+            >
+              <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-20">
+                <View className="w-full !items-center">
+                  {(() => {
+                    const filteredTransactions =
+                      selectedCardID !== null
+                        ? transaction?.filter(
+                            (t) => t.account_id === selectedCardID
+                          )
+                        : transaction;
+                    if (
+                      !filteredTransactions ||
+                      filteredTransactions.length === 0
+                    ) {
                       return (
-                        <View
-                          key={transaction.id}
-                          className="w-full items-center"
-                        >
-                          {showDateHeader && (
-                            <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
-                              {formattedDate}
-                            </ThemedText>
-                          )}
-                          <TransactionItem
-                            transaction={transaction}
-                            theme={theme}
-                            onEdit={() =>
-                              handleEditTransaction(transaction.id ?? 0)
-                            }
-                            onDelete={() =>
-                              handleDeleteTransaction(transaction.id ?? 0)
-                            }
-                            checkpage={"transactions"}
-                            isOptionsVisible={
-                              activeOptionID?.type === "transaction" &&
-                              activeOptionID?.id === transaction.id
-                            } // ✅ ตรวจสอบว่าเปิดเมนู TransactionItem อยู่หรือไม่
-                            setOptionsVisible={() =>
-                              handleToggleOptions("transaction", transaction.id)
-                            } // ✅ เปิด/ปิดเมนู
-                          />
-                        </View>
+                        <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
+                          No transactions available
+                        </ThemedText>
                       );
                     }
-                  );
-                })()}
-              </View>
-            </ThemedView>
-          </ScrollView>
+
+                    return filteredTransactions.map(
+                      (transaction, index, sortedArray) => {
+                        const formattedDate = moment(
+                          transaction.transaction_date
+                        ).format("DD MMM YYYY");
+                        const showDateHeader =
+                          index === 0 ||
+                          formattedDate !==
+                            moment(
+                              sortedArray[index - 1].transaction_date
+                            ).format("DD MMM YYYY");
+
+                        return (
+                          <View
+                            key={transaction.id}
+                            className="w-full items-center"
+                          >
+                            {showDateHeader && (
+                              <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
+                                {formattedDate}
+                              </ThemedText>
+                            )}
+                            <TransactionItem
+                              transaction={transaction}
+                              theme={theme}
+                              onEdit={() =>
+                                handleEditTransaction(transaction.id ?? 0)
+                              }
+                              onDelete={() =>
+                                handleDeleteTransaction(transaction.id ?? 0)
+                              }
+                              checkpage={"transactions"}
+                              isOptionsVisible={
+                                activeOptionID?.type === "transaction" &&
+                                activeOptionID?.id === transaction.id
+                              } // ✅ ตรวจสอบว่าเปิดเมนู TransactionItem อยู่หรือไม่
+                              setOptionsVisible={() =>
+                                handleToggleOptions(
+                                  "transaction",
+                                  transaction.id
+                                )
+                              } // ✅ เปิด/ปิดเมนู
+                            />
+                          </View>
+                        );
+                      }
+                    );
+                  })()}
+                </View>
+              </ThemedView>
+            </TouchableWithoutFeedback>
+          </ThemedScrollView>
           {isOverlayVisible && (
             <TouchableWithoutFeedback
               onPress={() => {
