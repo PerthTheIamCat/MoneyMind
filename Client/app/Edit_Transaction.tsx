@@ -2,12 +2,7 @@ import { ThemedCard } from "@/components/ThemedCard";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedView } from "@/components/ThemedView";
-import React, {
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ServerContext } from "@/hooks/conText/ServerConText";
@@ -23,12 +18,15 @@ import {
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedInput } from "@/components/ThemedInput";
-import { router ,useLocalSearchParams} from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import DropdownComponent from "@/components/Dropdown";
 import Icon from "react-native-vector-icons/Feather";
 import { GetUserBank, resultObject } from "@/hooks/auth/GetUserBank";
 
-import { GetUserTransaction,EditIDTransaction } from "@/hooks/auth/GetAllTransaction";
+import {
+  GetUserTransaction,
+  EditIDTransaction,
+} from "@/hooks/auth/GetAllTransaction";
 import AddCategory from "@/components/AddCategory"; // ✅ นำเข้าไฟล์ที่แยกไว้
 
 type ThemedInputProps = {
@@ -45,22 +43,17 @@ export default function Index() {
   const { transactionId } = useLocalSearchParams();
   console.log(transactionId);
   const { bank, setTransaction, setBank, transaction, userID } =
-  useContext(UserContext);
+    useContext(UserContext);
   const theme = useColorScheme();
   const [isIncome, setIsIncome] = useState(true);
   // หมวดหมู่ของ Income และ Expense พร้อมโลโก้
   const [selectedIncomeCategory, setSelectedIncomeCategory] = useState("");
   const [selectedExpenseCategory, setSelectedExpenseCategory] = useState("");
   const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] =
-  useState(false);
+    useState(false);
   const [Amount, setAmount] = useState(0);
   const [Note, setNote] = useState("");
   const [newCategoryName, setNewCategoryNameState] = useState("");
-  
-  const setNewCategoryName = (text: string) => {
-    setNewCategoryNameState(text);
-  };
-  
   const [selectedIcon, setSelectedIcon] = useState("plus");
   const [openTime, setOpenTime] = useState(false);
   const today = new Date();
@@ -83,10 +76,10 @@ export default function Index() {
     setSelectedTime(localTime);
     hideTimePicker();
   };
-  
+
   const auth = useContext(AuthContext);
   const { URL } = useContext(ServerContext);
-  
+
   const incomeIconList = [
     "dollar-sign",
     "gift",
@@ -100,7 +93,7 @@ export default function Index() {
     "users",
     "bar-chart",
   ];
-  
+
   const expenseIconList = [
     "coffee",
     "home",
@@ -113,7 +106,7 @@ export default function Index() {
     "credit-card",
     "shopping-cart",
   ];
-  
+
   const [incomeCategories, setIncomeCategories] = useState([
     { name: "Salary", icon: "dollar-sign" },
     { name: "Bonus", icon: "gift" },
@@ -132,7 +125,7 @@ export default function Index() {
     { name: "Part-time Job", icon: "clock" },
     { name: "add", icon: "plus" },
   ]);
-  
+
   const [expenseCategories, setExpenseCategories] = useState([
     { name: "Food", icon: "coffee" },
     { name: "Transport", icon: "car" },
@@ -150,10 +143,9 @@ export default function Index() {
     { name: "Other", icon: "more-horizontal" },
     { name: "add", icon: "plus" },
   ]);
-  
+
   const reloadTransaction = () => {
-    
-    GetUserTransaction(URL, Number(userID),auth?.token!).then((res) => {
+    GetUserTransaction(URL, Number(userID), auth?.token!).then((res) => {
       if (res.success) {
         setTransaction(res.result);
       }
@@ -165,28 +157,83 @@ export default function Index() {
     });
   };
 
-  
-  
   const [categories, setCategories] = useState(incomeCategories);
-  
-  const [budgetPlan, setBudgetPlan] = useState<number|null>(null);
-  
+  const [budgetPlan, setBudgetPlan] = useState<number | null>(null);
+
   useEffect(() => {
     if (isIncome) {
       setCategories((prev) =>
         prev !== incomeCategories ? [...incomeCategories] : prev
-    );
-  } else {
-    setCategories((prev) =>
-      prev !== expenseCategories ? [...expenseCategories] : prev
       );
+    } else {
+      setCategories((prev) =>
+        prev !== expenseCategories ? [...expenseCategories] : prev
+      );
+    }}, [isIncome, incomeCategories, expenseCategories]);
+
+  useEffect(() => {
+    if (!transaction || !transactionId) return;
+    const TransactionEdit = transaction.find(
+      (item) => item.id === Number(transactionId)
+    );
+    if (TransactionEdit) {
+      const ISincome = TransactionEdit.transaction_type === "income";
+      setIsIncome(ISincome);
+      if (ISincome) {
+        setSelectedIncomeCategory(TransactionEdit.transaction_name);
+        setCategories(incomeCategories);
+      } else {
+        setSelectedExpenseCategory(TransactionEdit.transaction_name);
+        setCategories(expenseCategories);
+      }
+
+      // setBudgetPlan(TransactionEdit);
+      if (TransactionEdit.transaction_date) {
+        const timestamp = Date.parse(TransactionEdit.transaction_date);
+        if (!isNaN(timestamp)) {
+          setSelectedDate(new Date(timestamp));
+          setSelectedTime(new Date(timestamp));
+        }
+      }
+      setBudgetPlan(TransactionEdit.split_payment_id);
+      setAmount(TransactionEdit.amount);
+      setNote(TransactionEdit.note);
     }
-    
-  }, [isIncome, incomeCategories, expenseCategories]);
-  
-  
+
+    console.log(TransactionEdit?.transaction_type);
+    console.log(selectedDate);
+    console.log(selectedTime);
+    console.log(Amount);
+    console.log(Note);
+
+    if (
+      bank &&
+      bank.length > 0 &&
+      scrollViewRef.current &&
+      TransactionEdit?.account_id
+    ) {
+      const targetIndex = bank.findIndex(
+        (account) => account.id === TransactionEdit?.account_id
+      );
+
+      if (targetIndex !== -1) {
+        setTimeout(() => {
+          const cardWidth = 280 + 36;
+          const scrollPosition = targetIndex * cardWidth;
+          scrollViewRef.current?.scrollTo({
+            x: scrollPosition,
+            animated: true,
+          });
+          setSelectedCard(bank[targetIndex]); // ✅ ตั้งค่า selectedCard เป็นการ์ดแรก
+          console.log("🚀 First Card Selected:", bank[targetIndex]);
+        }, 500);
+      }
+    }
+
+  }, [transaction, bank]);
+
   // ฟังก์ชันแบ่งหมวดหมู่เป็น 2 แถวเสมอ
-  const splitIntoTwoRows = (arr: any[],) => {
+  const splitIntoTwoRows = (arr: any[]) => {
     if (!Array.isArray(arr) || arr.length === 0) return [[], []]; // ป้องกัน error ถ้า categories เป็น undefined
     const row1: any[] = [];
     const row2: any[] = [];
@@ -205,30 +252,28 @@ export default function Index() {
   const cardWidth = 280; // ✅ ความกว้างของ Card
   const cardMargin = 18; // ✅ Margin ระหว่างการ์ด
   const snapToInterval = cardWidth + cardMargin * 2; // ✅ ระยะ snap ให้เป๊ะ
-  
+
   const scrollViewRef = useRef<ScrollView>(null);
   const [selectedCard, setSelectedCard] = useState<resultObject | null>(null);
-  const [cardPositions, setCardPositions] = useState<
-    { id: number; x: number }[]
-    >([]);
-    
-    // ✅ เก็บตำแหน่ง X ของแต่ละ Card
-    const storeCardPosition = (id: number, x: number) => {
-      setCardPositions((prev) => {
+  const [cardPositions, setCardPositions] = useState<{ id: number; x: number }[]>([]);
+
+  // ✅ เก็บตำแหน่ง X ของแต่ละ Card
+  const storeCardPosition = (id: number, x: number) => {
+    setCardPositions((prev) => {
       const exists = prev.some((item) => item.id === id);
       if (!exists) return [...prev, { id, x }];
       return prev;
     });
   };
-  
+
   // ✅ ตรวจจับ Card ที่อยู่กลางหน้าจอ
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollX = event.nativeEvent.contentOffset.x;
     const centerScreen = scrollX + screenWidth / 2;
-    
+
     let closestCard: resultObject | null = null as resultObject | null;
     let minDistance = Number.MAX_VALUE;
-    
+
     cardPositions.forEach((cardPos) => {
       const distance = Math.abs(cardPos.x - centerScreen);
       if (distance < minDistance) {
@@ -236,135 +281,69 @@ export default function Index() {
         closestCard = bank?.find((item) => item.id === cardPos.id) || null;
       }
     });
-    
+
     if (closestCard && (closestCard as resultObject).id !== selectedCard?.id) {
       setSelectedCard(closestCard);
       console.log("🎯 Selected Card:", closestCard);
     }
   };
-  
-  useEffect(() =>  {
-    if (!transaction || !transactionId) return;
-        const TransactionEdit = transaction.find((item) => item.id === Number(transactionId));
-    if (TransactionEdit) {
-      const ISincome = TransactionEdit.transaction_type==="income";
-      setIsIncome(ISincome);
-      if (ISincome) {
-        setSelectedIncomeCategory(TransactionEdit.transaction_name);
-        setCategories(incomeCategories);
-      } else {
-        setSelectedExpenseCategory(TransactionEdit.transaction_name);
-        setCategories(expenseCategories);
-      }
-      
-      // setBudgetPlan(TransactionEdit);
-      if (TransactionEdit.transaction_date) {
-        const timestamp = Date.parse(TransactionEdit.transaction_date);
-        if (!isNaN(timestamp)) {
-          setSelectedDate(new Date(timestamp));
-          setSelectedTime(new Date(timestamp));
-        }
-      }
-      setBudgetPlan(TransactionEdit.split_payment_id);
-      setAmount(TransactionEdit.amount);
-      setNote(TransactionEdit.note);
-    }
-  
-    console.log(TransactionEdit?.transaction_type);
-    console.log(selectedDate);
-    console.log(selectedTime);
-    console.log(Amount);
-    console.log(Note);
 
-    if (bank && bank.length > 0 && scrollViewRef.current && TransactionEdit?.account_id) {
-      const targetIndex = bank.findIndex((account) => account.id === TransactionEdit?.account_id);
-      
-      if(targetIndex !== -1){
-        setTimeout(() => {
-          const cardWidth = 280+36 ;
-          const scrollPosition = targetIndex * cardWidth ;
-          scrollViewRef.current?.scrollTo({ x: scrollPosition, animated: true });
-          setSelectedCard(bank[targetIndex]); // ✅ ตั้งค่า selectedCard เป็นการ์ดแรก
-          console.log("🚀 First Card Selected:", bank[targetIndex]);
-        }, 500);
-      }
-    }
-  },[transaction,bank]);
-  
   // ✅ เก็บวันที่และเวลาที่เลือกไว้ใน State
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<Date>(new Date());
-  
+
   const updateTransaction = async () => {
     console.log(userID!);
     console.log(selectedCard?.id);
     console.log(isIncome ? selectedIncomeCategory : selectedExpenseCategory);
     console.log(Amount);
     console.log(isIncome ? "income" : "expense");
-    console.log(
-      selectedDate.toISOString().split("T")[0] +
-        " " +
-        selectedTime.toLocaleTimeString("en-GB", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-    );
+    console.log(selectedDate.toISOString().split("T")[0] +" " +selectedTime.toLocaleTimeString("en-GB", {hour: "2-digit",minute: "2-digit",}));
     console.log(Note);
     if (!selectedCard) {
       console.log("⚠️ No selectedCard, using default account");
       return;
     }
-
     try {
       const updatedTransaction = {
         user_id: userID!,
         account_id: selectedCard?.id,
         split_payment_id: budgetPlan,
-        transaction_name: isIncome? selectedIncomeCategory: selectedExpenseCategory,
+        transaction_name: isIncome ? selectedIncomeCategory: selectedExpenseCategory,
         amount: Amount,
         transaction_type: isIncome ? "income" : "expense",
         transaction_date:
-          selectedDate.toISOString().split("T")[0] +
-          " " +
-          selectedTime.toLocaleTimeString("en-GB", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
+        selectedDate.toISOString().split("T")[0] +" " +selectedTime.toLocaleTimeString("en-GB", {hour: "2-digit",minute: "2-digit",}),
         note: Note,
         color_code: "#FFFFFF",
       };
-  
-      console.log("🔄 Updating account with data:", updatedTransaction);
-  
 
-      const response = await EditIDTransaction(URL, Number(transactionId),
-      {
-        user_id: userID!,
-        account_id: selectedCard?.id,
-        split_payment_id: budgetPlan,
-        transaction_name: isIncome? selectedIncomeCategory: selectedExpenseCategory,
-        amount: Amount,
-        transaction_type: isIncome ? "income" : "expense",
-        transaction_date:
-          selectedDate.toISOString().split("T")[0] +
-          " " +
-          selectedTime.toLocaleTimeString("en-GB", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        note: Note,
-        color_code: "#FFFFFF",   
-      } ,auth?.token!);
-  
+      console.log("🔄 Updating account with data:", updatedTransaction);
+      const response = await EditIDTransaction(
+        URL,Number(transactionId),
+        {
+          user_id: userID!,
+          account_id: selectedCard?.id,
+          split_payment_id: budgetPlan,
+          transaction_name: isIncome ? selectedIncomeCategory : selectedExpenseCategory,
+          amount: Amount,
+          transaction_type: isIncome ? "income" : "expense",
+          transaction_date: selectedDate.toISOString().split("T")[0] + " " + selectedTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", }),
+          note: Note,
+          color_code: "#FFFFFF",
+        },
+        auth?.token!
+      );
+
       if (response.success) {
         console.log("✅ Successfully updated bank data:", response.result);
         setTransaction(response.result); // อัปเดต state ทันที
-  
+
         // ✅ โหลดข้อมูลบัญชีใหม่หลังจากอัปเดต
         await reloadTransaction();
-  
+
         router.replace("/(tabs)/transaction"); // กลับไปหน้าธุรกรรม
-      } 
+      }
     } catch (error) {
       console.error("❌ Error updating account:", error);
     }
@@ -388,8 +367,7 @@ export default function Index() {
             decelerationRate="fast"
             onScroll={handleScroll}
             scrollEventThrottle={16} // ✅ ตรวจจับ scroll อย่างละเอียด
-            className="w-full"
-          >
+            className="w-full">
             <ThemedView className="w-full px-16">
               <ThemedView className="mt-0.5 mb-1 flex-row space-x-1 gap-5">
                 {bank?.map((account: resultObject, index: number) => (
@@ -401,8 +379,7 @@ export default function Index() {
                         10 +
                         event.nativeEvent.layout.width / 2;
                       storeCardPosition(account.id, x);
-                    }}
-                  >
+                    }}>
                     <ThemedView>
                       <ThemedCard
                         key={account.id}
@@ -420,9 +397,6 @@ export default function Index() {
                           }
                         `}
                         isOptionsVisible={false}
-                        setOptionsVisible={function (): void {
-                          throw new Error("Function not implemented.");
-                        }}
                       />
                     </ThemedView>
                   </Pressable>
@@ -440,19 +414,14 @@ export default function Index() {
           scrollEventThrottle={16} // ควบคุมอัตราการอัปเดต scroll event
           decelerationRate={0.95} // ทำให้ scroll ช้าลง (ค่าปกติคือ 0.998, ยิ่งต่ำยิ่งช้าลง)
         >
-          <ThemedView
-            className={`${
-              theme === "dark" ? "bg-[#1f1f1f]" : "bg-[#ffffff]"
-            } mt-2  !justify-start !items-start w-full  rounded-t-[30px] `}
-          >
+          <ThemedView className={`${ theme === "dark" ? "bg-[#1f1f1f]" : "bg-[#ffffff]" } mt-2  !justify-start !items-start w-full  rounded-t-[30px] `}>
             <ThemedView className="w-full bg-transparent">
               <ThemedView className="flex-row px-10 w-fit h-12 rounded-sm p-1 mt-5 mb-4 bg-transparent">
                 <Pressable
                   onPress={() => setIsIncome(true)}
                   className={`w-32 h-full flex items-center justify-center rounded-2xl ${
                     isIncome ? "bg-green-500" : "bg-transparent"
-                  }`}
-                >
+                  }`}>
                   <ThemedText
                     className={`font-bold ${
                       isIncome
@@ -460,8 +429,7 @@ export default function Index() {
                         : theme === "dark"
                         ? "text-white"
                         : "text-black"
-                    }`}
-                  >
+                    }`}>
                     Income
                   </ThemedText>
                 </Pressable>
@@ -469,8 +437,7 @@ export default function Index() {
                   onPress={() => setIsIncome(false)}
                   className={`w-32 h-full flex items-center justify-center rounded-2xl ${
                     !isIncome ? "bg-red-500" : "bg-transparent"
-                  }`}
-                >
+                  }`}>
                   <ThemedText
                     className={`font-bold ${
                       !isIncome
@@ -478,8 +445,7 @@ export default function Index() {
                         : theme === "dark"
                         ? "text-white"
                         : "text-black"
-                    }`}
-                  >
+                    }`}>
                     Expense
                   </ThemedText>
                 </Pressable>
@@ -512,14 +478,11 @@ export default function Index() {
                   flexDirection: "column",
                   rowGap: 4, // ลดช่องว่างระหว่างแถว
                   alignItems: "center", // จัดให้แถว 1 และ 2 เริ่มใกล้กันมากขึ้น
-                }}
-              >
-                2 แถวแน่นอน
+                }}>
                 {categoryRows.map((row, rowIndex) => (
                   <ThemedView
                     key={rowIndex}
-                    className="flex-row mr-4 ml-10 mb-2 gap-4 bg-transparent"
-                  >
+                    className="flex-row mr-4 ml-10 mb-2 gap-4 bg-transparent">
                     {row.map((category, index) => (
                       <Pressable
                         key={`${category.name}-${index}`}
@@ -556,8 +519,7 @@ export default function Index() {
                           flexBasis: "auto",
                           minWidth: 90,
                           paddingHorizontal: 12,
-                        }}
-                      >
+                        }}>
                         {category.name === "add" ? (
                           <Icon
                             name={category.icon}
@@ -590,8 +552,7 @@ export default function Index() {
                                   : theme === "dark"
                                   ? "text-white"
                                   : "black"
-                              }`}
-                            > 
+                              }`}>
                               {category.name}
                             </ThemedText>
                           </>
@@ -637,8 +598,7 @@ export default function Index() {
             <ThemedView className="w-full px-10 mt-5 justify-center !items-start bg-transparent">
               <ThemedText
                 className="font-bold text-[16px] mb-2"
-                style={{ color: theme === "dark" ? "#FFF" : "#333" }}
-              >
+                style={{ color: theme === "dark" ? "#FFF" : "#333" }}>
                 Amount
               </ThemedText>
               <ThemedView className="w-full flex-row">
@@ -662,8 +622,7 @@ export default function Index() {
             <ThemedView className="w-full px-10 mt-5 mb-10 justify-center !items-start bg-transparent">
               <ThemedText
                 className="font-bold text-[16px] mb-7"
-                style={{ color: theme === "dark" ? "#FFF" : "#333" }}
-              >
+                style={{ color: theme === "dark" ? "#FFF" : "#333" }}>
                 Note
               </ThemedText>
               <ThemedView className="w-full h-20 flex-row">
@@ -673,7 +632,7 @@ export default function Index() {
                   multiline={true}
                   textAlignVertical="top"
                   onChangeText={(text) => setNote(text)}
-                  value={Note??""}
+                  value={Note ?? ""}
                   style={{
                     backgroundColor: theme === "dark" ? "#121212" : "#D9D9D9",
                     color: theme === "dark" ? "#FFF" : "#2F2F2F",
@@ -690,8 +649,7 @@ export default function Index() {
                   className=" px-10 w-56 h-12 bg-green-500"
                   onPress={async () => {
                     updateTransaction();
-                  }}
-                >
+                  }}>
                   Update Transaction
                 </ThemedButton>
               </ThemedView>

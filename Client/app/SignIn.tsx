@@ -9,9 +9,6 @@ import { NotificationsPostHandler } from "@/hooks/auth/NotificationsHandler";
 
 import { Image } from "expo-image";
 
-import { useState, useContext, useEffect } from "react";
-
-
 import { router } from "expo-router";
 
 import { useState, useContext, useEffect } from "react";
@@ -85,9 +82,6 @@ export default function Index() {
   };
 
   useEffect(() => {
-
-    console.log("Updated Auth Token:", auth?.token);
-  }, [auth?.token]); // ✅ Logs when token is updated
 
     async function sendNotification() {
       const deviceNumber = await Device.getDeviceTypeAsync();
