@@ -181,6 +181,7 @@ export default function Index() {
   };
   
   
+  
   const [categories, setCategories] = useState(incomeCategories);
   
   const [budgetPlan, setBudgetPlan] = useState<number|null>(null);
