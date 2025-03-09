@@ -54,7 +54,6 @@ export default function PinPage() {
       });
     }
   };
-
   useEffect(() => {
     if (auth?.canUseBiometrics) {
       auth?.useAuthenticationWithBiometrics().then((res) => {
@@ -63,6 +62,9 @@ export default function PinPage() {
         }
       });
     }
+  }, [auth?.canUseBiometrics]);
+
+  useEffect(() => {
     if (code.length === 6) {
       handleVerifyPin();
     }

@@ -69,7 +69,7 @@ export default function Index() {
 
   return (
     <ThemedSafeAreaView key={"home"}>
-      <ThemedView>
+      <ThemedView className="">
         <ThemedView
           className={`${componentIcon} flex-row !items-center !justify-between w-full px-4`}
         >
@@ -214,7 +214,7 @@ export default function Index() {
         </ThemedView>
       </ThemedView>
 
-      <ThemedView>
+      <ThemedView className="mb-52">
         <ThemedScrollView>
           {!transaction || transaction.length === 0 ? (
             <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
