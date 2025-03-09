@@ -7,7 +7,7 @@ const path = require('path');
 const dayjs = require('dayjs');
 const customParseFormat = require('dayjs/plugin/customParseFormat');
 // 📌 เพิ่ม Jimp สำหรับการประมวลผลภาพล่วงหน้า (Preprocessing)
-const Jimp = require('jimp');
+const { Jimp } = require('jimp');
 
 require('dayjs/locale/th'); // ใช้งานภาษาไทย
 dayjs.extend(customParseFormat);
@@ -59,7 +59,7 @@ router.post('/', upload.single('image'), async (req, res) => {
         let jimpImage = await Jimp.read(imagePath);
 
         // 1) แปลงภาพให้เป็นขาวดำ (Grayscale)
-        jimpImage = jimpImage.grayscale();
+        jimpImage = jimpImage.greyscale();
 
         // 2) เพิ่ม Contrast เพื่อให้ตัวหนังสือชัดเจนขึ้น (ปรับค่าตามความเหมาะสม)
         jimpImage = jimpImage.contrast(0.5);
@@ -69,7 +69,7 @@ router.post('/', upload.single('image'), async (req, res) => {
         jimpImage = jimpImage.threshold({ max: 128 });
 
         // บันทึกทับไฟล์ต้นฉบับ (หรืออาจบันทึกเป็นไฟล์ใหม่เพื่อเก็บข้อมูลไว้ใช้งาน)
-        await jimpImage.writeAsync(imagePath);
+        await jimpImage.write(imagePath);
 
         console.log('✅ Preprocessing completed.');
 
