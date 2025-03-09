@@ -41,6 +41,7 @@ import { GetUserIDTransaction } from "@/hooks/auth/GetAllTransaction";
 import { GetUserTransaction } from "@/hooks/auth/GetAllTransaction";
 import { transform } from "@babel/core";
 import AddCategory from "@/components/AddCategory"; // ✅ นำเข้าไฟล์ที่แยกไว้
+import { log } from "console";
 // import DatePicker from "react-native-date-picker";
 
 type ThemedInputProps = {
@@ -200,6 +201,7 @@ export default function Index() {
     
   }, [isIncome, incomeCategories, expenseCategories]);
 
+
   // ฟังก์ชันแบ่งหมวดหมู่เป็น 2 แถวเสมอ
   const splitIntoTwoRows = (arr: any[],) => {
     if (!Array.isArray(arr) || arr.length === 0) return [[], []]; // ป้องกัน error ถ้า categories เป็น undefined
@@ -215,7 +217,7 @@ export default function Index() {
     return [row1, row2]; // ต้อง return array of arrays เสมอ
   };
 
-  // const categoryRows = splitIntoTwoRows(categories); // ป้องกัน undefined
+  const categoryRows = splitIntoTwoRows(categories); // ป้องกัน undefined
   const screenWidth = Dimensions.get("window").width; // ✅ ความกว้างของหน้าจอ
   const cardWidth = 280; // ✅ ความกว้างของ Card
   const cardMargin = 18; // ✅ Margin ระหว่างการ์ด
@@ -262,10 +264,17 @@ export default function Index() {
     if (!transaction || !transactionId) return;
   
     const TransactionEdit = transaction.find((item) => item.id === Number(transactionId));
-    
     if (TransactionEdit) {
-      setIsIncome(TransactionEdit.transaction_type==="income"?true:false);
-      // {isIncome===true?setSelectedIncomeCategory(TransactionEdit.transaction_name):setSelectedExpenseCategory(TransactionEdit.transaction_name)}
+      const ISincome = TransactionEdit.transaction_type==="income";
+      setIsIncome(ISincome);
+      if (ISincome) {
+        setSelectedIncomeCategory(TransactionEdit.transaction_name);
+        setCategories(incomeCategories);
+      } else {
+        setSelectedExpenseCategory(TransactionEdit.transaction_name);
+        setCategories(expenseCategories);
+      }
+      
       // setBudgetPlan(TransactionEdit);
       if (TransactionEdit.transaction_date) {
         const timestamp = Date.parse(TransactionEdit.transaction_date);
@@ -280,12 +289,26 @@ export default function Index() {
     
     console.log("###TESTCHECK ###");
     
-    console.log(isIncome);
+    console.log(TransactionEdit?.transaction_type);
     console.log(selectedDate);
     console.log(selectedTime);
     console.log(Amount);
     console.log(Note);
-  },[transaction]);
+
+    if (bank && bank.length > 0 && scrollViewRef.current && TransactionEdit?.account_id) {
+      const targetIndex = bank.findIndex((account) => account.id === TransactionEdit?.account_id);
+
+      if(targetIndex !== -1){
+        setTimeout(() => {
+          const cardWidth = 280+36 ;
+          const scrollPosition = targetIndex * cardWidth ;
+          scrollViewRef.current?.scrollTo({ x: scrollPosition, animated: true });
+          setSelectedCard(bank[targetIndex]); // ✅ ตั้งค่า selectedCard เป็นการ์ดแรก
+          console.log("🚀 First Card Selected:", bank[targetIndex]);
+        }, 500);
+      }
+    }
+  },[transaction,bank]);
 
   // ✅ เก็บวันที่และเวลาที่เลือกไว้ใน State
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -460,8 +483,8 @@ export default function Index() {
                   alignItems: "center", // จัดให้แถว 1 และ 2 เริ่มใกล้กันมากขึ้น
                 }}
               >
-                {/* 2 แถวแน่นอน */}
-                {/* {categoryRows.map((row, rowIndex) => (
+                2 แถวแน่นอน
+                {categoryRows.map((row, rowIndex) => (
                   <ThemedView
                     key={rowIndex}
                     className="flex-row mr-4 ml-10 mb-2 gap-4 bg-transparent"
@@ -545,7 +568,7 @@ export default function Index() {
                       </Pressable>
                     ))}
                   </ThemedView>
-                ))} */}
+                ))}
               </ThemedScrollView>
             </ThemedView>
 
