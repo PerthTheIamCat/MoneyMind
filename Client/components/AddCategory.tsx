@@ -86,7 +86,7 @@ const AddCategory: React.FC<AddCategoryProps> = ({
         }}
       >
         <ThemedView className="flex-1 items-center justify-center bg-black/50">
-          <ThemedView className="w-4/5 p-6 rounded-3xl shadow-lg bg-white">
+          <ThemedView className={`w-4/5 p-6 rounded-3xl shadow-lg ${theme === "dark" ? "bg-[#282828]" : "bg-white"}`}>
             <ThemedText className="text-xl font-bold">
               Add New Category
             </ThemedText>
