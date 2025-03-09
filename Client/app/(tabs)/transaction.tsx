@@ -326,7 +326,7 @@ export default function TransactionPage() {
             className="h-[440px] py-2"
             keyboardShouldPersistTaps="handled"
           >
-            <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-12">
+            <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-20">
               <View className="w-full !items-center">
                 {(() => {
                   const filteredTransactions =

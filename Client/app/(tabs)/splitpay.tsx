@@ -312,7 +312,7 @@ export default function SplitPay() {
   return (
     <>
       <ThemedSafeAreaView>
-        <ThemedView>
+        <ThemedView className="">
           <ThemedView className="flex-row !justify-between w-full px-4">
             <Image
               source={require("@/assets/logos/LOGO.png")}
@@ -463,7 +463,7 @@ export default function SplitPay() {
                       <BudgetSkeleton />
                     </View>
                   ) : Budgets && page === 0 ? (
-                    <ThemedView className="w-full h-full mt-5 px-5 !bg-transparent !justify-start gap-3">
+                    <ThemedView className="w-full h-full mt-5 px-5 !bg-transparent !justify-start gap-3 pb-28">
                       {Budgets.map((budget, index) => {
                         const isOpen =
                           isBudgetOpenIndex.find((item) => item.index === index)
