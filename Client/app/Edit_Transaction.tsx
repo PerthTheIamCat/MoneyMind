@@ -1,5 +1,4 @@
 import { ThemedCard } from "@/components/ThemedCard";
-import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ThemedView } from "@/components/ThemedView";
@@ -8,18 +7,14 @@ import React, {
   useEffect,
   useRef,
   useState,
-  useCallback,
 } from "react";
 import { UserContext } from "@/hooks/conText/UserContext";
-import { CreateUserTransaction } from "@/hooks/auth/CreateTransaction";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import {
   Dimensions,
-  Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Platform,
   Pressable,
   ScrollView,
   TextInput,
@@ -30,18 +25,11 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedInput } from "@/components/ThemedInput";
 import { router ,useLocalSearchParams} from "expo-router";
 import DropdownComponent from "@/components/Dropdown";
-import { ThemedScrollViewCenter } from "@/components/ThemedScrollViewCenter";
 import Icon from "react-native-vector-icons/Feather";
-// import DateTimePickerInput from "@/components/Date_and_Time";
-// import CustomDateTimePicker from "@/components/Date_and_Time";
 import { GetUserBank, resultObject } from "@/hooks/auth/GetUserBank";
-import { th } from "react-native-paper-dates";
 
 import { GetUserTransaction,EditIDTransaction } from "@/hooks/auth/GetAllTransaction";
-import { transform } from "@babel/core";
 import AddCategory from "@/components/AddCategory"; // ✅ นำเข้าไฟล์ที่แยกไว้
-import { log } from "console";
-// import DatePicker from "react-native-date-picker";
 
 type ThemedInputProps = {
   className?: string;
@@ -74,9 +62,6 @@ export default function Index() {
   };
   
   const [selectedIcon, setSelectedIcon] = useState("plus");
-  const [date, setDate] = useState(new Date().getTime() + 7 * 60 * 60 * 1000); // เก็บค่า Date
-  const [time, setTime] = useState(new Date().getTime()); // เก็บค่า Time
-  const [openDate, setOpenDate] = useState(false);
   const [openTime, setOpenTime] = useState(false);
   const today = new Date();
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -179,14 +164,12 @@ export default function Index() {
       }
     });
   };
-  
+
   
   
   const [categories, setCategories] = useState(incomeCategories);
   
   const [budgetPlan, setBudgetPlan] = useState<number|null>(null);
-  const [selectedBudget, setSelectedBudget] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
   
   useEffect(() => {
     if (isIncome) {
@@ -286,9 +269,7 @@ export default function Index() {
       setAmount(TransactionEdit.amount);
       setNote(TransactionEdit.note);
     }
-    
-    console.log("###TESTCHECK ###");
-    
+  
     console.log(TransactionEdit?.transaction_type);
     console.log(selectedDate);
     console.log(selectedTime);
@@ -387,10 +368,6 @@ export default function Index() {
     } catch (error) {
       console.error("❌ Error updating account:", error);
     }
-
-    // console.log("✅ Selected transaction ID:");
-    // reloadTransaction();
-    // router.replace("/(tabs)/transaction");
   };
 
   return (
