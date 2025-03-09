@@ -5,7 +5,7 @@ import { ThemedInput } from "@/components/ThemedInput";
 import { ThemedText } from "@/components/ThemedText";
 import { SignInHandler } from "@/hooks/auth/SignInHandler";
 import { Image } from "expo-image";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { router } from "expo-router";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
@@ -69,6 +69,10 @@ export default function Index() {
       alert("An error occurred while signing in. Please try again.");
     }
   };
+
+  useEffect(() => {
+    console.log("Updated Auth Token:", auth?.token);
+  }, [auth?.token]); // ✅ Logs when token is updated
 
   return (
     <ThemedSafeAreaView>
