@@ -71,3 +71,42 @@ export const GetUserIDTransaction = async (
     return (error as GetUserTransactionError).response.data;
   }
 };
+
+
+
+export const EditIDTransaction = async (
+  url: string,
+  id: number,
+  updatetransaction : {
+    user_id: number;
+    account_id: number;
+    split_payment_id: number | null;
+    transaction_name: string;
+    amount: number;
+    transaction_type: "income" | "expense";
+    transaction_date: string;
+    note: string;
+    color_code: string;
+  },
+  token: string
+): Promise<GetUserTransactionResponse | GetUserTransactionError["response"]["data"]> => {
+  try {
+    console.log("Updating Transaction ID:", id);
+    console.log("Data to update:", updatetransaction);
+    
+    const response = await axios.put<GetUserTransactionResponse>(
+      `${url}/transactions/${id}`,
+      updatetransaction,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      }
+    );
+    console.log("✅ API Response:", response.data); // 🛠 Debug ดูว่าค่าที่ได้เป็นอะไร
+    return response.data;
+  } catch (error) {
+    console.error("❌ Update failed:", (error as GetUserTransactionError).response.data);
+    return (error as GetUserTransactionError).response.data;
+  }
+};

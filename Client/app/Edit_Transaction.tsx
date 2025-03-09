@@ -37,8 +37,7 @@ import Icon from "react-native-vector-icons/Feather";
 import { GetUserBank, resultObject } from "@/hooks/auth/GetUserBank";
 import { th } from "react-native-paper-dates";
 
-import { GetUserIDTransaction } from "@/hooks/auth/GetAllTransaction";
-import { GetUserTransaction } from "@/hooks/auth/GetAllTransaction";
+import { GetUserTransaction,EditIDTransaction } from "@/hooks/auth/GetAllTransaction";
 import { transform } from "@babel/core";
 import AddCategory from "@/components/AddCategory"; // ✅ นำเข้าไฟล์ที่แยกไว้
 import { log } from "console";
@@ -56,25 +55,24 @@ type ThemedInputProps = {
 
 export default function Index() {
   const { transactionId } = useLocalSearchParams();
-
   console.log(transactionId);
   const { bank, setTransaction, setBank, transaction, userID } =
-    useContext(UserContext);
+  useContext(UserContext);
   const theme = useColorScheme();
   const [isIncome, setIsIncome] = useState(true);
   // หมวดหมู่ของ Income และ Expense พร้อมโลโก้
   const [selectedIncomeCategory, setSelectedIncomeCategory] = useState("");
   const [selectedExpenseCategory, setSelectedExpenseCategory] = useState("");
   const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] =
-    useState(false);
+  useState(false);
   const [Amount, setAmount] = useState(0);
   const [Note, setNote] = useState("");
   const [newCategoryName, setNewCategoryNameState] = useState("");
-
+  
   const setNewCategoryName = (text: string) => {
     setNewCategoryNameState(text);
   };
-
+  
   const [selectedIcon, setSelectedIcon] = useState("plus");
   const [date, setDate] = useState(new Date().getTime() + 7 * 60 * 60 * 1000); // เก็บค่า Date
   const [time, setTime] = useState(new Date().getTime()); // เก็บค่า Time
@@ -100,10 +98,10 @@ export default function Index() {
     setSelectedTime(localTime);
     hideTimePicker();
   };
-
+  
   const auth = useContext(AuthContext);
   const { URL } = useContext(ServerContext);
-
+  
   const incomeIconList = [
     "dollar-sign",
     "gift",
@@ -117,7 +115,7 @@ export default function Index() {
     "users",
     "bar-chart",
   ];
-
+  
   const expenseIconList = [
     "coffee",
     "home",
@@ -130,7 +128,7 @@ export default function Index() {
     "credit-card",
     "shopping-cart",
   ];
-
+  
   const [incomeCategories, setIncomeCategories] = useState([
     { name: "Salary", icon: "dollar-sign" },
     { name: "Bonus", icon: "gift" },
@@ -149,7 +147,7 @@ export default function Index() {
     { name: "Part-time Job", icon: "clock" },
     { name: "add", icon: "plus" },
   ]);
-
+  
   const [expenseCategories, setExpenseCategories] = useState([
     { name: "Food", icon: "coffee" },
     { name: "Transport", icon: "car" },
@@ -169,7 +167,8 @@ export default function Index() {
   ]);
   
   const reloadTransaction = () => {
-    GetUserIDTransaction(URL, Number(transactionId)).then((res) => {
+    
+    GetUserTransaction(URL, Number(userID),auth?.token!).then((res) => {
       if (res.success) {
         setTransaction(res.result);
       }
@@ -180,28 +179,28 @@ export default function Index() {
       }
     });
   };
-
-
+  
+  
   const [categories, setCategories] = useState(incomeCategories);
-
-  const [budgetPlan, setBudgetPlan] = useState<number>(-1);
+  
+  const [budgetPlan, setBudgetPlan] = useState<number|null>(null);
   const [selectedBudget, setSelectedBudget] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-
+  
   useEffect(() => {
     if (isIncome) {
       setCategories((prev) =>
         prev !== incomeCategories ? [...incomeCategories] : prev
-      );
-    } else {
-      setCategories((prev) =>
-        prev !== expenseCategories ? [...expenseCategories] : prev
+    );
+  } else {
+    setCategories((prev) =>
+      prev !== expenseCategories ? [...expenseCategories] : prev
       );
     }
     
   }, [isIncome, incomeCategories, expenseCategories]);
-
-
+  
+  
   // ฟังก์ชันแบ่งหมวดหมู่เป็น 2 แถวเสมอ
   const splitIntoTwoRows = (arr: any[],) => {
     if (!Array.isArray(arr) || arr.length === 0) return [[], []]; // ป้องกัน error ถ้า categories เป็น undefined
@@ -222,30 +221,30 @@ export default function Index() {
   const cardWidth = 280; // ✅ ความกว้างของ Card
   const cardMargin = 18; // ✅ Margin ระหว่างการ์ด
   const snapToInterval = cardWidth + cardMargin * 2; // ✅ ระยะ snap ให้เป๊ะ
-
+  
   const scrollViewRef = useRef<ScrollView>(null);
   const [selectedCard, setSelectedCard] = useState<resultObject | null>(null);
   const [cardPositions, setCardPositions] = useState<
     { id: number; x: number }[]
-  >([]);
-
-  // ✅ เก็บตำแหน่ง X ของแต่ละ Card
-  const storeCardPosition = (id: number, x: number) => {
-    setCardPositions((prev) => {
+    >([]);
+    
+    // ✅ เก็บตำแหน่ง X ของแต่ละ Card
+    const storeCardPosition = (id: number, x: number) => {
+      setCardPositions((prev) => {
       const exists = prev.some((item) => item.id === id);
       if (!exists) return [...prev, { id, x }];
       return prev;
     });
   };
-
+  
   // ✅ ตรวจจับ Card ที่อยู่กลางหน้าจอ
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollX = event.nativeEvent.contentOffset.x;
     const centerScreen = scrollX + screenWidth / 2;
-
+    
     let closestCard: resultObject | null = null as resultObject | null;
     let minDistance = Number.MAX_VALUE;
-
+    
     cardPositions.forEach((cardPos) => {
       const distance = Math.abs(cardPos.x - centerScreen);
       if (distance < minDistance) {
@@ -253,17 +252,16 @@ export default function Index() {
         closestCard = bank?.find((item) => item.id === cardPos.id) || null;
       }
     });
-
+    
     if (closestCard && (closestCard as resultObject).id !== selectedCard?.id) {
       setSelectedCard(closestCard);
       console.log("🎯 Selected Card:", closestCard);
     }
   };
-
+  
   useEffect(() =>  {
     if (!transaction || !transactionId) return;
-  
-    const TransactionEdit = transaction.find((item) => item.id === Number(transactionId));
+        const TransactionEdit = transaction.find((item) => item.id === Number(transactionId));
     if (TransactionEdit) {
       const ISincome = TransactionEdit.transaction_type==="income";
       setIsIncome(ISincome);
@@ -283,6 +281,7 @@ export default function Index() {
           setSelectedTime(new Date(timestamp));
         }
       }
+      setBudgetPlan(TransactionEdit.split_payment_id);
       setAmount(TransactionEdit.amount);
       setNote(TransactionEdit.note);
     }
@@ -297,7 +296,7 @@ export default function Index() {
 
     if (bank && bank.length > 0 && scrollViewRef.current && TransactionEdit?.account_id) {
       const targetIndex = bank.findIndex((account) => account.id === TransactionEdit?.account_id);
-
+      
       if(targetIndex !== -1){
         setTimeout(() => {
           const cardWidth = 280+36 ;
@@ -309,12 +308,12 @@ export default function Index() {
       }
     }
   },[transaction,bank]);
-
+  
   // ✅ เก็บวันที่และเวลาที่เลือกไว้ใน State
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<Date>(new Date());
-
-  const saveTransaction = () => {
+  
+  const updateTransaction = async () => {
     console.log(userID!);
     console.log(selectedCard?.id);
     console.log(isIncome ? selectedIncomeCategory : selectedExpenseCategory);
@@ -334,9 +333,63 @@ export default function Index() {
       return;
     }
 
-    console.log("✅ Selected transaction ID:");
-    reloadTransaction();
-    router.replace("/(tabs)/transaction");
+    try {
+      const updatedTransaction = {
+        user_id: userID!,
+        account_id: selectedCard?.id,
+        split_payment_id: budgetPlan,
+        transaction_name: isIncome? selectedIncomeCategory: selectedExpenseCategory,
+        amount: Amount,
+        transaction_type: isIncome ? "income" : "expense",
+        transaction_date:
+          selectedDate.toISOString().split("T")[0] +
+          " " +
+          selectedTime.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        note: Note,
+        color_code: "#FFFFFF",
+      };
+  
+      console.log("🔄 Updating account with data:", updatedTransaction);
+  
+
+      const response = await EditIDTransaction(URL, Number(transactionId),
+      {
+        user_id: userID!,
+        account_id: selectedCard?.id,
+        split_payment_id: budgetPlan,
+        transaction_name: isIncome? selectedIncomeCategory: selectedExpenseCategory,
+        amount: Amount,
+        transaction_type: isIncome ? "income" : "expense",
+        transaction_date:
+          selectedDate.toISOString().split("T")[0] +
+          " " +
+          selectedTime.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        note: Note,
+        color_code: "#FFFFFF",   
+      } ,auth?.token!);
+  
+      if (response.success) {
+        console.log("✅ Successfully updated bank data:", response.result);
+        setTransaction(response.result); // อัปเดต state ทันที
+  
+        // ✅ โหลดข้อมูลบัญชีใหม่หลังจากอัปเดต
+        await reloadTransaction();
+  
+        router.replace("/(tabs)/transaction"); // กลับไปหน้าธุรกรรม
+      } 
+    } catch (error) {
+      console.error("❌ Error updating account:", error);
+    }
+
+    // console.log("✅ Selected transaction ID:");
+    // reloadTransaction();
+    // router.replace("/(tabs)/transaction");
   };
 
   return (
@@ -658,10 +711,10 @@ export default function Index() {
                 <ThemedButton
                   className=" px-10 w-56 h-12 bg-green-500"
                   onPress={async () => {
-                    saveTransaction();
+                    updateTransaction();
                   }}
                 >
-                  Add Transaction
+                  Update Transaction
                 </ThemedButton>
               </ThemedView>
             </ThemedView>
