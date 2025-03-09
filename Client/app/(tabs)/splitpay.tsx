@@ -86,7 +86,7 @@ export default function SplitPay() {
     useState<boolean>(false);
   const [timer, setTimer] = useState<number>(5);
 
-  const { bank, userID, retire } = useContext(UserContext);
+  const { bank, userID, retire, notification } = useContext(UserContext);
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
 
@@ -334,6 +334,9 @@ export default function SplitPay() {
                 marginRight: "5%",
               }}
             />
+            {notification?.find((noti) => !noti.is_read) && (
+              <View className="w-3 h-3 bg-red-500 absolute rounded-full right-10 animate-pulse" />
+            )}
           </ThemedView>
           <ThemedView className="w-[50%] pt-5">
             <ThemedView

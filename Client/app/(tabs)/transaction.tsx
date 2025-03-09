@@ -40,7 +40,7 @@ export default function TransactionPage() {
     router.push(`../Edit_Transaction?id=${transactionId}`);
   };
 
-  const { bank, transaction } = useContext(UserContext) ?? {
+  const { bank, transaction, notification } = useContext(UserContext) ?? {
     bank: [],
     transaction: [],
   };
@@ -266,6 +266,9 @@ export default function TransactionPage() {
                 marginRight: "5%",
               }}
             />
+            {notification?.find((noti) => !noti.is_read) && (
+              <View className="w-3 h-3 bg-red-500 absolute rounded-full right-10 animate-pulse" />
+            )}
           </ThemedView>
           <ThemedView className="!items-start pl-[10%] pt-[2%] bg-[E5E5E5]">
             <ThemedText className=" text-[18px]">Connected</ThemedText>
