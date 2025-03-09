@@ -92,33 +92,28 @@ export default function Account_Detail() {
 
   const [showConfirmAll, setShowConfirmAll] = useState(false);
 
-  const [showConfirmDeleteAccount, setShowConfirmDeleteAccount] =
-    useState(false);
+  const [showConfirmDeleteAccount, setShowConfirmDeleteAccount] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
 
-  const [username, setUsername] = useState(mockAccount.user_name);
-  const [displayUsername, setDisplayUsername] = useState(mockAccount.user_name);
+  // username
+  const {username, setUsername} = useContext(UserContext);
+  const [displayUsername, setDisplayUsername] = useState(username);
+  const [editUsername, setEditUsername] = useState(username); // ค่าแก้ไข
   const [modalVisible_Username, setModalVisible_Username] = useState(false);
 
-  const [full_name, setFull_name] = useState(mockAccount.full_name);
-  const [displayfull_name, setDisplayfull_name] = useState(
-    mockAccount.full_name
-  );
+  // Fullname
+  const {fullname, setFullname} = useContext(UserContext);
+  const [displayfull_name, setDisplayfull_name] = useState(fullname);
+  const [editFullname, setEditfullname] = useState(username); // ค่าแก้ไข
   const [modalVisible_Fullname, setModalVisible_Fullname] = useState(false);
 
-  const [displaybirth_day, setDisplaybirth_day] = useState<Date>(
-    new Date(mockAccount.birth_day)
-  );
+  // DatePicker
+  const {birthdate, setBirthdate } = useContext(UserContext);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [modalVisible_Birth_day, setModalVisible_Birth_day] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date>(
-    new Date(mockAccount.birth_day)
-  );
-
-  // ใช้ tempDate เก็บค่าชั่วคราวขณะเลือกวันเกิด
-  const [tempDate, setTempDate] = useState<Date>(
-    new Date(mockAccount.birth_day)
-  );
+  const initialDate = birthdate ? new Date(birthdate) : new Date(); 
+  const [selectedDate, setSelectedDate] = useState<Date>(initialDate); // ค่าแสดงผล
+  const [editBirthdate, setEditBirthdate] = useState<Date>(initialDate); // ค่าแก้ไข
 
   const theme = useColorScheme();
   const [isEditing, setIsEditing] = useState(false);
@@ -165,14 +160,14 @@ export default function Account_Detail() {
   };
 
   const showDatePicker = () => {
-    setTempDate(selectedDate); // กำหนด tempDate ให้เท่ากับค่าที่ใช้อยู่
+    setEditBirthdate(selectedDate); // ใช้ค่าปัจจุบัน
     setDatePickerVisibility(true);
   };
   const hideDatePicker = () => setDatePickerVisibility(false);
 
   const handleDateConfirm = (date: Date) => {
     console.log("Choose birthday: ", date.toLocaleString("th-TH"));
-    setTempDate(date); // กำหนด tempDate เป็นค่าที่เลือกใหม่
+    setEditBirthdate(date); // กำหนดค่าใหม่ที่เลือก
     hideDatePicker();
   };
 
@@ -201,15 +196,15 @@ export default function Account_Detail() {
       });
   };
 
-  useEffect(() => {
-    if (modalVisible_Username) {
-      setUsername(displayUsername);
-    }
-  }, [modalVisible_Username]);
+    useEffect(() => {
+      if (modalVisible_Username) {
+        setEditUsername(displayUsername);
+      }
+    }, [modalVisible_Username]);
 
   useEffect(() => {
     if (modalVisible_Fullname) {
-      setFull_name(displayfull_name);
+      setEditfullname(displayfull_name);
     }
   }, [modalVisible_Fullname]);
 
@@ -254,7 +249,7 @@ export default function Account_Detail() {
           <ThemedText className=" text-2xl font-bold ">Full Name</ThemedText>
           <ThemedView className="flex-row justify-between items-center w-full pr-8">
             <ThemedText className=" text-xl font-bold pl-3 ">
-              {displayfull_name}{" "}
+              {displayfull_name || "-"}
             </ThemedText>
             <Pressable
               onPress={() => setModalVisible_Fullname(true)}
@@ -416,7 +411,13 @@ export default function Account_Detail() {
 
       {/* ปุ่ม save */}
       <Pressable
-        onPress={() => setIsEditing(!isEditing)}
+        onPress={() => {
+          if (isEditing) {
+            setUsername(displayUsername ?? ""); // อัปเดตค่า Context
+            setFullname(displayfull_name ?? "");
+            setBirthdate(selectedDate.toISOString().split("T")[0]);
+          }
+          setIsEditing(!isEditing)}}
         className="absolute top-3 right-3 bg-amber-500 px-4 py-2 rounded-lg shadow-lg"
       >
         <Text className="text-white font-bold">
@@ -660,8 +661,8 @@ export default function Account_Detail() {
                   What do you want to change your username to?
                 </ThemedText>
                 <ThemedInput
-                  value={username}
-                  onChangeText={setUsername}
+                  value={editUsername}
+                  onChangeText={setEditUsername}
                   placeholder="Enter new username"
                   style={{
                     flex: 1,
@@ -700,9 +701,8 @@ export default function Account_Detail() {
                       borderRadius: 10,
                     }}
                     onPress={() => {
-                      setDisplayUsername(username);
+                      setDisplayUsername(editUsername); // อัปเดตค่าแสดงผล
                       setModalVisible_Username(false);
-                      // ดำเนินการลบที่นี่
                     }}
                   >
                     <ThemedText style={{ color: "white", fontWeight: "bold" }}>
@@ -747,8 +747,8 @@ export default function Account_Detail() {
                   What do you want to change your Full Name to?
                 </ThemedText>
                 <ThemedInput
-                  value={full_name}
-                  onChangeText={setFull_name}
+                  value={editFullname}
+                  onChangeText={setEditfullname}
                   placeholder="Enter new username"
                   style={{
                     flex: 1,
@@ -787,9 +787,8 @@ export default function Account_Detail() {
                       borderRadius: 10,
                     }}
                     onPress={() => {
-                      setDisplayfull_name(full_name);
+                      setDisplayfull_name(editFullname ?? ""); // อัปเดตค่าแสดงผล
                       setModalVisible_Fullname(false);
-                      // ดำเนินการลบที่นี่
                     }}
                   >
                     <ThemedText style={{ color: "white", fontWeight: "bold" }}>
@@ -821,7 +820,7 @@ export default function Account_Detail() {
                   onConfirm={handleDateConfirm}
                   onCancel={hideDatePicker}
                   is24Hour={true}
-                  date={tempDate} // ใช้ tempDate แทน birth_day
+                  date={editBirthdate} // ใช้ tempDate แทน birth_day
                   maximumDate={new Date()} // ป้องกันเลือกวันในอนาคต
                   locale="th-TH"
                 />
@@ -832,7 +831,7 @@ export default function Account_Detail() {
                     <ThemedInput
                       className="w-full"
                       error=""
-                      value={tempDate.toLocaleDateString("th-TH", {
+                      value={editBirthdate.toLocaleDateString("th-TH", {
                         year: "numeric",
                         month: "numeric",
                         day: "numeric",
@@ -855,8 +854,7 @@ export default function Account_Detail() {
                 <Pressable
                   className="bg-green-500 p-2 rounded-lg"
                   onPress={() => {
-                    setSelectedDate(tempDate);
-                    setDisplaybirth_day(tempDate);
+                    setSelectedDate(editBirthdate);
                     setModalVisible_Birth_day(false);
                   }}
                 >
