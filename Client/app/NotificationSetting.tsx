@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
   View,
-  Switch,
   StyleSheet,
   useColorScheme,
   ScrollView,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
@@ -18,6 +18,10 @@ import {
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { AuthContext } from "@/hooks/conText/AuthContext";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 interface SettingsState {
   money_overuse: boolean;
@@ -29,7 +33,7 @@ interface SettingsState {
   vibration_shaking: boolean;
 }
 
-// ✅ Default settings (used if no saved data exists)
+// ✅ Default settings
 const defaultSettings: SettingsState = {
   money_overuse: false,
   spending_alert: false,
@@ -38,6 +42,30 @@ const defaultSettings: SettingsState = {
   debt_payment_reminder: false,
   sound_notification: false,
   vibration_shaking: false,
+};
+
+// 🎛 **Custom Switch Component**
+const CustomSwitch = ({
+  value,
+  onToggle,
+}: {
+  value: boolean;
+  onToggle: () => void;
+}) => {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={onToggle}
+      style={[styles.switchToggle, value ? styles.switchOn : styles.switchOff]}
+    >
+      <View
+        style={[
+          styles.switchHandle,
+          value ? styles.switchHandleOn : styles.switchHandleOff,
+        ]}
+      />
+    </TouchableOpacity>
+  );
 };
 
 const NotificationSettings = () => {
@@ -55,11 +83,10 @@ const NotificationSettings = () => {
           return;
         }
 
-        console.log("Fetching settings from API...");
+        console.log("📡 Fetching settings from API...");
         const response = await getNotificationSettings(URL, userID, auth.token);
 
         if (response?.success && response.result) {
-          // ✅ Ensure response.result has all required fields
           const extractedSettings: SettingsState = {
             money_overuse: response.result.money_overuse ?? false,
             spending_alert: response.result.spending_alert ?? false,
@@ -71,13 +98,13 @@ const NotificationSettings = () => {
             vibration_shaking: response.result.vibration_shaking ?? false,
           };
 
-          setSettings(extractedSettings); // ✅ Now TypeScript is happy!
+          setSettings(extractedSettings);
           await AsyncStorage.setItem(
             "notification_settings",
             JSON.stringify(extractedSettings)
           );
         } else {
-          console.warn("API failed, trying local storage...");
+          console.warn("⚠️ API failed, trying local storage...");
           const savedSettings = await AsyncStorage.getItem(
             "notification_settings"
           );
@@ -86,7 +113,7 @@ const NotificationSettings = () => {
           }
         }
       } catch (error) {
-        console.error("Error loading settings:", error);
+        console.error("❌ Error loading settings:", error);
         Alert.alert("Error", "Failed to load settings.");
       }
     }
@@ -97,23 +124,20 @@ const NotificationSettings = () => {
     try {
       const updatedSettings = {
         ...settings,
-        [key]: !settings[key], // ✅ Toggle `true ↔ false`
+        [key]: !settings[key],
       };
-      setSettings(updatedSettings); // ✅ Update state
+      setSettings(updatedSettings);
 
-      // ✅ Save locally
       await AsyncStorage.setItem(
         "notification_settings",
         JSON.stringify(updatedSettings)
       );
 
-      // ✅ Prepare API payload
       const requestBody = {
         settingList: updatedSettings,
         update: new Date().toISOString(),
       };
 
-      // ✅ Save to database
       console.log("📡 Saving to database:", requestBody);
       const response = await updateNotificationSettings(
         URL,
@@ -138,34 +162,48 @@ const NotificationSettings = () => {
   return (
     <ThemedSafeAreaView>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* General Notifications Section */}
+        {/* 🎯 General Notifications Section */}
         <ThemedView
           style={theme === "dark" ? styles.sectionDark : styles.section}
         >
-          <ThemedText
-            style={[
-              styles.sectionTitle,
-              theme === "dark" && styles.sectionTitleDark,
-            ]}
-          >
+          <ThemedText className="fontWegth-bold text-2xl text-left">
             General Notifications
           </ThemedText>
-
-          {Object.entries(settings).map(([key, value]) => (
-            <ThemedView key={key} style={styles.row}>
-              <ThemedText
-                style={[styles.label, theme === "dark" && styles.labelDark]}
-              >
+          {[
+            "money_overuse",
+            "spending_alert",
+            "saving_goal_alert",
+            "monthly_summary",
+            "debt_payment_reminder",
+          ].map((key) => (
+            <ThemedView key={key} style={styles.settingRow}>
+              <ThemedText className="text-xl">
                 {key.replace(/_/g, " ")}
               </ThemedText>
-              <Switch
-                value={value} // ✅ Using boolean directly
-                onValueChange={() => toggleSetting(key as keyof SettingsState)}
-                trackColor={{
-                  false: "#767577",
-                  true: theme === "dark" ? "#2B9348" : "#81b0ff",
-                }}
-                thumbColor={value ? "#aacc00" : "#f1f1f1"}
+              <CustomSwitch
+                value={settings[key as keyof SettingsState]}
+                onToggle={() => toggleSetting(key as keyof SettingsState)}
+              />
+            </ThemedView>
+          ))}
+        </ThemedView>
+
+        {/* 🎯 Advanced Settings Section */}
+        <ThemedView
+          style={theme === "dark" ? styles.sectionDark : styles.section}
+        >
+          <ThemedText className="fontWegth-bold text-2xl text-left">
+            Advanced Settings
+          </ThemedText>
+          {["sound_notification", "vibration_shaking"].map((key) => (
+            <ThemedView key={key} style={styles.settingRow}>
+              <ThemedText className="text-xl">
+                {" "}
+                {key.replace(/_/g, " ")}
+              </ThemedText>
+              <CustomSwitch
+                value={settings[key as keyof SettingsState]}
+                onToggle={() => toggleSetting(key as keyof SettingsState)}
               />
             </ThemedView>
           ))}
@@ -175,60 +213,75 @@ const NotificationSettings = () => {
   );
 };
 
+// 🎨 **Improved UI Styling**
 const styles = StyleSheet.create({
   scrollContainer: {
-    padding: 20,
+    paddingHorizontal: 20,
     paddingBottom: 40,
   },
-  section: {
-    marginBottom: 30,
-    backgroundColor: "#F5F5F5",
-    borderRadius: 20,
+  header: {
+    alignItems: "center",
+    marginBottom: 20,
     padding: 15,
+    borderBottomWidth: 1,
+    borderColor: "#ddd",
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#2B9348",
+  },
+  section: {
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   sectionDark: {
-    marginBottom: 30,
-    backgroundColor: "#1e1e1e",
-    borderRadius: 20,
-    padding: 15,
-    shadowColor: "#1e1e1e",
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 3,
+    backgroundColor: "#181818",
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 20,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 10,
-    borderBottomWidth: 1,
-    borderColor: "#ccc",
-    paddingBottom: 5,
-    textAlign: "left",
-    color: "#000",
-  },
-  sectionTitleDark: {
-    color: "#FFF",
-    borderColor: "#555",
-  },
-  row: {
+  settingRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginVertical: 8,
-    width: 320,
+    paddingVertical: 12,
     backgroundColor: "transparent",
+    width: wp("70"),
+    height: hp("10%"),
   },
-  label: {
+  settingLabel: {
     fontSize: 16,
-    textAlign: "left",
-    color: "#000000",
+    color: "white",
   },
-  labelDark: {
-    color: "#FFF",
+
+  // 🎛 **Custom Switch Styling**
+  switchToggle: {
+    width: 50,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    padding: 3,
+  },
+  switchOn: {
+    backgroundColor: "#2B9348",
+    alignItems: "flex-end",
+  },
+  switchOff: {
+    backgroundColor: "#ccc",
+    alignItems: "flex-start",
+  },
+  switchHandle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#fff",
   },
 });
 
