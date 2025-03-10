@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const decodeToken = (token: string) => {
     try {
       const decoded: any = jwtDecode(token);
-      // console.log("Decoded token:", decoded);
+      console.log("Decoded token:", decoded);
       return decoded;
     } catch (error) {
       console.error("Error decoding token:", error);

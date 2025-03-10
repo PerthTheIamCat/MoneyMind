@@ -539,7 +539,7 @@ router.get('/', jwtValidate, (req, res) => {
       console.log("Returning response with retirement plan values");
       return res.status(200).json({
         success: true,
-        data: result[0]
+        result: result[0]
       });
     }
   );

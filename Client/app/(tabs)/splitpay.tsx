@@ -39,7 +39,6 @@ import { ServerContext } from "@/hooks/conText/ServerConText";
 import { resultObject } from "@/hooks/auth/GetUserBank";
 
 import Slider from "@react-native-community/slider";
-import { de, tr } from "react-native-paper-dates";
 
 interface SplitPayProps {
   id: number;
@@ -204,7 +203,7 @@ export default function SplitPay() {
         });
       }, 500);
     }
-  }, [bank]);
+  }, [bank, page]);
 
   const modalHeight = Dimensions.get("window").height;
   const modalAnimation = useRef(new Animated.Value(-modalHeight)).current;
@@ -378,52 +377,119 @@ export default function SplitPay() {
               </ThemedText>
             </ThemedView>
 
-            {bank ? (
+            {(
+              bank?.filter(
+                (account: resultObject) => account.account_name !== "Retirement"
+              ) || []
+            ).length > 0 && page === 0 ? (
               <ThemedView className="!items-center w-full ">
                 <ThemedView className="!items-center w-full mb-5 ">
                   <ScrollView
-                    ref={scrollViewRef} // ✅ ให้ ScrollView ใช้ ref
+                    ref={scrollViewRef}
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    snapToInterval={snapToInterval} // ✅ ทำให้ ScrollView หยุดที่แต่ละการ์ด
+                    snapToInterval={snapToInterval}
                     decelerationRate="fast"
                     onScroll={handleScroll}
-                    scrollEventThrottle={16} // ✅ ตรวจจับ scroll อย่างละเอียด
+                    scrollEventThrottle={16}
                     className="w-full"
                   >
                     <ThemedView className="w-full px-16">
                       <ThemedView className="mt-0.5 mb-1 flex-row space-x-1 gap-5">
-                        {bank?.map((account: resultObject, index: number) => (
-                          <Pressable
-                            key={account.id}
-                            onLayout={(event) => {
-                              const x =
-                                event.nativeEvent.layout.x +
-                                10 +
-                                event.nativeEvent.layout.width / 2;
-                              storeCardPosition(account.id, x);
-                            }}
-                          >
-                            <ThemedView>
-                              <ThemedCard
-                                key={account.id}
-                                CardID={account.id}
-                                name={account.account_name}
-                                color={account.color_code}
-                                balance={account.balance.toString()}
-                                mode="large"
-                                imageIndex={Number(account.icon_id)}
-                                className={`!items-center !justify-center bg-[#fefefe] rounded-lg 
-                                          ${
-                                            selectedCard?.id === account.id
-                                              ? "border-4 border-[#03A696]"
-                                              : "border-0"
-                                          }
-                                        `}
-                              />
-                            </ThemedView>
-                          </Pressable>
-                        ))}
+                        {bank
+                          ?.filter(
+                            (account: resultObject) =>
+                              account.account_name !== "Retirement"
+                          )
+                          .map((account: resultObject, index: number) => (
+                            <Pressable
+                              key={account.id}
+                              onLayout={(event) => {
+                                const x =
+                                  event.nativeEvent.layout.x +
+                                  10 +
+                                  event.nativeEvent.layout.width / 2;
+                                storeCardPosition(account.id, x);
+                              }}
+                            >
+                              <ThemedView>
+                                <ThemedCard
+                                  key={account.id}
+                                  CardID={account.id}
+                                  name={account.account_name}
+                                  color={account.color_code}
+                                  balance={account.balance.toString()}
+                                  mode="large"
+                                  imageIndex={Number(account.icon_id)}
+                                  className={`!items-center !justify-center bg-[#fefefe] rounded-lg 
+                        ${
+                          selectedCard?.id === account.id
+                            ? "border-4 border-[#03A696]"
+                            : "border-0"
+                        }
+                      `}
+                                />
+                              </ThemedView>
+                            </Pressable>
+                          ))}
+                      </ThemedView>
+                    </ThemedView>
+                  </ScrollView>
+                </ThemedView>
+              </ThemedView>
+            ) : (bank?.filter(
+                (account: resultObject) => account.account_name === "Retirement"
+              ).length ?? 0) > 0 && page === 1 ? (
+              <ThemedView className="!items-center w-full ">
+                <ThemedView className="!items-center w-full mb-5 ">
+                  <ScrollView
+                    ref={scrollViewRef}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    snapToInterval={snapToInterval}
+                    decelerationRate="fast"
+                    onScroll={handleScroll}
+                    scrollEventThrottle={16}
+                    className="w-full"
+                  >
+                    <ThemedView className="w-full px-16">
+                      <ThemedView className="mt-0.5 mb-1 flex-row space-x-1 gap-5">
+                        {bank
+                          ?.filter(
+                            (account: resultObject) =>
+                              account.account_name === "Retirement"
+                          )
+                          .map((account: resultObject, index: number) => (
+                            <Pressable
+                              key={account.id}
+                              onLayout={(event) => {
+                                const x =
+                                  event.nativeEvent.layout.x +
+                                  10 +
+                                  event.nativeEvent.layout.width / 2;
+                                storeCardPosition(account.id, x);
+                              }}
+                            >
+                              <ThemedView>
+                                <ThemedCard
+                                  key={account.id}
+                                  CardID={account.id}
+                                  name={account.account_name}
+                                  color={account.color_code}
+                                  balance={account.balance.toString()}
+                                  mode="large"
+                                  imageIndex={Number(account.icon_id)}
+                                  className={`!items-center !justify-center bg-[#fefefe] rounded-lg 
+                        ${
+                          selectedCard?.id === account.id
+                            ? "border-4 border-[#03A696]"
+                            : "border-0"
+                        }
+                      `}
+                                />
+                              </ThemedView>
+                            </Pressable>
+                          ))}
                       </ThemedView>
                     </ThemedView>
                   </ScrollView>
@@ -465,9 +531,12 @@ export default function SplitPay() {
                       <BudgetSkeleton />
                       <BudgetSkeleton />
                     </View>
-                  ) : Budgets && page === 0 ? (
+                  ) : (Budgets?.filter(
+                      (budget: SplitPayProps) =>
+                        budget.split_name !== "Retirement"
+                    ).length ?? 0) > 0 && page === 0 ? (
                     <ThemedView className="w-full h-full mt-5 px-5 !bg-transparent !justify-start gap-3 pb-28">
-                      {Budgets.map((budget, index) => {
+                      {Budgets?.map((budget, index) => {
                         const isOpen =
                           isBudgetOpenIndex.find((item) => item.index === index)
                             ?.isOpen || false;
@@ -489,7 +558,7 @@ export default function SplitPay() {
                                 });
                               }, 1000);
                             }}
-                            onEdit={(budget) => {
+                            onEdit={(budget: SplitPayProps) => {
                               setIsEdit(true);
                               setEditID(budget.id);
                               setBudgetName(budget.split_name);
@@ -544,14 +613,17 @@ export default function SplitPay() {
                         </ThemedView>
                       </ThemedButton>
                     </ThemedView>
-                  ) : retire && page === 1 ? (
+                  ) : Budgets && retire && page === 1 ? (
                     <ThemedView className="w-full h-full mt-5 px-5 !bg-transparent !justify-start gap-3">
-                      {retire.map((retire, index) => {
+                      {Budgets.filter(
+                        (budget) => budget.split_name === "Retirement"
+                      ).map((budget, index) => {
                         const isOpen =
                           isBudgetOpenIndex.find((item) => item.index === index)
                             ?.isOpen || false;
                         return (
                           <RetireItem
+                            retire={budget}
                             onDelete={(id: number) => {
                               setEditID(id);
                               setIsDeleteConfirmOpen(true);
@@ -569,22 +641,28 @@ export default function SplitPay() {
                               }, 1000);
                             }}
                             key={index}
-                            retire={retire}
                             isOpen={isOpen}
                             onToggle={() =>
-                              setIsBudgetOpenIndex((prev) => {
-                                const newState = [...prev];
-                                const existingItemIndex = newState.findIndex(
-                                  (item) => item.index === index
-                                );
-                                if (existingItemIndex >= 0) {
-                                  newState[existingItemIndex].isOpen =
-                                    !newState[existingItemIndex].isOpen;
-                                } else {
-                                  newState.push({ index: index, isOpen: true });
+                              setIsBudgetOpenIndex(
+                                (
+                                  prev: { index: number; isOpen: boolean }[]
+                                ) => {
+                                  const newState = [...prev];
+                                  const existingItemIndex = newState.findIndex(
+                                    (item) => item.index === index
+                                  );
+                                  if (existingItemIndex >= 0) {
+                                    newState[existingItemIndex].isOpen =
+                                      !newState[existingItemIndex].isOpen;
+                                  } else {
+                                    newState.push({
+                                      index: index,
+                                      isOpen: true,
+                                    });
+                                  }
+                                  return newState;
                                 }
-                                return newState;
-                              })
+                              )
                             }
                             componentIcon={componentIcon}
                           />

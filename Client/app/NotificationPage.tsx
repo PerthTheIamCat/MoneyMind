@@ -121,14 +121,28 @@ export default function Index() {
         created_at: item.created_at || new Date().toISOString(),
       };
     });
-    
+
     // Find the specific notification to update
-    const notificationToUpdate = newData.find(item => item.id === id);
-    
+    const notificationToUpdate = newData.find((item) => item.id === id);
+
     if (notificationToUpdate) {
-      NotificationsPutHandler(URL, id, notificationToUpdate, auth?.token!);
+      NotificationsPutHandler(
+        URL,
+        id,
+        {
+          is_read: true,
+        },
+        auth?.token!
+      ).then((response) => {
+        console.log("Notification Update", response);
+        if (response.success) {
+          console.log(response.result);
+        } else {
+          console.log(response);
+        }
+      });
     }
-    
+
     setData(newData);
     setNotification(newData);
   };

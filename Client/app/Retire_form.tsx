@@ -24,6 +24,7 @@ import { SplitpaymentsPostHandler } from "@/hooks/auth/SplitpaymentsHandler";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { UserContext } from "@/hooks/conText/UserContext";
+import axios from "axios";
 
 // Helper to convert text into a number or fallback to 0
 function safeNumber(text: string): number {
@@ -122,7 +123,7 @@ export default function Retire_form() {
     useState<number>(0);
   const [monthlySavingNeeded, setMonthlySavingNeeded] = useState<number>(0);
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     setRetire([
       {
         id: 1,
@@ -132,7 +133,27 @@ export default function Retire_form() {
         user_id: userID!,
       },
     ]);
-    router.back();
+    await axios
+      .post(
+        `${URL}/splitpayments/retirement`,
+        {
+          user_id: userID,
+          amount_allocated: totalNeededAtRetirement,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${auth?.token}`,
+          },
+        }
+      )
+      .then((response) => {
+        if (response.data.success) {
+          console.log("Split payment success:", response.data);
+          router.back();
+        } else {
+          console.log("Split payment failed:", response.data.message);
+        }
+      });
   };
 
   const calculate_retirement = () => {
