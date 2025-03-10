@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "287526783129",
+    "project_id": "moneymind-push",
+    "storage_bucket": "moneymind-push.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:287526783129:android:574127de98abe5cd639008",
+        "android_client_info": {
+          "package_name": "com.anonymous.MoneyMind"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2t8OIoPqGf1_tlWpHAspoz2Q_e93KapE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
