@@ -100,7 +100,12 @@ export default function Index() {
         </ThemedView>
 
         <ThemedView className="!justify-start mt-5 w-[80%] flex-row">
-          <Feather name="circle" size={40} color={`${componentIcon}`} />
+          <Feather
+            name="circle"
+            size={40}
+            color={`${componentIcon}`}
+            onPress={() => router.push("/test")}
+          />
           <ThemedText className="text-xl font-bold pl-3 text-start">
             {username ? username : "FirstName LastName"}
           </ThemedText>
