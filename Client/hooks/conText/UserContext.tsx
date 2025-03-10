@@ -48,6 +48,7 @@ type UserContextType = {
   transaction: Array<UserTransaction> | null;
   notification: Array<UserNotification> | null;
   retire: Array<UserRetire> | null;
+
   setUsername: (user: string) => void;
   setUserID: (id: number) => void;
   setEmail: (email: string) => void;
@@ -57,6 +58,7 @@ type UserContextType = {
   setNotification: (transaction: Array<UserNotification>) => void;
   setBank: (bank: Array<resultObject>) => void;
   setRetire: (retire: Array<UserRetire>) => void;
+
   loading: boolean;
 };
 
@@ -205,7 +207,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           console.error("Failed to fetch notifications:", error);
           setNotification([]);
         });
-      GetRetirement(URL, userID.toString(), auth?.token!).then((response) => {
+      GetRetirement(URL, auth?.token!).then((response) => {
         if (response.success && "result" in response) {
           console.log("get retirement success:", response);
           setRetire([

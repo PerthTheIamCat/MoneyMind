@@ -7,20 +7,23 @@ import Feather from "@expo/vector-icons/Feather";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 
-type UserRetire = {
+interface SplitPayProps {
   id: number;
   user_id: number;
-  monthly_savings_goal: number;
-  total_savings_goal: number;
-  current_savings: number;
-};
+  account_id: number;
+  split_name: string;
+  amount_allocated: number;
+  remaining_balance: number;
+  color_code: string;
+  icon_id: number;
+}
 
 interface RetireItemProps {
-  retire: UserRetire;
+  retire: SplitPayProps;
   isOpen: boolean;
   onToggle: () => void;
   componentIcon: string;
-  onDelete: (id: number) => void;
+  onDelete?: (id: number) => void;
 }
 
 const RetireItem: React.FC<RetireItemProps> = ({
@@ -58,13 +61,13 @@ const RetireItem: React.FC<RetireItemProps> = ({
               style={{
                 backgroundColor: "#80B918",
                 width: `${
-                  (retire.current_savings / retire.total_savings_goal) * 100
+                  (retire.remaining_balance / retire.amount_allocated) * 100
                 }%`,
               }}
             ></View>
             <ThemedText className="absolute text-xs pl-1 font-bold text-white">
               {Math.round(
-                (retire.current_savings / retire.total_savings_goal) * 100
+                (retire.remaining_balance / retire.amount_allocated) * 100
               )}
               %
             </ThemedText>
@@ -97,19 +100,19 @@ const RetireItem: React.FC<RetireItemProps> = ({
             <ThemedView className="w-full flex-row justify-between mt-2">
               <ThemedText className="font-bold">Total:</ThemedText>
               <ThemedText className="font-bold">
-                {retire.total_savings_goal.toFixed(2)}
+                {retire.amount_allocated.toFixed(2)}
               </ThemedText>
             </ThemedView>
             <ThemedView className="w-full flex-row justify-between">
               <ThemedText className="font-bold">Saving:</ThemedText>
               <ThemedText className="font-bold">
-                {retire.current_savings.toFixed(2)}
+                {retire.remaining_balance.toFixed(2)}
               </ThemedText>
             </ThemedView>
             <ThemedView className="w-full flex-row justify-between">
               <ThemedText className="font-bold">Remaining:</ThemedText>
               <ThemedText className="font-bold">
-                {(retire.total_savings_goal - retire.current_savings).toFixed(
+                {(retire.amount_allocated - retire.remaining_balance).toFixed(
                   2
                 )}
               </ThemedText>
@@ -122,7 +125,9 @@ const RetireItem: React.FC<RetireItemProps> = ({
             size={24}
             color={"#C93540"}
             onPress={() => {
-              onDelete(retire.id);
+              if (onDelete) {
+                onDelete(retire.id);
+              }
             }}
           />
         </View>

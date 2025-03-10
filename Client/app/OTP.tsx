@@ -10,6 +10,7 @@ import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
 import { TextInput, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { CreateUserBank } from "@/hooks/auth/CreateUserBank";
+import axios from "axios";
 
 const OTP_LENGTH = 6;
 
@@ -81,29 +82,43 @@ export default function OTP() {
       password2: passwordConfirmation!,
       name: username!,
       otp: otp.join(""),
-    }).then((response) => {
+    }).then(async (response) => {
       if (response.success) {
         setIsVerifying(false);
         auth?.setToken(response.accessToken);
         clearTimeout(timeout);
-        CreateUserBank(
-          URL,
-          {
-            user_id: auth?.decodeToken(response.accessToken).user_id,
-            account_name: "Retirement",
-            balance: 0,
-            color_code: "#80B918",
-            icon_id: "",
-          },
-          response.accessToken
-        ).then((response) => {
-          if (response.success) {
-            router.replace("/CreatePinPage");
+        console.log("User created");
+        const user_id = await auth?.decodeToken(response.accessToken).UserID;
+        try {
+          console.log("Sending request to create bank account", {
+            user_id: user_id!,
+          });
+
+          const result = await axios.post(
+            `${URL}/bankaccounts/retirement`,
+            {
+              user_id: user_id!,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${response.accessToken}`,
+              },
+            }
+          );
+
+          console.log("Response received:", result.data);
+
+          if (result.data.success) {
+            console.log("Bank account created");
+            router.push("/CreatePinPage");
           } else {
-            alert(response.message);
-            console.error(response.message);
+            console.error("API returned an error:", result.data);
+            alert(result.data.message);
           }
-        });
+        } catch (error) {
+          console.error("Error in axios.post:", error);
+          alert("An error occurred while creating the bank account.");
+        }
       } else {
         setIsVerifying(false);
         clearTimeout(timeout);

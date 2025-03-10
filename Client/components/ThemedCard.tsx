@@ -30,11 +30,20 @@ const formatBalance = (balance: string): string => {
   const truncateTwoDecimal = (value: number) => Math.floor(value * 100) / 100;
 
   if (num >= 1_000_000_000) {
-    return `${truncateTwoDecimal(num / 1_000_000_000).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} B฿`;
+    return `${truncateTwoDecimal(num / 1_000_000_000).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} B฿`;
   } else if (num >= 1_000_000) {
-    return `${truncateTwoDecimal(num / 1_000_000).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} M฿`;
+    return `${truncateTwoDecimal(num / 1_000_000).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} M฿`;
   } else {
-    return `${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ฿`;
+    return `${num.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} ฿`;
   }
 };
 
@@ -136,10 +145,10 @@ export function ThemedCard({
       if (deleteRes.success) {
         console.log("✅ Deleted successfully");
       } else {
-        console.error("❌ Failed to delete account:", deleteRes.message);
+        console.log("❌ Failed to delete account:", deleteRes.message);
       }
     } catch (error) {
-      console.error("❌ Error deleting bank:", error);
+      console.log("❌ Error deleting bank:", error);
     }
     reloadBank();
     reloadTransaction();
@@ -211,7 +220,6 @@ export function ThemedCard({
                       });
                       setOptionsVisible?.(false);
                     }}
-                    
                   >
                     <ThemedText className="text-blue-600">Edit</ThemedText>
                   </Pressable>

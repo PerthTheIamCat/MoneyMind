@@ -2,12 +2,12 @@ import axios from "axios";
 
 interface NoticePut {
   id?: number;
-  user_id: number;
-  notification_type: "security" | "monthly_summary";
-  message: string;
+  user_id?: number;
+  notification_type?: "security" | "monthly_summary";
+  message?: string;
   is_read?: boolean;
   created_at?: string;
-  color_type: "green" | "yellow" | "red";
+  color_type?: "green" | "yellow" | "red";
 }
 
 interface NoticeResponse {

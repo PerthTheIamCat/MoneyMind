@@ -127,9 +127,6 @@ export default function Index() {
               </ThemedView>
             </ThemedView>
             <ThemedView className="w-[80%] pt-5 flex-row !justify-around">
-              <ThemedButton className="w-40 h-10 bg-yellow-500">
-                New Plan
-              </ThemedButton>
               <ThemedButton
                 className="w-40 h-10 bg-yellow-500"
                 onPress={() => router.push("/Retire_form")}

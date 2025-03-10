@@ -117,12 +117,12 @@ interface RetirementValuesError {
 
 export const GetRetirement = async (
   url: string,
-  userID: string,
   token: string
 ): Promise<RetirementValuesError | RetirementValuesResponse> => {
   try {
+    console.log("GetRetirement", `${url}/retirement`);
     const response = await axios.get<RetirementValuesResponse>(
-      `${url}/retirement/${userID}`,
+      `${url}/retirement`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

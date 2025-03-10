@@ -56,10 +56,12 @@ const BudgetItem: React.FC<BudgetItemProps> = ({
           className="w-20 h-20 rounded-xl"
           style={{ backgroundColor: budget.color_code }}
         >
-          {React.cloneElement(icons[budget.icon_id], {
-            size: 24,
-            style: { marginVertical: 5 },
-          })}
+          {budget.icon_id != null && icons[budget.icon_id]
+            ? React.cloneElement(icons[budget.icon_id], {
+                size: 24,
+                style: { marginVertical: 5 },
+              })
+            : null}
         </ThemedView>
         <ThemedView className="gap-2 ml-4 w-[60%] !items-start bg-transparent">
           <ThemedView className="w-full flex flex-row justify-between">

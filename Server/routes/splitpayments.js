@@ -1,26 +1,26 @@
 const express = require('express')  // Import express
 const router = express.Router()     // Create express app
-require('dotenv').config();    
+require('dotenv').config();
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: false }))
 
-const {router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail} = require('./auth')
+const { router: authRouter, jwtValidate, getUserIDbyusername, getUserIDbyemail } = require('./auth')
 const db = require('./db');
 const { use } = require('./ocr');
 
 router.post('/retirement', jwtValidate, (req, res) => {
     const { user_id,
-            amount_allocated, 
-            color_code,
-            icon_id
-        } = req.body;
+        amount_allocated,
+        color_code,
+        icon_id
+    } = req.body;
 
     const split_name = "Retirement"
 
     console.log("DATA:", user_id, split_name, amount_allocated, color_code, icon_id)
-    
-    if(req.user.UserID !== user_id) {
+
+    if (req.user.UserID !== user_id) {
         console.log("Unauthorized user")
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
@@ -63,6 +63,7 @@ router.post('/retirement', jwtValidate, (req, res) => {
                     const splitResult = result[0];
 
                     if (result.length > 0) {
+
                        db.query(
                         'UPDATE splitpayments SET account_id = ?, split_name = ? , amount_allocated = ? , remaining_balance = ?, color_code = ?, icon_id = ? WHERE id = ?',
                         [account_id, split_name, amount_allocated, splitResult.remaining_balance, color_code || null, icon_id || null, splitResult.id],
@@ -74,9 +75,9 @@ router.post('/retirement', jwtValidate, (req, res) => {
                                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
                             }
 
-                            console.log('Retirement Splitpayment Updated')
-                            return res.status(200).json({result, message: 'Retirement Splitpayment Updated', success: true })
-                        })
+                                console.log('Retirement Splitpayment Updated')
+                                return res.status(200).json({ result, message: 'Retirement Splitpayment Updated', success: true })
+                            })
                     } else {
                         db.query(
                             'INSERT INTO splitpayments (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)',
@@ -88,9 +89,9 @@ router.post('/retirement', jwtValidate, (req, res) => {
                                     console.log("Error:", err);
                                     return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
                                 }
-    
+
                                 console.log('Retirement Splitpayment Created')
-                                return res.status(201).json({splitpeyResult, message: 'Retirement Splitpayment Created', success: true })
+                                return res.status(201).json({ splitpeyResult, message: 'Retirement Splitpayment Created', success: true })
                             }
                         )
                     }
@@ -103,12 +104,12 @@ router.post('/retirement', jwtValidate, (req, res) => {
 
 router.post('/create', jwtValidate, (req, res) => {
     const { user_id,
-            account_id, 
-            split_name, 
-            amount_allocated, 
-            color_code,
-            icon_id
-        } = req.body;
+        account_id,
+        split_name,
+        amount_allocated,
+        color_code,
+        icon_id
+    } = req.body;
 
     const remaining_balance = amount_allocated
 
@@ -120,7 +121,7 @@ router.post('/create', jwtValidate, (req, res) => {
         return res.status(403).json({ message: 'Unauthorized user', success: false });
     }
 
-    if(split_name === "Retirement") {
+    if (split_name === "Retirement") {
         console.log("Split name cannot be Retirement")
         return res.status(400).json({ message: 'Split name cannot be Retirement', success: false });
     }
@@ -131,8 +132,8 @@ router.post('/create', jwtValidate, (req, res) => {
     }
 
     db.query(
-        'SELECT ba.balance, SUM(sp.amount_allocated) AS sumAmount FROM bankaccounts ba LEFT JOIN splitpayments sp ON ba.id = sp.account_id WHERE ba.id = ? and ba.user_id = ? GROUP BY ba.id, ba.balance', 
-        [account_id, user_id], 
+        'SELECT ba.balance, SUM(sp.amount_allocated) AS sumAmount FROM bankaccounts ba LEFT JOIN splitpayments sp ON ba.id = sp.account_id WHERE ba.id = ? and ba.user_id = ? GROUP BY ba.id, ba.balance',
+        [account_id, user_id],
         (err, result) => {
             if (err) {
                 console.log("Error from /create from SELECT ba.balance, SUM(sp.amount_allocated) AS sumAmount FROM bankaccounts ba LEFT JOIN splitpayments sp ON ba.id = sp.account_id WHERE ba.id = ? and ba.user_id = ? GROUP BY ba.id, ba.balance");
@@ -148,7 +149,7 @@ router.post('/create', jwtValidate, (req, res) => {
             }
 
             let sumSplitpay = result[0]
-            console.log("Sum amount splitpayment:",sumSplitpay)
+            console.log("Sum amount splitpayment:", sumSplitpay)
 
             let remaining = sumSplitpay.balance - sumSplitpay.sumAmount
             console.log("Remaining can allocate from balance:", remaining)
@@ -171,10 +172,10 @@ router.post('/create', jwtValidate, (req, res) => {
                     }
 
                     console.log('Splitpayment Created')
-                    return res.status(201).json({splitpeyResult, message: 'Splitpayment Created', success: true })
+                    return res.status(201).json({ splitpeyResult, message: 'Splitpayment Created', success: true })
                 }
             )
-        } 
+        }
     )
 })
 
@@ -182,7 +183,7 @@ router.get('/:id', jwtValidate, (req, res) => { //account_id
 
     db.query(
         'SELECT * FROM splitpayments WHERE account_id = ?',
-        [req.params.id, req.user.UserID], 
+        [req.params.id, req.user.UserID],
         (err, result) => {
             if (err) {
                 console.log("Error from .get/:id from SELECT * FROM splitpayments WHERE account_id = ?");
@@ -198,7 +199,7 @@ router.get('/:id', jwtValidate, (req, res) => { //account_id
             }
 
             console.log("Get Splitpayment")
-            return res.status(200).json({result, success: true});
+            return res.status(200).json({ result, success: true });
         }
     )
 })
@@ -208,7 +209,7 @@ router.put('/:id', jwtValidate, (req, res) => { //splitpayment_id
     const { split_name, amount_allocated, color_code, icon_id } = req.body;
 
     console.log("DATA:", split_name, amount_allocated, color_code, icon_id)
-    
+
     db.query(
         'SELECT sp.account_id, ba.user_id, sp.amount_allocated, sp.remaining_balance FROM splitpayments sp JOIN bankaccounts ba ON sp.account_id = ba.id WHERE sp.id = ? AND ba.user_id = ?',
         [splitPaymentId, req.user.UserID],
@@ -334,7 +335,7 @@ router.delete('/:id', jwtValidate, (req, res) => { //splitpayment_id
                         }
 
                         console.log("Split Payment deleted successfully and related transactions updated")
-                        return res.status(200).json({updateResult, message: 'Split Payment deleted successfully and related transactions updated', success: true });
+                        return res.status(200).json({ updateResult, message: 'Split Payment deleted successfully and related transactions updated', success: true });
                     });
                 }
             );
