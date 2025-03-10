@@ -84,6 +84,8 @@ const jwtValidate = (req, res, next) => {
         email: decoded.email,
       };
 
+      req.userToken = token;
+
       next();
     });
   } catch (err) {

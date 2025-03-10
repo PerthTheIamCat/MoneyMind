@@ -64,11 +64,11 @@ router.post('/retirement', jwtValidate, (req, res) => {
 
                     if (result.length > 0) {
                        db.query(
-                        'UPDATE splitpayments SET (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)',
-                        [account_id, split_name, amount_allocated, splitResult.remaining_balance, color_code || null, icon_id || null],
+                        'UPDATE splitpayments SET account_id = ?, split_name = ? , amount_allocated = ? , remaining_balance = ?, color_code = ?, icon_id = ? WHERE id = ?',
+                        [account_id, split_name, amount_allocated, splitResult.remaining_balance, color_code || null, icon_id || null, splitResult.id],
                         (err, result) => {
                             if (err) {
-                                console.log("Error from /retirement from UPDATE splitpayments SET (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)");
+                                console.log("Error from /retirement from UPDATE splitpayments SET account_id = ?, split_name = ? , amount_allocated = ? , remaining_balance = ?, color_code = ?, icon_id = ? WHERE id = ?");
                                 console.log("Database query failed");
                                 console.log("Error:", err);
                                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
@@ -80,7 +80,7 @@ router.post('/retirement', jwtValidate, (req, res) => {
                     } else {
                         db.query(
                             'INSERT INTO splitpayments (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)',
-                            [account_id, split_name, amount_allocated, amount_allocated, color_code || null, icon_id || null],
+                            [account_id, split_name, amount_allocated, 0, color_code || null, icon_id || null],
                             (err, splitpeyResult) => {
                                 if (err) {
                                     console.log("Error from /retirement from INSERT INTO splitpayments (account_id, split_name, amount_allocated, remaining_balance, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?)");
