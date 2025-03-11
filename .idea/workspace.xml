@@ -5,8 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d01db6af-723c-4a8b-8c31-57edf780d784" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Client/app/(tabs)/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Client/app/(tabs)/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/app/(tabs)/splitpay.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Client/app/(tabs)/splitpay.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/hooks/conText/ServerConText.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Client/hooks/conText/ServerConText.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -20,10 +18,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="2u4G9tOcXNrpOOIydUrfpMMepgO" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -36,7 +34,7 @@
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "page-responsive-adjust",
+    "git-widget-placeholder": "try-notipush",
     "kotlin-language-version-configured": "true"
   }
 }]]></component>
