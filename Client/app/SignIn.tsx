@@ -116,6 +116,7 @@ export default function Index() {
     }
     if (isSendNotificationSuccess && isLoginSuccess && auth?.isPinSet) {
       router.push("/(tabs)");
+      console.log("Token is ", auth?.token);
     } else if (
       isSendNotificationSuccess &&
       isLoginSuccess &&
