@@ -12,7 +12,7 @@ import { TouchableOpacity } from "react-native";
 import { View, Text } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { Modal } from "react-native";
-import { TouchableWithoutFeedback } from "react-native";
+import { TouchableWithoutFeedback, FlatList } from "react-native";
 import { ThemedInput } from "@/components/ThemedInput";
 import { router } from "expo-router";
 import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
@@ -85,9 +85,10 @@ const mockAccount: Account = {
 
 export default function Account_Detail() {
   const { URL } = useContext(ServerContext);
+
   const [Devices, setDevices] = useState(mockAccount.device);
 
-  const {bioText, setBioText} = useContext(UserContext); // ค่าแสดงผล
+  const { bioText, setBioText } = useContext(UserContext); // ค่าแสดงผล
   const [editBioText, setEditBioText] = useState(bioText); // ค่าแก้ไข
 
   const [showConfirmDeleteDevice, setShowConfirmDeleteDevice] = useState(false);
@@ -95,32 +96,55 @@ export default function Account_Detail() {
 
   const [showConfirmAll, setShowConfirmAll] = useState(false);
 
-  const [showConfirmDeleteAccount, setShowConfirmDeleteAccount] = useState(false);
+  const [showConfirmDeleteAccount, setShowConfirmDeleteAccount] =
+    useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
 
+  // Profile picture
+  const {profile, setProfile} = useContext(UserContext);
+  const [displayProfile, setDisplayProfile] = useState(profile);
+  const [selectedProfile, setSelectedProfile] = useState(profile); // ค่าแก้ไข
+  const [modalVisible_Profile, setModalVisible_Profile] = useState(false);
+  const profileImages = [
+    {
+      id: 0,source: require("@/assets/logos/LOGO.png"),
+    },
+    {
+      id: 1,source: require("../assets/images/Add_Account_page_image/AccountIcon1.png"),
+    },
+    {
+      id: 2,source: require("../assets/images/Add_Account_page_image/AccountIcon2.png"),
+    },
+    {
+      id: 3,source: require("../assets/images/Add_Account_page_image/AccountIcon3.png"),
+    },
+  ];  
+  const selectedImage = profileImages.find((img) => img.id === displayProfile)?.source || profileImages[0].source;
+
   // username
-  const {username, setUsername} = useContext(UserContext);
+  const { username, setUsername } = useContext(UserContext);
   const [displayUsername, setDisplayUsername] = useState(username);
   const [editUsername, setEditUsername] = useState(username); // ค่าแก้ไข
   const [modalVisible_Username, setModalVisible_Username] = useState(false);
 
   // Fullname
-  const {fullname, setFullname} = useContext(UserContext);
+  const { fullname, setFullname } = useContext(UserContext);
   const [displayfull_name, setDisplayfull_name] = useState(fullname);
   const [editFullname, setEditfullname] = useState(username); // ค่าแก้ไข
   const [modalVisible_Fullname, setModalVisible_Fullname] = useState(false);
 
   // DatePicker
-  const {birthdate, setBirthdate } = useContext(UserContext);
+  const { birthdate, setBirthdate } = useContext(UserContext);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [modalVisible_Birth_day, setModalVisible_Birth_day] = useState(false);
-  const initialDate = birthdate ? new Date(birthdate) : new Date(); 
+  const initialDate = birthdate ? new Date(birthdate) : new Date();
   const [selectedDate, setSelectedDate] = useState<Date>(initialDate); // ค่าแสดงผล
   const [editBirthdate, setEditBirthdate] = useState<Date>(initialDate); // ค่าแก้ไข
 
   const theme = useColorScheme();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsloading] = useState(false);
+  const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
 
   // const [email, setEmail] = useState<string>("");
   const { email } = useContext(UserContext);
@@ -129,10 +153,10 @@ export default function Account_Detail() {
   >(null);
 
   // Gender
-  const {gender,setGender } = useContext(UserContext);
-  const [selectedGender, setSelectedGender] = useState<"male" | "female" | null>(
-    gender
-  );
+  const { gender, setGender } = useContext(UserContext);
+  const [selectedGender, setSelectedGender] = useState<
+    "male" | "female" | null
+  >(gender);
 
   const handleSignOutAll = () => setShowConfirmAll(true);
   {
@@ -201,11 +225,11 @@ export default function Account_Detail() {
       });
   };
 
-    useEffect(() => {
-      if (modalVisible_Username) {
-        setEditUsername(displayUsername);
-      }
-    }, [modalVisible_Username]);
+  useEffect(() => {
+    if (modalVisible_Username) {
+      setEditUsername(displayUsername);
+    }
+  }, [modalVisible_Username]);
 
   useEffect(() => {
     if (modalVisible_Fullname) {
@@ -221,16 +245,21 @@ export default function Account_Detail() {
         </ThemedView>
 
         <ThemedView className="items-center justify-center">
-          <Image
-            source={require("@/assets/logos/LOGO.png")}
-            style={{
-              width: 100,
-              height: 100,
-              margin: "2%",
-              borderRadius: 999,
-              backgroundColor: "#123561",
-            }}
-          />
+          <Pressable
+            onPress={() => setModalVisible_Profile(true)}
+            disabled={!isEditing}
+          >
+            <Image
+              source={selectedImage}
+              style={{
+                width: 100,
+                height: 100,
+                margin: "2%",
+                borderRadius: 999,
+                backgroundColor: "#123561",
+              }}
+            />
+          </Pressable>
         </ThemedView>
         <ThemedView className="justify-start !items-start pl-8 pt-2 ">
           <ThemedText className=" text-2xl font-bold ">Username</ThemedText>
@@ -296,7 +325,10 @@ export default function Account_Detail() {
               className={`flex-1 p-2 flex items-center border justify-center transition ${
                 selectedGender === "male" ? "bg-blue-500 " : "bg-gray-100"
               }`}
-              onPress={() => isEditing && setSelectedGender(selectedGender === "male" ? null : "male")}
+              onPress={() =>
+                isEditing &&
+                setSelectedGender(selectedGender === "male" ? null : "male")
+              }
             >
               <Foundation name="male-symbol" size={24} color="black" />
             </Pressable>
@@ -304,7 +336,10 @@ export default function Account_Detail() {
               className={`flex-1 p-2 flex items-center border justify-center transition ${
                 selectedGender === "female" ? "bg-pink-500 " : "bg-gray-100"
               }`}
-              onPress={() => isEditing && setSelectedGender(selectedGender === "female" ? null : "female")}
+              onPress={() =>
+                isEditing &&
+                setSelectedGender(selectedGender === "female" ? null : "female")
+              }
             >
               <Foundation name="female-symbol" size={24} color="black" />
             </Pressable>
@@ -423,14 +458,121 @@ export default function Account_Detail() {
             setBirthdate(selectedDate.toISOString().split("T")[0]);
             setGender(selectedGender); // อัปเดตค่าไปยัง Context
             setBioText(editBioText ?? ""); // อัปเดตค่าที่แสดงผล
+            setProfile(displayProfile ?? 0); // อัปเดตค่าโปรไฟล์
           }
-          setIsEditing(!isEditing)}}
+          setIsEditing(!isEditing);
+        }}
         className="absolute top-3 right-3 bg-amber-500 px-4 py-2 rounded-lg shadow-lg"
       >
         <Text className="text-white font-bold">
           {isEditing ? "Save" : "Edit"}
         </Text>
       </Pressable>
+
+      {modalVisible_Profile && (
+        <Pressable
+          onPress={() => setModalVisible_Profile(false)}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <ThemedView className="p-5 rounded-2xl items-center shadow-lg w-96">
+              <ThemedView>
+                <ThemedText className="text-2xl mb-3">
+                  Change profile picture
+                </ThemedText>
+              </ThemedView>
+
+              <ThemedView className="border-2 p-1 w-full rounded-2xl ">
+                <ThemedView className="!items-center !justify-center ">
+                  {/* Grid ไอคอนโปรไฟล์ */}
+                  <View
+                    className="!items-center w-full "
+                    style={{
+                      flexDirection: "row",
+                      flexWrap: "wrap",
+                      justifyContent: "flex-start",
+                      // alignItems: "center", // ✅ จัดให้อยู่ตรงกลางแนวตั้ง
+                      // borderWidth: 2, // ✅ เพิ่มขอบให้มองเห็นชัด
+                      borderColor: componentcolor,
+                    }}
+                  >
+                    {profileImages.map((item, index) => {
+                      const isActive = selectedProfile === item.id; // เช็คว่าเป็นไอคอนที่ถูกเลือกหรือไม่
+                      return (
+                        <TouchableOpacity
+                          key={index}
+                          onPress={() => setSelectedProfile(displayProfile === item.id ? null : item.id)} // เลือกไอคอนก่อน
+                          style={{
+                            width: "25%", // ✅ กำหนดขนาดให้พอดีกับ 4 คอลัมน์
+                            aspectRatio: 1, // ✅ ทำให้ขนาดเป็นสี่เหลี่ยมจัตุรัส
+                            borderColor: isActive ? "#AACC00" : "transparent",
+                            borderWidth: isActive ? 3 : 1,
+                            borderRadius: 15,
+                            padding: 5,
+                            backgroundColor: isActive
+                              ? "rgba(170, 204, 0, 0.3)"
+                              : "transparent",
+                          }}
+                        >
+                          <Image
+                            source={item.source} // <-- ใช้ item.source แทน icon
+                            style={{
+                              // width: 80,
+                              // height: 80,
+                              width: "100%", // ✅ ทำให้รูปเต็มพื้นที่ของกล่อง
+                              height: "100%",
+                              borderRadius: 10,
+                              backgroundColor: "white",
+                            }}
+                          />
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </ThemedView>
+              </ThemedView>
+
+              <ThemedView
+                className="bg-transparent pt-3"
+                style={{
+                  flexDirection: "row",
+                  marginTop: 10,
+                  justifyContent: "space-between",
+                  gap: 32,
+                }}
+              >
+                <TouchableOpacity
+                  className="p-3 bg-red-500 w-24 !items-center rounded-xl"
+                  onPress={() => {
+                    setDisplayProfile(profile);
+                    setModalVisible_Profile(false);
+                  }}
+                >
+                  <ThemedText className="text-white ">Cancel</ThemedText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="p-3 w-24 bg-green-500 !items-center rounded-xl"
+                  onPress={() => {
+                    setDisplayProfile(selectedProfile);
+                    setModalVisible_Profile(false);
+                  }}
+                >
+                  <ThemedText className="text-white">Confirm</ThemedText>
+                </TouchableOpacity>
+              </ThemedView>
+            </ThemedView>
+          </Pressable>
+        </Pressable>
+      )}
 
       {showConfirmDeleteDevice && (
         <TouchableOpacity
@@ -483,10 +625,10 @@ export default function Account_Detail() {
                   className="p-3 w-24 bg-red-500 !items-center rounded-xl"
                   onPress={() => {
                     if (selectedDeviceId !== null) {
-                      handleSignOut(selectedDeviceId); 
-                      setSelectedDeviceId(null); 
+                      handleSignOut(selectedDeviceId);
+                      setSelectedDeviceId(null);
                     }
-                    setShowConfirmDeleteDevice(false); 
+                    setShowConfirmDeleteDevice(false);
                   }}
                 >
                   <ThemedText className="text-white">Confirm</ThemedText>
@@ -815,8 +957,13 @@ export default function Account_Detail() {
           onPress={() => setModalVisible_Birth_day(false)}
         >
           <Pressable onPress={(e) => e.stopPropagation()}>
-            <ThemedView birthdayView className=" p-5 rounded-2xl w-80 items-center">
-              <ThemedText className="text-lg font-bold mb-0">Select Birth Date</ThemedText>
+            <ThemedView
+              birthdayView
+              className=" p-5 rounded-2xl w-80 items-center"
+            >
+              <ThemedText className="text-lg font-bold mb-0">
+                Select Birth Date
+              </ThemedText>
 
               {/* DatePicker */}
               <ThemedView className="flex items-center mt-5">
