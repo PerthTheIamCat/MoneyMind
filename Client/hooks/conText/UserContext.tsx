@@ -45,6 +45,7 @@ type UserContextType = {
   retire: Array<UserRetire> | null;
   gender: "female" | "male" | null;
   bioText: string | null;
+  profile: number | null;
   setUsername: (user: string) => void;
   setUserID: (id: number) => void;
   setEmail: (email: string) => void;
@@ -56,6 +57,7 @@ type UserContextType = {
   setRetire: (retire: Array<UserRetire>) => void;
   setGender: (gender: "female" | "male" | null) => void;
   setBioText: (bioText: string) => void;
+  setProfile: (profile: number) => void;
   loading: boolean;
 };
 
@@ -71,6 +73,7 @@ export const UserContext = React.createContext<UserContextType>({
   retire: null,
   gender: null,
   bioText: null,
+  profile: null,
 
   setUsername: () => {},
   setUserID: () => {},
@@ -83,6 +86,7 @@ export const UserContext = React.createContext<UserContextType>({
   setRetire: () => {},
   setGender: () => {},
   setBioText: () => {},
+  setProfile: () => {},
   loading: true,
 });
 
@@ -105,6 +109,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [notification, setNotification] =
     useState<Array<UserNotification> | null>(null);
   const [retire, setRetire] = useState<Array<UserRetire> | null>(null);
+  const [profile, setProfile] = useState<number | null>(null);
 
   useEffect(() => {
     if (auth?.token !== null) {
@@ -208,6 +213,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         retire,
         gender,
         bioText,
+        profile,
         setUsername,
         setEmail,
         setUserID,
@@ -219,6 +225,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setRetire,
         setGender,
         setBioText,
+        setProfile,
         loading,
       }}
     >
