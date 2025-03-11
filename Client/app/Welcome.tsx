@@ -10,6 +10,9 @@ import { useWindowDimensions,  Animated,useAnimatedValue } from "react-native";
 
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { Colors } from "react-native/Libraries/NewAppScreen";
+import { Button } from "react-native";
+import { colorKeys } from "moti";
 SplashScreen.preventAutoHideAsync()
 
 
@@ -35,7 +38,7 @@ export default function Welcome() {
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 2000,
-      delay: 2500, 
+      delay: 2000, 
       useNativeDriver: true,
       
     }).start();
@@ -49,7 +52,7 @@ export default function Welcome() {
     }).start();
     
     Animated.timing(bounding, {
-      toValue: 5,
+      toValue: 6,
       duration: 1000, // ค่ามากขึ้น = ลดแรงเด้ง ทำให้ขึ้นช้าลง 
       delay: 1500, 
       useNativeDriver: true,
@@ -85,8 +88,8 @@ export default function Welcome() {
         </Animated.View>
         <Animated.View className="bg-green-700  w-96  h-96  absolute top-[10%] rounded-full" style={{transform: [{ scale: bounding1 }] }} >
         </Animated.View>
-        <Animated.View className="bg-slate-200  w-[100%]  h-[60%]  absolute bottom-0 rounded-t-[10%]" style={{transform:[{translateY:trany}]}} >
-        </Animated.View>
+        {/* <Animated.View className="bg-slate-200  w-[100%]  h-[60%]  absolute bottom-0 rounded-t-[10%]" style={{transform:[{translateY:trany}]}} >
+        </Animated.View> */}
           
         <ThemedView className="items-center w-full  absolute top-[5%] bg-transparent">
           <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
@@ -104,7 +107,7 @@ export default function Welcome() {
           <ThemedView className="!items-start w-full px-6 absolute top-[45%] text-center pl-10 bg-transparent">
             <Animated.View style={{opacity:fadeAnim }}>
               <ThemedText
-                className="mb-5 !text-[#000]"
+                className="mb-5  !text-[#fff]"
                 style={{ fontSize: isLargeScreen ? 56 : width < 380 ? 35 : 42 ,
                   fontFamily: 'Poppins' ,
                 }}
@@ -112,7 +115,7 @@ export default function Welcome() {
                 MONEYMIND
               </ThemedText>
               <ThemedText
-                className=" !text-[#000]"
+                className="!text-[#fff]"
                 style={{
                   fontSize: isLargeScreen ? 30 : width < 380 ? 22: 24,
                   maxWidth: isLargeScreen ? 250 : width < 380 ? 200 : 200,
@@ -124,28 +127,33 @@ export default function Welcome() {
             </Animated.View>
           </ThemedView>
 
-          <Animated.View style={{opacity:fadeAnim }}  className="flex-row gap-5 w-full absolute bottom-[5%] justify-center mt-28 mb-10 bg-transparent">
-           <ThemedButton
+          <Animated.View style={{opacity:fadeAnim }}  className="flex-row gap-5 w-full absolute bottom-[5%] justify-center  mt-28 mb-10 bg-transparent">
+            <ThemedButton
+              style={{
+                width: isLargeScreen ? 200 : width < 380 ? 140 : 160,
+                height: isLargeScreen ? 60 : width < 380 ? 40 : 50,
+                fontFamily: 'PlusJakartaSans-wght',
+                backgroundColor: '#000000',
+              }}
+              onPress={() => router.push("/SignIn")}
+              >
+              <ThemedText style={{ color: "#FFF", fontFamily: "Poppins" }}>
+                  Sign In
+              </ThemedText>
+            </ThemedButton>
+              <ThemedButton
                 style={{
                   width: isLargeScreen ? 200 : width < 380 ? 140 : 160,
                   height: isLargeScreen ? 60 : width < 380 ? 40 : 50,
-                  fontFamily: 'Inter-Black' 
+                  backgroundColor: '#16db65',
+                  text:'#000'
                 }}
-                mode="normal"
-                onPress={() => router.push("/SignIn")}
-                >
-                Sign In
-              </ThemedButton>
-              <ThemedButton
-                style={{
-                  width: isLargeScreen ? 170 : width < 380 ? 140 : 160,
-                  height: isLargeScreen ? 60 : width < 380 ? 40 : 50,
-                  fontFamily: 'Inter-Black' 
-                }}
-                mode="confirm"
+                colorbutton="#1111"
                 onPress={() => router.push("/SignUp")}
                 >
-                Sign Up
+                <ThemedText style={{ color: "#000", fontFamily: "Poppins" }}>
+                  Sign Up
+                </ThemedText>
               </ThemedButton>
           </Animated.View>
       </ThemedScrollView>
