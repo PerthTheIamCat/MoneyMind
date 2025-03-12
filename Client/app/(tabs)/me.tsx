@@ -11,8 +11,8 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { StyleSheet, View } from "react-native";
-
 import Feather from "@expo/vector-icons/Feather";
+import { Image } from "expo-image";
 
 export default function Setting() {
   const auth = useContext(AuthContext);
@@ -25,7 +25,7 @@ export default function Setting() {
   const borderColor = isDarkMode ? "border-gray-700" : "border-gray-300";
   const componentIcon = isDarkMode ? "#f2f2f2" : "#2f2f2f";
 
-  const { username } = useContext(UserContext);
+  const { username, profile_URL } = useContext(UserContext);
 
   return (
     <ThemedSafeAreaView>
@@ -43,13 +43,24 @@ export default function Setting() {
             className={`flex-row items-center px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
             onPress={() => router.push("/Account_Detail")}
           >
-            <Feather
-              name="user"
-              size={30}
-              color={componentIcon}
-              style={styles.iconPadding}
-            />
-            <View style={styles.flexGrow}>
+            <View className="w-12 h-12 rounded-full overflow-hidden border border-gray-300">
+              {profile_URL ? (
+                <Image
+                  source={{ uri: profile_URL }}
+                  style={{ width: "100%", height: "100%" }}
+                  contentFit="cover"
+                />
+              ) : (
+                <Feather
+                  name="user"
+                  size={30}
+                  color={componentIcon}
+                  style={styles.iconPadding}
+                />
+              )}
+            </View>
+
+            <View style={styles.flexGrow} className="px-5">
               <ThemedText className={`text-[18px] font-bold ${textColor}`}>
                 {username ? username : "FirstName LastName"}
               </ThemedText>
@@ -115,14 +126,13 @@ const styles = StyleSheet.create({
   },
   profileLabel: {
     width: wp("90%"),
-
+    height: hp("10%"),
     borderRadius: 12,
     padding: 12,
     marginVertical: hp("1%"),
   },
   settingContainer: {
     width: wp("90%"),
-
     borderRadius: 12,
     padding: 12,
     marginVertical: hp("1%"),
@@ -132,7 +142,7 @@ const styles = StyleSheet.create({
     marginTop: hp(20),
   },
   iconPadding: {
-    paddingHorizontal: wp("2%"),
+    paddingHorizontal: wp("5%"),
   },
   flexGrow: {
     flex: 1,
