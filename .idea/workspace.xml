@@ -5,7 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d01db6af-723c-4a8b-8c31-57edf780d784" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/other.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/app/Account_Detail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Client/app/Account_Detail.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/app/SignIn.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Client/app/SignIn.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/app/_layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Client/app/_layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/components/Expandable_Card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Client/components/Expandable_Card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/hooks/auth/DeviceHandler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/Client/hooks/auth/DeviceHandler.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client/hooks/conText/ServerConText.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Client/hooks/conText/ServerConText.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/hooks/conText/UserContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/Client/hooks/conText/UserContext.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +42,7 @@
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "try-notipush",
+    "git-widget-placeholder": "account-detail-get-data-from-backend",
     "kotlin-language-version-configured": "true"
   }
 }]]></component>
