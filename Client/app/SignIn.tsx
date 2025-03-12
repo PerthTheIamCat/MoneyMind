@@ -163,7 +163,7 @@ export default function Index() {
             onChangeText={setPassword}
           />
         </ThemedView>
-        <ThemedView className=" w-full  mt-[65%]">
+        <ThemedView className=" w-full  mt-[55%]">
           <ThemedButton
             mode="confirm"
             className="w-[60%] mt-5 h-14 "

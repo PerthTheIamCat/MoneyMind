@@ -42,7 +42,8 @@ export default function Index() {
   const { isAccepted, setIsAccepted } = useContext(TermsContext);
   const [isCheckedNotification, setIsCheckedNotification] =
     useState<boolean>(false);
-
+  
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const handleSignUp = () => {
     try {
       if (username === "") {
@@ -51,8 +52,12 @@ export default function Index() {
       } else {
         setErrorUsername("");
       }
-      if (email === "") {
+      const emailValue = email?.trim() || "";
+      if (emailValue === "") {
         setErrorEmail("Email is required");
+        return;
+      }if (!emailPattern.test(emailValue)) {
+        setErrorEmail("Please enter a valid email address (@)");
         return;
       } else {
         setErrorEmail("");
@@ -108,7 +113,7 @@ export default function Index() {
   };
 
   return (
-    <ThemedSafeAreaView>
+    <ThemedSafeAreaView >
       <ThemedView>
         <Image
           source={require("@/assets/logos/LOGO.png")}
