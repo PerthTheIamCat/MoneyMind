@@ -19,10 +19,8 @@ export default function Setting() {
   const theme = useColorScheme();
   const isDarkMode = theme === "dark";
 
-  const bgColor = isDarkMode ? "bg-gray-700" : "bg-gray-100";
   const textColor = isDarkMode ? "text-white" : "text-black";
-  const componentColor = isDarkMode ? "bg-gray-800" : "bg-white";
-  const borderColor = isDarkMode ? "border-gray-700" : "border-gray-300";
+  const componentColor = isDarkMode ? "bg-[#181818]" : "bg-[#d8d8d8]";
   const componentIcon = isDarkMode ? "#f2f2f2" : "#2f2f2f";
 
   const { username } = useContext(UserContext);
@@ -40,7 +38,7 @@ export default function Setting() {
         {/* Profile Account Setting */}
         <View style={styles.profileLabel}>
           <Pressable
-            className={`flex-row items-center px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
+            className={`flex-row items-center px-4 py-3 rounded-lg ${componentColor}`}
             onPress={() => router.push("/Account_Detail")}
           >
             <Feather
@@ -70,7 +68,7 @@ export default function Setting() {
           ].map((item, index) => (
             <Pressable
               key={index}
-              className={`flex-row items-center px-4 py-3 rounded-lg ${componentColor} ${borderColor} border`}
+              className={`flex-row items-center px-4 mt-1 py-3 rounded-lg ${componentColor}`}
               onPress={() => router.push(item.path)}
             >
               <ThemedText
@@ -86,7 +84,7 @@ export default function Setting() {
         {/* Logout Button */}
         <View style={styles.buttonContainer}>
           <ThemedButton
-            className={`w-full py-4 rounded-lg bg-red-500`}
+            className={`w-full py-3 rounded-lg absolute bottom-[10%] bg-red-500`}
             mode="cancel"
             textClassName={`text-[18px] font-bold ${textColor}`}
             onPress={() => {

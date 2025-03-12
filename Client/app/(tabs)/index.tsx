@@ -77,8 +77,8 @@ export default function Index() {
           <Image
             source={require("@/assets/logos/LOGO.png")}
             style={{
-              width: 79,
-              height: 70,
+              width: 50,
+              height: 50,
               marginTop: "2%",
               marginLeft: "5%",
             }}
@@ -218,8 +218,8 @@ export default function Index() {
         </ThemedView>
       </ThemedView>
 
-      <ThemedView className="mb-52">
-        <ThemedScrollView>
+      <ThemedView className="mb-32">
+        <ThemedScrollView className="w-full bg-transparent">
           {!transaction || transaction.length === 0 ? (
             <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
               No transactions available
@@ -236,14 +236,13 @@ export default function Index() {
                     "DD MMM YYYY"
                   );
               return (
-                <View key={transaction.id} className="w-full items-center ">
+                <View key={transaction.id} className=" items-center">
                   {showDateHeader && (
-                    <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
+                    <ThemedText className="w-full pl-10 text-left font-bold text-sm py-1">
                       {formattedDate}
                     </ThemedText>
                   )}
                   <ThemedView
-                    className="w-[400px]"
                     onTouchEnd={() => router.push("/(tabs)/transaction")}
                   >
                     <TransactionItem
