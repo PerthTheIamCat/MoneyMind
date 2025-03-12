@@ -6,6 +6,7 @@ import { GetRetirement, RetirementResponse } from "../auth/retirementHandler";
 import { GetUserTransaction } from "../auth/GetAllTransaction";
 import { ServerContext } from "../conText/ServerConText";
 import { NotificationsGetHandler } from "../auth/NotificationsHandler";
+import { GetUserDetailHandler } from "../auth/GetUserDetail";
 
 type UserTransaction = {
   id: number;
@@ -48,6 +49,9 @@ type UserContextType = {
   transaction: Array<UserTransaction> | null;
   notification: Array<UserNotification> | null;
   retire: Array<UserRetire> | null;
+  gender: string | null;
+  bio: string | null;
+  profile_URL: string | null;
 
   setUsername: (user: string) => void;
   setUserID: (id: number) => void;
@@ -58,6 +62,9 @@ type UserContextType = {
   setNotification: (transaction: Array<UserNotification>) => void;
   setBank: (bank: Array<resultObject>) => void;
   setRetire: (retire: Array<UserRetire>) => void;
+  setGender: (gender: string) => void;
+  setBio: (bio: string) => void;
+  setProfile_URL: (url: string) => void;
 
   loading: boolean;
 };
@@ -72,6 +79,9 @@ export const UserContext = React.createContext<UserContextType>({
   transaction: null,
   notification: null,
   retire: null,
+  gender: null,
+  bio: null,
+  profile_URL: null,
 
   setUsername: () => {},
   setUserID: () => {},
@@ -82,6 +92,10 @@ export const UserContext = React.createContext<UserContextType>({
   setNotification: () => {},
   setBank: () => {},
   setRetire: () => {},
+  setGender: () => {},
+  setBio: () => {},
+  setProfile_URL: () => {},
+
   loading: true,
 });
 
@@ -99,9 +113,12 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [transaction, setTransaction] = useState<Array<UserTransaction> | null>(
     null
   );
+  const [gender, setGender] = useState<string | null>(null);
   const [notification, setNotification] =
     useState<Array<UserNotification> | null>(null);
   const [retire, setRetire] = useState<Array<UserRetire> | null>(null);
+  const [bio, setBio] = useState<string | null>(null);
+  const [profile_URL, setProfile_URL] = useState<string | null>(null);
 
   useEffect(() => {
     if (auth?.token !== null) {
@@ -123,6 +140,38 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     }
   }, [auth?.token, userID]);
+  useEffect(() => {
+    if (userID && auth?.token) {
+      (async () => {
+        try {
+          console.log("📡 Fetching user details...");
+          const userDetails = await GetUserDetailHandler(
+            URL,
+            auth?.token!,
+            userID
+          );
+
+          if (userDetails.success && "data" in userDetails) {
+            console.log("✅ User details loaded:", userDetails.data);
+            setFullname(userDetails.data.name || "No Name");
+            setUsername(userDetails.data.username || "");
+            setEmail(userDetails.data.email || "");
+            setBirthdate(userDetails.data.birthday || "");
+            setGender(userDetails.data.gender || "");
+            setBio(userDetails.data.bio || "");
+            setProfile_URL(userDetails.data.profile_url || "");
+          } else {
+            console.warn(
+              "⚠️ Failed to load user details:",
+              "data" in userDetails ? userDetails.message : "Unknown error"
+            );
+          }
+        } catch (error) {
+          console.error("❌ Error fetching user details:", error);
+        }
+      })();
+    }
+  }, [userID, auth?.token]);
 
   useEffect(() => {
     (async () => {
@@ -135,13 +184,10 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         .then((response) => {
           console.log("get pin response:", response.data);
           if (response.data.success) {
-            console.log("get pin success:", response.data.pin);
             if (response.data.pin) {
-              console.log("set pin true");
               auth?.setIsPinSet(true);
               auth?.setPin(response.data.pin);
             } else {
-              console.log("set pin false");
               auth?.setIsPinSet(false);
               auth?.setPin(null);
             }
@@ -166,20 +212,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         .catch((error) => {
           console.log(error.message);
         });
-      axios
-        .get(`${URL}/users/${userID}`, {
-          headers: {
-            Authorization: `Bearer ${auth.token}`,
-          },
-        })
-        .then((response) => {
-          console.log("get user info success:", response.data);
-          setFullname(response.data.name);
-          // console.log("Fullname: ", response.data.name);
-        })
-        .catch((error) => {
-          console.log("fail to get user info:", error.message);
-        });
+
       GetUserTransaction(URL, userID!, auth.token).then((response) => {
         if (response.success) {
           console.log("get transaction success:", response.result);
@@ -188,17 +221,12 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           console.log("fail to get transaction:", response.message);
         }
       });
+
       NotificationsGetHandler(URL, userID, auth?.token!)
         .then((response) => {
           console.log("get notification success:", response);
           if (response.result && response.result.length > 0) {
-            console.log(response.result);
-            setNotification(
-              response.result.map((item: any) => ({
-                ...item,
-                id: item.id !== undefined ? item.id : 0,
-              }))
-            );
+            setNotification(response.result);
           } else {
             setNotification([]);
           }
@@ -207,6 +235,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           console.error("Failed to fetch notifications:", error);
           setNotification([]);
         });
+
       GetRetirement(URL, auth?.token!).then((response) => {
         if (response.success && "result" in response) {
           console.log("get retirement success:", response);
@@ -240,6 +269,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         transaction,
         notification,
         retire,
+        gender,
+        bio,
+        profile_URL,
+        setBio,
+        setGender,
         setUsername,
         setEmail,
         setUserID,
@@ -249,6 +283,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setNotification,
         setBank,
         setRetire,
+        setProfile_URL,
         loading,
       }}
     >

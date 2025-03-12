@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: wp("90%"),
-    marginTop: hp("35%"),
+    marginTop: hp(20),
   },
   iconPadding: {
     paddingHorizontal: wp("2%"),
