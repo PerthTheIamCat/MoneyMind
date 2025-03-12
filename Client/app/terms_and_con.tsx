@@ -79,21 +79,21 @@ export default function TermsAndConditions() {
 
   return (
     <ThemedSafeAreaView>
-      <ThemedView className="h-[1400px] px-5">
-        <ThemedText className="h-full">{TERMS_CONTENT}</ThemedText>
-      </ThemedView>
-      <ThemedView className="h-[200px] !justify-start">
+      <ThemedView className="mt-2 px-5">
+        <ThemedText className="h-fit">{TERMS_CONTENT}</ThemedText>
+      <ThemedView className="h-[200px] w-full !justify-start">
         <ThemedButton
           onPress={() => {
             setIsAccepted(true);
             router.back();
           }}
-          className="w-[80%] h-10"
+          className="w-[60%] mt-5 h-12 !justify-center !items-center"
           mode="confirm"
-        >
-          ยอมรับเงื่อนไขทั้งหมด
+          >
+              Accecpt
         </ThemedButton>
       </ThemedView>
+          </ThemedView>
     </ThemedSafeAreaView>
   );
 }

@@ -62,7 +62,7 @@ export default function RootLayout() {
                 headerTitleStyle: {
                   fontFamily,
                 },
-                animation: "slide_from_right",
+                animation: "fade",
                 headerBackTitle: "back",
               }}
             >
@@ -79,8 +79,9 @@ export default function RootLayout() {
                 }}
               />
               <Stack.Screen name="+not-found" />
-              <Stack.Screen name="SignUp" options={{ headerShown: false }} />
-              <Stack.Screen name="SignIn" options={{ headerShown: false }} />
+              <Stack.Screen name="SignUp" options={{ headerShown: false,animation:"slide_from_left"}} />
+              <Stack.Screen name="SignIn" options={{ headerShown: false,animation:"slide_from_right"}} />
+              
               <Stack.Screen
                 name="terms_and_con"
                 options={{

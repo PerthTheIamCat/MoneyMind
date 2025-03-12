@@ -10,9 +10,6 @@ import { useWindowDimensions,  Animated,useAnimatedValue } from "react-native";
 
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { Colors } from "react-native/Libraries/NewAppScreen";
-import { Button } from "react-native";
-import { colorKeys } from "moti";
 SplashScreen.preventAutoHideAsync()
 
 
@@ -63,8 +60,6 @@ export default function Welcome() {
       delay: 2000, 
       useNativeDriver: true,
     }).start();
-
-  
   }, []);
 
   const bounding1 = bounding;
@@ -73,7 +68,6 @@ export default function Welcome() {
     outputRange: [0,5], // ค้างไว้ที่ 0 ก่อน แล้วค่อยโตขึ้น
     extrapolate: "clamp",
   });
-
   return (
       <ThemedScrollView
         contentContainerStyle={{
@@ -118,7 +112,7 @@ export default function Welcome() {
                 className="!text-[#fff]"
                 style={{
                   fontSize: isLargeScreen ? 30 : width < 380 ? 22: 24,
-                  maxWidth: isLargeScreen ? 250 : width < 380 ? 200 : 200,
+                  maxWidth: isLargeScreen ? 250 : width < 380 ? 250 : 300,
                   fontFamily: 'PlusJakartaSans-wght',
                 }}
                 >
@@ -146,7 +140,6 @@ export default function Welcome() {
                   width: isLargeScreen ? 200 : width < 380 ? 140 : 160,
                   height: isLargeScreen ? 60 : width < 380 ? 40 : 50,
                   backgroundColor: '#16db65',
-                  text:'#000'
                 }}
                 colorbutton="#1111"
                 onPress={() => router.push("/SignUp")}
