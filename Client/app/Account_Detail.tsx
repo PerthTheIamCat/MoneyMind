@@ -23,6 +23,8 @@ import {
 } from "react-native-responsive-screen";
 import { ThemedButton } from "@/components/ThemedButton";
 
+import Foundation from "@expo/vector-icons/Foundation";
+
 export default function Account_Detail() {
   const { URL } = useContext(ServerContext);
   const {
@@ -160,7 +162,6 @@ export default function Account_Detail() {
             <ThemedText style={styles.value}>{fullname}</ThemedText>
           )}
         </View>
-
         {/* Email */}
         <View style={styles.fieldContainer}>
           <ThemedText style={styles.label}>Email</ThemedText>
@@ -177,7 +178,6 @@ export default function Account_Detail() {
             </ThemedText>
           )}
         </View>
-
         {/* Date of Birth - Replaced with CustomDateTimePicker */}
         <View style={styles.fieldContainer}>
           <ThemedText style={styles.label}>Date of Birth</ThemedText>
@@ -206,7 +206,6 @@ export default function Account_Detail() {
             </ThemedText>
           )}
         </View>
-
         {/* Bio */}
         <View style={styles.fieldContainer}>
           <ThemedText style={styles.label}>Bio</ThemedText>
@@ -220,6 +219,30 @@ export default function Account_Detail() {
               { backgroundColor: isEditing ? "#bdbdbd" : "#fff" },
             ]}
           />
+        </View>
+
+        {/* Gender */}
+        <View>
+          <ThemedText style={styles.label}>Gender</ThemedText>
+          <ThemedView className="flex flex-row items-center w-full mt-2 border rounded-lg overflow-hidden">
+            <Pressable
+              style={styles.label}
+              className={`flex-1 p-2 flex items-center border justify-center transition ${
+                gender === "male" ? "bg-blue-500 " : "bg-gray-100"
+              }`}
+              onPress={() => isEditing && setGender("male")}
+            >
+              <Foundation name="male-symbol" size={24} color="black" />
+            </Pressable>
+            <Pressable
+              className={`flex-1 p-2 flex items-center border justify-center transition ${
+                gender === "female" ? "bg-pink-500 " : "bg-gray-100"
+              }`}
+              onPress={() => isEditing && setGender("female")}
+            >
+              <Foundation name="female-symbol" size={24} color="black" />
+            </Pressable>
+          </ThemedView>
         </View>
       </ThemedView>
 
