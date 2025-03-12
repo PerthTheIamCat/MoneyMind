@@ -251,8 +251,8 @@ export default function TransactionPage() {
               className="ml-[10%]"
               source={require("@/assets/logos/LOGO.png")}
               style={{
-                width: 79,
-                height: 70,
+                width: 50,
+                height: 50,
                 marginTop: "2%",
                 marginLeft: "5%",
               }}
@@ -343,7 +343,7 @@ export default function TransactionPage() {
               }}
               accessible={false}
             >
-              <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-20">
+              <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-40">
                 <View className="w-full !items-center">
                   {(() => {
                     const filteredTransactions =
@@ -499,7 +499,7 @@ export default function TransactionPage() {
                 setIsOverlayVisible(true);
                 setIsButtonVisible(false);
               }}
-              className="!absolute bottom-16 right-6 bg-transparent"
+              className="!absolute bottom-[15%] right-6 bg-transparent"
             >
               <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16 rounded-full ">
                 <AntDesign name="plus" size={32} color="#ffffff" />

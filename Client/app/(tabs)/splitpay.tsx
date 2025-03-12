@@ -316,8 +316,8 @@ export default function SplitPay() {
             <Image
               source={require("@/assets/logos/LOGO.png")}
               style={{
-                width: 79,
-                height: 70,
+                width: 50,
+                height: 50,
                 marginTop: "2%",
                 marginLeft: "5%",
               }}
