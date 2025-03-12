@@ -1,8 +1,9 @@
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Image } from "expo-image";
-import { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Pressable,
   View,
@@ -11,7 +12,6 @@ import {
   StyleSheet,
   useColorScheme,
 } from "react-native";
-import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import { UpdateUserDetailHandler } from "@/hooks/auth/PutUserDetail";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { UserContext } from "@/hooks/conText/UserContext";
@@ -49,6 +49,7 @@ export default function Account_Detail() {
   const [selectedDate, setSelectedDate] = useState<Date>(
     birthdate ? new Date(birthdate) : new Date()
   );
+  const [isEditingDate, setIsEditingDate] = useState(false);
 
   const themed = useColorScheme();
   const auth = useContext(AuthContext);
@@ -68,9 +69,10 @@ export default function Account_Detail() {
       name: editedFullname || "",
       email: editedEmail || "",
       birth_date: selectedDate.toISOString().split("T")[0],
-      gender: gender || null,
+      gender: gender || "",
       bio: bioText,
     };
+    console.log("Updated User Details:", updatedUserDetails);
 
     try {
       const response = await UpdateUserDetailHandler(
@@ -162,10 +164,20 @@ export default function Account_Detail() {
         <View style={styles.fieldContainer}>
           <ThemedText style={styles.label}>Date of Birth</ThemedText>
           {isEditing ? (
-            <CustomDateTimePicker
-              date={selectedDate}
-              onConfirm={(date) => setSelectedDate(date)}
-            />
+            <ThemedView>
+              <Pressable
+                onPress={() => setIsEditingDate(true)}
+                style={styles.label}
+              >
+                <ThemedText>
+                  {selectedDate.toLocaleDateString("th-TH", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </ThemedText>
+              </Pressable>
+            </ThemedView>
           ) : (
             <ThemedText style={styles.value}>
               {selectedDate.toLocaleDateString("th-TH", {
@@ -202,6 +214,20 @@ export default function Account_Detail() {
           {isEditing ? "Save" : "Edit"}
         </Text>
       </Pressable>
+      <DateTimePickerModal
+        isVisible={isEditingDate}
+        mode="date"
+        onConfirm={(date) => {
+          setSelectedDate(date);
+          setIsEditingDate(false);
+        }}
+        onCancel={() => setIsEditingDate(false)}
+        is24Hour={true}
+        date={selectedDate}
+        maximumDate={new Date()}
+        timeZoneName="Asia/Bangkok"
+        locale="th-TH"
+      />
     </ThemedSafeAreaView>
   );
 }
