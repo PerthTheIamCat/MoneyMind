@@ -364,7 +364,7 @@ router.get("/userdetail/:id", jwtValidate, async (req, res) => {
   }
 
   const query = `
-    SELECT username, name, email, birthday, gender, bio 
+    SELECT *
     FROM users 
     WHERE id = ?`;
 
@@ -442,7 +442,16 @@ router.put("/user/:id", jwtValidate, async (req, res) => {
 
 router.put("/userdetail/:id", jwtValidate, async (req, res) => {
   const userId = parseInt(req.params.id, 10);
-  const { user_name, name, email, birth_date, gender, bio } = req.body;
+  const { user_name, name, email, birth_date, gender, bio, profile_url } = req.body;
+
+  console.log("User ID:", userId);
+  console.log("User Name:", user_name);
+  console.log("Name:", name);
+  console.log("Email:", email);
+  console.log("Birth Date:", birth_date);
+  console.log("gender", gender);
+  console.log("bio", bio);
+  console.log("profile_url", profile_url);
 
   if (!userId) {
     return res.status(400).json({ success: false, message: "Invalid user ID" });
@@ -458,13 +467,13 @@ router.put("/userdetail/:id", jwtValidate, async (req, res) => {
   try {
     const query = `
       UPDATE users 
-      SET username = ?, name = ?, email = ?, birthday = ?, gender = ?, bio = ?
+      SET username = ?, name = ?, email = ?, birthday = ?, gender = ?, bio = ?, profile_url = ? 
       WHERE id = ?
     `;
 
     db.query(
       query,
-      [user_name, name, email, birth_date, gender, bio, userId], // Ensure correct variables are passed
+      [user_name, name, email, birth_date, gender, bio, profile_url, userId], // Ensure correct variables are passed
       (err, result) => {
         if (err) {
           return res.status(500).json({

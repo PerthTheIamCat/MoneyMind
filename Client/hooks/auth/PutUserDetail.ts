@@ -18,12 +18,13 @@ export const UpdateUserDetailHandler = async (
   token: string,
   user_id: number,
   userData: {
-    username: string;
+    user_name: string;
     name: string;
     email: string;
-    birthday: string;
+    birth_date: string;
     gender: string;
     bio: string;
+    profile_url: string;
   }
 ): Promise<UpdateUserDetailResponse | UpdateUserDetailError["response"]> => {
   try {

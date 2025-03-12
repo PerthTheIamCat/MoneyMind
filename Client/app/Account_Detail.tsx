@@ -1,8 +1,9 @@
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Image } from "expo-image";
-import { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Pressable,
   View,
@@ -11,7 +12,6 @@ import {
   StyleSheet,
   useColorScheme,
 } from "react-native";
-import CustomDateTimePicker from "@/components/CustomDateTimePicker";
 import { UpdateUserDetailHandler } from "@/hooks/auth/PutUserDetail";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { UserContext } from "@/hooks/conText/UserContext";
@@ -21,6 +21,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
+import { ThemedButton } from "@/components/ThemedButton";
 
 export default function Account_Detail() {
   const { URL } = useContext(ServerContext);
@@ -32,12 +33,14 @@ export default function Account_Detail() {
     bio,
     gender,
     birthdate,
+    profile_URL,
     setFullname,
     setUsername,
     setBirthdate,
     setGender,
     setEmail,
     setBio,
+    setProfile_URL,
   } = useContext(UserContext);
 
   const [bioText, setBioText] = useState(bio || "");
@@ -46,9 +49,12 @@ export default function Account_Detail() {
   const [editedUsername, setEditedUsername] = useState(username);
   const [editedFullname, setEditedFullname] = useState(fullname);
   const [editedEmail, setEditedEmail] = useState(email);
+  const [editedProfileURL, setEditedProfileURL] = useState(profile_URL);
   const [selectedDate, setSelectedDate] = useState<Date>(
     birthdate ? new Date(birthdate) : new Date()
   );
+  const [isEditingDate, setIsEditingDate] = useState(false);
+  const [isEditingPicture, setIsEditingPicture] = useState(false);
 
   const themed = useColorScheme();
   const auth = useContext(AuthContext);
@@ -68,9 +74,11 @@ export default function Account_Detail() {
       name: editedFullname || "",
       email: editedEmail || "",
       birth_date: selectedDate.toISOString().split("T")[0],
-      gender: gender || null,
+      gender: gender || "",
       bio: bioText,
+      profile_url: editedProfileURL || "",
     };
+    console.log("Updated User Details:", updatedUserDetails);
 
     try {
       const response = await UpdateUserDetailHandler(
@@ -85,6 +93,7 @@ export default function Account_Detail() {
         setBirthdate(updatedUserDetails.birth_date);
         setEmail(updatedUserDetails.email);
         setBio(updatedUserDetails.bio);
+        setProfile_URL(updatedUserDetails.profile_url);
 
         Alert.alert("Success", "User details updated successfully.");
       } else {
@@ -104,10 +113,21 @@ export default function Account_Detail() {
       </ThemedView>
 
       <ThemedView className="items-center justify-center">
-        <Image
-          source={require("@/assets/logos/LOGO.png")}
-          style={styles.profileImage}
-        />
+        <Pressable
+          onPress={() => {
+            setIsEditingPicture(true);
+          }}
+          disabled={!isEditing}
+        >
+          {profile_URL ? (
+            <Image source={{ uri: profile_URL }} style={styles.profileImage} />
+          ) : (
+            <Image
+              source={require("@/assets/logos/LOGO.png")}
+              style={styles.profileImage}
+            />
+          )}
+        </Pressable>
       </ThemedView>
 
       <ThemedView
@@ -162,10 +182,20 @@ export default function Account_Detail() {
         <View style={styles.fieldContainer}>
           <ThemedText style={styles.label}>Date of Birth</ThemedText>
           {isEditing ? (
-            <CustomDateTimePicker
-              date={selectedDate}
-              onConfirm={(date) => setSelectedDate(date)}
-            />
+            <ThemedView>
+              <Pressable
+                onPress={() => setIsEditingDate(true)}
+                style={styles.label}
+              >
+                <ThemedText>
+                  {selectedDate.toLocaleDateString("th-TH", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </ThemedText>
+              </Pressable>
+            </ThemedView>
           ) : (
             <ThemedText style={styles.value}>
               {selectedDate.toLocaleDateString("th-TH", {
@@ -202,6 +232,54 @@ export default function Account_Detail() {
           {isEditing ? "Save" : "Edit"}
         </Text>
       </Pressable>
+      <DateTimePickerModal
+        isVisible={isEditingDate}
+        mode="date"
+        onConfirm={(date) => {
+          setSelectedDate(date);
+          setIsEditingDate(false);
+        }}
+        onCancel={() => setIsEditingDate(false)}
+        is24Hour={true}
+        date={selectedDate}
+        maximumDate={new Date()}
+        timeZoneName="Asia/Bangkok"
+        locale="th-TH"
+      />
+      {isEditingPicture && (
+        <ThemedView className="absolute top-0 left-0 w-full h-full bg-transparent">
+          <ThemedView
+            className="h-[30%] w-full !bg-transparent "
+            onTouchEnd={() => {
+              setIsEditingPicture(false);
+            }}
+          ></ThemedView>
+          <ThemedView className="h-[40%] w-[80%] border-black/30 border-8 rounded-xl">
+            <ThemedView className="w-[80%]">
+              <ThemedInput
+                title="Image URL"
+                className="w-full mb-10"
+                onChangeText={setEditedProfileURL}
+              />
+              <ThemedButton
+                className="w-40 h-10"
+                onPress={() => {
+                  setIsEditingPicture(false);
+                }}
+                mode="confirm"
+              >
+                <ThemedText>Save</ThemedText>
+              </ThemedButton>
+            </ThemedView>
+          </ThemedView>
+          <ThemedView
+            className="h-[30%] w-full !bg-transparent "
+            onTouchEnd={() => {
+              setIsEditingPicture(false);
+            }}
+          ></ThemedView>
+        </ThemedView>
+      )}
     </ThemedSafeAreaView>
   );
 }

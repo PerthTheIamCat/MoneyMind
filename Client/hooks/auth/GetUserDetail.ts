@@ -9,6 +9,7 @@ interface GetUserDetailResponse {
     birth_date: string;
     gender: string;
     bio: string;
+    profile_url: string;
   };
 }
 

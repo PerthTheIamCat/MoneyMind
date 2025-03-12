@@ -51,6 +51,7 @@ type UserContextType = {
   retire: Array<UserRetire> | null;
   gender: string | null;
   bio: string | null;
+  profile_URL: string | null;
 
   setUsername: (user: string) => void;
   setUserID: (id: number) => void;
@@ -63,6 +64,7 @@ type UserContextType = {
   setRetire: (retire: Array<UserRetire>) => void;
   setGender: (gender: string) => void;
   setBio: (bio: string) => void;
+  setProfile_URL: (url: string) => void;
 
   loading: boolean;
 };
@@ -79,6 +81,7 @@ export const UserContext = React.createContext<UserContextType>({
   retire: null,
   gender: null,
   bio: null,
+  profile_URL: null,
 
   setUsername: () => {},
   setUserID: () => {},
@@ -91,6 +94,7 @@ export const UserContext = React.createContext<UserContextType>({
   setRetire: () => {},
   setGender: () => {},
   setBio: () => {},
+  setProfile_URL: () => {},
 
   loading: true,
 });
@@ -114,6 +118,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     useState<Array<UserNotification> | null>(null);
   const [retire, setRetire] = useState<Array<UserRetire> | null>(null);
   const [bio, setBio] = useState<string | null>(null);
+  const [profile_URL, setProfile_URL] = useState<string | null>(null);
 
   useEffect(() => {
     if (auth?.token !== null) {
@@ -146,7 +151,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             userID
           );
 
-          if (userDetails.success) {
+          if (userDetails.success && "data" in userDetails) {
             console.log("✅ User details loaded:", userDetails.data);
             setFullname(userDetails.data.name || "No Name");
             setUsername(userDetails.data.username || "");
@@ -154,10 +159,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             setBirthdate(userDetails.data.birthday || "");
             setGender(userDetails.data.gender || "");
             setBio(userDetails.data.bio || "");
+            setProfile_URL(userDetails.data.profile_url || "");
           } else {
             console.warn(
               "⚠️ Failed to load user details:",
-              userDetails.message
+              "data" in userDetails ? userDetails.message : "Unknown error"
             );
           }
         } catch (error) {
@@ -265,6 +271,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         retire,
         gender,
         bio,
+        profile_URL,
         setBio,
         setGender,
         setUsername,
@@ -276,6 +283,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setNotification,
         setBank,
         setRetire,
+        setProfile_URL,
         loading,
       }}
     >
