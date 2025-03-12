@@ -24,6 +24,7 @@ export const UpdateUserDetailHandler = async (
     birth_date: string;
     gender: string;
     bio: string;
+    profile_url: string;
   }
 ): Promise<UpdateUserDetailResponse | UpdateUserDetailError["response"]> => {
   try {
