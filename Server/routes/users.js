@@ -355,6 +355,144 @@ router.delete("/:id", jwtValidate, (req, res) => {
   });
 });
 
+// 📡 Get User Details Route
+router.get("/userdetail/:id", jwtValidate, async (req, res) => {
+  const userId = parseInt(req.params.id, 10);
+
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "Invalid user ID" });
+  }
+
+  const query = `
+    SELECT username, name, email, birthday, gender, bio 
+    FROM users 
+    WHERE id = ?`;
+
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("❌ Database Query Error:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Database query failed",
+        error: err.message,
+      });
+    }
+
+    if (results.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    return res.status(200).json({ success: true, data: results[0] });
+  });
+});
+
+router.put("/user/:id", jwtValidate, async (req, res) => {
+  const userId = parseInt(req.params.id, 10);
+  const { user_name, name, user_email, birth_date, gender, bio } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "Invalid user ID" });
+  }
+
+  // Prevent updating protected fields
+  if (req.body.id) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Cannot update user ID!" });
+  }
+
+  try {
+    const query = `
+      UPDATE users 
+      SET user_name = ?, name = ?, user_email = ?, birth_date = ?, gender = ?, bio = ?
+      WHERE id = ?
+    `;
+    db.query(
+      query,
+      [user_name, name, user_email, birth_date, gender, bio, userId],
+      (err, result) => {
+        if (err) {
+          return res.status(500).json({
+            success: false,
+            message: "Database update failed",
+            error: err.message,
+          });
+        }
+
+        if (result.affectedRows === 0) {
+          return res
+            .status(404)
+            .json({ success: false, message: "User not found" });
+        }
+
+        return res.status(200).json({
+          success: true,
+          message: "User details updated successfully",
+        });
+      }
+    );
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
+  }
+});
+
+router.put("/userdetail/:id", jwtValidate, async (req, res) => {
+  const userId = parseInt(req.params.id, 10);
+  const { user_name, name, email, birth_date, gender, bio } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "Invalid user ID" });
+  }
+
+  // Prevent updating protected fields
+  if (req.body.id) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Cannot update user ID!" });
+  }
+
+  try {
+    const query = `
+      UPDATE users 
+      SET username = ?, name = ?, email = ?, birthday = ?, gender = ?, bio = ?
+      WHERE id = ?
+    `;
+
+    db.query(
+      query,
+      [user_name, name, email, birth_date, gender, bio, userId], // Ensure correct variables are passed
+      (err, result) => {
+        if (err) {
+          return res.status(500).json({
+            success: false,
+            message: "Database update failed",
+            error: err.message,
+          });
+        }
+
+        if (result.affectedRows === 0) {
+          return res
+            .status(404)
+            .json({ success: false, message: "User not found" });
+        }
+
+        return res.status(200).json({
+          success: true,
+          message: "User details updated successfully",
+        });
+      }
+    );
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
+  }
+});
+
 module.exports = {
   router,
 };

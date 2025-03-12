@@ -86,7 +86,7 @@ export default function Setting() {
         {/* Logout Button */}
         <View style={styles.buttonContainer}>
           <ThemedButton
-            className={`w-full py-3 rounded-lg bg-red-500`}
+            className={`w-full py-4 rounded-lg bg-red-500`}
             mode="cancel"
             textClassName={`text-[18px] font-bold ${textColor}`}
             onPress={() => {
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: wp("90%"),
-    marginTop: hp("35%"),
+    marginTop: hp(20),
   },
   iconPadding: {
     paddingHorizontal: wp("2%"),
