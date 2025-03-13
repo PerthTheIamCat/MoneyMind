@@ -22,10 +22,12 @@ interface CategoryResponse {
 export const deleteCategory = async (
   url: string,
   category_id: number,
+  user_id: number,
   token: string
 ) => {
   try {
     const response = await axios.delete(`${url}/category/${category_id}`, {
+      data: { user_id: user_id },
       headers: {
         Authorization: `Bearer ${token}`,
       },

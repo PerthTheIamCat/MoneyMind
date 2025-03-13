@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import Entypo from "@expo/vector-icons/Entypo";
 import { UserTransaction } from "@/hooks/auth/GetAllTransaction";
 import { TouchableWithoutFeedback } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 interface TransactionItemProps {
   transaction: UserTransaction;
@@ -58,9 +59,11 @@ export default function TransactionItem({
       <View
         className={`flex-row items-center justify-center w-[85%] ${componentcolor} p-4 rounded-lg mb-2 shadow-md`}
       >
-        <Image
-          source={require("@/assets/logos/LOGO.png")}
-          style={{ width: 40, height: 40, borderRadius: 20, marginRight: 16 }}
+        <Ionicons
+          name={transaction.icon_id}
+          size={24}
+          color={componenticon}
+          className="mx-3"
         />
         <View className="flex-1">
           <ThemedText className="font-bold text-lg">
