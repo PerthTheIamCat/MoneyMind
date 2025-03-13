@@ -30,7 +30,7 @@ import {
     const [value, setValue] = useState("ALL");
     // const [colortext, setColor] = useState(0);
     const theme = useColorScheme() || "light";
-    const componentColor = theme === "dark" ? "#383838" : "#d8d8d8";
+    const componentColor = theme === "dark" ? "#383838" : "#e8e8e8";
     const componentIcon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
     const onSelect = useCallback((item: OptionItem) => {
       onChange(item);

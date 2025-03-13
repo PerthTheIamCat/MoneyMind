@@ -36,6 +36,7 @@ import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import { DeleteUserTransaction } from "@/hooks/auth/DeleteTransaction";
 import { AuthContext } from "@/hooks/conText/AuthContext";
+import { Item } from "react-native-paper/lib/typescript/components/Drawer/Drawer";
 
 export default function TransactionPage() {
   const handleEditTransaction = (transactionId: number) => {
@@ -71,7 +72,7 @@ export default function TransactionPage() {
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
     null
   );
-  const [filtermode, setFilltermode] = useState(0);
+  const [filtermode, setFilltermode] = useState("All");
 
   const theme = useColorScheme() || "light";
   const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
@@ -341,7 +342,8 @@ export default function TransactionPage() {
 
             <Dropdownfiller
               data={data}
-              onChange={(item) => console.log(item.label)}
+              onChange={(item) => setFilltermode(item.label)}
+
             />
           </ThemedView>
           <ScrollView
@@ -362,21 +364,23 @@ export default function TransactionPage() {
               <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-40">
                 <View className="w-full !items-center">
                   {(() => {
-                    const filteredTransactions =
-                      selectedCardID !== null
-                        ? transaction?.filter(
-                            (t) => t.account_id === selectedCardID
-                          )
+                    let filteredTransactions =
+                      selectedCardID !== null ? transaction?.filter((t) => t.account_id === selectedCardID)
                         : transaction;
-                    if (
-                      !filteredTransactions ||
-                      filteredTransactions.length === 0
-                    ) {
+
+                    if (filtermode==="Income"&& filteredTransactions?.length!==0){
+                      filteredTransactions=filteredTransactions?.filter((t)=> t.transaction_type==="income");
+                    }else if(filtermode==="Expense"&& filteredTransactions?.length!==0){
+                      filteredTransactions=filteredTransactions?.filter((t)=> t.transaction_type==="expense");
+                    }
+                    
+                    if(!filteredTransactions ||filteredTransactions.length === 0) {
                       return (
                         <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
                           No transactions available
                         </ThemedText>
                       );
+                      
                     }
 
                     return filteredTransactions.map(
