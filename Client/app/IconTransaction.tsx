@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
@@ -14,12 +14,17 @@ import { useColorScheme } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedButton } from "@/components/ThemedButton";
+import { getCategory } from "@/hooks/auth/CategoryHandler";
+import { useContext } from "react";
+import { UserContext } from "@/hooks/conText/UserContext";
+import { AuthContext } from "@/hooks/conText/AuthContext";
+import { ServerContext } from "@/hooks/conText/ServerConText";
 
 // ✅ กำหนด Type ของ Transaction
 type Transaction = {
   id: number;
-  name: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon_name: string;
+  icon_id: keyof typeof Ionicons.glyphMap;
 };
 
 export default function IconTransaction() {
@@ -41,6 +46,10 @@ export default function IconTransaction() {
     useState<keyof typeof Ionicons.glyphMap>("restaurant-outline");
 
   const componentcolor = isDarkMode ? "#181818" : "#d8d8d8";
+
+  const { URL } = useContext(ServerContext);
+  const { userID } = useContext(UserContext);
+  const auth = useContext(AuthContext);
 
   // ✅ เพิ่ม iconList ที่รองรับ
   const iconList: (keyof typeof Ionicons.glyphMap)[] = [
@@ -88,21 +97,21 @@ export default function IconTransaction() {
 
   // ✅ ใช้ useState เก็บข้อมูลที่แก้ไขแล้ว
   const [expensesData, setExpensesData] = useState<Transaction[]>([
-    { id: 1, name: "Rice", icon: "restaurant-outline" },
-    { id: 2, name: "Water", icon: "water-outline" },
-    { id: 3, name: "Fuel", icon: "flame-outline" },
-    { id: 4, name: "Raw Materials", icon: "leaf-outline" },
-    { id: 5, name: "Transportation", icon: "bus-outline" },
-    { id: 6, name: "Accommodation", icon: "home-outline" },
-    { id: 7, name: "Investment", icon: "cash-outline" },
+    { id: 1, icon_name: "Rice", icon_id: "restaurant-outline" },
+    { id: 2, icon_name: "Water", icon_id: "water-outline" },
+    { id: 3, icon_name: "Fuel", icon_id: "flame-outline" },
+    { id: 4, icon_name: "Raw Materials", icon_id: "leaf-outline" },
+    { id: 5, icon_name: "Transportation", icon_id: "bus-outline" },
+    { id: 6, icon_name: "Accommodation", icon_id: "home-outline" },
+    { id: 7, icon_name: "Investment", icon_id: "cash-outline" },
   ]);
 
   const [incomeData, setIncomeData] = useState<Transaction[]>([
-    { id: 1, name: "Salary", icon: "briefcase-outline" },
-    { id: 2, name: "Bonus", icon: "gift-outline" },
-    { id: 3, name: "Side Income", icon: "trending-up-outline" },
-    { id: 4, name: "Interest", icon: "wallet-outline" },
-    { id: 5, name: "Dividends", icon: "pie-chart-outline" },
+    { id: 1, icon_name: "Salary", icon_id: "briefcase-outline" },
+    { id: 2, icon_name: "Bonus", icon_id: "gift-outline" },
+    { id: 3, icon_name: "Side Income", icon_id: "trending-up-outline" },
+    { id: 4, icon_name: "Interest", icon_id: "wallet-outline" },
+    { id: 5, icon_name: "Dividends", icon_id: "pie-chart-outline" },
   ]);
 
   const transactions = isExpenses ? expensesData : incomeData;
@@ -110,8 +119,8 @@ export default function IconTransaction() {
   // ✅ เปิด Modal แก้ไข
   const openEditModal = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
-    setEditedName(transaction.name);
-    setSelectedIcon(transaction.icon);
+    setEditedName(transaction.icon_name);
+    setSelectedIcon(transaction.icon_id);
     setIsEditModalVisible(true);
   };
 
@@ -154,8 +163,8 @@ export default function IconTransaction() {
   const addTransaction = () => {
     const newTransaction: Transaction = {
       id: transactions.length + 1,
-      name: newName,
-      icon: newIcon,
+      icon_name: newName,
+      icon_id: newIcon,
     };
 
     if (isExpenses) {
@@ -166,6 +175,36 @@ export default function IconTransaction() {
 
     setIsAddModalVisible(false);
   };
+
+  useEffect(() => {
+    getCategory(URL, userID!, auth?.token!).then((response) => {
+      if (response && response.success) {
+        const categories = Array.isArray(response.result)
+          ? response.result
+          : [response.result];
+        setIncomeData((prevIncomeData) => [
+          ...prevIncomeData,
+          ...categories.filter((cat) => cat.category_type === "income"),
+        ]);
+        setExpensesData((prevExpensesData) => [
+          ...prevExpensesData,
+          ...categories.filter((cat) => cat.category_type === "expense"),
+        ]);
+
+        console.log("Category get successfully");
+        console.log(response.result);
+        console.log("income :", incomeData);
+        console.log("expense :", expensesData);
+      } else {
+        console.log("Failed to add category");
+      }
+    });
+  }, [URL, userID, auth?.token]);
+
+  useEffect(() => {
+    console.log("income :", incomeData);
+    console.log("expense :", expensesData);
+  }, [incomeData, expensesData]);
 
   return (
     <>
@@ -214,10 +253,10 @@ export default function IconTransaction() {
               {/* ไอคอน + ชื่อรายการ */}
               <View className="flex-row items-center space-x-3">
                 <ThemedText className="ml-3">
-                  <Ionicons name={item.icon} size={22} />
+                  <Ionicons name={item.icon_id} size={22} />
                 </ThemedText>
                 <ThemedText className="text-[16px] ml-3">
-                  {item.name}
+                  {item.icon_name}
                 </ThemedText>
               </View>
 

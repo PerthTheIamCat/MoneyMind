@@ -11,6 +11,11 @@ import Icon from "react-native-vector-icons/Feather";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedButton } from "@/components/ThemedButton";
+import { addCategory } from "@/hooks/auth/CategoryHandler";
+import { ServerContext } from "@/hooks/conText/ServerConText";
+import { useContext } from "react";
+import { UserContext } from "@/hooks/conText/UserContext";
+import { AuthContext } from "@/hooks/conText/AuthContext";
 
 interface AddCategoryProps {
   isIncome: boolean;
@@ -40,14 +45,34 @@ const AddCategory: React.FC<AddCategoryProps> = ({
   setExpenseCategories,
 }) => {
   const theme = useColorScheme();
+  const { URL } = useContext(ServerContext);
+  const { userID } = useContext(UserContext);
+  const auth = useContext(AuthContext);
 
   // ✅ ฟังก์ชันบันทึกหมวดหมู่
   const onSaveCategory = () => {
     if (newCategoryName.trim() === "") return; // ✅ ป้องกันการเพิ่มหมวดหมู่ที่ว่างเปล่า
 
     const newCategory = { name: newCategoryName, icon: selectedIcon };
+    console.log(newCategory);
 
     if (isIncome) {
+      addCategory(
+        URL,
+        {
+          user_id: userID!,
+          icon_name: newCategory.name,
+          icon_id: newCategory.icon,
+          category_type: "income",
+        },
+        auth?.token!
+      ).then((response) => {
+        if (response && response.success) {
+          console.log("Category added successfully");
+        } else {
+          console.log("Failed to add category");
+        }
+      });
       setIncomeCategories((prev) => {
         const filteredCategories = prev.filter((cat) => cat.name !== "add");
         return [
@@ -57,6 +82,22 @@ const AddCategory: React.FC<AddCategoryProps> = ({
         ];
       });
     } else {
+      addCategory(
+        URL,
+        {
+          user_id: userID!,
+          icon_name: newCategory.name,
+          icon_id: newCategory.icon,
+          category_type: "expense",
+        },
+        auth?.token!
+      ).then((response) => {
+        if (response && response.success) {
+          console.log("Category added successfully");
+        } else {
+          console.log("Failed to add category");
+        }
+      });
       setExpenseCategories((prev) => {
         const filteredCategories = prev.filter((cat) => cat.name !== "add");
         return [
@@ -86,7 +127,11 @@ const AddCategory: React.FC<AddCategoryProps> = ({
         }}
       >
         <ThemedView className="flex-1 items-center justify-center bg-black/50">
-          <ThemedView className={`w-4/5 p-6 rounded-3xl shadow-lg ${theme === "dark" ? "bg-[#282828]" : "bg-white"}`}>
+          <ThemedView
+            className={`w-4/5 p-6 rounded-3xl shadow-lg ${
+              theme === "dark" ? "bg-[#282828]" : "bg-white"
+            }`}
+          >
             <ThemedText className="text-xl font-bold">
               Add New Category
             </ThemedText>
