@@ -9,6 +9,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   Pressable,
+  Keyboard,
 } from "react-native";
 import { router } from "expo-router";
 
@@ -39,6 +40,7 @@ import { ServerContext } from "@/hooks/conText/ServerConText";
 import { resultObject } from "@/hooks/auth/GetUserBank";
 
 import Slider from "@react-native-community/slider";
+import { KeyboardAvoidingView, Platform } from "react-native";
 
 interface SplitPayProps {
   id: number;
@@ -221,6 +223,22 @@ export default function SplitPay() {
     }
   }, [bank, page]);
 
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", () =>
+      setIsKeyboardVisible(true)
+    );
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () =>
+      setIsKeyboardVisible(false)
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
   const modalHeight = Dimensions.get("window").height;
   const modalAnimation = useRef(new Animated.Value(-modalHeight)).current;
   const delectModalAnimation = useRef(new Animated.Value(-modalHeight)).current;
@@ -275,6 +293,7 @@ export default function SplitPay() {
             setIsEdit(false);
           } else {
             console.log("🚀 Splitpay Error:", res);
+            alert(res.message);
           }
           getSplitpay(URL, selectedCard.id, auth?.token!).then((res) => {
             if (res.success) {
@@ -296,6 +315,7 @@ export default function SplitPay() {
             setModalVisible(false);
           } else {
             setIsLoading(false);
+            alert(res.message);
             console.log("🚀 Splitpay Error:", res);
           }
           getSplitpay(URL, selectedCard.id, auth?.token!).then((res) => {
@@ -753,13 +773,19 @@ export default function SplitPay() {
         }}
       >
         <ThemedView
-          className="h-[40%] w-full bg-transparent"
+          className={`${
+            isKeyboardVisible ? "h-[20%]" : "h-[40%]"
+          } w-full bg-transparent`}
           onTouchEnd={() => {
             setModalVisible(false);
             setIsEdit(false);
           }}
         />
-        <ThemedView className="h-[60%] w-full border-t-4 border-l-4 border-r-4 border-black/30 rounded-t-3xl">
+        <ThemedView
+          className={`${
+            isKeyboardVisible ? "h-[80%]" : "h-[60%]"
+          } w-full border-t-4 border-l-4 border-r-4 border-black/30 rounded-t-3xl `}
+        >
           <ThemedView
             className="w-40 h-40 rounded-2xl"
             style={{ backgroundColor: selectColor ? selectColor : "#D9D9D9" }}
@@ -845,7 +871,15 @@ export default function SplitPay() {
               <Slider
                 style={{ width: "100%", height: 40 }}
                 minimumValue={100}
-                maximumValue={selectedCard?.balance}
+                maximumValue={
+                  (selectedCard?.balance ?? 0) -
+                  (Budgets
+                    ? Budgets.reduce(
+                        (acc, budget) => acc + budget.amount_allocated,
+                        0
+                      )
+                    : 0)
+                }
                 step={100}
                 value={inputLimitValue ? Number(inputLimitValue) : 100}
                 onValueChange={(value) => setLimitValue(value)}
