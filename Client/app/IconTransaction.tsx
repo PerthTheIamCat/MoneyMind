@@ -79,7 +79,7 @@ export default function IconTransaction() {
             {/* ไอคอน + ชื่อรายการ (เพิ่ม space-x-4 เพื่อเพิ่มระยะห่าง) */}
             <View className="flex-row items-center space-x-4">
               <Ionicons name={item.icon} size={22} color="#555" />
-              <ThemedText className={`text-[16px] ${textColor}`}>
+              <ThemedText className={`text-[16px] mx-2 ${textColor}`}>
                 {item.name}
               </ThemedText>
             </View>
