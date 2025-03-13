@@ -9,6 +9,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   Pressable,
+  Keyboard,
 } from "react-native";
 import { router } from "expo-router";
 
@@ -39,6 +40,7 @@ import { ServerContext } from "@/hooks/conText/ServerConText";
 import { resultObject } from "@/hooks/auth/GetUserBank";
 
 import Slider from "@react-native-community/slider";
+import { KeyboardAvoidingView, Platform } from "react-native";
 
 interface SplitPayProps {
   id: number;
@@ -150,10 +152,6 @@ export default function SplitPay() {
     });
   };
 
-  useEffect(() => {
-    console.log("Bank:", bank);
-  }, [page]);
-
   // ✅ ตรวจจับ Card ที่อยู่กลางหน้าจอ
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollX = event.nativeEvent.contentOffset.x;
@@ -190,7 +188,7 @@ export default function SplitPay() {
 
   // ✅ เลื่อน ScrollView ให้การ์ดแรกอยู่กลางตอนเริ่ม
   useEffect(() => {
-    if (bank && bank.length > 1 && scrollViewRef.current) {
+    if (bank && bank.length > 0 && scrollViewRef.current) {
       setTimeout(() => {
         if (page === 0) {
           scrollViewRef.current?.scrollTo({ x: 0, animated: true });
@@ -224,6 +222,22 @@ export default function SplitPay() {
       }, 500);
     }
   }, [bank, page]);
+
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", () =>
+      setIsKeyboardVisible(true)
+    );
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () =>
+      setIsKeyboardVisible(false)
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   const modalHeight = Dimensions.get("window").height;
   const modalAnimation = useRef(new Animated.Value(-modalHeight)).current;
@@ -279,6 +293,7 @@ export default function SplitPay() {
             setIsEdit(false);
           } else {
             console.log("🚀 Splitpay Error:", res);
+            alert(res.message);
           }
           getSplitpay(URL, selectedCard.id, auth?.token!).then((res) => {
             if (res.success) {
@@ -300,6 +315,7 @@ export default function SplitPay() {
             setModalVisible(false);
           } else {
             setIsLoading(false);
+            alert(res.message);
             console.log("🚀 Splitpay Error:", res);
           }
           getSplitpay(URL, selectedCard.id, auth?.token!).then((res) => {
@@ -757,13 +773,19 @@ export default function SplitPay() {
         }}
       >
         <ThemedView
-          className="h-[40%] w-full bg-transparent"
+          className={`${
+            isKeyboardVisible ? "h-[20%]" : "h-[40%]"
+          } w-full bg-transparent`}
           onTouchEnd={() => {
             setModalVisible(false);
             setIsEdit(false);
           }}
         />
-        <ThemedView className="h-[60%] w-full border-t-4 border-l-4 border-r-4 border-black/30 rounded-t-3xl">
+        <ThemedView
+          className={`${
+            isKeyboardVisible ? "h-[80%] pb-52" : "h-[60%]"
+          } w-full border-t-4 border-l-4 border-r-4 border-black/30 rounded-t-3xl `}
+        >
           <ThemedView
             className="w-40 h-40 rounded-2xl"
             style={{ backgroundColor: selectColor ? selectColor : "#D9D9D9" }}
@@ -848,8 +870,16 @@ export default function SplitPay() {
               />
               <Slider
                 style={{ width: "100%", height: 40 }}
-                minimumValue={100}
-                maximumValue={selectedCard?.balance}
+                minimumValue={0}
+                maximumValue={
+                  (selectedCard?.balance ?? 0) -
+                  (Budgets
+                    ? Budgets.reduce(
+                        (acc, budget) => acc + budget.remaining_balance,
+                        0
+                      )
+                    : 0)
+                }
                 step={100}
                 value={inputLimitValue ? Number(inputLimitValue) : 100}
                 onValueChange={(value) => setLimitValue(value)}
@@ -864,7 +894,13 @@ export default function SplitPay() {
                 <ThemedText className="text-xs">100</ThemedText>
                 <ThemedText>{limitValue}</ThemedText>
                 <ThemedText className="text-xs">
-                  {selectedCard?.balance}
+                  {(selectedCard?.balance ?? 0) -
+                    (Budgets
+                      ? Budgets.reduce(
+                          (acc, budget) => acc + budget.remaining_balance,
+                          0
+                        )
+                      : 0)}
                 </ThemedText>
               </ThemedView>
             </ThemedView>
@@ -882,14 +918,16 @@ export default function SplitPay() {
           </ThemedButton>
         </ThemedView>
       </Animated.View>
-      {page === 0 && (
-        <ThemedView
-          className="w-16 h-16 !bg-[#AACC00] absolute right-6 bottom-36 rounded-full"
-          onTouchEnd={() => setModalVisible(true)}
-        >
-          <MaterialCommunityIcons name="plus" size={40} color="white" />
-        </ThemedView>
-      )}
+      {page === 0 &&
+        (bank?.filter((account) => account.account_name !== "Retirement") ?? [])
+          .length > 0 && (
+          <ThemedView
+            className="w-16 h-16 !bg-[#AACC00] absolute right-6 bottom-36 rounded-full"
+            onTouchEnd={() => setModalVisible(true)}
+          >
+            <MaterialCommunityIcons name="plus" size={40} color="white" />
+          </ThemedView>
+        )}
       <Animated.View
         style={{
           position: "absolute",

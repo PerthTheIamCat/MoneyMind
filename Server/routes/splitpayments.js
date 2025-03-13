@@ -132,7 +132,7 @@ router.post('/create', jwtValidate, (req, res) => {
     }
 
     db.query(
-        'SELECT ba.balance, SUM(sp.amount_allocated) AS sumAmount FROM bankaccounts ba LEFT JOIN splitpayments sp ON ba.id = sp.account_id WHERE ba.id = ? and ba.user_id = ? GROUP BY ba.id, ba.balance',
+        'SELECT ba.balance, SUM(sp.remaining_balance) AS sumAmount FROM bankaccounts ba LEFT JOIN splitpayments sp ON ba.id = sp.account_id WHERE ba.id = ? and ba.user_id = ? GROUP BY ba.id, ba.balance',
         [account_id, user_id],
         (err, result) => {
             if (err) {

@@ -329,13 +329,37 @@ router.put('/:id', jwtValidate, (req, res) => { //transaction_id
             }
             if (result.length === 0) {
                 console.log("Error from .put/:id from result.length === 0");
-                console.log("Unauthorized user or transaction not found")
+                console.log("Unauthorized user or transaction not found");
                 return res.status(403).json({ message: 'Unauthorized user or transaction not found', success: false });
             }
 
             const oldTransaction = result[0];
+            const oldSplitPaymentId = oldTransaction.split_payment_id;
             console.log("Old Transaction:", oldTransaction);
 
+            // Check if the split payment ID is different
+            if (oldSplitPaymentId !== split_payment_id) {
+                let splitUpdateQuery = oldTransaction.transaction_type === 'expense'
+                    ? 'UPDATE splitpayments SET remaining_balance = remaining_balance + ? WHERE id = ?'
+                    : 'UPDATE splitpayments SET remaining_balance = remaining_balance - ? WHERE id = ?';
+
+                db.query(
+                    splitUpdateQuery,
+                    [oldTransaction.amount, oldSplitPaymentId],
+                    (err) => {
+                        if (err) {
+                            console.log("Error from .put/:id from updating old split payment");
+                            console.log("Failed to update old split payment");
+                            console.log("Error:", err);
+                            return res.status(500).json({ message: 'Failed to update old split payment', error: err.message, success: false });
+                        }
+
+                        console.log("Old split payment updated successfully");
+                    }
+                );
+            }
+
+            // Process the balance update and transaction update as before
             db.query(
                 'SELECT balance FROM bankaccounts WHERE id = ?',
                 [account_id],
@@ -349,7 +373,7 @@ router.put('/:id', jwtValidate, (req, res) => { //transaction_id
 
                     if (bankResult.length === 0) {
                         console.log("Error from .put/:id from bankResult.length === 0");
-                        console.log("Bank account not found")
+                        console.log("Bank account not found");
                         return res.status(404).json({ message: 'Bank account not found', success: false });
                     }
 
@@ -371,16 +395,16 @@ router.put('/:id', jwtValidate, (req, res) => { //transaction_id
                     if (balance < 0) {
                         console.log("Balance:", balance);
                         console.log("From .put/:id from balance < 0");
-                        console.log("Insufficient balance in the account")
+                        console.log("Insufficient balance in the account");
                         return res.status(400).json({ message: 'Insufficient balance in the account', success: false });
                     }
 
                     db.query(
-                        'UPDATE transactions SET account_id = ?, split_payment_id = ?, transaction_name = ?, amount = ?, transaction_type = ?,transaction_date = ?, note = ?, color_code = ? WHERE id = ?',
+                        'UPDATE transactions SET account_id = ?, split_payment_id = ?, transaction_name = ?, amount = ?, transaction_type = ?, transaction_date = ?, note = ?, color_code = ? WHERE id = ?',
                         [account_id, split_payment_id || null, transaction_name, amount, transaction_type, transaction_date, note || null, color_code, transactionId],
                         (err, updateResult) => {
                             if (err) {
-                                console.log("Error from .put/:id from UPDATE transactions SET account_id = ?, split_payment_id = ?, transaction_name = ?, amount = ?, transaction_type = ?, transaction_date = ?,note = ?, color_code = ? WHERE id = ?");
+                                console.log("Error from .put/:id from UPDATE transactions SET account_id = ?, split_payment_id = ?, transaction_name = ?, amount = ?, transaction_type = ?, transaction_date = ?, note = ?, color_code = ? WHERE id = ?");
                                 console.log("Database query failed");
                                 console.log("Error:", err);
                                 return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
@@ -398,27 +422,70 @@ router.put('/:id', jwtValidate, (req, res) => { //transaction_id
                                     }
 
                                     if (split_payment_id) {
-                                        let splitUpdateQuery = transaction_type === 'expense'
-                                            ? 'UPDATE splitpayments SET remaining_balance = remaining_balance - ? WHERE id = ?'
-                                            : 'UPDATE splitpayments SET remaining_balance = remaining_balance + ? WHERE id = ?';
-
-                                        db.query(
-                                            splitUpdateQuery,
-                                            [amount, split_payment_id],
-                                            (err) => {
-                                                if (err) {
-                                                    console.log("Error from .put/:id from splitUpdateQuery");
-                                                    console.log("Failed to update split payment");
-                                                    console.log("Error:", err);
-                                                    return res.status(500).json({ message: 'Failed to update split payment', error: err.message, success: false });
-                                                }
-
-                                                console.log("Transaction and split payment updated successfully")
-                                                return res.status(200).json({ message: 'Transaction and split payment updated successfully', success: true });
+                                        // First, query the current remaining balance and allocated amount
+                                        db.query('SELECT remaining_balance, amount_allocated FROM splitpayments WHERE id = ?', [split_payment_id], (err, result) => {
+                                            if (err) {
+                                                console.log("Error fetching remaining_balance and allocated_amount");
+                                                console.log("Failed to fetch remaining balance and allocated amount");
+                                                console.log("Error:", err);
+                                                return res.status(500).json({ message: 'Failed to fetch remaining balance and allocated amount', error: err.message, success: false });
                                             }
-                                        );
+
+                                            if (result.length === 0) {
+                                                console.log("Split payment not found");
+                                                return res.status(404).json({ message: 'Split payment not found', success: false });
+                                            }
+
+                                            const currentRemainingBalance = result[0].remaining_balance;
+                                            const allocatedAmount = result[0].allocated_amount;
+
+                                            // Check if the transaction type is 'expense' and if the balance is sufficient
+                                            if (transaction_type === 'expense' && currentRemainingBalance < amount) {
+                                                console.log("Insufficient remaining balance");
+                                                return res.status(400).json({ message: 'Insufficient remaining balance', success: false });
+                                            }
+
+                                            // Check if the transaction type is 'income' and if the new remaining balance exceeds the allocated amount
+                                            if (transaction_type === 'income' && currentRemainingBalance + amount > allocatedAmount) {
+                                                console.log("Exceeds allocated amount");
+                                                return res.status(400).json({ message: 'Income exceeds allocated amount', success: false });
+                                            }
+
+                                            // Calculate the new remaining balance
+                                            let newRemainingBalance;
+                                            if (transaction_type === 'expense') {
+                                                newRemainingBalance = currentRemainingBalance - amount;
+                                            } else if (transaction_type === 'income') {
+                                                newRemainingBalance = currentRemainingBalance + amount;
+                                            } else {
+                                                console.log("Invalid transaction type");
+                                                return res.status(400).json({ message: 'Invalid transaction type', success: false });
+                                            }
+
+                                            // Now update the remaining_balance
+                                            let splitUpdateQuery = transaction_type === 'expense'
+                                                ? 'UPDATE splitpayments SET remaining_balance = ? WHERE id = ?'
+                                                : 'UPDATE splitpayments SET remaining_balance = ? WHERE id = ?';
+
+                                            db.query(
+                                                splitUpdateQuery,
+                                                [newRemainingBalance, split_payment_id],
+                                                (err) => {
+                                                    if (err) {
+                                                        console.log("Error from .put/:id from splitUpdateQuery");
+                                                        console.log("Failed to update split payment");
+                                                        console.log("Error:", err);
+                                                        return res.status(500).json({ message: 'Failed to update split payment', error: err.message, success: false });
+                                                    }
+                                                    console.log("New remaining balance:", newRemainingBalance)
+
+                                                    console.log("Transaction and split payment updated successfully");
+                                                    return res.status(200).json({ message: 'Transaction and split payment updated successfully', success: true });
+                                                }
+                                            );
+                                        });
                                     } else {
-                                        console.log("Transaction updated successfully")
+                                        console.log("Transaction updated successfully");
                                         return res.status(200).json({ message: 'Transaction updated successfully', success: true });
                                     }
                                 }
@@ -429,6 +496,7 @@ router.put('/:id', jwtValidate, (req, res) => { //transaction_id
             );
         }
     );
+
 });
 
 router.delete('/:id', jwtValidate, (req, res) => { //transaction_id
