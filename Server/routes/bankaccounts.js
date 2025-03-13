@@ -195,7 +195,7 @@ router.delete('/:id', jwtValidate, (req, res) => {
                 return res.status(403).json({ message: 'Cant delete Retirement account', success: false });
             }
 
-            db.query('DELETE FROM transactions WHERE user_id = ?', [req.user.UserID], (err, result) => {
+            db.query('DELETE FROM transactions WHERE account_id = ?', [req.user.id], (err, result) => {
                 if (err) {
                     console.log("Error from .delete/:id from DELETE FROM transactions WHERE user_id = ?");
                     console.log("Database query failed");

@@ -198,8 +198,8 @@ export default function TransactionPage() {
             const progress = Math.round((progressEvent.loaded * 100) / total);
             console.log(`Upload progress: ${progress}%`);
           },
-        }
-      );
+    }
+  );
 
       console.log("📜 OCR Result:", response.data);
 
@@ -272,11 +272,11 @@ export default function TransactionPage() {
               <View className="w-3 h-3 bg-red-500 absolute rounded-full right-10 animate-pulse" />
             )}
           </ThemedView>
-          <ThemedView className="!items-start pl-[10%] pt-[2%] bg-[E5E5E5]">
+          <ThemedView className="!items-start pt-[2%] pl-[8%] bg-transparent">
             <ThemedText className=" text-[18px]">Connected</ThemedText>
             <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
           </ThemedView>
-          <ThemedView className="bg-[E5E5E5] h-[154px] !items-center flex flex-row ">
+          <ThemedView className="bg-emerald-300 flex-row ">
             <Pressable
               className={`flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] ${componentcolor} -ml-2 active:scale-105`}
               onPress={() => router.push("/AddAccount")}
@@ -288,7 +288,7 @@ export default function TransactionPage() {
               horizontal={true}
               keyboardShouldPersistTaps="handled" // ✅ ให้สามารถกดที่อื่นเพื่อปิดเมนู
               onStartShouldSetResponder={() => true} // ✅ บังคับให้ ScrollView ตอบสนองการสัมผัส
-              className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9"
+              className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9 "
             >
               <View className="mt-0.5 mb-1 flex-row space-x-1">
                 {bank && bank.length > 0 ? (
@@ -318,7 +318,7 @@ export default function TransactionPage() {
               </View>
             </ThemedScrollView>
           </ThemedView>
-          <ThemedView className="flex-row  items-center bg-[E5E5E5] justify-between px-4">
+          <ThemedView className="flex-row items-center bg-[E5E5E5] justify-between pt-1 px-4">
             <ThemedText className="text-[20px] w-[68%] pl-[5%] font-bold">
               Transaction
             </ThemedText>
@@ -328,9 +328,9 @@ export default function TransactionPage() {
               onChange={(item) => console.log(item.label)}
             />
           </ThemedView>
-          <ThemedScrollView
-            className="h-[440px] py-2"
-            keyboardShouldPersistTaps="away" // ✅ ให้สามารถกดที่อื่นเพื่อปิดเมนู
+          <ScrollView
+            className="max-h-screen-safe"
+            // keyboardShouldPersistTaps="away" // ✅ ให้สามารถกดที่อื่นเพื่อปิดเมนู
             onStartShouldSetResponder={() => true} // ✅ บังคับให้ ScrollView รับการสัมผัส
             nestedScrollEnabled={true}
           >
@@ -381,7 +381,7 @@ export default function TransactionPage() {
                             className="w-full items-center"
                           >
                             {showDateHeader && (
-                              <ThemedText className="w-full pl-10 text-left font-bold text-1xl py-1">
+                              <ThemedText className="w-[85%] text-left font-bold text-1xl py-2">
                                 {formattedDate}
                               </ThemedText>
                             )}
@@ -414,7 +414,7 @@ export default function TransactionPage() {
                 </View>
               </ThemedView>
             </TouchableWithoutFeedback>
-          </ThemedScrollView>
+          </ScrollView>
           {isOverlayVisible && (
             <TouchableWithoutFeedback
               onPress={() => {

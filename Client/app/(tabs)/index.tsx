@@ -254,7 +254,7 @@ export default function Index() {
               return (
                 <View key={transaction.id} className=" items-center">
                   {showDateHeader && (
-                    <ThemedText className="w-full pl-10 text-left font-bold text-sm py-1">
+                    <ThemedText className="w-[85%] text-left font-bold text-sm py-2">
                       {formattedDate}
                     </ThemedText>
                   )}

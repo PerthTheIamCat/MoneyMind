@@ -62,7 +62,7 @@ export default function RootLayout() {
                 headerTitleStyle: {
                   fontFamily,
                 },
-                animation: "fade",
+                animation: "slide_from_bottom",
                 headerBackTitle: "back",
               }}
             >
@@ -166,7 +166,7 @@ export default function RootLayout() {
                 name="NotificationSetting"
                 options={{
                   headerTitle: "Notification Settings",
-                  presentation: "modal",
+                  // presentation: "modal",
                 }}
               />
               <Stack.Screen
