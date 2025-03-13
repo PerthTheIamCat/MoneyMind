@@ -122,7 +122,10 @@ export default function Retire_form() {
     useState<number>(0);
   const [monthlySavingNeeded, setMonthlySavingNeeded] = useState<number>(0);
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const handleFinish = async () => {
+    setIsLoading(true);
     await axios
       .post(
         `${URL}/splitpayments/retirement`,
@@ -148,10 +151,12 @@ export default function Retire_form() {
         } else {
           console.log("Split payment failed:", response.data.message);
         }
+        setIsLoading(false);
       });
   };
 
   const calculate_retirement = () => {
+    setIsLoading(true);
     CalculateRetirement(
       URL,
       {
@@ -258,6 +263,7 @@ export default function Retire_form() {
         console.log("Retirement calculation failed:", res);
         alert("Retirement calculation failed some fields are missing");
       }
+      setIsLoading(false);
     });
   };
 
@@ -1024,6 +1030,7 @@ export default function Retire_form() {
             {step === 3 ? "Recalculate" : step === 0 ? "cancel" : "back"}
           </ThemedButton>
           <ThemedButton
+            isLoading={isLoading}
             mode="confirm"
             className="px-14 py-5"
             onPress={() => {

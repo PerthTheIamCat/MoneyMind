@@ -267,6 +267,7 @@ export default function SplitPay() {
         icon_id: selectIcon,
       };
       if (isEdit) {
+        setIsLoading(true);
         updateSplitpay(URL, data.id, data, auth?.token!).then((res) => {
           if (res.success) {
             console.log("🚀 Splitpay Updated:", res);
@@ -279,25 +280,32 @@ export default function SplitPay() {
             if (res.success) {
               console.log("🚀 Splitpay Fetched:", res);
               setBudgets(res.result);
+              setIsLoading(false);
             } else {
               setBudgets(null);
+              setIsLoading(false);
             }
           });
         });
       } else {
+        setIsLoading(true);
         addSplitpay(URL, data, auth?.token!).then((res) => {
           if (res.success) {
+            setIsLoading(false);
             console.log("🚀 Splitpay Added:", res);
             setModalVisible(false);
           } else {
+            setIsLoading(false);
             console.log("🚀 Splitpay Error:", res);
           }
           getSplitpay(URL, selectedCard.id, auth?.token!).then((res) => {
             if (res.success) {
               console.log("🚀 Splitpay Fetched:", res);
               setBudgets(res.result);
+              setIsLoading(false);
             } else {
               setBudgets(null);
+              setIsLoading(false);
             }
           });
         });
@@ -305,6 +313,7 @@ export default function SplitPay() {
     }
   };
   const DeleteHandler = () => {
+    setIsLoading(true);
     deleteSplitpay(URL, editID, auth?.token!).then((res) => {
       if (res.success) {
         console.log("🚀 Splitpay Deleted:", res);
@@ -318,8 +327,10 @@ export default function SplitPay() {
           }
         });
         setIsDeleteConfirmOpen(false);
+        setIsLoading(false);
       } else {
         console.log("🚀 Splitpay Error:", res);
+        setIsLoading(false);
       }
     });
   };
@@ -861,17 +872,20 @@ export default function SplitPay() {
               saveHandler();
             }}
             className="w-1/4 h-10"
+            isLoading={isLoading}
           >
             save
           </ThemedButton>
         </ThemedView>
       </Animated.View>
-      <ThemedView
-        className="w-16 h-16 !bg-[#AACC00] absolute right-6 bottom-36 rounded-full"
-        onTouchEnd={() => setModalVisible(true)}
-      >
-        <MaterialCommunityIcons name="plus" size={40} color="white" />
-      </ThemedView>
+      {page === 0 && (
+        <ThemedView
+          className="w-16 h-16 !bg-[#AACC00] absolute right-6 bottom-36 rounded-full"
+          onTouchEnd={() => setModalVisible(true)}
+        >
+          <MaterialCommunityIcons name="plus" size={40} color="white" />
+        </ThemedView>
+      )}
       <Animated.View
         style={{
           position: "absolute",

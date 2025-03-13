@@ -105,6 +105,7 @@ export default function Index() {
   const [openTime, setOpenTime] = useState(false);
   const today = new Date();
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const showDatePicker = () => setDatePickerVisibility(true);
   const showTimePicker = () => setOpenTime(true);
@@ -378,7 +379,7 @@ export default function Index() {
     }
 
     console.log("✅ Selected transaction ID:", (transaction?.length || 0) + 1);
-
+    setIsLoading(true);
     const reloadTransaction = () => {
       GetUserTransaction(URL, userID!, auth?.token!).then((res) => {
         if (res.success) {
@@ -439,11 +440,13 @@ export default function Index() {
             color_code: "#FFFFFF",
           },
         ]);
+        setIsLoading(false);
         reloadTransaction();
         router.replace("/(tabs)/transaction");
       } else {
         alert(response.message);
         console.log(response);
+        setIsLoading(false);
       }
     });
   };
@@ -773,6 +776,7 @@ export default function Index() {
                   onPress={async () => {
                     saveTransaction();
                   }}
+                  isLoading={isLoading}
                 >
                   Add Transaction
                 </ThemedButton>
