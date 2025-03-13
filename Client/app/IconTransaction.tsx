@@ -8,14 +8,7 @@ import { useColorScheme } from "react-native";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { ThemedButton } from "@/components/ThemedButton";
 
-// ✅ กำหนด Type ของ Transaction
-type Transaction = {
-  id: number;
-  name: string;
-  icon: keyof typeof Ionicons.glyphMap;
-};
 
 // ✅ กำหนด Type ของ Transaction
 type Transaction = {
