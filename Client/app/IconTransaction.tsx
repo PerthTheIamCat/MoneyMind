@@ -1,19 +1,21 @@
 import { useState } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  TextInput,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { Modal, Pressable, ScrollView, TextInput, TouchableWithoutFeedback, View, } from "react-native";
 import { useColorScheme } from "react-native";
+
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedButton } from "@/components/ThemedButton";
+
+// ✅ กำหนด Type ของ Transaction
+type Transaction = {
+  id: number;
+  name: string;
+  icon: keyof typeof Ionicons.glyphMap;
+};
 
 // ✅ กำหนด Type ของ Transaction
 type Transaction = {
@@ -233,7 +235,6 @@ export default function IconTransaction() {
             </View>
           ))}
         </View>
-
         {/* ปุ่มเพิ่มรายการใหม่ */}
         <Pressable
           onPress={() => setIsAddModalVisible(true)}
@@ -276,7 +277,6 @@ export default function IconTransaction() {
                   <ThemedText className="text-white">Delete</ThemedText>
                 </View>
               </Pressable>
-
               <TextInput
                 value={editedName}
                 onChangeText={setEditedName}
