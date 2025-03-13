@@ -89,7 +89,8 @@ export default function TransactionPage() {
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
     null
   );
-  const [filtermode, setFilltermode] = useState("All");
+  const [filltermode, setFilltermode] = useState("All");
+  const [fillterType,setFillerType ] = useState("income");
 
   const theme = useColorScheme() || "light";
   const isDarkMode = theme === "dark";
@@ -270,6 +271,7 @@ export default function TransactionPage() {
   };
 
   return (
+    <ThemedView className="w-full h-full">
     <TouchableWithoutFeedback
       onPress={() => {
         setActiveOptionID(null);
@@ -388,7 +390,7 @@ export default function TransactionPage() {
             accessible={false}
           >
             <ThemedView className=" !justify-start h-fit py-2 pb-36">
-              <View className="w-full h-[400px] !items-center">
+              <View className="w-full !items-center">
                 <ScrollView
                   className="w-full"
                   contentContainerStyle={{ paddingBottom: 20 }}
@@ -418,19 +420,26 @@ export default function TransactionPage() {
                         </ThemedText>
                       );
                     } else if (
-                      filtermode === "Income" &&
+                      filltermode === "Income" &&
                       filteredTransactions?.length !== 0
                     ) {
                       filteredTransactions = filteredTransactions?.filter(
                         (t) => t.transaction_type === "income"
                       );
                     } else if (
-                      filtermode === "Expense" &&
+                      filltermode === "Expense" &&
                       filteredTransactions?.length !== 0
                     ) {
                       filteredTransactions = filteredTransactions?.filter(
                         (t) => t.transaction_type === "expense"
                       );
+                    // } else if (
+                    //   filltermode === "Category" &&
+                    //   filteredTransactions?.length !== 0
+                    // ) {
+                    //   filteredTransactions = filteredTransactions?.filter(
+                    //     (t) => t.transaction_name === filltermode && t.transaction_type===fillterType
+                    //   );
                     } else {
                       filteredTransactions = filteredTransactions?.filter(
                         (t) => t.transaction_type
@@ -578,6 +587,8 @@ export default function TransactionPage() {
                             key={transaction.id}
                             className={`flex-row items-center justify-between p-2 rounded-lg w-[80%] mx-auto mt-2 ${backgroundColor}`}
                             onPress={() => {
+                              setFilltermode(transaction.transaction_name);
+                              setFillerType(transaction.transaction_type);
                               console.log("Transaction Name:", transaction.transaction_name);  // log transaction_name
                               console.log("Transaction Type:", transaction.transaction_type);  // log transaction_type
                               setShowModal(false);
@@ -613,8 +624,21 @@ export default function TransactionPage() {
               </TouchableWithoutFeedback>
             </TouchableOpacity>
           )}
-
-          {isOverlayVisible && (
+          {loading && (
+            <View className="absolute inset-0 flex items-center justify-center bg-transparent">
+              <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">
+                <ThemedText className="font-bold mb-2">
+                  Uploading Image...
+                </ThemedText>
+                <ActivityIndicator size="large" color="#AACC00" />
+              </ThemedView>
+            </View>
+          )}
+        </ThemedSafeAreaView>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
+    
+    {isOverlayVisible && (
             <TouchableWithoutFeedback
               onPress={() => {
                 // เริ่มอนิเมชันเลื่อนลง
@@ -698,26 +722,13 @@ export default function TransactionPage() {
                 setIsOverlayVisible(true);
                 setIsButtonVisible(false);
               }}
-              className="!absolute bottom-[10%] right-6 bg-transparent mb-5"
+              className="!absolute bottom-[12%] right-4 bg-transparent mb-5"
             >
               <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16  rounded-full ">
                 <AntDesign name="plus" size={32} color="#ffffff" />
               </View>
             </Pressable>
           )}
-
-          {loading && (
-            <View className="absolute inset-0 flex items-center justify-center bg-transparent">
-              <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">
-                <ThemedText className="font-bold mb-2">
-                  Uploading Image...
-                </ThemedText>
-                <ActivityIndicator size="large" color="#AACC00" />
-              </ThemedView>
-            </View>
-          )}
-        </ThemedSafeAreaView>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+    </ThemedView>
   );
 }
