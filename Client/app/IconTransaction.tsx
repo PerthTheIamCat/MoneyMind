@@ -8,25 +8,17 @@ import { useColorScheme } from "react-native";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { ThemedButton } from "@/components/ThemedButton";
 import { getCategory } from "@/hooks/auth/CategoryHandler";
 import { useContext } from "react";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 
-// ✅ กำหนด Type ของ Transaction
+// กำหนด Type ของ Transaction
 type Transaction = {
   id: number;
   icon_name: string;
   icon_id: keyof typeof Ionicons.glyphMap;
-};
-
-// ✅ กำหนด Type ของ Transaction
-type Transaction = {
-  id: number;
-  name: string;
-  icon: keyof typeof Ionicons.glyphMap;
 };
 
 export default function IconTransaction() {
@@ -52,6 +44,7 @@ export default function IconTransaction() {
   const { URL } = useContext(ServerContext);
   const { userID } = useContext(UserContext);
   const auth = useContext(AuthContext);
+  const componentColor = isDarkMode ? "bg-[#181818]" : "bg-[#d8d8d8]";
 
   // ✅ เพิ่ม iconList ที่รองรับ
   const iconList: (keyof typeof Ionicons.glyphMap)[] = [
@@ -250,14 +243,14 @@ export default function IconTransaction() {
             <View
               key={item.id}
               style={{ backgroundColor: componentcolor }}
-              className="flex-row items-center justify-between p-3 rounded-lg border w-[80%] mx-auto mt-2"
+              className={`flex-row items-center justify-between p-2 rounded-lg w-[80%] mx-auto mt-2 ${componentColor}`}
             >
               {/* ไอคอน + ชื่อรายการ */}
               <View className="flex-row items-center space-x-3">
-                <ThemedText className="ml-3">
-                  <Ionicons name={item.icon_id} size={22} />
+                <ThemedText className="ml-3 font-bold">
+                  <Ionicons name={item.icon_id} size={24} />
                 </ThemedText>
-                <ThemedText className="text-[16px] ml-3">
+                <ThemedText className="text-[16px] font-bold ml-3">
                   {item.icon_name}
                 </ThemedText>
               </View>
@@ -265,10 +258,10 @@ export default function IconTransaction() {
               {/* ปุ่มแก้ไข */}
               <Pressable
                 onPress={() => openEditModal(item)}
-                className="p-2 rounded-full"
+                className="p-2 px-3 "
               >
                 <ThemedText>
-                  <MaterialIcons name="edit" size={18} />
+                  <MaterialIcons name="edit" size={22} />
                 </ThemedText>
               </Pressable>
             </View>
@@ -280,7 +273,7 @@ export default function IconTransaction() {
           className="mt-4 w-[80%] mx-auto p-3 rounded-full"
           style={{ backgroundColor: componentcolor }}
         >
-          <ThemedText className="text-center text-white font-bold">
+          <ThemedText className="text-center font-bold">
             Add New Category
           </ThemedText>
         </Pressable>
