@@ -37,8 +37,8 @@ import {
       setValue(item.label);
       setExpanded(false);
     }, []);
-    const buttonRef = useRef<TouchableOpacity>(null);
-
+    
+    const buttonRef = useRef<View | null>(null);
     const toggleExpanded = () => {
       if (!expanded && buttonRef.current) {
         buttonRef.current.measureInWindow((x, y, width, height) => {

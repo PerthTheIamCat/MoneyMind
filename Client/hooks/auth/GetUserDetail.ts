@@ -32,7 +32,7 @@ export const GetUserDetailHandler = async (
     );
     return response.data;
   } catch (error: any) {
-    console.error("❌ Error fetching user details:", error.response?.data);
+    console.log("❌ Error fetching user details:", error.response?.data);
     return error.response?.data || { success: false, message: "Unknown error" };
   }
 };

@@ -65,9 +65,9 @@ export default function TransactionPage() {
     DeleteUserTransaction(URL, transaction_id, auth?.token!).then((res) => {
       if (res.success) {
         console.log("Transaction deleted");
-        setTransaction?.(
-          transaction ? transaction.filter((t) => t.id !== transaction_id) : []
+        setTransaction?.(transaction ? transaction.filter((t) => t.id !== transaction_id) : []
         );
+        
       } else {
         Alert.alert("Error", res.message);
       }
@@ -257,6 +257,7 @@ export default function TransactionPage() {
   };
 
   return (
+    <ThemedView className="w-full h-full bg-transparent">
     <TouchableWithoutFeedback
       onPress={() => {
         setActiveOptionID(null);
@@ -339,7 +340,7 @@ export default function TransactionPage() {
                     />
                   ))
                 ) : (
-                  <ThemedView></ThemedView>
+                  <ThemedView className="min-h-40"></ThemedView>
                 )}
               </View>
             </ThemedScrollView>
@@ -361,12 +362,6 @@ export default function TransactionPage() {
             />
           </ThemedView>
 
-          {/* <ScrollView
-            className="max-h-screen-safe "
-            // keyboardShouldPersistTaps="away" //  ให้สามารถกดที่อื่นเพื่อปิดเมนู
-            onStartShouldSetResponder={() => true} //  บังคับให้ ScrollView รับการสัมผัส
-            nestedScrollEnabled={false}
-          > */}
           <TouchableWithoutFeedback
             onPress={() => {
               setActiveOptionID(null);
@@ -375,12 +370,11 @@ export default function TransactionPage() {
             accessible={false}
           >
             <ThemedView className=" !justify-start h-fit py-2 pb-36">
-              <View className="w-full h-[400px] !items-center">
+              <View className="w-full !items-center">
                 <ScrollView
                   className="w-full"
                   contentContainerStyle={{ paddingBottom: 20 }}
                   style={{
-                    height: "100%", // กำหนดความสูงเต็มกรอบ
                     overflowY: "scroll", // เพิ่มการเลื่อนในแนวตั้ง
                   }}
                   onStartShouldSetResponder={() => true} //ให้ ScrollView รับการสัมผัส
@@ -601,6 +595,33 @@ export default function TransactionPage() {
           )}
 
           {isOverlayVisible && (
+          {loading && (
+            <View className="absolute inset-0 flex items-center justify-center bg-transparent">
+              <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">
+                <ThemedText className="font-bold mb-2">
+                  Uploading Image...
+                </ThemedText>
+                <ActivityIndicator size="large" color="#AACC00" />
+              </ThemedView>
+            </View>
+          )}
+        </ThemedSafeAreaView>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
+    {isButtonVisible && (
+            <Pressable
+              onPress={() => {
+                setIsOverlayVisible(true);
+                setIsButtonVisible(false);
+              }}
+              className="!absolute bottom-36 right-6"
+            >
+              <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16  rounded-full ">
+                <AntDesign name="plus" size={32} color="#ffffff" />
+              </View>
+            </Pressable>
+          )}
+    {isOverlayVisible && (
             <TouchableWithoutFeedback
               onPress={() => {
                 // เริ่มอนิเมชันเลื่อนลง
@@ -677,33 +698,7 @@ export default function TransactionPage() {
               </View>
             </TouchableWithoutFeedback>
           )}
-
-          {isButtonVisible && (
-            <Pressable
-              onPress={() => {
-                setIsOverlayVisible(true);
-                setIsButtonVisible(false);
-              }}
-              className="!absolute bottom-[10%] right-6 bg-transparent mb-5"
-            >
-              <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16  rounded-full ">
-                <AntDesign name="plus" size={32} color="#ffffff" />
-              </View>
-            </Pressable>
-          )}
-
-          {loading && (
-            <View className="absolute inset-0 flex items-center justify-center bg-transparent">
-              <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">
-                <ThemedText className="font-bold mb-2">
-                  Uploading Image...
-                </ThemedText>
-                <ActivityIndicator size="large" color="#AACC00" />
-              </ThemedView>
-            </View>
-          )}
-        </ThemedSafeAreaView>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+    </ThemedView>
+    
   );
 }

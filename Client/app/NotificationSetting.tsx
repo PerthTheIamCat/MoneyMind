@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -22,6 +22,7 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+import { ThemedScrollView } from "@/components/ThemedScrollView";
 
 interface SettingsState {
   money_overuse: boolean;
@@ -120,48 +121,51 @@ const NotificationSettings = () => {
     loadSettings();
   }, []);
 
-  const toggleSetting = async (key: keyof SettingsState) => {
-    try {
-      const updatedSettings = {
-        ...settings,
-        [key]: !settings[key],
-      };
-      setSettings(updatedSettings);
+  const toggleSetting = useCallback(
+    async (key: keyof SettingsState) => {
+      try {
+        const updatedSettings = {
+          ...settings,
+          [key]: !settings[key],
+        };
+        setSettings(updatedSettings);
 
-      await AsyncStorage.setItem(
-        "notification_settings",
-        JSON.stringify(updatedSettings)
-      );
-
-      const requestBody = {
-        settingList: updatedSettings,
-        update: new Date().toISOString(),
-      };
-
-      console.log("📡 Saving to database:", requestBody);
-      const response = await updateNotificationSettings(
-        URL,
-        userID!,
-        requestBody,
-        auth?.token!
-      );
-
-      if (!response.success) {
-        console.error(
-          "❌ Failed to save settings to database:",
-          response.result
+        await AsyncStorage.setItem(
+          "notification_settings",
+          JSON.stringify(updatedSettings)
         );
-        Alert.alert("Error", "Failed to save settings to server.");
+
+        const requestBody = {
+          settingList: updatedSettings,
+          update: new Date().toISOString(),
+        };
+
+        console.log("📡 Saving to database:", requestBody);
+        const response = await updateNotificationSettings(
+          URL,
+          userID!,
+          requestBody,
+          auth?.token!
+        );
+
+        if (!response.success) {
+          console.error(
+            "❌ Failed to save settings to database:",
+            response.result
+          );
+          Alert.alert("Error", "Failed to save settings to server.");
+        }
+      } catch (error) {
+        console.error("❌ Error saving settings:", error);
+        Alert.alert("Error", "Failed to update settings.");
       }
-    } catch (error) {
-      console.error("❌ Error saving settings:", error);
-      Alert.alert("Error", "Failed to update settings.");
-    }
-  };
+    },
+    [settings, URL, userID, auth?.token]
+  ); // Add dependencies to avoid re-creating the function unnecessarily
 
   return (
     <ThemedSafeAreaView>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ThemedScrollView className="px-5">
         {/* 🎯 General Notifications Section */}
         <ThemedView
           style={theme === "dark" ? styles.sectionDark : styles.section}
@@ -208,7 +212,7 @@ const NotificationSettings = () => {
             </ThemedView>
           ))}
         </ThemedView>
-      </ScrollView>
+      </ThemedScrollView>
     </ThemedSafeAreaView>
   );
 };
@@ -253,8 +257,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 12,
     backgroundColor: "transparent",
-    width: wp("70"),
-    height: hp("10%"),
+    width: 300,
+    height: 80,
   },
   settingLabel: {
     fontSize: 16,

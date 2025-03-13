@@ -11,6 +11,7 @@ import { ThemedInput } from "@/components/ThemedInput";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
+import { UserContext } from "@/hooks/conText/UserContext";
 
 export default function PinRecovery() {
   const [OTP, setOTP] = useState<number[]>([]);
@@ -19,7 +20,9 @@ export default function PinRecovery() {
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
   const [email, setEmail] = useState<string>("");
-  const [isSending, setIsSending] = useState<"success" | "sending" | "fail" | null>(null);
+  const [isSending, setIsSending] = useState<
+    "success" | "sending" | "fail" | null
+  >(null);
 
   const handleSendOTP = () => {
     setIsSending("sending");
@@ -48,7 +51,12 @@ export default function PinRecovery() {
   return (
     <ThemedSafeAreaView>
       <ThemedView className="!justify-start !items-start w-full px-5 mt-5">
-        <Ionicons name="arrow-back-outline" size={32} color="black" onPress={() => router.back()} />
+        <Ionicons
+          name="arrow-back-outline"
+          size={32}
+          color="black"
+          onPress={() => router.back()}
+        />
       </ThemedView>
       <ThemedView className="my-5">
         <Image
@@ -60,11 +68,19 @@ export default function PinRecovery() {
           }}
         />
         <ThemedView className="flex-column mt-5 w-[75%]">
-          <ThemedText style={theme === "dark" ? styles.greetingsDark : styles.greeetingsLight}>
+          <ThemedText
+            style={
+              theme === "dark" ? styles.greetingsDark : styles.greeetingsLight
+            }
+          >
             Email Verification
           </ThemedText>
-          <ThemedText style={theme === "dark" ? styles.explainDark : styles.explainLight} className="justify-center">
-            OTP will be sent to your email address. Please check your email to proceed.
+          <ThemedText
+            style={theme === "dark" ? styles.explainDark : styles.explainLight}
+            className="justify-center"
+          >
+            OTP will be sent to your email address. Please check your email to
+            proceed.
           </ThemedText>
         </ThemedView>
         <ThemedView className="w-[80%] mt-5 px-5 gap-5">

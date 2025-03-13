@@ -74,7 +74,7 @@ export default function Setting() {
         <View style={styles.settingContainer}>
           {[
             { label: "Notification", path: "../NotificationSetting" },
-            { label: "Change Pin", path: "../PinRecovery" },
+            { label: "Change Pin", path: "../PinRecovery2" },
             { label: "Icon Transaction", path: "../IconTransaction" },
           ].map((item, index) => (
             <Pressable

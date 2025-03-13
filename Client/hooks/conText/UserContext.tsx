@@ -37,6 +37,8 @@ type UserRetire = {
   monthly_savings_goal: number;
   total_savings_goal: number;
   current_savings: number;
+  total_fund_fv: number;
+  netShortfallAtRetirement: number;
 };
 
 type UserContextType = {
@@ -246,6 +248,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
               monthly_savings_goal: response.result.monthly_savings_goal,
               total_savings_goal: response.result.total_savings_goal,
               current_savings: response.result.current_savings,
+              total_fund_fv: response.result.total_fund_fv,
+              netShortfallAtRetirement:
+                response.result.netShortfallAtRetirement,
             },
           ]);
         } else if ("message" in response) {
@@ -255,7 +260,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
     }
-  }, [fullname, userID, auth?.token, auth?.isPinSet, auth?.pin]);
+  }, [fullname, userID, auth?.token, auth?.isPinSet, auth?.pin, ]);
 
   return (
     <UserContext.Provider
