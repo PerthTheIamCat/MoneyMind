@@ -12,7 +12,7 @@ interface TransactionItemProps {
   transaction: UserTransaction;
   theme?: "light" | "dark";
   onEdit?: () => void;
-  onDelete?: () => void;
+  onDelete?: (transaction_id: number) => void;
   checkpage?: string;
   isOptionsVisible?: boolean; // ✅ เพิ่มตัวแปรนี้
   setOptionsVisible?: () => void; // ✅ เพิ่มตัวแปรนี้
@@ -50,7 +50,7 @@ export default function TransactionItem({
   const confirmDelete = () => {
     // setShowOverlay(false);
     setDeleteModalVisible(false);
-    onDelete ?? (() => console.log(`Delete transaction ${transaction.id}`)); // เรียก function ที่ส่งมา
+    onDelete?.(transaction.id); // เรียก function ที่ส่งมา
   };
 
   return (

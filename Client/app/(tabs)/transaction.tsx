@@ -34,6 +34,8 @@ import moment from "moment";
 import { colorKeys } from "moti";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
+import { DeleteUserTransaction } from "@/hooks/auth/DeleteTransaction";
+import { AuthContext } from "@/hooks/conText/AuthContext";
 
 export default function TransactionPage() {
   const handleEditTransaction = (transactionId: number) => {
@@ -43,15 +45,29 @@ export default function TransactionPage() {
     });
   };
 
-  const { bank, transaction, notification } = useContext(UserContext) ?? {
+  const { bank, transaction, notification, setTransaction } = useContext(
+    UserContext
+  ) ?? {
     bank: [],
     transaction: [],
   };
   const { URL } = useContext(ServerContext);
+  const auth = useContext(AuthContext);
 
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
-  const handleDeleteTransaction = (transactionId: number) => {};
+  const handleDeleteTransaction = (transaction_id: number) => {
+    DeleteUserTransaction(URL, transaction_id, auth?.token!).then((res) => {
+      if (res.success) {
+        console.log("Transaction deleted");
+        setTransaction?.(
+          transaction ? transaction.filter((t) => t.id !== transaction_id) : []
+        );
+      } else {
+        Alert.alert("Error", res.message);
+      }
+    });
+  };
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
     null
   );
@@ -391,8 +407,8 @@ export default function TransactionPage() {
                               onEdit={() =>
                                 handleEditTransaction(transaction.id ?? 0)
                               }
-                              onDelete={() =>
-                                handleDeleteTransaction(transaction.id ?? 0)
+                              onDelete={(transaction_id: number) =>
+                                handleDeleteTransaction(transaction_id)
                               }
                               checkpage={"transactions"}
                               isOptionsVisible={

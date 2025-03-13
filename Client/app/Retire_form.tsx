@@ -545,7 +545,6 @@ export default function Retire_form() {
                   unit="years(B.E.)"
                   keyboardType="numeric"
                   value={startWorkingAge.toString()}
-                  editable={!isSocialSecurityFund}
                   onChangeText={(text) => setStartWorkingAge(safeNumber(text))}
                 />
                 <ThemedInputHorizontal
