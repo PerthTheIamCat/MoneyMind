@@ -17,10 +17,11 @@ router.post('/create', jwtValidate, (req, res) => {
         transaction_type,
         transaction_date,
         note,
-        color_code
+        color_code,
+        icon_id
     } = req.body;
 
-    console.log("DATA:", user_id, account_id, split_payment_id, transaction_name, amount, transaction_type, transaction_date, note, color_code)
+    console.log("DATA:", user_id, account_id, split_payment_id, transaction_name, amount, transaction_type, transaction_date, note, color_code, icon_id)
 
     if (req.user.UserID !== user_id) { //user_id
         console.log("Unauthorized user")
@@ -105,8 +106,8 @@ router.post('/create', jwtValidate, (req, res) => {
                 }
 
                 db.query(
-                    'INSERT INTO transactions (user_id, account_id, split_payment_id, transaction_name, amount, transaction_type, transaction_date, note, color_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [user_id, account_id, split_payment_id || null, transaction_name, amount, transaction_type, transaction_date, note || null, color_code],
+                    'INSERT INTO transactions (user_id, account_id, split_payment_id, transaction_name, amount, transaction_type, transaction_date, note, color_code, icon_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [user_id, account_id, split_payment_id || null, transaction_name, amount, transaction_type, transaction_date, note || null, color_code, icon_id],
                     (err, result) => {
                         if (err) {
                             console.log("Error from /create from INSERT INTO transactions (user_id, account_id, split_payment_id, transaction_name, amount, transaction_type, transaction_date, note, color_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");

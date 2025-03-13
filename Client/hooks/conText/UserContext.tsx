@@ -19,6 +19,7 @@ type UserTransaction = {
   transaction_date: string;
   note: string;
   color_code: string;
+  icon_id: string;
 };
 
 type UserNotification = {
@@ -260,7 +261,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
     }
-  }, [fullname, userID, auth?.token, auth?.isPinSet, auth?.pin, ]);
+  }, [fullname, userID, auth?.token, auth?.isPinSet, auth?.pin]);
 
   return (
     <UserContext.Provider

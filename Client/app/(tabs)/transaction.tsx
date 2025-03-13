@@ -40,6 +40,7 @@ import { DeleteUserTransaction } from "@/hooks/auth/DeleteTransaction";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { Item } from "react-native-paper/lib/typescript/components/Drawer/Drawer";
 import { ThemedButton } from "@/components/ThemedButton";
+import { getCategory } from "@/hooks/auth/CategoryHandler";
 
 export default function TransactionPage() {
   const handleEditTransaction = (transactionId: number) => {
@@ -49,12 +50,11 @@ export default function TransactionPage() {
     });
   };
 
-  const { bank, transaction, notification, setTransaction } = useContext(
-    UserContext
-  ) ?? {
-    bank: [],
-    transaction: [],
-  };
+  const { bank, transaction, notification, setTransaction, userID } =
+    useContext(UserContext) ?? {
+      bank: [],
+      transaction: [],
+    };
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
 
@@ -254,6 +254,11 @@ export default function TransactionPage() {
     } finally {
       setLoading(false);
     }
+  };
+  type Transaction = {
+    id: number;
+    icon_name: string;
+    icon_id: keyof typeof Ionicons.glyphMap;
   };
 
   return (
@@ -543,43 +548,50 @@ export default function TransactionPage() {
                     </Pressable>
                   </View>
                   {/* แสดงรายการตามประเภท (Income หรือ Expense) */}
-                    <ThemedView>
-                      {/* กรองข้อมูล transaction โดยเลือกประเภทที่ตรงกับ isExpenses */}
-                      {transaction
-                        ?.filter(
-                          (t) =>
-                            t.transaction_type ===
-                            (isExpenses ? "expense" : "income")
-                        )
-                        .filter(
-                          // กรองให้แสดงรายการที่ไม่ซ้ำ (ใช้ Set เพื่อไม่ให้ซ้ำ)
-                          (value, index, self) =>
-                            index ===
-                            self.findIndex(
-                              (t) =>
-                                t.transaction_name === value.transaction_name
-                            )
-                        )
-                        .map((transaction) => (
-                          <Pressable
-                            key={transaction.id}
-                            className={`flex-row items-center justify-between p-2 rounded-lg w-[80%] mx-auto mt-2 ${backgroundColor}`}
-                            onPress={() => {
-                              console.log("Transaction Name:", transaction.transaction_name);  // log transaction_name
-                              console.log("Transaction Type:", transaction.transaction_type);  // log transaction_type
-                              setShowModal(false);
-                            }}
-                          >
-                            {/* ไอคอน + ชื่อรายการ */}
-                            <View className="flex-row items-center space-x-3">
-                              {/* <Ionicons name={transaction.} size={24} /> */}
-                              <ThemedText className="text-[16px] font-bold w-full ml-3">
-                                {transaction.transaction_name}
-                              </ThemedText>
-                            </View>
-                          </Pressable>
-                        ))}
-                    </ThemedView>
+                  <ThemedView>
+                    {/* กรองข้อมูล transaction โดยเลือกประเภทที่ตรงกับ isExpenses */}
+                    {transaction
+                      ?.filter(
+                        (t) =>
+                          t.transaction_type ===
+                          (isExpenses ? "expense" : "income")
+                      )
+                      .filter(
+                        // กรองให้แสดงรายการที่ไม่ซ้ำ (ใช้ Set เพื่อไม่ให้ซ้ำ)
+                        (value, index, self) =>
+                          index ===
+                          self.findIndex(
+                            (t) => t.transaction_name === value.transaction_name
+                          )
+                      )
+                      .map((transaction) => (
+                        <Pressable
+                          key={transaction.id}
+                          className={`flex-row items-center justify-between p-2 rounded-lg w-[80%] mx-auto mt-2 ${backgroundColor}`}
+                          onPress={() => {
+                            console.log(
+                              "Transaction Name:",
+                              transaction.transaction_name
+                            ); // log transaction_name
+                            console.log(
+                              "Transaction Type:",
+                              transaction.transaction_type
+                            ); // log transaction_type
+                            setShowModal(false);
+                          }}
+                        >
+                          {/* ไอคอน + ชื่อรายการ */}
+                          <View className="flex-row items-center space-x-3">
+                            <ThemedText className="pl-3">
+                              <Ionicons name={transaction.icon_id} size={24} />
+                            </ThemedText>
+                            <ThemedText className="text-[16px] font-bold w-full ml-3">
+                              {transaction.transaction_name}
+                            </ThemedText>
+                          </View>
+                        </Pressable>
+                      ))}
+                  </ThemedView>
 
                   <View style={{ flexDirection: "row", marginTop: 20 }}>
                     <TouchableOpacity

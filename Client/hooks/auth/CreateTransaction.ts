@@ -11,6 +11,7 @@ export interface CreateUserTransactionData {
   transaction_date: string;
   note: string;
   color_code: string;
+  icon_id: string;
 }
 
 interface GetUserTransactionResponse {
