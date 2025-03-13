@@ -79,9 +79,15 @@ export default function RootLayout() {
                 }}
               />
               <Stack.Screen name="+not-found" />
-              <Stack.Screen name="SignUp" options={{ headerShown: false,animation:"slide_from_left"}} />
-              <Stack.Screen name="SignIn" options={{ headerShown: false,animation:"slide_from_right"}} />
-              
+              <Stack.Screen
+                name="SignUp"
+                options={{ headerShown: false, animation: "slide_from_left" }}
+              />
+              <Stack.Screen
+                name="SignIn"
+                options={{ headerShown: false, animation: "slide_from_right" }}
+              />
+
               <Stack.Screen
                 name="terms_and_con"
                 options={{
@@ -119,10 +125,6 @@ export default function RootLayout() {
               />
               <Stack.Screen
                 name="PinRecovery2"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="NoticePage"
                 options={{ headerShown: false }}
               />
               <Stack.Screen
@@ -173,13 +175,6 @@ export default function RootLayout() {
                 name="IconTransaction"
                 options={{
                   headerTitle: "Icon Transaction",
-                  presentation: "modal",
-                }}
-              />
-              <Stack.Screen
-                name="AccountSetting"
-                options={{
-                  headerTitle: "Account Detail",
                   presentation: "modal",
                 }}
               />

@@ -26,8 +26,12 @@ import { UserContext } from "@/hooks/conText/UserContext";
 import axios from "axios";
 
 // Helper to convert text into a number or fallback to 0
-function safeNumber(text: string): number {
-  const n = Number(text);
+function safeNumber(text: string): number | string {
+  // Allow empty input, a single dot, or numbers that end with a dot, so that the user can type decimals.
+  if (text === "" || text === "." || /^[0-9]+\.$/.test(text)) {
+    return text;
+  }
+  const n = parseFloat(text);
   return isNaN(n) ? 0 : n;
 }
 
@@ -47,80 +51,125 @@ export default function Retire_form() {
   const [step, setStep] = useState<number>(0);
 
   // Form 1
-  const [currentAge, setCurrentAge] = useState<number>(21);
-  const [ageToRetire, setAgeToRetire] = useState<number>(60);
-  const [ageAfterRetire, setAgeAfterRetire] = useState<number>(80);
+  const [currentAge, setCurrentAge] = useState<number | string>(21);
+  const [ageToRetire, setAgeToRetire] = useState<number | string>(60);
+  const [ageAfterRetire, setAgeAfterRetire] = useState<number | string>(80);
 
   // Form 2
-  const [currentIncome, setCurrentIncome] = useState<number>(10000);
-  const [currentExpenses, setCurrentExpenses] = useState<number>(8000);
-  const [expectedRateFromSaving, setExpectedRateFromSaving] =
-    useState<number>(5);
-  const [monthlySalary, setMonthlySalary] = useState<number>(8000);
-  const [inflationRate, setInflationRate] = useState<number>(3);
-  const [expectedRateFromSaving2, setExpectedRateFromSaving2] =
-    useState<number>(5);
+  const [currentIncome, setCurrentIncome] = useState<number | string>(10000);
+  const [currentExpenses, setCurrentExpenses] = useState<number | string>(8000);
+  const [expectedRateFromSaving, setExpectedRateFromSaving] = useState<
+    number | string
+  >(5);
+  const [monthlySalary, setMonthlySalary] = useState<number | string>(8000);
+  const [inflationRate, setInflationRate] = useState<number | string>(3);
+  const [expectedRateFromSaving2, setExpectedRateFromSaving2] = useState<
+    number | string
+  >(5);
 
   // Form 3
   const [isSocialSecurityFund, setIsSocialSecurityFund] =
     useState<boolean>(false);
-  const [startWorkingAge, setStartWorkingAge] = useState<number>(0);
-  const [currentWorkingYear, setCurrentWorkingYear] = useState<number>(0);
-  const [salaryIncreaseRate, setSalaryIncreaseRate] = useState<number>(0);
+  const [startWorkingAge, setStartWorkingAge] = useState<number | string>(0);
+  const [currentWorkingYear, setCurrentWorkingYear] = useState<number | string>(
+    0
+  );
+  const [salaryIncreaseRate, setSalaryIncreaseRate] = useState<number | string>(
+    0
+  );
 
   const [isNationalSavingsFund, setIsNationalSavingsFund] =
     useState<boolean>(false);
-  const [ageSavingsStarted, setAgeSavingsStarted] = useState<number>(0);
-  const [savingsAmount, setSavingsAmount] = useState<number>(0);
+  const [ageSavingsStarted, setAgeSavingsStarted] = useState<number | string>(
+    0
+  );
+  const [savingsAmount, setSavingsAmount] = useState<number | string>(0);
 
   const [isProvidentFund, setIsProvidentFund] = useState<boolean>(false);
-  const [salaryIncreaseRate2, setSalaryIncreaseRate2] = useState<number>(0);
-  const [savingsRate, setSavingsRate] = useState<number>(0);
-  const [contributionRate, setContributionRate] = useState<number>(0);
-  const [investmentReturnRate, setInvestmentReturnRate] = useState<number>(0);
-  const [accumulatedMoney, setAccumulatedMoney] = useState<number>(0);
-  const [employeeContributions, setEmployeeContributions] = useState<number>(0);
-  const [accumulatedBenefits, setAccumulatedBenefits] = useState<number>(0);
-  const [contributionBenefits, setContributionBenefits] = useState<number>(0);
+  const [salaryIncreaseRate2, setSalaryIncreaseRate2] = useState<
+    number | string
+  >(0);
+  const [savingsRate, setSavingsRate] = useState<number | string>(0);
+  const [contributionRate, setContributionRate] = useState<number | string>(0);
+  const [investmentReturnRate, setInvestmentReturnRate] = useState<
+    number | string
+  >(0);
+  const [accumulatedMoney, setAccumulatedMoney] = useState<number | string>(0);
+  const [employeeContributions, setEmployeeContributions] = useState<
+    number | string
+  >(0);
+  const [accumulatedBenefits, setAccumulatedBenefits] = useState<
+    number | string
+  >(0);
+  const [contributionBenefits, setContributionBenefits] = useState<
+    number | string
+  >(0);
 
   const [isRetirementMutualFund, setIsRetirementMutualFund] =
     useState<boolean>(false);
-  const [currentBalanceRMF, setCurrentBalanceRMF] = useState<number>(0);
-  const [RMFInvestmentAmount, setRMFInvestmentAmount] = useState<number>(0);
-  const [rateOfReturn, setRateOfReturn] = useState<number>(0);
+  const [currentBalanceRMF, setCurrentBalanceRMF] = useState<number | string>(
+    0
+  );
+  const [RMFInvestmentAmount, setRMFInvestmentAmount] = useState<
+    number | string
+  >(0);
+  const [rateOfReturn, setRateOfReturn] = useState<number | string>(0);
 
   const [isSuperSavingsFund, setIsSuperSavingsFund] = useState<boolean>(false);
-  const [currentBalanceSSF, setCurrentBalanceSSF] = useState<number>(0);
-  const [SSFInvestmentAmount, setSSFInvestmentAmount] = useState<number>(0);
-  const [rateOfReturn2, setRateOfReturn2] = useState<number>(0);
+  const [currentBalanceSSF, setCurrentBalanceSSF] = useState<number | string>(
+    0
+  );
+  const [SSFInvestmentAmount, setSSFInvestmentAmount] = useState<
+    number | string
+  >(0);
+  const [rateOfReturn2, setRateOfReturn2] = useState<number | string>(0);
 
   const [isGovernmentPensionFund, setIsGovernmentPensionFund] =
     useState<boolean>(false);
-  const [yearStartedWorking, setYearStartedWorking] = useState<number>(0);
-  const [currentYear, setCurrentYear] = useState<number>(0);
-  const [savingsRate2, setSavingsRate2] = useState<number>(0);
-  const [contributionRate2, setContributionRate2] = useState<number>(0);
-  const [rateOfReturn3, setRateOfReturn3] = useState<number>(0);
-  const [accumulatedMoney2, setAccumulatedMoney2] = useState<number>(0);
-  const [employeeContributions2, setEmployeeContributions2] =
-    useState<number>(0);
-  const [compensation, setCompensation] = useState<number>(0);
-  const [initialMoney, setInitialMoney] = useState<number>(0);
-  const [accumulatedBenefits2, setAccumulatedBenefits2] = useState<number>(0);
-  const [contributionBenefits2, setContributionBenefits2] = useState<number>(0);
-  const [compensationBenefits, setCompensationBenefits] = useState<number>(0);
-  const [initialBenefits, setInitialBenefits] = useState<number>(0);
+  const [yearStartedWorking, setYearStartedWorking] = useState<number | string>(
+    0
+  );
+  const [currentYear, setCurrentYear] = useState<number | string>(0);
+  const [savingsRate2, setSavingsRate2] = useState<number | string>(0);
+  const [contributionRate2, setContributionRate2] = useState<number | string>(
+    0
+  );
+  const [rateOfReturn3, setRateOfReturn3] = useState<number | string>(0);
+  const [accumulatedMoney2, setAccumulatedMoney2] = useState<number | string>(
+    0
+  );
+  const [employeeContributions2, setEmployeeContributions2] = useState<
+    number | string
+  >(0);
+  const [compensation, setCompensation] = useState<number | string>(0);
+  const [initialMoney, setInitialMoney] = useState<number | string>(0);
+  const [accumulatedBenefits2, setAccumulatedBenefits2] = useState<
+    number | string
+  >(0);
+  const [contributionBenefits2, setContributionBenefits2] = useState<
+    number | string
+  >(0);
+  const [compensationBenefits, setCompensationBenefits] = useState<
+    number | string
+  >(0);
+  const [initialBenefits, setInitialBenefits] = useState<number | string>(0);
 
   const [isLifeInsurance, setIsLifeInsurance] = useState<boolean>(false);
-  const [lifeInsuranceFund, setLifeInsuranceFund] = useState<number>(0);
+  const [lifeInsuranceFund, setLifeInsuranceFund] = useState<number | string>(
+    0
+  );
 
   // Calculated retirement values
-  const [totalNeededAtRetirement, setTotalNeededAtRetirement] =
-    useState<number>(0);
-  const [totalFundFV, setTotalFundFV] = useState<number>(0);
-  const [netShortfallAtRetirement, setNetShortfallAtRetirement] =
-    useState<number>(0);
-  const [monthlySavingNeeded, setMonthlySavingNeeded] = useState<number>(0);
+  const [totalNeededAtRetirement, setTotalNeededAtRetirement] = useState<
+    number | string
+  >(0);
+  const [totalFundFV, setTotalFundFV] = useState<number | string>(0);
+  const [netShortfallAtRetirement, setNetShortfallAtRetirement] = useState<
+    number | string
+  >(0);
+  const [monthlySavingNeeded, setMonthlySavingNeeded] = useState<
+    number | string
+  >(0);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -160,87 +209,87 @@ export default function Retire_form() {
     CalculateRetirement(
       URL,
       {
-        currentAge: currentAge,
-        retirementAge: ageToRetire,
-        lifeExpectancy: ageAfterRetire,
-        monthlySalary: currentIncome,
-        monthlyExpenses: currentExpenses,
-        expectedReturn: expectedRateFromSaving / 100,
-        monthlyExpensePostRetirement: monthlySalary,
-        inflationRate: inflationRate / 100,
-        expectedPostRetirementReturn: expectedRateFromSaving2 / 100,
+        currentAge: Number(currentAge),
+        retirementAge: Number(ageToRetire),
+        lifeExpectancy: Number(ageAfterRetire),
+        monthlySalary: Number(currentIncome),
+        monthlyExpenses: Number(currentExpenses),
+        expectedReturn: Number(expectedRateFromSaving) / 100,
+        monthlyExpensePostRetirement: Number(monthlySalary),
+        inflationRate: Number(inflationRate) / 100,
+        expectedPostRetirementReturn: Number(expectedRateFromSaving2) / 100,
         socialSecurityFunds: isSocialSecurityFund
           ? [
               {
-                startWorkingYear: startWorkingAge,
-                currentYear: currentWorkingYear,
-                salaryIncreaseRate: salaryIncreaseRate / 100,
+                startWorkingYear: Number(startWorkingAge),
+                currentYear: Number(currentWorkingYear),
+                salaryIncreaseRate: Number(salaryIncreaseRate) / 100,
               },
             ]
           : [],
         nsfFunds: isNationalSavingsFund
           ? [
               {
-                ageStarted: ageSavingsStarted,
-                savingsPerYear: savingsAmount,
+                ageStarted: Number(ageSavingsStarted),
+                savingsPerYear: Number(savingsAmount),
               },
             ]
           : [],
         pvdFunds: isProvidentFund
           ? [
               {
-                salaryIncreaseRate: salaryIncreaseRate2 / 100,
-                savingsRate: savingsRate / 100,
-                contributionRate: contributionRate / 100,
-                investmentReturnRate: investmentReturnRate / 100,
-                accumulatedMoney: accumulatedMoney,
-                employeeContributions: employeeContributions,
-                accumulatedBenefits: accumulatedBenefits,
-                contributionBenefits: contributionBenefits,
+                salaryIncreaseRate: Number(salaryIncreaseRate2) / 100,
+                savingsRate: Number(savingsRate) / 100,
+                contributionRate: Number(contributionRate) / 100,
+                investmentReturnRate: Number(investmentReturnRate) / 100,
+                accumulatedMoney: Number(accumulatedMoney),
+                employeeContributions: Number(employeeContributions),
+                accumulatedBenefits: Number(accumulatedBenefits),
+                contributionBenefits: Number(contributionBenefits),
               },
             ]
           : [],
         rmfFunds: isRetirementMutualFund
           ? [
               {
-                currentBalance: currentBalanceRMF,
-                annualInvestment: RMFInvestmentAmount,
-                rateOfReturn: rateOfReturn / 100,
+                currentBalance: Number(currentBalanceRMF),
+                annualInvestment: Number(RMFInvestmentAmount),
+                rateOfReturn: Number(rateOfReturn) / 100,
               },
             ]
           : [],
         ssfFunds: isSuperSavingsFund
           ? [
               {
-                currentBalance: currentBalanceSSF,
-                annualInvestment: SSFInvestmentAmount,
-                rateOfReturn: rateOfReturn2 / 100,
+                currentBalance: Number(currentBalanceSSF),
+                annualInvestment: Number(SSFInvestmentAmount),
+                rateOfReturn: Number(rateOfReturn2) / 100,
               },
             ]
           : [],
         gpfFunds: isGovernmentPensionFund
           ? [
               {
-                yearStartedWorking: yearStartedWorking,
-                currentYear: currentYear,
-                savingsRate: savingsRate2 / 100,
-                contributionRate: contributionRate2 / 100,
-                rateOfReturn: rateOfReturn3 / 100,
-                accumulatedMoney: accumulatedMoney2,
-                employeeContributions: employeeContributions2,
-                compensation: compensation,
-                initialMoney: initialMoney,
-                accumulatedBenefits: accumulatedBenefits2,
-                contributionBenefits: contributionBenefits2,
-                compensationBenefits: compensationBenefits,
-                initialBenefits: initialBenefits,
+                yearStartedWorking: Number(yearStartedWorking),
+                currentYear: Number(currentYear),
+                savingsRate: Number(savingsRate2) / 100,
+                contributionRate: Number(contributionRate2) / 100,
+                rateOfReturn: Number(rateOfReturn3) / 100,
+                accumulatedMoney: Number(accumulatedMoney2),
+                employeeContributions: Number(employeeContributions2),
+                compensation: Number(compensation),
+                initialMoney: Number(initialMoney),
+                accumulatedBenefits: Number(accumulatedBenefits2),
+                contributionBenefits: Number(contributionBenefits2),
+                compensationBenefits: Number(compensationBenefits),
+                initialBenefits: Number(initialBenefits),
               },
             ]
           : [],
         lifeInsurance: isLifeInsurance
           ? [
               {
-                currentValue: lifeInsuranceFund,
+                currentValue: Number(lifeInsuranceFund),
               },
             ]
           : [],
@@ -282,13 +331,14 @@ export default function Retire_form() {
     const data: number[][] = [];
 
     while (
-      accumulated < totalNeededAtRetirement &&
-      ageToRetire - currentAge > year
+      accumulated < Number(totalNeededAtRetirement) &&
+      Number(ageToRetire) - Number(currentAge) > year
     ) {
       year++;
-      accumulated += monthlySavingNeeded * 12;
+      accumulated += Number(monthlySavingNeeded) * 12;
 
-      const inflationPortion = accumulated * (expectedRateFromSaving / 100);
+      const inflationPortion =
+        accumulated * (Number(expectedRateFromSaving) / 100);
 
       data.push([accumulated - inflationPortion, inflationPortion]);
 
@@ -957,9 +1007,9 @@ export default function Retire_form() {
                     Amount of money use after retirement per month
                   </ThemedText>
                   <ThemedText className="font-bold ">
-                    {Number(
-                      totalNeededAtRetirement /
-                        ((ageAfterRetire - ageToRetire) * 12)
+                    {(
+                      Number(totalNeededAtRetirement) /
+                      ((Number(ageAfterRetire) - Number(ageToRetire)) * 12)
                     ).toLocaleString("en-EN", {
                       maximumFractionDigits: 0,
                     })}{" "}
@@ -992,8 +1042,8 @@ export default function Retire_form() {
                 <ThemedView className="flex-row w-full !justify-between !items-start">
                   <ThemedText className="max-w-[60%]">Still need</ThemedText>
                   <ThemedText className="font-bold ">
-                    {Number(
-                      totalNeededAtRetirement - totalFundFV
+                    {(
+                      Number(totalNeededAtRetirement) - Number(totalFundFV)
                     ).toLocaleString("en-EN", {
                       maximumFractionDigits: 0,
                     })}{" "}
