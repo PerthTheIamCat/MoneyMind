@@ -150,10 +150,6 @@ export default function SplitPay() {
     });
   };
 
-  useEffect(() => {
-    console.log("Bank:", bank);
-  }, [page]);
-
   // ✅ ตรวจจับ Card ที่อยู่กลางหน้าจอ
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollX = event.nativeEvent.contentOffset.x;
@@ -190,7 +186,7 @@ export default function SplitPay() {
 
   // ✅ เลื่อน ScrollView ให้การ์ดแรกอยู่กลางตอนเริ่ม
   useEffect(() => {
-    if (bank && bank.length > 1 && scrollViewRef.current) {
+    if (bank && bank.length > 0 && scrollViewRef.current) {
       setTimeout(() => {
         if (page === 0) {
           scrollViewRef.current?.scrollTo({ x: 0, animated: true });
