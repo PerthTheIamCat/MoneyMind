@@ -439,7 +439,33 @@ export default function TransactionPage() {
             </ThemedView>
           </TouchableWithoutFeedback>
           {/* </ScrollView> */}
-          {isOverlayVisible && (
+          {loading && (
+            <View className="absolute inset-0 flex items-center justify-center bg-transparent">
+              <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">
+                <ThemedText className="font-bold mb-2">
+                  Uploading Image...
+                </ThemedText>
+                <ActivityIndicator size="large" color="#AACC00" />
+              </ThemedView>
+            </View>
+          )}
+        </ThemedSafeAreaView>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
+    {isButtonVisible && (
+            <Pressable
+              onPress={() => {
+                setIsOverlayVisible(true);
+                setIsButtonVisible(false);
+              }}
+              className="!absolute bottom-36 right-6"
+            >
+              <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16  rounded-full ">
+                <AntDesign name="plus" size={32} color="#ffffff" />
+              </View>
+            </Pressable>
+          )}
+    {isOverlayVisible && (
             <TouchableWithoutFeedback
               onPress={() => {
                 // เริ่มอนิเมชันเลื่อนลง
@@ -516,33 +542,7 @@ export default function TransactionPage() {
               </View>
             </TouchableWithoutFeedback>
           )}
-
-          {loading && (
-            <View className="absolute inset-0 flex items-center justify-center bg-transparent">
-              <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">
-                <ThemedText className="font-bold mb-2">
-                  Uploading Image...
-                </ThemedText>
-                <ActivityIndicator size="large" color="#AACC00" />
-              </ThemedView>
-            </View>
-          )}
-        </ThemedSafeAreaView>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
-    {isButtonVisible && (
-            <Pressable
-              onPress={() => {
-                setIsOverlayVisible(true);
-                setIsButtonVisible(false);
-              }}
-              className="!absolute bottom-36 right-6"
-            >
-              <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16  rounded-full ">
-                <AntDesign name="plus" size={32} color="#ffffff" />
-              </View>
-            </Pressable>
-          )}
     </ThemedView>
+    
   );
 }
