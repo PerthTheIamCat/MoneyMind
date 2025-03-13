@@ -245,6 +245,12 @@ export default function Index() {
           }),
           { name: "add", icon: "plus" },
         ]);
+      } else {
+        setIncomeCategories((prev) => [...prev, { name: "add", icon: "plus" }]);
+        setExpenseCategories((prev) => [
+          ...prev,
+          { name: "add", icon: "plus" },
+        ]);
       }
     });
   }, []);
@@ -430,6 +436,7 @@ export default function Index() {
           }),
         note: Note,
         color_code: "#FFFFFF",
+        icon_id: selectedCategory,
       },
       auth?.token!
     ).then((response) => {
@@ -455,6 +462,7 @@ export default function Index() {
               }),
             note: Note,
             color_code: "#FFFFFF",
+            icon_id: "",
           },
         ]);
         setIsLoading(false);
@@ -630,8 +638,10 @@ export default function Index() {
                           } else {
                             if (isIncome) {
                               setSelectedIncomeCategory(category.name);
+                              setSelectedCategory(category.icon);
                             } else {
                               setSelectedExpenseCategory(category.name);
+                              setSelectedCategory(category.icon);
                             }
                           }
                         }}

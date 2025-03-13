@@ -41,7 +41,6 @@ export default function Dropdownfiller({ data, onChange }: DropDownProps) {
   }, []);
 
   const buttonRef = useRef<TouchableOpacity>(null);
-
   const toggleExpanded = () => {
     if (!expanded && buttonRef.current) {
       buttonRef.current.measureInWindow((x, y, width, height) => {
@@ -52,7 +51,6 @@ export default function Dropdownfiller({ data, onChange }: DropDownProps) {
       setExpanded(false);
     }
   };
-
   const colortext = useMemo(() => {
     if (value.toLowerCase() === "income") return "green";
     if (value.toLowerCase() === "expense") return "red";
@@ -123,7 +121,6 @@ export default function Dropdownfiller({ data, onChange }: DropDownProps) {
           color={componentIcon}
         />
       </TouchableOpacity>
-
       {/* Dropdown Modal */}
       {expanded ? (
         <Modal visible={expanded} transparent animationType="fade">
