@@ -214,8 +214,8 @@ export default function TransactionPage() {
             const progress = Math.round((progressEvent.loaded * 100) / total);
             console.log(`Upload progress: ${progress}%`);
           },
-    }
-  );
+        }
+      );
 
       console.log("📜 OCR Result:", response.data);
 
@@ -292,7 +292,7 @@ export default function TransactionPage() {
             <ThemedText className=" text-[18px]">Connected</ThemedText>
             <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
           </ThemedView>
-          <ThemedView className="bg-emerald-300 flex-row ">
+          <ThemedView className="flex-row ">
             <Pressable
               className={`flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] ${componentcolor} -ml-2 active:scale-105`}
               onPress={() => router.push("/AddAccount")}
@@ -302,8 +302,8 @@ export default function TransactionPage() {
             </Pressable>
             <ThemedScrollView
               horizontal={true}
-              keyboardShouldPersistTaps="handled" // ✅ ให้สามารถกดที่อื่นเพื่อปิดเมนู
-              onStartShouldSetResponder={() => true} // ✅ บังคับให้ ScrollView ตอบสนองการสัมผัส
+              keyboardShouldPersistTaps="handled" // ให้สามารถกดที่อื่นเพื่อปิดเมนู
+              onStartShouldSetResponder={() => true} // บังคับให้ ScrollView ตอบสนองการสัมผัส
               className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9 "
             >
               <View className="mt-0.5 mb-1 flex-row space-x-1">
@@ -324,8 +324,8 @@ export default function TransactionPage() {
                       setOptionsVisible={() =>
                         handleToggleOptions("card", account.id)
                       }
-                      isSelected={selectedCardID === account.id} // ✅ ส่งค่าการ์ดที่เลือก
-                      onSelectCard={() => handleSelectCard(account.id)} // ✅ ฟังก์ชันเลือกการ์ด
+                      isSelected={selectedCardID === account.id} //  ส่งค่าการ์ดที่เลือก
+                      onSelectCard={() => handleSelectCard(account.id)} // ฟังก์ชันเลือกการ์ด
                     />
                   ))
                 ) : (
@@ -344,12 +344,13 @@ export default function TransactionPage() {
               onChange={(item) => console.log(item.label)}
             />
           </ThemedView>
-          <ScrollView
-            className="max-h-screen-safe"
+
+          {/* <ScrollView
+            className="max-h-screen-safe "
             // keyboardShouldPersistTaps="away" // ✅ ให้สามารถกดที่อื่นเพื่อปิดเมนู
             onStartShouldSetResponder={() => true} // ✅ บังคับให้ ScrollView รับการสัมผัส
-            nestedScrollEnabled={true}
-          >
+            nestedScrollEnabled={false}
+          > */}
             <TouchableWithoutFeedback
               onPress={() => {
                 setActiveOptionID(null);
@@ -359,78 +360,90 @@ export default function TransactionPage() {
               }}
               accessible={false}
             >
-              <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-40">
-                <View className="w-full !items-center">
-                  {(() => {
-                    const filteredTransactions =
-                      selectedCardID !== null
-                        ? transaction?.filter(
-                            (t) => t.account_id === selectedCardID
-                          )
-                        : transaction;
-                    if (
-                      !filteredTransactions ||
-                      filteredTransactions.length === 0
-                    ) {
-                      return (
-                        <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
-                          No transactions available
-                        </ThemedText>
-                      );
-                    }
-
-                    return filteredTransactions.map(
-                      (transaction, index, sortedArray) => {
-                        const formattedDate = moment(
-                          transaction.transaction_date
-                        ).format("DD MMM YYYY");
-                        const showDateHeader =
-                          index === 0 ||
-                          formattedDate !==
-                            moment(
-                              sortedArray[index - 1].transaction_date
-                            ).format("DD MMM YYYY");
-
+              <ThemedView className="!justify-start h-fit py-2 pb-40">
+                <View className="w-full h-[400px] !items-center">
+                  {/* กำหนดความสูงให้เป็น 400px และให้ ScrollView เลื่อนในกรอบนี้ */}
+                  <ScrollView
+                    className="w-full"
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                    style={{
+                      height: "100%", // กำหนดความสูงเต็มกรอบ
+                      overflowY: "scroll", // เพิ่มการเลื่อนในแนวตั้ง
+                    }}
+                    nestedScrollEnabled={true} // ✅ เลื่อนภายในได
+                  >
+                    {(() => {
+                      const filteredTransactions =
+                        selectedCardID !== null
+                          ? transaction?.filter(
+                              (t) => t.account_id === selectedCardID
+                            )
+                          : transaction;
+                      if (
+                        !filteredTransactions ||
+                        filteredTransactions.length === 0
+                      ) {
                         return (
-                          <View
-                            key={transaction.id}
-                            className="w-full items-center"
-                          >
-                            {showDateHeader && (
-                              <ThemedText className="w-[85%] text-left font-bold text-1xl py-2">
-                                {formattedDate}
-                              </ThemedText>
-                            )}
-                            <TransactionItem
-                              transaction={transaction}
-                              theme={theme}
-                              onEdit={() =>
-                                handleEditTransaction(transaction.id ?? 0)
-                              }
-                              onDelete={(transaction_id: number) =>
-                                handleDeleteTransaction(transaction_id)
-                              }
-                              checkpage={"transactions"}
-                              isOptionsVisible={
-                                activeOptionID?.type === "transaction" &&
-                                activeOptionID?.id === transaction.id
-                              } // ✅ ตรวจสอบว่าเปิดเมนู TransactionItem อยู่หรือไม่
-                              setOptionsVisible={() =>
-                                handleToggleOptions(
-                                  "transaction",
-                                  transaction.id
-                                )
-                              } // ✅ เปิด/ปิดเมนู
-                            />
-                          </View>
+                          <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
+                            No transactions available
+                          </ThemedText>
                         );
                       }
-                    );
-                  })()}
+
+                      return filteredTransactions.map(
+                        (transaction, index, sortedArray) => {
+                          const formattedDate = moment(
+                            transaction.transaction_date
+                          ).format("DD MMM YYYY");
+                          const showDateHeader =
+                            index === 0 ||
+                            formattedDate !==
+                              moment(
+                                sortedArray[index - 1].transaction_date
+                              ).format("DD MMM YYYY");
+
+                          return (
+                            <View
+                              key={transaction.id}
+                              className="w-full items-center"
+                            >
+                              {showDateHeader && (
+                                <ThemedText className="w-[85%] text-left font-bold text-1xl py-2">
+                                  {formattedDate}
+                                </ThemedText>
+                              )}
+                              <TransactionItem
+                                transaction={transaction}
+                                theme={theme}
+                                onEdit={() =>
+                                  handleEditTransaction(transaction.id ?? 0)
+                                }
+                                onDelete={(transaction_id: number) =>
+                                  handleDeleteTransaction(transaction_id)
+                                }
+                                checkpage={"transactions"}
+                                isOptionsVisible={
+                                  activeOptionID?.type === "transaction" &&
+                                  activeOptionID?.id === transaction.id
+                                } // ✅ ตรวจสอบว่าเปิดเมนู TransactionItem อยู่หรือไม่
+                                setOptionsVisible={() =>
+                                  handleToggleOptions(
+                                    "transaction",
+                                    transaction.id
+                                  )
+                                } // ✅ เปิด/ปิดเมนู
+                              />
+                            </View>
+                          );
+                        }
+                      );
+                    })()}
+                  </ScrollView>
                 </View>
               </ThemedView>
             </TouchableWithoutFeedback>
-          </ScrollView>
+          {/* </ScrollView> */}
+
           {isOverlayVisible && (
             <TouchableWithoutFeedback
               onPress={() => {
@@ -522,6 +535,7 @@ export default function TransactionPage() {
               </View>
             </Pressable>
           )}
+
           {loading && (
             <View className="absolute inset-0 flex items-center justify-center bg-transparent">
               <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">
