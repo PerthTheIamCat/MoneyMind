@@ -3,12 +3,18 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import { Modal, Pressable, ScrollView, TextInput, TouchableWithoutFeedback, View, } from "react-native";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { useColorScheme } from "react-native";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { ThemedButton } from "@/components/ThemedButton";
 import { getCategory } from "@/hooks/auth/CategoryHandler";
 import { useContext } from "react";
 import { UserContext } from "@/hooks/conText/UserContext";
@@ -20,13 +26,6 @@ type Transaction = {
   id: number;
   icon_name: string;
   icon_id: keyof typeof Ionicons.glyphMap;
-};
-
-// ✅ กำหนด Type ของ Transaction
-type Transaction = {
-  id: number;
-  name: string;
-  icon: keyof typeof Ionicons.glyphMap;
 };
 
 export default function IconTransaction() {
