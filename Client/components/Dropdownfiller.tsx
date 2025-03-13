@@ -7,7 +7,7 @@ import {
     Modal,
     TouchableWithoutFeedback,
   } from "react-native";
-  import React, { useCallback, useState , useMemo } from "react";
+  import React, { useCallback, useState , useMemo ,useRef } from "react";
   import { AntDesign } from "@expo/vector-icons";
   import { useColorScheme } from "react-native";
   type OptionItem = {
@@ -26,56 +26,68 @@ import {
     onChange,
   }: DropDownProps) {
     const [expanded, setExpanded] = useState(false);
-    const toggleExpanded = useCallback(() => setExpanded(!expanded), [expanded]);
+    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
     const [value, setValue] = useState("ALL");
     // const [colortext, setColor] = useState(0);
     const theme = useColorScheme() || "light";
-    const componentColor = theme === "dark" ? "#181818" : "#d8d8d8";
+    const componentColor = theme === "dark" ? "#383838" : "#e8e8e8";
     const componentIcon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
     const onSelect = useCallback((item: OptionItem) => {
       onChange(item);
       setValue(item.label);
       setExpanded(false);
     }, []);
+    const buttonRef = useRef<TouchableOpacity>(null);
 
-
-const colortext = useMemo(() => {
-    if (value.toLowerCase() === "income") return "green";
-    if (value.toLowerCase() === "expense") return "red";
-    return componentIcon;
-    }, [value, componentIcon]);
+    const toggleExpanded = () => {
+      if (!expanded && buttonRef.current) {
+        buttonRef.current.measureInWindow((x, y, width, height) => {
+          setDropdownPosition({ top: y + height, left: x, width });
+          setExpanded(true);
+        });
+      } else {
+        setExpanded(false);
+      }
+    };
+  const colortext = useMemo(() => {
+      if (value.toLowerCase() === "income") return "green";
+      if (value.toLowerCase() === "expense") return "red";
+      return componentIcon;
+      }, [value, componentIcon]);
 
   const styles = StyleSheet.create({
     backdrop: {
-      padding: 10,
-      justifyContent: "center",
-      alignItems: "flex-end",
-      marginTop:325
+      position: "absolute",
+      top: dropdownPosition.top,
+      left: dropdownPosition.left,
+      width: dropdownPosition.width,
+      // backgroundColor: "white",
+      // padding: 10,
+      borderRadius: 5,
+      // marginEnd:10,
     },
     optionItem: {
-      height: 40,
       justifyContent: "flex-end",
       alignItems:"flex-end",
-    //   backgroundColor: "blue",
-      width: "100%",
-      padding:9,
+      
+      marginTop:10,
+      // marginEnd:10,
+      // padding:9,
     },
     separator: {
       height: 4,
     },
     options: {
       backgroundColor: componentColor,
-      width: "30%",
-      marginTop:10,
-      marginEnd:10,
-      paddingEnd:10,
-      borderRadius: 6,
-      maxHeight: 260,
+      // marginEnd:20,
+      paddingEnd:15,
+      borderRadius: 9,
     },
     text: {
       fontWeight:"bold",
       fontSize: 17,
       opacity: 0.8,
+      paddingBottom:10,
       color: componentIcon,
     },
     textselect: {
@@ -101,6 +113,7 @@ const colortext = useMemo(() => {
     return (
       <View>
         <TouchableOpacity
+          ref={buttonRef}
           style={styles.button}
           activeOpacity={0.8}
           onPress={toggleExpanded}
