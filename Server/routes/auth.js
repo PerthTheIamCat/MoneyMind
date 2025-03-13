@@ -3,6 +3,7 @@ const router = express.Router(); // Create express app
 const bcrypt = require("bcrypt"); // Import bcrypt for password hashing
 const jwt = require("jsonwebtoken"); // Import jsonwebtoken for token generation
 const otpGenerator = require("otp-generator"); // Import otp-generator for OTP generation
+const axios = require('axios');
 require("dotenv").config(); // Import dotenv for environment variables
 
 const db = require("./db");
@@ -70,7 +71,7 @@ const jwtValidate = (req, res, next) => {
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
       if (err) {
-        console.error("Invalid token:", err.message);
+        console.log("Invalid token:", err.message);
         return res
           .status(403)
           .json({ message: `Invalid token: ${err.message}`, success: false });
@@ -89,7 +90,7 @@ const jwtValidate = (req, res, next) => {
       next();
     });
   } catch (err) {
-    console.error("Unexpected error:", err.message);
+    console.log("Unexpected error:", err.message);
     return res
       .status(500)
       .json({ message: "Internal server error", success: false });
@@ -138,7 +139,7 @@ const otpValidate = (req, res, next) => {
       }
     });
   } catch (err) {
-    console.error("Unexpected error:", err.message);
+    console.log("Unexpected error:", err.message);
     return res
       .status(500)
       .json({ message: "Internal server error", success: false });
@@ -267,7 +268,6 @@ router.post("/register", (req, res) => {
                   bcrypt.hash(password, 10, (err, hash) => {
                     if (err) {
                       console.log("Error hashing password", err);
-                      console.error("Error hashing password:", err);
                       return res.status(500).json({
                         message: "Password hashing failed",
                         error: err.message,
@@ -298,15 +298,11 @@ router.post("/register", (req, res) => {
                         db.query(
                           "INSERT INTO user_setting (user_id) VALUES (?)",
                           [UserID],
-                          (err, result) => {
+                          async (err, result) => {
                             if (err) {
                               console.log("From /register from INSERT INTO user_setting (user_id) VALUES (?)");
                               console.log("Error inserting user settings");
                               console.log("Error:", err);
-                              console.error(
-                                "Error inserting user settings:",
-                                err
-                              );
                               return res.status(500).json({
                                 message: "Failed to insert user settings",
                                 error: err.message,
@@ -320,6 +316,22 @@ router.post("/register", (req, res) => {
                               username,
                               email
                             );
+
+                            try {
+                              const response = await axios.post(
+                                "http://localhost:3000/devices/create",
+                                { user_id: UserID },
+                                {
+                                  headers: {
+                                    Authorization: `Bearer ${accessToken}`,
+                                    "Content-Type": "application/json",
+                                  },
+                                }
+                              );
+                              console.log("Device registered:", response.data);
+                            } catch (error) {
+                              console.log("Failed to register device:", error.message);
+                            }
 
                             console.log("User created");
                             return res.status(201).json({
@@ -420,6 +432,22 @@ router.post("/login", (req, res) => {
           user.email
         );
         //console.log(user)UserID
+
+        try {
+          const response = await axios.post(
+            "http://localhost:3000/devices/create",
+            { user_id: UserID },
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          console.log("Device registered:", response.data);
+        } catch (error) {
+          console.log("Failed to register device:", error.message);
+        }
 
         console.log("Login successful")
         return res
@@ -537,7 +565,7 @@ router.post("/otpSend", (req, res) => {
       } catch (error) {
         console.log("In Catch Block")
         console.log("Error sending OTP email");
-        console.error("Error sending OTP email:", error);
+        console.log("Error:", error);
         return res.status(500).json({
           message: "Failed to send OTP email",
           error: error.message,
@@ -652,7 +680,7 @@ router.put("/createpin", jwtValidate, async (req, res) => {
   } catch (error) {
     console.log("In Catch Block")
     console.log("Error updating PIN");
-    console.error("Error updating PIN:", error);
+    console.log("Error:", error);
     return res.status(500).json({
       message: "Database query failed",
       error: error.message,
@@ -693,7 +721,6 @@ router.get("/getpin/:userID", jwtValidate, async (req, res) => {
     console.log("In Catch Block")
     console.log("Error retrieving PIN");
     console.log("Erorr: ", err);
-    console.error("Error retrieving PIN:", err);
     return res.status(500).json({
       success: false,
       message: "Database error",

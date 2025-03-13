@@ -12,6 +12,11 @@ import { Image } from "expo-image";
 import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
 import { CreateUserBank } from "@/hooks/auth/CreateUserBank";
 import { ThemedText } from "@/components/ThemedText";
+import axios from "axios";
+import {
+  CheckEmailExistHandler,
+  CheckUsernameExistHandler,
+} from "@/hooks/auth/CheckUserExist";
 
 export default function Index() {
   // Use the useColorScheme hook to get the current color scheme
@@ -42,38 +47,85 @@ export default function Index() {
   const { isAccepted, setIsAccepted } = useContext(TermsContext);
   const [isCheckedNotification, setIsCheckedNotification] =
     useState<boolean>(false);
-  
+
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const handleSignUp = () => {
+
+  const handleSignUp = async () => {
     try {
-      if (username === "") {
+      // Ensure username is provided
+      if (!username!.trim()) {
         setErrorUsername("Username is required");
         return;
       } else {
         setErrorUsername("");
+        console.log(username);
+        console.log("email is", email);
       }
-      const emailValue = email?.trim() || "";
-      if (emailValue === "") {
+
+      // Ensure email is provided
+      //const emailValue = email?.trim(); // Trim the email to remove any leading/trailing spaces
+      console.log("email is", email); // Log the value to verify it's being trimmed correctly
+      if (!email!.trim()) {
+        //console.log("email is", emailValue);
         setErrorEmail("Email is required");
         return;
-      }if (!emailPattern.test(emailValue)) {
+      } else {
+        console.log("email pass");
+        setErrorEmail("");
+      }
+      console.log("email after Trim:", email); // Log to verify email value after trim
+      console.log(email);
+      // Ensure email format is valid
+      if (!emailPattern.test(email!.trim())) {
         setErrorEmail("Please enter a valid email address (@)");
         return;
       } else {
         setErrorEmail("");
       }
-      if (password === "") {
+
+      // Check if the username already exists
+      await axios
+        .post(`${URL}/auth/checkusername`, { username: username })
+        .then((res) => {
+          if (res.data.success) {
+            console.log(res);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          return;
+        });
+
+      // Check if the email already exists
+      await axios
+        .post(`${URL}/auth/checkemail`, { email: email })
+        .then((res) => {
+          if (res.data.success) {
+            console.log(res);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          return;
+        });
+
+      // Ensure password is provided
+      if (!password!.trim()) {
         setErrorPassword("Password is required");
         return;
       } else {
         setErrorPassword("");
       }
-      if (passwordConfirmation === "") {
+
+      // Ensure password confirmation is provided
+      if (!passwordConfirmation!.trim()) {
         setErrorPasswordConfirmation("Password Confirmation is required");
         return;
       } else {
         setErrorPasswordConfirmation("");
       }
+
+      // Ensure passwords match
       if (password !== passwordConfirmation) {
         setErrorPasswordConfirmation(
           "Password and Password Confirmation do not match"
@@ -82,38 +134,45 @@ export default function Index() {
       } else {
         setErrorPasswordConfirmation("");
       }
+
+      // Ensure terms are accepted
       if (!isAccepted) {
         router.push("/terms_and_con");
         return;
       }
+
+      // Ensure password meets minimum length
       if (password && password.length < 8) {
-        setErrorPassword("Password must longer than 8 characters!");
+        setErrorPassword("Password must be longer than 8 characters!");
         return;
       }
+
+      // Start sending OTP after all validation passes
       setIsSending(true);
       const timeoutId = setTimeout(() => {
         setIsSending(false);
         alert("Sign Up is taking too long. Please try again later.");
       }, 5000);
-      SendOTPHandler(URL, { email: email! }).then((response) => {
-        if (response.success) {
-          clearTimeout(timeoutId);
-          setIsSending(false);
-          setOtp(response.message);
-          router.push("/OTP");
-        } else {
-          clearTimeout(timeoutId);
-          setIsSending(false);
-          console.error(response.message);
-        }
-      });
+
+      // Send OTP to the user's email
+      const otpResponse = await SendOTPHandler(URL, { email: email! });
+      if (otpResponse.success) {
+        clearTimeout(timeoutId);
+        setIsSending(false);
+        setOtp(otpResponse.message);
+        router.push("/OTP"); // Proceed to OTP page
+      } else {
+        clearTimeout(timeoutId);
+        setIsSending(false);
+        console.error(otpResponse.message);
+      }
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <ThemedSafeAreaView >
+    <ThemedSafeAreaView>
       <ThemedView>
         <Image
           source={require("@/assets/logos/LOGO.png")}
@@ -125,6 +184,8 @@ export default function Index() {
         />
         <ThemedView className="w-[80%] mt-5 px-5 gap-5">
           <ThemedText className="text-2xl font-bold w-full">Sign Up</ThemedText>
+
+          {/* Username Input */}
           <ThemedInput
             value={username}
             autoComplete="username"
@@ -133,6 +194,8 @@ export default function Index() {
             className="w-full"
             onChangeText={(text) => setUsername(text)}
           />
+
+          {/* Email Input */}
           <ThemedInput
             value={email}
             autoComplete="email"
@@ -141,6 +204,8 @@ export default function Index() {
             className="w-full"
             onChangeText={(text) => setEmail(text)}
           />
+
+          {/* Password Input */}
           <ThemedInput
             autoComplete="password"
             title="Password"
@@ -149,6 +214,8 @@ export default function Index() {
             onChangeText={(text) => setPassword(text)}
             secureTextEntry={true}
           />
+
+          {/* Confirm Password Input */}
           <ThemedInput
             autoComplete="password"
             title="Confirm Password"
@@ -157,6 +224,8 @@ export default function Index() {
             onChangeText={(text) => setPasswordConfirmation(text)}
             secureTextEntry={true}
           />
+
+          {/* Terms and Conditions CheckBox */}
           <ThemedCheckBox
             color="#2B9348"
             textClassName="!text-[12px]"
@@ -167,6 +236,8 @@ export default function Index() {
           >
             Accept Terms And Conditions
           </ThemedCheckBox>
+
+          {/* Notification CheckBox */}
           <ThemedCheckBox
             color="#2B9348"
             textClassName="!text-[12px]"
@@ -176,7 +247,9 @@ export default function Index() {
             Receive Notification On Email
           </ThemedCheckBox>
         </ThemedView>
+
         <ThemedView className="mt-7 w-full">
+          {/* Sign Up Button */}
           <ThemedButton
             mode="confirm"
             className="w-[60%] h-14"
@@ -185,6 +258,8 @@ export default function Index() {
           >
             Sign Up
           </ThemedButton>
+
+          {/* Sign In Button */}
           <ThemedButton
             mode="normal"
             onPress={() => router.push("/SignIn")}

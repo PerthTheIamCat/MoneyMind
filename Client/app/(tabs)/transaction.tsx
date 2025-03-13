@@ -100,16 +100,16 @@ export default function TransactionPage() {
   ];
 
   const [activeCardID, setActiveCardID] = useState<number | null>(null); // เก็บเมนูที่เปิดอยู่
-  const [selectedCardID, setSelectedCardID] = useState<number | null>(null); // ✅ เก็บค่าการ์ดที่ถูกเลือก
+  const [selectedCardID, setSelectedCardID] = useState<number | null>(null); //  เก็บค่าการ์ดที่ถูกเลือก
 
-  // ✅ ฟังก์ชันสำหรับเลือกการ์ด (ไม่เกี่ยวกับเมนู)
+  //  ฟังก์ชันสำหรับเลือกการ์ด (ไม่เกี่ยวกับเมนู)
   const handleSelectCard = (cardID: number) => {
     if (selectedCardID === cardID) {
       console.log(`🔻 Unselecting Card ID: ${cardID}`);
-      setSelectedCardID(null); // ✅ ยกเลิกการเลือกถ้ากดซ้ำ
+      setSelectedCardID(null); //  ยกเลิกการเลือกถ้ากดซ้ำ
     } else {
       console.log(`✅ Selecting Card ID: ${cardID}`);
-      setSelectedCardID(cardID); // ✅ เลือกการ์ดใหม่
+      setSelectedCardID(cardID); //  เลือกการ์ดใหม่
     }
   };
 
@@ -120,9 +120,9 @@ export default function TransactionPage() {
 
   const handleToggleOptions = (type: "card" | "transaction", id: number) => {
     if (activeOptionID?.id === id && activeOptionID?.type === type) {
-      setActiveOptionID(null); // ✅ ปิดเมนูถ้ากดซ้ำ
+      setActiveOptionID(null); //  ปิดเมนูถ้ากดซ้ำ
     } else {
-      setActiveOptionID({ type, id }); // ✅ เปิดเมนูใหม่ และปิดเมนูอื่น
+      setActiveOptionID({ type, id }); //  เปิดเมนูใหม่ และปิดเมนูอื่น
     }
   };
 
@@ -194,7 +194,7 @@ export default function TransactionPage() {
     }
   };
 
-  // 📌 ฟังก์ชันอัปโหลดภาพไปยัง `ocr.js`
+  //  ฟังก์ชันอัปโหลดภาพไปยัง `ocr.js`
   const uploadImage = async (imageUri: string, retryCount = 1) => {
     setLoading(true);
     let formData = new FormData();
@@ -215,8 +215,8 @@ export default function TransactionPage() {
             const progress = Math.round((progressEvent.loaded * 100) / total);
             console.log(`Upload progress: ${progress}%`);
           },
-    }
-  );
+        }
+      );
 
       console.log("📜 OCR Result:", response.data);
 
@@ -293,7 +293,7 @@ export default function TransactionPage() {
             <ThemedText className=" text-[18px]">Connected</ThemedText>
             <ThemedText className="font-bold text-[24px]">Accounts</ThemedText>
           </ThemedView>
-          <ThemedView className="bg-emerald-300 flex-row ">
+          <ThemedView className="flex-row ">
             <Pressable
               className={`flex flex-row justify-center items-center rounded-xl -rotate-90  w-[125px] h-[45px] ${componentcolor} -ml-2 active:scale-105`}
               onPress={() => router.push("/AddAccount")}
@@ -303,8 +303,8 @@ export default function TransactionPage() {
             </Pressable>
             <ThemedScrollView
               horizontal={true}
-              keyboardShouldPersistTaps="handled" // ✅ ให้สามารถกดที่อื่นเพื่อปิดเมนู
-              onStartShouldSetResponder={() => true} // ✅ บังคับให้ ScrollView ตอบสนองการสัมผัส
+              keyboardShouldPersistTaps="handled" // ให้สามารถกดที่อื่นเพื่อปิดเมนู
+              onStartShouldSetResponder={() => true} // บังคับให้ ScrollView ตอบสนองการสัมผัส
               className=" bg-[E5E5E5] pl-2 rounded-tl-[15px] rounded-bl-[15px] w-5/6 -ml-9 "
             >
               <View className="mt-0.5 mb-1 flex-row space-x-1">
@@ -325,8 +325,8 @@ export default function TransactionPage() {
                       setOptionsVisible={() =>
                         handleToggleOptions("card", account.id)
                       }
-                      isSelected={selectedCardID === account.id} // ✅ ส่งค่าการ์ดที่เลือก
-                      onSelectCard={() => handleSelectCard(account.id)} // ✅ ฟังก์ชันเลือกการ์ด
+                      isSelected={selectedCardID === account.id} //  ส่งค่าการ์ดที่เลือก
+                      onSelectCard={() => handleSelectCard(account.id)} // ฟังก์ชันเลือกการ์ด
                     />
                   ))
                 ) : (
@@ -346,23 +346,33 @@ export default function TransactionPage() {
 
             />
           </ThemedView>
-          <ScrollView
-            className="max-h-screen-safe"
-            // keyboardShouldPersistTaps="away" // ✅ ให้สามารถกดที่อื่นเพื่อปิดเมนู
-            onStartShouldSetResponder={() => true} // ✅ บังคับให้ ScrollView รับการสัมผัส
-            nestedScrollEnabled={true}
+
+          {/* <ScrollView
+            className="max-h-screen-safe "
+            // keyboardShouldPersistTaps="away" //  ให้สามารถกดที่อื่นเพื่อปิดเมนู
+            onStartShouldSetResponder={() => true} //  บังคับให้ ScrollView รับการสัมผัส
+            nestedScrollEnabled={false}
+          > */}
+          <TouchableWithoutFeedback
+            onPress={() => {
+              setActiveOptionID(null);
+              console.log("🔵 Clearing active option ID and selected card ID");
+            }}
+            accessible={false}
           >
-            <TouchableWithoutFeedback
-              onPress={() => {
-                setActiveOptionID(null);
-                console.log(
-                  "🔵 Clearing active option ID and selected card ID"
-                );
-              }}
-              accessible={false}
-            >
-              <ThemedView className="bg-[E5E5E5] !justify-start h-fit py-2 pb-40">
-                <View className="w-full !items-center">
+            <ThemedView className=" !justify-start h-fit py-2 pb-36">
+              <View className="w-full h-[400px] !items-center">
+                <ScrollView
+                  className="w-full"
+                  contentContainerStyle={{ paddingBottom: 20 }}
+                  style={{
+                    height: "100%", // กำหนดความสูงเต็มกรอบ
+                    overflowY: "scroll", // เพิ่มการเลื่อนในแนวตั้ง
+                  }}
+                  onStartShouldSetResponder={() => true} //ให้ ScrollView รับการสัมผัส
+                  nestedScrollEnabled={true} // เลื่อนภายในได้
+                  keyboardShouldPersistTaps="handled" // เลื่อนโดยไม่กระทบกับการสัมผัส
+                >
                   {(() => {
                     let filteredTransactions =
                       selectedCardID !== null ? transaction?.filter((t) => t.account_id === selectedCardID)
@@ -423,17 +433,19 @@ export default function TransactionPage() {
                                   "transaction",
                                   transaction.id
                                 )
-                              } // ✅ เปิด/ปิดเมนู
+                              } // เปิด/ปิดเมนู
                             />
                           </View>
                         );
                       }
                     );
                   })()}
-                </View>
-              </ThemedView>
-            </TouchableWithoutFeedback>
-          </ScrollView>
+                </ScrollView>
+              </View>
+            </ThemedView>
+          </TouchableWithoutFeedback>
+          {/* </ScrollView> */}
+
           {isOverlayVisible && (
             <TouchableWithoutFeedback
               onPress={() => {
@@ -458,7 +470,7 @@ export default function TransactionPage() {
                   }}
                   className="p-6 rounded-lg"
                 >
-                  <ThemedView className=" p-6 rounded-lg w-full ">
+                  <ThemedView className="mb-24 p-6 rounded-lg w-full ">
                     <ThemedText className="text-3xl font-bold ">
                       Insert Type
                     </ThemedText>
@@ -518,13 +530,14 @@ export default function TransactionPage() {
                 setIsOverlayVisible(true);
                 setIsButtonVisible(false);
               }}
-              className="!absolute bottom-[15%] right-6 bg-transparent"
+              className="!absolute bottom-[10%] right-6 bg-transparent"
             >
               <View className="!items-center !justify-center bg-[#aacc00] w-16 h-16 rounded-full ">
                 <AntDesign name="plus" size={32} color="#ffffff" />
               </View>
             </Pressable>
           )}
+
           {loading && (
             <View className="absolute inset-0 flex items-center justify-center bg-transparent">
               <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">

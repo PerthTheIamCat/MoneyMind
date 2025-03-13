@@ -64,29 +64,33 @@ const SelectBudgetPlanScreen = ({
 }) => {
   console.log("account_id", account_id);
   const [BudgetPlanData, setBudgetPlanData] = useState<SplitpayData[]>([]);
-  const [BudgetPlanSelected, setBudgetPlanSelected] = useState<SplitpayData[]>(
-    []
+  const [BudgetPlanSelected, setBudgetPlanSelected] = useState<number | null>(
+    null
   );
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
   useEffect(() => {
     async function fetchData() {
       const response = await getSplitpay(URL, account_id, auth?.token!);
-      if (response.success) {
+      if (response.success && "result" in response) {
         setBudgetPlanData(response.result);
-        setBudgetPlanData((prev) => [
-          {
-            id: null,
-            user_id: 0,
-            account_id: 0,
-            split_name: "Select Budget Plan",
-            amount_allocated: 0,
-            remaining_balance: 0,
-            color_code: "0",
-            icon_id: -1,
-          },
-          ...prev,
-        ]);
+        if (response.result[0].split_name !== "Retirement") {
+          setBudgetPlanData((prev) => [
+            {
+              id: null,
+              user_id: 0,
+              account_id: 0,
+              split_name: "Select Budget Plan",
+              amount_allocated: 0,
+              remaining_balance: 0,
+              color_code: "0",
+              icon_id: -1,
+            },
+            ...prev,
+          ]);
+        } else {
+          setBudgetPlanSelected(response.result[0].id);
+        }
       }
     }
     fetchData();

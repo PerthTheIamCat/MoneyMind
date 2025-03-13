@@ -186,21 +186,37 @@ export default function SplitPay() {
 
   // ✅ เลื่อน ScrollView ให้การ์ดแรกอยู่กลางตอนเริ่ม
   useEffect(() => {
-    if (bank && bank.length > 0 && scrollViewRef.current) {
+    if (bank && bank.length > 1 && scrollViewRef.current) {
       setTimeout(() => {
-        scrollViewRef.current?.scrollTo({ x: 0, animated: true });
-        setSelectedCard(bank[0]); // ✅ ตั้งค่า selectedCard เป็นการ์ดแรก
-        console.log("🚀 First Card Selected:", bank[0]);
-        setIsLoading(true);
-        getSplitpay(URL, bank[0].id, auth?.token!).then((res) => {
-          if (res.success) {
-            console.log("🚀 Splitpay Fetched:", res);
-            setBudgets(res.result);
-          } else {
-            setBudgets(null);
-          }
-          setIsLoading(false);
-        });
+        if (page === 0) {
+          scrollViewRef.current?.scrollTo({ x: 0, animated: true });
+          setSelectedCard(bank[1]); // ✅ ตั้งค่า selectedCard เป็นการ์ดแรก
+          console.log("🚀 First Card Selected:", bank[1]);
+          setIsLoading(true);
+          getSplitpay(URL, bank[1].id, auth?.token!).then((res) => {
+            if (res.success) {
+              console.log("🚀 Splitpay Fetched:", res);
+              setBudgets(res.result);
+            } else {
+              setBudgets(null);
+            }
+            setIsLoading(false);
+          });
+        } else {
+          scrollViewRef.current?.scrollTo({ x: screenWidth, animated: true });
+          setSelectedCard(bank[0]); // ✅ ตั้งค่า selectedCard เป็นการ์ดแรก
+          console.log("🚀 First Card Selected:", bank[0]);
+          setIsLoading(true);
+          getSplitpay(URL, bank[0].id, auth?.token!).then((res) => {
+            if (res.success) {
+              console.log("🚀 Splitpay Fetched:", res);
+              setBudgets(res.result);
+            } else {
+              setBudgets(null);
+            }
+            setIsLoading(false);
+          });
+        }
       }, 500);
     }
   }, [bank, page]);
@@ -496,7 +512,7 @@ export default function SplitPay() {
                 </ThemedView>
               </ThemedView>
             ) : (
-              <ThemedView className="mt-3 w-full px-5">
+              <ThemedView className="mt-3 w-full px-5 mb-5">
                 <ThemedButton
                   className={`${componentColor} w-[80%] h-40 rounded-[20]`}
                   onPress={() => router.push("/AddAccount")}
@@ -517,7 +533,7 @@ export default function SplitPay() {
             )}
           </ThemedView>
           {bank ? (
-            <ThemedView className="w-[80%] min-h-72 h-[400px]">
+            <ThemedView className="w-[80%] min-h-72 h-[400px] mt-5">
               <ThemedText className="w-full font-bold text-xl">
                 Monthly Budgets
               </ThemedText>

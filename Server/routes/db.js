@@ -18,7 +18,6 @@ db.getConnection((err, connection) => {
     if (err) {
         console.log('Error connecting to database');
         console.log('Error:', err);
-        console.error('Error connecting to database:', err);
         return;
     }
     
