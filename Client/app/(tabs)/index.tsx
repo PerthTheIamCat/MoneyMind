@@ -12,7 +12,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import moment from "moment";
 import { SemiCircleProgress } from "@/components/SemiCircleProgress";
 import TransactionItem from "@/components/TransactionItem";
-import { StyleSheet } from "react-native";
+import { Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import { useColorScheme, Text, View, FlatList } from "react-native";
 import { useState, useContext } from "react";
 import { Image } from "expo-image";
@@ -47,7 +47,7 @@ export default function Index() {
   const theme = useColorScheme() || "light";
   const componentColor = theme === "dark" ? "!bg-[#181818]" : "!bg-[#d8d8d8]";
   const componentIcon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
-
+  const { width } = useWindowDimensions();
   const [transactioncheack, settransactioncheack] = useState<boolean | null>(
     true
   );
@@ -152,8 +152,8 @@ export default function Index() {
           </ThemedView>
         ) : (
           <ThemedView className="mt-3">
-            <ThemedButton
-              className={`${componentColor} h-40 w-4/5 rounded-[20]`}
+            <Pressable
+              className={`${componentColor} h-40 w-4/5 rounded-[20] justify-center items-center`}
               onPress={() => router.push("/(tabs)/retire")}
             >
               <ThemedView className="bg-transparent">
@@ -170,7 +170,7 @@ export default function Index() {
                   Let’s get started with your first retirement plan!
                 </ThemedText>
               </ThemedView>
-            </ThemedButton>
+            </Pressable>
           </ThemedView>
         )}
 

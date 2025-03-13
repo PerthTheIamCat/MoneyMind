@@ -496,7 +496,7 @@ export default function SplitPay() {
                 </ThemedView>
               </ThemedView>
             ) : (
-              <ThemedView className="mt-3 w-full px-5">
+              <ThemedView className="mt-3 w-full px-5 mb-5">
                 <ThemedButton
                   className={`${componentColor} w-[80%] h-40 rounded-[20]`}
                   onPress={() => router.push("/AddAccount")}
@@ -517,7 +517,7 @@ export default function SplitPay() {
             )}
           </ThemedView>
           {bank ? (
-            <ThemedView className="w-[80%] min-h-72 h-[400px]">
+            <ThemedView className="w-[80%] min-h-72 h-[400px] mt-5">
               <ThemedText className="w-full font-bold text-xl">
                 Monthly Budgets
               </ThemedText>
