@@ -567,6 +567,7 @@ export default function TransactionPage() {
                             onPress={() => {
                               console.log("Transaction Name:", transaction.transaction_name);  // log transaction_name
                               console.log("Transaction Type:", transaction.transaction_type);  // log transaction_type
+                              setShowModal(false);
                             }}
                           >
                             {/* ไอคอน + ชื่อรายการ */}
