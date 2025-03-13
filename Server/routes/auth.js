@@ -3,6 +3,7 @@ const router = express.Router(); // Create express app
 const bcrypt = require("bcrypt"); // Import bcrypt for password hashing
 const jwt = require("jsonwebtoken"); // Import jsonwebtoken for token generation
 const otpGenerator = require("otp-generator"); // Import otp-generator for OTP generation
+const axios = require('axios');
 require("dotenv").config(); // Import dotenv for environment variables
 
 const db = require("./db");
@@ -298,7 +299,7 @@ router.post("/register", (req, res) => {
                         db.query(
                           "INSERT INTO user_setting (user_id) VALUES (?)",
                           [UserID],
-                          (err, result) => {
+                          async (err, result) => {
                             if (err) {
                               console.log("From /register from INSERT INTO user_setting (user_id) VALUES (?)");
                               console.log("Error inserting user settings");
@@ -320,6 +321,22 @@ router.post("/register", (req, res) => {
                               username,
                               email
                             );
+
+                            try {
+                              const response = await axios.post(
+                                "http://localhost:3000/devices/create",
+                                { user_id: UserID },
+                                {
+                                  headers: {
+                                    Authorization: `Bearer ${accessToken}`,
+                                    "Content-Type": "application/json",
+                                  },
+                                }
+                              );
+                              console.log("Device registered:", response.data);
+                            } catch (error) {
+                              console.error("Failed to register device:", error.message);
+                            }
 
                             console.log("User created");
                             return res.status(201).json({
@@ -420,6 +437,22 @@ router.post("/login", (req, res) => {
           user.email
         );
         //console.log(user)UserID
+
+        try {
+          const response = await axios.post(
+            "http://localhost:3000/devices/create",
+            { user_id: UserID },
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          console.log("Device registered:", response.data);
+        } catch (error) {
+          console.error("Failed to register device:", error.message);
+        }
 
         console.log("Login successful")
         return res
