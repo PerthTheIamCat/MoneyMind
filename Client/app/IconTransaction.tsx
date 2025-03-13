@@ -12,12 +12,14 @@ export default function IconTransaction() {
   const [isOutcome, setIsOutcome] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
 
+  // สีขององค์ประกอบใน Dark Mode
   const bgColor = isDarkMode ? "bg-gray-700" : "bg-gray-300";
   const textColor = isDarkMode ? "text-white" : "text-black";
   const cardColor = isDarkMode ? "bg-gray-800" : "bg-gray-100";
   const borderColor = isDarkMode ? "border-gray-600" : "border-gray-300";
-  const buttonColor = "bg-gray-300";
+  const buttonColor = "bg-gray-300"; // สีของปุ่ม "+"
 
+  // ข้อมูลสำหรับ Outcome และ Income
   const outcomeData = [
     { id: 1, name: "ข้าว", icon: "restaurant-outline" },
     { id: 2, name: "น้ำ", icon: "water-outline" },
@@ -35,10 +37,12 @@ export default function IconTransaction() {
     { id: 5, name: "เงินปันผล", icon: "pie-chart-outline" },
   ];
 
+  // เลือกข้อมูลตามสถานะ
   const transactions = isOutcome ? outcomeData : incomeData;
 
   return (
     <ThemedSafeAreaView className={`flex-1 ${bgColor} px-6 pt-6`}>
+      {/* Toggle Income/Outcome */}
       <ThemedView className="flex-row w-full h-10 justify-center bg-transparent p-1 mt-6 mb-4">
         <ThemedView className="flex-row w-64 h-10 rounded-full bg-[#d5d5d5]">
           <Pressable
@@ -65,17 +69,22 @@ export default function IconTransaction() {
         </ThemedView>
       </ThemedView>
 
+      {/* รายการไอคอน */}
       <View className="mt-1">
         {transactions.map((item) => (
           <View
             key={item.id}
             className={`flex-row items-center justify-between p-3 rounded-lg border ${cardColor} ${borderColor} w-[80%] mx-auto mt-2`}
           >
-            <View className="flex-row items-center space-x-3">
+            {/* ไอคอน + ชื่อรายการ */}
+            <View className="flex-row items-center space-x-4">
               <Ionicons name={item.icon} size={22} color="#555" />
-              <ThemedText className={`text-[16px] ${textColor}`}>{item.name}</ThemedText>
+              <ThemedText className={`text-[16px] ${textColor}`}>
+                {item.name}
+              </ThemedText>
             </View>
 
+            {/* ปุ่มแก้ไข */}
             <Pressable className="p-2 rounded-full">
               <MaterialIcons name="edit" size={18} color="#555" />
             </Pressable>
@@ -83,17 +92,24 @@ export default function IconTransaction() {
         ))}
       </View>
 
+      {/* ปุ่มเพิ่ม (+) */}
       <Pressable onPress={() => setModalVisible(true)} className="mt-5 items-center">
         <View className={`w-[80%] h-12 ${buttonColor} rounded-lg flex items-center justify-center shadow-lg mx-auto`}>
           <Ionicons name="add" size={26} color="white" />
         </View>
       </Pressable>
 
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
+      {/* Modal สำหรับเพิ่มรายการ */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
         <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
           <View className="w-80 bg-white p-5 rounded-lg shadow-lg">
-            <ThemedText className="text-lg font-bold mb-4 text-center">เพิ่มรายการใหม่</ThemedText>
-            <Pressable onPress={() => setModalVisible(false)} className="mt-4 p-3 bg-red-400 rounded-lg">
+            <ThemedText className="text-lg font-bold mb-4">เพิ่มรายการใหม่</ThemedText>
+            <Pressable onPress={() => setModalVisible(false)} className="mt-2 p-3 bg-red-400 rounded-lg">
               <ThemedText className="text-white text-center">ปิด</ThemedText>
             </Pressable>
           </View>
