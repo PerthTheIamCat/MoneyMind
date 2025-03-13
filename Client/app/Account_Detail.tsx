@@ -11,6 +11,7 @@ import {
   Alert,
   StyleSheet,
   useColorScheme,
+  Modal,
 } from "react-native";
 import { UpdateUserDetailHandler } from "@/hooks/auth/PutUserDetail";
 import { ServerContext } from "@/hooks/conText/ServerConText";
@@ -22,6 +23,9 @@ import {
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
 import { ThemedButton } from "@/components/ThemedButton";
+import { DeleteAccountHandler } from "@/hooks/auth/DeleteAccountHandler";
+import Foundation from "@expo/vector-icons/Foundation";
+import router from "expo-router";
 
 export default function Account_Detail() {
   const { URL } = useContext(ServerContext);
@@ -55,6 +59,8 @@ export default function Account_Detail() {
   );
   const [isEditingDate, setIsEditingDate] = useState(false);
   const [isEditingPicture, setIsEditingPicture] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [confirmDelete, setconfirmDelete] = useState("");
 
   const themed = useColorScheme();
   const auth = useContext(AuthContext);
@@ -64,6 +70,28 @@ export default function Account_Detail() {
       setSelectedDate(new Date(birthdate));
     }
   }, [birthdate]);
+
+  const HandleDeleteAccount = async () => {
+    if (!confirmDelete || confirmDelete !== username) {
+      Alert.alert("Error", "Please type your username to confirm deletion.");
+      return;
+    }
+
+    try {
+      const response = await DeleteAccountHandler(URL, auth?.token!, userID!);
+
+      if (response.success) {
+        Alert.alert("Success", "Your account has been deleted.");
+        auth?.logout(); // Log the user out
+        router.replace("/Welcome"); // Redirect to welcome page
+      } else {
+        Alert.alert("Error", response.message || "Failed to delete account.");
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    }
+  };
 
   const saveChanges = async () => {
     if (!userID) return;
@@ -160,7 +188,6 @@ export default function Account_Detail() {
             <ThemedText style={styles.value}>{fullname}</ThemedText>
           )}
         </View>
-
         {/* Email */}
         <View style={styles.fieldContainer}>
           <ThemedText style={styles.label}>Email</ThemedText>
@@ -177,7 +204,6 @@ export default function Account_Detail() {
             </ThemedText>
           )}
         </View>
-
         {/* Date of Birth - Replaced with CustomDateTimePicker */}
         <View style={styles.fieldContainer}>
           <ThemedText style={styles.label}>Date of Birth</ThemedText>
@@ -187,7 +213,7 @@ export default function Account_Detail() {
                 onPress={() => setIsEditingDate(true)}
                 style={styles.label}
               >
-                <ThemedText>
+                <ThemedText style={styles.value}>
                   {selectedDate.toLocaleDateString("th-TH", {
                     year: "numeric",
                     month: "long",
@@ -206,7 +232,6 @@ export default function Account_Detail() {
             </ThemedText>
           )}
         </View>
-
         {/* Bio */}
         <View style={styles.fieldContainer}>
           <ThemedText style={styles.label}>Bio</ThemedText>
@@ -221,7 +246,97 @@ export default function Account_Detail() {
             ]}
           />
         </View>
+
+        {/* Gender */}
+        <View>
+          <ThemedText style={styles.label}>Gender</ThemedText>
+          <ThemedView className="flex flex-row items-center w-full mt-2 border rounded-lg overflow-hidden">
+            <Pressable
+              style={styles.label}
+              className={`flex-1 p-2 flex items-center border justify-center transition ${
+                gender === "male" ? "bg-blue-500 " : "bg-gray-100"
+              }`}
+              onPress={() => isEditing && setGender("male")}
+            >
+              <Foundation name="male-symbol" size={24} color="black" />
+            </Pressable>
+            <Pressable
+              className={`flex-1 p-2 flex items-center border justify-center transition ${
+                gender === "female" ? "bg-pink-500 " : "bg-gray-100"
+              }`}
+              onPress={() => isEditing && setGender("female")}
+            >
+              <Foundation name="female-symbol" size={24} color="black" />
+            </Pressable>
+          </ThemedView>
+        </View>
       </ThemedView>
+
+      {/* Delete Account*/}
+
+      <View className="flex-1 justify-center items-center">
+        {!isEditing ? (
+          // 🟢 Disabled Button (Not Clickable)
+          <View
+            className="bg-gray-300 rounded-lg w-72 h-20 flex items-center justify-center opacity-50"
+            style={styles.buttonContainer}
+          >
+            <ThemedText className="text-center text-xl font-semibold text-gray-500">
+              Delete Account
+            </ThemedText>
+          </View>
+        ) : (
+          // 🔴 Enabled Button (Opens Modal)
+          <Pressable
+            className="bg-red-500 rounded-lg w-72 h-20 flex items-center justify-center"
+            onPress={() => setShowModal(true)}
+            style={styles.buttonContainer}
+          >
+            <ThemedText className="text-center text-xl font-semibold text-white">
+              Delete Account
+            </ThemedText>
+          </Pressable>
+        )}
+
+        {/* Modal for Delete Confirmation */}
+        <Modal
+          visible={showModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowModal(false)}
+        >
+          <View className="flex-1 justify-center items-center bg-black/50">
+            <ThemedView className=" p-6 rounded-lg w-80 shadow-lg">
+              <ThemedText className="text-center text-xl font-bold mb-4">
+                Confirm Account Deletion
+              </ThemedText>
+              <ThemedText className="text-center mb-2">
+                Type your username to confirm
+              </ThemedText>
+              <ThemedInput
+                className="border border-gray-400 rounded-xl p-3 w-full"
+                placeholder="Type here..."
+                onChangeText={setconfirmDelete}
+                value={confirmDelete}
+              />
+              <ThemedButton
+                className="w-full mt-4 h-10"
+                mode="cancel"
+                onPress={HandleDeleteAccount}
+              >
+                Confirm
+              </ThemedButton>
+              <ThemedButton
+                className="w-full mt-2 h-10"
+                mode="confirm"
+                onPress={() => setShowModal(false)}
+              >
+                Cancel
+              </ThemedButton>
+            </ThemedView>
+          </View>
+        </Modal>
+      </View>
 
       {/* Edit / Save Button */}
       <Pressable
@@ -334,5 +449,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#bdbdbd",
     padding: 7,
     minHeight: 50,
+  },
+  buttonContainer: {
+    width: wp("90%"),
+    marginTop: 20,
   },
 });

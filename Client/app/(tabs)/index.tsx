@@ -12,7 +12,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import moment from "moment";
 import { SemiCircleProgress } from "@/components/SemiCircleProgress";
 import TransactionItem from "@/components/TransactionItem";
-
+import { StyleSheet } from "react-native";
 import { useColorScheme, Text, View, FlatList } from "react-native";
 import { useState, useContext } from "react";
 import { Image } from "expo-image";
@@ -56,7 +56,7 @@ export default function Index() {
   const [retireAmount, setretire] = useState(5000);
   const [retireGoal, setretireGoal] = useState(10000);
 
-  const { username, bank, transaction, retire, notification } =
+  const { username, bank, transaction, retire, notification, profile_URL } =
     useContext(UserContext);
   let lastDate = "";
 
@@ -100,8 +100,24 @@ export default function Index() {
         </ThemedView>
 
         <ThemedView className="!justify-start mt-5 w-[80%] flex-row">
-          <Feather name="circle" size={40} color={`${componentIcon}`} />
-          <ThemedText className="text-xl font-bold pl-3 text-start">
+          <View className="w-12 h-12 rounded-full overflow-hidden border border-gray-300">
+            {profile_URL ? (
+              <Image
+                source={{ uri: profile_URL }}
+                style={{ width: "100%", height: "100%" }}
+                contentFit="cover"
+              />
+            ) : (
+              <Feather
+                name="user"
+                size={30}
+                color={componentIcon}
+                style={style.iconPadding}
+              />
+            )}
+          </View>
+
+          <ThemedText className="text-2xl font-bold pl-3 text-start">
             {username ? username : "FirstName LastName"}
           </ThemedText>
         </ThemedView>
@@ -260,3 +276,9 @@ export default function Index() {
     </ThemedSafeAreaView>
   );
 }
+
+const style = StyleSheet.create({
+  iconPadding: {
+    paddingHorizontal: 10,
+  },
+});
