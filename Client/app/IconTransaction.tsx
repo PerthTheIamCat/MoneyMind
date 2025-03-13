@@ -3,7 +3,14 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import { Modal, Pressable, ScrollView, TextInput, TouchableWithoutFeedback, View, } from "react-native";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { useColorScheme } from "react-native";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
