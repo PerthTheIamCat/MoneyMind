@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import { Pressable, View, useColorScheme, Modal } from "react-native";
+import { Pressable, View, useColorScheme, Modal, TextInput } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
@@ -76,7 +76,7 @@ export default function IconTransaction() {
             key={item.id}
             className={`flex-row items-center justify-between p-3 rounded-lg border ${cardColor} ${borderColor} w-[80%] mx-auto mt-2`}
           >
-            {/* ไอคอน + ชื่อรายการ */}
+            {/* ไอคอน + ชื่อรายการ (เพิ่ม space-x-4 เพื่อเพิ่มระยะห่าง) */}
             <View className="flex-row items-center space-x-4">
               <Ionicons name={item.icon} size={22} color="#555" />
               <ThemedText className={`text-[16px] ${textColor}`}>
@@ -109,8 +109,21 @@ export default function IconTransaction() {
         <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
           <View className="w-80 bg-white p-5 rounded-lg shadow-lg">
             <ThemedText className="text-lg font-bold mb-4">เพิ่มรายการใหม่</ThemedText>
-            <Pressable onPress={() => setModalVisible(false)} className="mt-2 p-3 bg-red-400 rounded-lg">
-              <ThemedText className="text-white text-center">ปิด</ThemedText>
+            
+            {/* Input สำหรับชื่อรายการ */}
+            <TextInput
+              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+              placeholder="กรอกชื่อรายการ..."
+            />
+
+            {/* ปุ่มบันทึก */}
+            <Pressable className="p-3 bg-green-500 rounded-lg mb-2">
+              <ThemedText className="text-white text-center font-bold">บันทึก</ThemedText>
+            </Pressable>
+
+            {/* ปุ่มปิด Modal */}
+            <Pressable onPress={() => setModalVisible(false)} className="p-3 bg-red-400 rounded-lg">
+              <ThemedText className="text-white text-center font-bold">ปิด</ThemedText>
             </Pressable>
           </View>
         </View>
