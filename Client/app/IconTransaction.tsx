@@ -25,7 +25,7 @@ type Transaction = {
 export default function IconTransaction() {
   const theme = useColorScheme();
   const isDarkMode = theme === "dark";
-  const [isOutcome, setIsOutcome] = useState(true);
+  const [isExpenses, setIsExpenses] = useState(true);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
@@ -92,7 +92,7 @@ export default function IconTransaction() {
   ];
 
   // ✅ ใช้ useState เก็บข้อมูลที่แก้ไขแล้ว
-  const [outcomeData, setOutcomeData] = useState<Transaction[]>([
+  const [expensesData, setExpensesData] = useState<Transaction[]>([
     { id: 1, name: "Rice", icon: "restaurant-outline" },
     { id: 2, name: "Water", icon: "water-outline" },
     { id: 3, name: "Fuel", icon: "flame-outline" },
@@ -110,7 +110,7 @@ export default function IconTransaction() {
     { id: 5, name: "Dividends", icon: "pie-chart-outline" },
   ]);
 
-  const transactions = isOutcome ? outcomeData : incomeData;
+  const transactions = isExpenses ? expensesData : expensesData;
 
   // ✅ เปิด Modal แก้ไข
   const openEditModal = (transaction: Transaction) => {
@@ -129,8 +129,8 @@ export default function IconTransaction() {
           : item
       );
 
-      if (isOutcome) {
-        setOutcomeData(updatedData);
+      if (isExpenses) {
+        setExpensesData(updatedData);
       } else {
         setIncomeData(updatedData);
       }
@@ -144,27 +144,27 @@ export default function IconTransaction() {
         {/* ปุ่มสลับ Income / Outcome */}
         <View className="flex-row w-full justify-center p-3">
           <Pressable
-            onPress={() => setIsOutcome(true)}
+            onPress={() => setIsExpenses(true)}
             className={`px-6 py-2 rounded-lg mx-2 ${
-              isOutcome ? "bg-red-500" : "bg-gray-300"
+              isExpenses ? "bg-red-500" : "bg-gray-300"
             }`}
           >
             <ThemedText
-              className={`font-bold ${isOutcome ? "text-white" : "text-black"}`}
+              className={`font-bold ${isExpenses ? "text-white" : "text-black"}`}
             >
-              OUTCOME
+              EXPENSES
             </ThemedText>
           </Pressable>
 
           <Pressable
-            onPress={() => setIsOutcome(false)}
+            onPress={() => setIsExpenses(false)}
             className={`px-6 py-2 rounded-lg mx-2 ${
-              !isOutcome ? "bg-green-500" : "bg-gray-300"
+              !isExpenses ? "bg-green-500" : "bg-gray-300"
             }`}
           >
             <ThemedText
               className={`font-bold ${
-                !isOutcome ? "text-white" : "text-black"
+                !isExpenses ? "text-white" : "text-black"
               }`}
             >
               INCOME
@@ -236,7 +236,7 @@ export default function IconTransaction() {
                     onPress={() => setSelectedIcon(icon)}
                     className={`p-3 m-1 rounded-full ${
                       selectedIcon === icon
-                        ? isOutcome
+                        ? isExpenses
                           ? "bg-red-500"
                           : "bg-green-500"
                         : "bg-gray-200"
