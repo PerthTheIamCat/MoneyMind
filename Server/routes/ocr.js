@@ -113,7 +113,7 @@ router.post('/', upload.single('image'), async (req, res) => {
         });
 
     } catch (error) {
-        console.error('❌ OCR Error:', error);
+        console.log('❌ OCR Error:', error);
         return res.status(500).json({ message: "OCR failed", error: error.message, success: false });
     }
 });

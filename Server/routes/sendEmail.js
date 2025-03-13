@@ -30,7 +30,7 @@ const sendEmail = async ({ email, subject, text, html }) => {
         console.log('Message sent: %s', info.messageId);
         return { messageId: info.messageId, success: true };
     } catch (error) {
-        console.error('Error sending email:', error);
+        console.log('Error sending email:', error);
         return { messageId: 'Error sending email', success: false };
     }
 };
@@ -63,7 +63,7 @@ router.post('/', async (req, res) => {
         console.log("Message sent: %s", info.messageId);
         return res.status(200).json({ message: "Email sent successfully!", messageId: info.messageId, success: true});
     } catch (error) {
-        console.error(error);
+        console.log("Error:", error);
         return res.status(500).json({ message: "Failed to send email", error: error.message, success: false });
     }
 
