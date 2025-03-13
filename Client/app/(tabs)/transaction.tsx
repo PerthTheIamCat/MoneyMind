@@ -14,8 +14,6 @@ import {
   Keyboard,
   Alert,
   ActivityIndicator,
-  Modal,
-  TouchableOpacity,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
@@ -38,11 +36,7 @@ import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import { DeleteUserTransaction } from "@/hooks/auth/DeleteTransaction";
 import { AuthContext } from "@/hooks/conText/AuthContext";
-import { UpdateUserBank } from "@/hooks/auth/GetUserBank";
-import { GetUserBank } from "@/hooks/auth/GetUserBank";
 import { Item } from "react-native-paper/lib/typescript/components/Drawer/Drawer";
-import { ThemedButton } from "@/components/ThemedButton";
-
 
 export default function TransactionPage() {
   const handleEditTransaction = (transactionId: number) => {
@@ -52,7 +46,7 @@ export default function TransactionPage() {
     });
   };
 
-  const { bank,userID,setBank, transaction, notification, setTransaction } = useContext(
+  const { bank, transaction, notification, setTransaction } = useContext(
     UserContext
   ) ?? {
     bank: [],
@@ -61,16 +55,8 @@ export default function TransactionPage() {
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
 
-  const [isExpenses, setIsExpenses] = useState(true);
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
-  const reloadBank = () => {
-    GetUserBank(URL, userID!, auth?.token!).then((res) => {
-      if (res.success) {
-        setBank(res.result);
-      }
-    });
-  };
   const handleDeleteTransaction = (transaction_id: number) => {
     DeleteUserTransaction(URL, transaction_id, auth?.token!).then((res) => {
       if (res.success) {
@@ -78,9 +64,6 @@ export default function TransactionPage() {
         setTransaction?.(
           transaction ? transaction.filter((t) => t.id !== transaction_id) : []
         );
-
-        reloadBank();
-
       } else {
         Alert.alert("Error", res.message);
       }
@@ -94,10 +77,8 @@ export default function TransactionPage() {
   const [CateFillerName,setCateFillerName ] = useState("");
 
   const theme = useColorScheme() || "light";
-  const isDarkMode = theme === "dark";
   const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
-  const backgroundColor = isDarkMode ? "bg-[#181818]" : "bg-[#d8d8d8]";
   console.log(bank);
   const [slideAnim] = useState(new Animated.Value(300));
 
@@ -119,9 +100,6 @@ export default function TransactionPage() {
     { value: "3", label: "Income" },
     { value: "4", label: "Expense" },
   ];
-
-  const [showModal, setShowModal] = useState(false); // สำหรับเปิด/ปิด modal
-  const [dropdownSelection, setDropdownSelection] = useState("");
 
   const [activeCardID, setActiveCardID] = useState<number | null>(null); // เก็บเมนูที่เปิดอยู่
   const [selectedCardID, setSelectedCardID] = useState<number | null>(null); //  เก็บค่าการ์ดที่ถูกเลือก
@@ -276,8 +254,6 @@ export default function TransactionPage() {
     <TouchableWithoutFeedback
       onPress={() => {
         setActiveOptionID(null);
-        setSelectedCardID(null);
-        console.log("🔵 Clearing active option ID and selected card ID");
       }}
       accessible={false}
     >
@@ -355,7 +331,7 @@ export default function TransactionPage() {
                     />
                   ))
                 ) : (
-                  <ThemedView></ThemedView>
+                  <ThemedView className="min-h-40"></ThemedView>
                 )}
               </View>
             </ThemedScrollView>
@@ -367,6 +343,7 @@ export default function TransactionPage() {
 
             <Dropdownfiller
               data={data}
+
               onChange={(item) => {
                 console.log(item.label); // ตรวจสอบค่าเมื่อเลือก
                 setFilltermode(item.label)
@@ -387,7 +364,6 @@ export default function TransactionPage() {
           <TouchableWithoutFeedback
             onPress={() => {
               setActiveOptionID(null);
-              console.log("🔵 Clearing active option ID and selected card ID");
             }}
             accessible={false}
           >
@@ -497,7 +473,6 @@ export default function TransactionPage() {
             </ThemedView>
           </TouchableWithoutFeedback>
           {/* </ScrollView> */}
-
           {loading && (
             <View className="absolute inset-0 flex items-center justify-center bg-transparent">
               <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">
