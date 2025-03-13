@@ -1,133 +1,439 @@
 import { useState } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
-import { Pressable, View, useColorScheme, Modal, TextInput } from "react-native";
+import { Modal, Pressable, ScrollView, TextInput, TouchableWithoutFeedback, View, } from "react-native";
+import { useColorScheme } from "react-native";
+
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+
+// ✅ กำหนด Type ของ Transaction
+type Transaction = {
+  id: number;
+  name: string;
+  icon: keyof typeof Ionicons.glyphMap;
+};
 
 export default function IconTransaction() {
   const theme = useColorScheme();
   const isDarkMode = theme === "dark";
-  const [isOutcome, setIsOutcome] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [isExpenses, setIsExpenses] = useState(true);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false); // New state for Add Modal
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
+  const [editedName, setEditedName] = useState("");
+  const [selectedIcon, setSelectedIcon] =
+    useState<keyof typeof Ionicons.glyphMap>("restaurant-outline");
+  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] =
+    useState(false); // State สำหรับ modal ยืนยันการลบ
 
-  // สีขององค์ประกอบใน Dark Mode
-  const bgColor = isDarkMode ? "bg-gray-700" : "bg-gray-300";
-  const textColor = isDarkMode ? "text-white" : "text-black";
-  const cardColor = isDarkMode ? "bg-gray-800" : "bg-gray-100";
-  const borderColor = isDarkMode ? "border-gray-600" : "border-gray-300";
-  const buttonColor = "bg-gray-300"; // สีของปุ่ม "+"
+  const [newName, setNewName] = useState(""); // New state for adding transaction
+  const [newIcon, setNewIcon] =
+    useState<keyof typeof Ionicons.glyphMap>("restaurant-outline");
 
-  // ข้อมูลสำหรับ Outcome และ Income
-  const outcomeData = [
-    { id: 1, name: "ข้าว", icon: "restaurant-outline" },
-    { id: 2, name: "น้ำ", icon: "water-outline" },
-    { id: 3, name: "น้ำมัน", icon: "flame-outline" },
-    { id: 4, name: "วัตถุดิบ", icon: "leaf-outline" },
-    { id: 5, name: "ค่าเดินทาง", icon: "bus-outline" },
-    { id: 6, name: "ที่พัก", icon: "home-outline" },
-    { id: 7, name: "ลงทุน", icon: "cash-outline" },
+  const componentcolor = isDarkMode ? "#181818" : "#d8d8d8";
+
+  // ✅ เพิ่ม iconList ที่รองรับ
+  const iconList: (keyof typeof Ionicons.glyphMap)[] = [
+    "restaurant-outline",
+    "fast-food-outline",
+    "cafe-outline",
+    "beer-outline",
+    "wine-outline",
+    "nutrition-outline",
+    "bus-outline",
+    "car-outline",
+    "airplane-outline",
+    "bicycle-outline",
+    "subway-outline",
+    "train-outline",
+    "home-outline",
+    "bed-outline",
+    "storefront-outline",
+    "construct-outline",
+    "cart-outline",
+    "pricetag-outline",
+    "bag-outline",
+    "shirt-outline",
+    "cash-outline",
+    "wallet-outline",
+    "card-outline",
+    "pie-chart-outline",
+    "stats-chart-outline",
+    "trending-up-outline",
+    "trending-down-outline",
+    "briefcase-outline",
+    "gift-outline",
+    "people-outline",
+    "person-outline",
+    "school-outline",
+    "receipt-outline",
+    "business-outline",
+    "musical-notes-outline",
+    "tv-outline",
+    "game-controller-outline",
+    "film-outline",
+    "camera-outline",
+    "football-outline",
   ];
-  const incomeData = [
-    { id: 1, name: "เงินเดือน", icon: "briefcase-outline" },
-    { id: 2, name: "โบนัส", icon: "gift-outline" },
-    { id: 3, name: "รายได้เสริม", icon: "trending-up-outline" },
-    { id: 4, name: "ดอกเบี้ย", icon: "wallet-outline" },
-    { id: 5, name: "เงินปันผล", icon: "pie-chart-outline" },
-  ];
 
-  // เลือกข้อมูลตามสถานะ
-  const transactions = isOutcome ? outcomeData : incomeData;
+  // ✅ ใช้ useState เก็บข้อมูลที่แก้ไขแล้ว
+  const [expensesData, setExpensesData] = useState<Transaction[]>([
+    { id: 1, name: "Rice", icon: "restaurant-outline" },
+    { id: 2, name: "Water", icon: "water-outline" },
+    { id: 3, name: "Fuel", icon: "flame-outline" },
+    { id: 4, name: "Raw Materials", icon: "leaf-outline" },
+    { id: 5, name: "Transportation", icon: "bus-outline" },
+    { id: 6, name: "Accommodation", icon: "home-outline" },
+    { id: 7, name: "Investment", icon: "cash-outline" },
+  ]);
+
+  const [incomeData, setIncomeData] = useState<Transaction[]>([
+    { id: 1, name: "Salary", icon: "briefcase-outline" },
+    { id: 2, name: "Bonus", icon: "gift-outline" },
+    { id: 3, name: "Side Income", icon: "trending-up-outline" },
+    { id: 4, name: "Interest", icon: "wallet-outline" },
+    { id: 5, name: "Dividends", icon: "pie-chart-outline" },
+  ]);
+
+  const transactions = isExpenses ? expensesData : incomeData;
+
+  // ✅ เปิด Modal แก้ไข
+  const openEditModal = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setEditedName(transaction.name);
+    setSelectedIcon(transaction.icon);
+    setIsEditModalVisible(true);
+  };
+
+  // ✅ บันทึกค่าที่แก้ไข
+  const saveEdit = () => {
+    if (selectedTransaction) {
+      const updatedData = transactions.map((item) =>
+        item.id === selectedTransaction.id
+          ? { ...item, name: editedName, icon: selectedIcon }
+          : item
+      );
+
+      if (isExpenses) {
+        setExpensesData(updatedData);
+      } else {
+        setIncomeData(updatedData);
+      }
+    }
+    setIsEditModalVisible(false);
+  };
+
+  // ✅ ลบรายการ
+  const deleteTransaction = () => {
+    if (selectedTransaction) {
+      const updatedData = transactions.filter(
+        (item) => item.id !== selectedTransaction.id
+      );
+
+      if (isExpenses) {
+        setExpensesData(updatedData);
+      } else {
+        setIncomeData(updatedData);
+      }
+    }
+    setIsDeleteConfirmationVisible(false);
+    setIsEditModalVisible(false);
+  };
+
+  // ✅ เพิ่ม transaction ใหม่
+  const addTransaction = () => {
+    const newTransaction: Transaction = {
+      id: transactions.length + 1,
+      name: newName,
+      icon: newIcon,
+    };
+
+    if (isExpenses) {
+      setExpensesData([...expensesData, newTransaction]);
+    } else {
+      setIncomeData([...incomeData, newTransaction]);
+    }
+
+    setIsAddModalVisible(false);
+  };
 
   return (
-    <ThemedSafeAreaView className={`flex-1 ${bgColor} px-6 pt-6`}>
-      {/* Toggle Income/Outcome */}
-      <ThemedView className="flex-row w-full h-10 justify-center bg-transparent p-1 mt-6 mb-4">
-        <ThemedView className="flex-row w-64 h-10 rounded-full bg-[#d5d5d5]">
-          <Pressable
-            onPress={() => setIsOutcome(true)}
-            className={`w-1/2 h-full flex items-center justify-center rounded-full ${
-              isOutcome ? "bg-red-400" : "bg-transparent"
-            }`}
-          >
-            <ThemedText className={`font-bold ${isOutcome ? "text-white" : textColor}`}>
-              OUTCOME
-            </ThemedText>
-          </Pressable>
-
-          <Pressable
-            onPress={() => setIsOutcome(false)}
-            className={`w-1/2 h-full flex items-center justify-center rounded-full ${
-              !isOutcome ? "bg-red-400" : "bg-transparent"
-            }`}
-          >
-            <ThemedText className={`font-bold ${!isOutcome ? "text-white" : textColor}`}>
-              INCOME
-            </ThemedText>
-          </Pressable>
-        </ThemedView>
-      </ThemedView>
-
-      {/* รายการไอคอน */}
-      <View className="mt-1">
-        {transactions.map((item) => (
-          <View
-            key={item.id}
-            className={`flex-row items-center justify-between p-3 rounded-lg border ${cardColor} ${borderColor} w-[80%] mx-auto mt-2`}
-          >
-            {/* ไอคอน + ชื่อรายการ (เพิ่ม space-x-4 เพื่อเพิ่มระยะห่าง) */}
-            <View className="flex-row items-center space-x-4">
-              <Ionicons name={item.icon} size={22} color="#555" />
-              <ThemedText className={`text-[16px] mx-2 ${textColor}`}>
-                {item.name}
+    <>
+      <ThemedSafeAreaView>
+        {/* ปุ่มสลับ Income / Outcome */}
+        <ThemedView className="flex-row justify-center p-1 mt-6 mb-4">
+          <ThemedView className="flex-row w-[50%] rounded-full bg-gray-300">
+            <Pressable
+              onPress={() => setIsExpenses(true)}
+              className={`px-6 py-2 rounded-lg mx-2 ${
+                isExpenses ? "bg-red-500" : "bg-gray-300"
+              }`}
+            >
+              <ThemedText
+                className={`font-bold ${
+                  isExpenses ? "text-white" : "text-black"
+                }`}
+              >
+                OUTCOME
               </ThemedText>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setIsExpenses(false)}
+              className={`px-6 py-2 rounded-lg mx-2 ${
+                !isExpenses ? "bg-red-500" : "bg-gray-300"
+              }`}
+            >
+              <ThemedText
+                className={`font-bold ${
+                  !isExpenses ? "text-white" : "text-black"
+                }`}
+              >
+                INCOME
+              </ThemedText>
+            </Pressable>
+          </ThemedView>
+        </ThemedView>
+
+        {/* รายการ Transactions */}
+        <View className="mt-1">
+          {transactions.map((item) => (
+            <View
+              key={item.id}
+              style={{ backgroundColor: componentcolor }}
+              className="flex-row items-center justify-between p-3 rounded-lg border w-[80%] mx-auto mt-2"
+            >
+              {/* ไอคอน + ชื่อรายการ */}
+              <View className="flex-row items-center space-x-3">
+                <ThemedText className="ml-3">
+                  <Ionicons name={item.icon} size={22} />
+                </ThemedText>
+                <ThemedText className="text-[16px] ml-3">
+                  {item.name}
+                </ThemedText>
+              </View>
+
+              {/* ปุ่มแก้ไข */}
+              <Pressable
+                onPress={() => openEditModal(item)}
+                className="p-2 rounded-full"
+              >
+                <ThemedText>
+                  <MaterialIcons name="edit" size={18} />
+                </ThemedText>
+              </Pressable>
             </View>
+          ))}
+        </View>
 
-            {/* ปุ่มแก้ไข */}
-            <Pressable className="p-2 rounded-full">
-              <MaterialIcons name="edit" size={18} color="#555" />
-            </Pressable>
-          </View>
-        ))}
-      </View>
-
-      {/* ปุ่มเพิ่ม (+) */}
-      <Pressable onPress={() => setModalVisible(true)} className="mt-5 items-center">
-        <View className={`w-[80%] h-12 ${buttonColor} rounded-lg flex items-center justify-center shadow-lg mx-auto`}>
+        {/* ปุ่มเพิ่มรายการใหม่ */}
+        <Pressable
+          onPress={() => setIsAddModalVisible(true)}
+          className="mt-4 w-[80%] mx-auto p-3 rounded-full items-center"
+          style={{ backgroundColor: componentcolor }}
+        >
           <Ionicons name="add" size={26} color="white" />
-        </View>
-      </Pressable>
+        </Pressable>
+      </ThemedSafeAreaView>
 
-      {/* Modal สำหรับเพิ่มรายการ */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
-          <View className="w-80 bg-white p-5 rounded-lg shadow-lg">
-            <ThemedText className="text-lg font-bold mb-4">เพิ่มรายการใหม่</ThemedText>
-            
-            {/* Input สำหรับชื่อรายการ */}
-            <TextInput
-              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
-              placeholder="กรอกชื่อรายการ..."
-            />
+      {/* Modal แก้ไขรายการ */}
+      <Modal transparent visible={isEditModalVisible} animationType="fade">
+        <TouchableWithoutFeedback
+          onPress={() => {
+            setIsEditModalVisible(false);
+          }}
+        >
+          <View className="flex-1 items-center justify-center bg-black/50">
+            <View
+              className={`w-4/5 p-6 rounded-3xl shadow-lg ${
+                isDarkMode ? "bg-[#282828]" : "bg-white"
+              }`}
+              onStartShouldSetResponder={() => true}
+            >
+              <ThemedText className="text-xl font-bold">
+                Edit Category
+              </ThemedText>
+              {/* ปุ่มลบที่มุมขวาบน */}
+              <Pressable
+                onPress={() => {
+                  setIsDeleteConfirmationVisible(true);
+                  // ต้องเพิ่มฟังก์ชันการลบรายการตามที่คุณต้องการ
+                  // เช่น การลบจาก `expensesData` หรือ `incomeData`
+                }}
+                className="absolute top-4 right-4 p-2"
+              >
+                <View className="bg-red-500 p-1 px-2 rounded-xl">
+                  <ThemedText className="text-white">Delete</ThemedText>
+                </View>
+              </Pressable>
 
-            {/* ปุ่มบันทึก */}
-            <Pressable className="p-3 bg-green-500 rounded-lg mb-2">
-              <ThemedText className="text-white text-center font-bold">บันทึก</ThemedText>
-            </Pressable>
+              <TextInput
+                value={editedName}
+                onChangeText={setEditedName}
+                className="border rounded-lg p-3 mb-4 w-full mt-3"
+                placeholderTextColor={isDarkMode ? "#BBB" : "#777"}
+                style={{
+                  backgroundColor: isDarkMode ? "#222" : "#FFF",
+                  color: isDarkMode ? "#FFF" : "#222",
+                }}
+              />
 
-            {/* ปุ่มปิด Modal */}
-            <Pressable onPress={() => setModalVisible(false)} className="p-3 bg-red-400 rounded-lg">
-              <ThemedText className="text-white text-center font-bold">ปิด</ThemedText>
-            </Pressable>
+              <ScrollView horizontal className="flex-row gap-2">
+                {iconList.map((icon) => (
+                  <Pressable
+                    key={icon}
+                    onPress={() => setSelectedIcon(icon)}
+                    className={`p-3 m-1 rounded-full ${
+                      selectedIcon === icon
+                        ? isExpenses
+                          ? "bg-red-500"
+                          : "bg-green-500"
+                        : "bg-gray-200"
+                    }`}
+                  >
+                    <Ionicons
+                      name={icon}
+                      size={24}
+                      color={selectedIcon === icon ? "white" : "black"}
+                    />
+                  </Pressable>
+                ))}
+              </ScrollView>
+
+              <View className="flex-row justify-between mt-10 gap-8">
+                <ThemedButton
+                  className="bg-gray-400 h-11 w-28"
+                  onPress={() => setIsEditModalVisible(false)}
+                >
+                  <ThemedText>Cancel</ThemedText>
+                </ThemedButton>
+                <ThemedButton
+                  className="bg-green-500 h-11 w-28"
+                  onPress={saveEdit}
+                >
+                  <ThemedText>Save</ThemedText>
+                </ThemedButton>
+              </View>
+            </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
-    </ThemedSafeAreaView>
+
+      {/* Modal ยืนยันการลบ */}
+      <Modal
+        transparent
+        visible={isDeleteConfirmationVisible}
+        animationType="fade"
+      >
+        <TouchableWithoutFeedback
+          onPress={() => setIsDeleteConfirmationVisible(false)}
+        >
+          <View className="flex-1 items-center justify-center bg-black/50">
+            <View
+              className={`w-4/5 p-6 rounded-3xl shadow-lg ${
+                isDarkMode ? "bg-[#282828]" : "bg-white"
+              }`}
+              onStartShouldSetResponder={() => true}
+            >
+              <ThemedText className="text-xl font-bold">
+                Confirm Delete
+              </ThemedText>
+
+              <ThemedText className="mt-4">
+                Are you sure you want to delete this category?
+              </ThemedText>
+
+              <View className="flex-row justify-between mt-10 ">
+                <ThemedButton
+                  className="bg-red-500 h-11 w-28"
+                  onPress={deleteTransaction}
+                >
+                  <ThemedText>Delete</ThemedText>
+                </ThemedButton>
+                <ThemedButton
+                  className="bg-gray-400 h-11 w-28"
+                  onPress={() => {
+                    setIsEditModalVisible(false);
+                    setIsDeleteConfirmationVisible(false);
+                  }}
+                >
+                  <ThemedText>Cancel</ThemedText>
+                </ThemedButton>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      {/* Modal สำหรับเพิ่มรายการใหม่ */}
+      <Modal transparent visible={isAddModalVisible} animationType="fade">
+        <TouchableWithoutFeedback onPress={() => setIsAddModalVisible(false)}>
+          <View className="flex-1 items-center justify-center bg-black/50">
+            <View
+              className={`w-4/5 p-6 rounded-3xl shadow-lg ${
+                isDarkMode ? "bg-[#282828]" : "bg-white"
+              }`}
+              onStartShouldSetResponder={() => true}
+            >
+              <ThemedText className="text-xl font-bold">
+                Add New Transaction
+              </ThemedText>
+
+              <TextInput
+                value={newName}
+                onChangeText={setNewName}
+                className="border rounded-lg p-3 mb-4 w-full mt-3"
+                placeholderTextColor={isDarkMode ? "#BBB" : "#777"}
+                style={{
+                  backgroundColor: isDarkMode ? "#222" : "#FFF",
+                  color: isDarkMode ? "#FFF" : "#222",
+                }}
+              />
+
+              <ScrollView horizontal className="flex-row gap-2">
+                {iconList.map((icon) => (
+                  <Pressable
+                    key={icon}
+                    onPress={() => setNewIcon(icon)}
+                    className={`p-3 m-1 rounded-full ${
+                      newIcon === icon
+                        ? isExpenses
+                          ? "bg-red-500"
+                          : "bg-green-500"
+                        : "bg-gray-200"
+                    }`}
+                  >
+                    <Ionicons
+                      name={icon}
+                      size={24}
+                      color={newIcon === icon ? "white" : "black"}
+                    />
+                  </Pressable>
+                ))}
+              </ScrollView>
+
+              <View className="flex-row justify-between mt-10 gap-8">
+                <ThemedButton
+                  className="bg-gray-400 h-11 w-28"
+                  onPress={() => setIsAddModalVisible(false)}
+                >
+                  <ThemedText>Cancel</ThemedText>
+                </ThemedButton>
+                <ThemedButton
+                  className="bg-green-500 h-11 w-28"
+                  onPress={addTransaction}
+                >
+                  <ThemedText>Save</ThemedText>
+                </ThemedButton>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </>
   );
 }
