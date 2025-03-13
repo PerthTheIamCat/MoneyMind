@@ -214,8 +214,8 @@ export default function TransactionPage() {
             const progress = Math.round((progressEvent.loaded * 100) / total);
             console.log(`Upload progress: ${progress}%`);
           },
-    }
-  );
+        }
+      );
 
       console.log("📜 OCR Result:", response.data);
 
