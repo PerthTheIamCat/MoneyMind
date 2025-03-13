@@ -1,4 +1,4 @@
-import { ScrollView, View, Dimensions, StyleSheet } from "react-native";
+import { ScrollView, View, Dimensions, StyleSheet, useWindowDimensions } from "react-native";
 import { useColorScheme } from "react-native";
 
 type ThemedScrollViewProps = {
@@ -7,12 +7,15 @@ type ThemedScrollViewProps = {
   [key: string]: any;
 };
 
-const { width } = Dimensions.get("window");
-const ITEM_WIDTH = 280+16; // ขนาดของแต่ละ item
-const SPACING = (width - ITEM_WIDTH)/2; // เว้นระยะให้ item อยู่ตรงกลาง
 
 export function ThemedScrollViewCenter({ children, className, ...props }: ThemedScrollViewProps) {
   const theme = useColorScheme();
+  const { width } = useWindowDimensions(); // ใช้ useWindowDimensions เพื่อให้รับค่าขนาดหน้าจอที่อัพเดทได้
+
+  // กำหนดขนาด ITEM_WIDTH แบบ responsive
+  const ITEM_WIDTH = width > 600 ? width * 0.37 : width * 0.73; // ถ้าหน้าจอกว้างกว่า 600px (แท็บเล็ตหรืออุปกรณ์ที่ใหญ่กว่า) ให้ขนาดเล็กลง
+
+  const SPACING = (width - ITEM_WIDTH) / 2; // เว้นระยะให้ item อยู่ตรงกลาง
 
   return (
     <ScrollView
