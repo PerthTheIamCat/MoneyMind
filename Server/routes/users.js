@@ -55,7 +55,6 @@ router.post("/forgotpwd", otpValidate, (req, res) => {
           "Error from /forgotpwd from bcrypt.hash(password, 10, (err, hash)"
         );
         console.log("Error:", err);
-        console.error("Error hashing password:", err);
         return res.status(500).json({
           message: "Password hashing failed",
           error: err.message,
@@ -163,7 +162,7 @@ router.put("/user/setting/:id", jwtValidate, (req, res) => {
 
   db.query(query, values, (err, result) => {
     if (err) {
-      console.error("Database query failed:", err);
+      console.log("Database query failed:", err);
       return res.status(500).json({
         message: "Database query failed",
         error: err.message,
@@ -370,7 +369,7 @@ router.get("/userdetail/:id", jwtValidate, async (req, res) => {
 
   db.query(query, [userId], (err, results) => {
     if (err) {
-      console.error("❌ Database Query Error:", err);
+      console.log("❌ Database Query Error:", err);
       return res.status(500).json({
         success: false,
         message: "Database query failed",

@@ -3,6 +3,7 @@ const router = express.Router(); // Create express app
 const bcrypt = require("bcrypt"); // Import bcrypt for password hashing
 const jwt = require("jsonwebtoken"); // Import jsonwebtoken for token generation
 const otpGenerator = require("otp-generator"); // Import otp-generator for OTP generation
+const axios = require('axios');
 require("dotenv").config(); // Import dotenv for environment variables
 
 const db = require("./db");
@@ -70,7 +71,7 @@ const jwtValidate = (req, res, next) => {
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
       if (err) {
-        console.error("Invalid token:", err.message);
+        console.log("Invalid token:", err.message);
         return res
           .status(403)
           .json({ message: `Invalid token: ${err.message}`, success: false });
@@ -89,7 +90,7 @@ const jwtValidate = (req, res, next) => {
       next();
     });
   } catch (err) {
-    console.error("Unexpected error:", err.message);
+    console.log("Unexpected error:", err.message);
     return res
       .status(500)
       .json({ message: "Internal server error", success: false });
@@ -138,7 +139,7 @@ const otpValidate = (req, res, next) => {
       }
     });
   } catch (err) {
-    console.error("Unexpected error:", err.message);
+    console.log("Unexpected error:", err.message);
     return res
       .status(500)
       .json({ message: "Internal server error", success: false });
@@ -174,9 +175,7 @@ router.post("/register", (req, res) => {
     [username],
     async (err, result) => {
       if (err) {
-        console.log(
-          "Error from /register from SELECT * FROM users WHERE username = ?"
-        );
+        console.log("Error from /register from SELECT * FROM users WHERE username = ?");
         console.log("Database query failed");
         console.log("Error:", err);
         return res.status(500).json({
@@ -187,9 +186,7 @@ router.post("/register", (req, res) => {
       }
 
       if (result.length > 0) {
-        console.log(
-          "Error from /register from SELECT * FROM users WHERE username = ?"
-        );
+        console.log("Error from /register from SELECT * FROM users WHERE username = ?");
         console.log("Username already exists");
         return res
           .status(409)
@@ -201,9 +198,7 @@ router.post("/register", (req, res) => {
         [email],
         async (err, result) => {
           if (err) {
-            console.log(
-              "Error from /register from SELECT * FROM users WHERE email = ?"
-            );
+            console.log("Error from /register from SELECT * FROM users WHERE email = ?");
             console.log("Database query failed");
             console.log("Error:", err);
             return res.status(500).json({
@@ -214,9 +209,7 @@ router.post("/register", (req, res) => {
           }
 
           if (result.length > 0) {
-            console.log(
-              "Error from /register from SELECT * FROM users WHERE email = ?"
-            );
+            console.log("Error from /register from SELECT * FROM users WHERE email = ?");
             console.log("Email already exists");
             return res
               .status(409)
@@ -245,9 +238,7 @@ router.post("/register", (req, res) => {
             [email],
             async (err, result) => {
               if (err) {
-                console.log(
-                  "From /register from SELECT * FROM otp WHERE email = ?"
-                );
+                console.log("From /register from SELECT * FROM otp WHERE email = ?");
                 console.log("Database query failed");
                 console.log("Error:", err);
                 return res.status(500).json({
@@ -277,7 +268,6 @@ router.post("/register", (req, res) => {
                   bcrypt.hash(password, 10, (err, hash) => {
                     if (err) {
                       console.log("Error hashing password", err);
-                      console.error("Error hashing password:", err);
                       return res.status(500).json({
                         message: "Password hashing failed",
                         error: err.message,
@@ -290,9 +280,7 @@ router.post("/register", (req, res) => {
                       [username, email, hash],
                       async (err, result) => {
                         if (err) {
-                          console.log(
-                            "From /register from INSERT INTO users (username, email, password) VALUES (?, ?, ?)"
-                          );
+                          console.log("From /register from INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
                           console.log(username, email, hash);
                           console.log("Database query failed");
                           console.log("Error:", err);
@@ -310,17 +298,11 @@ router.post("/register", (req, res) => {
                         db.query(
                           "INSERT INTO user_setting (user_id) VALUES (?)",
                           [UserID],
-                          (err, result) => {
+                          async (err, result) => {
                             if (err) {
-                              console.log(
-                                "From /register from INSERT INTO user_setting (user_id) VALUES (?)"
-                              );
+                              console.log("From /register from INSERT INTO user_setting (user_id) VALUES (?)");
                               console.log("Error inserting user settings");
                               console.log("Error:", err);
-                              console.error(
-                                "Error inserting user settings:",
-                                err
-                              );
                               return res.status(500).json({
                                 message: "Failed to insert user settings",
                                 error: err.message,
@@ -334,6 +316,22 @@ router.post("/register", (req, res) => {
                               username,
                               email
                             );
+
+                            try {
+                              const response = await axios.post(
+                                "http://localhost:3000/devices/create",
+                                { user_id: UserID },
+                                {
+                                  headers: {
+                                    Authorization: `Bearer ${accessToken}`,
+                                    "Content-Type": "application/json",
+                                  },
+                                }
+                              );
+                              console.log("Device registered:", response.data);
+                            } catch (error) {
+                              console.log("Failed to register device:", error.message);
+                            }
 
                             console.log("User created");
                             return res.status(201).json({
@@ -381,9 +379,7 @@ router.post("/login", (req, res) => {
     [input],
     (err, result) => {
       if (err) {
-        console.log(
-          "From /login from SELECT * FROM users WHERE ${userOrEmail} = ?"
-        );
+        console.log("From /login from SELECT * FROM users WHERE ${userOrEmail} = ?");
         console.log("Database query failed");
         console.log("Error:", err);
         return res.status(500).json({
@@ -403,14 +399,12 @@ router.post("/login", (req, res) => {
 
       const user = result[0];
       console.log("User Data: ");
-      console.log(user);
+      console.log(user)
 
       bcrypt.compare(password, user.password, async (err, match) => {
         if (err) {
-          console.log(
-            "From /login from SELECT * FROM users WHERE ${userOrEmail} = ?"
-          );
-          console.log("Password comparison failed");
+          console.log("From /login from SELECT * FROM users WHERE ${userOrEmail} = ?");
+          console.log("Password comparison failed")
           console.log("Error:", err);
           return res.status(500).json({
             message: "Password comparison failed",
@@ -421,7 +415,7 @@ router.post("/login", (req, res) => {
 
         if (!match) {
           console.log("From /login from password NOT match");
-          console.log("Invalid password");
+          console.log("Invalid password")
           return res
             .status(401)
             .json({ message: "Invalid password", success: false });
@@ -439,7 +433,23 @@ router.post("/login", (req, res) => {
         );
         //console.log(user)UserID
 
-        console.log("Login successful");
+        try {
+          const response = await axios.post(
+            "http://localhost:3000/devices/create",
+            { user_id: UserID },
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          console.log("Device registered:", response.data);
+        } catch (error) {
+          console.log("Failed to register device:", error.message);
+        }
+
+        console.log("Login successful")
         return res
           .status(200)
           .json({ accessToken, message: "Login successful", success: true });
@@ -478,7 +488,7 @@ router.post("/otpSend", (req, res) => {
     async (err, result) => {
       if (err) {
         console.log("From /otpSend from SELECT * FROM otp WHERE email = ?");
-        console.log("Database query failed");
+        console.log("Database query failed")
         console.log("Error:", err);
         return res.status(500).json({
           message: "Database query failed",
@@ -505,9 +515,7 @@ router.post("/otpSend", (req, res) => {
               (err) => {
                 if (err) {
                   console.log("result.length > 0");
-                  console.log(
-                    "From /otpSend from UPDATE otp SET otp_code = ?, created_at = ?, expires_at = ?, is_used = 0 WHERE email = ?"
-                  );
+                  console.log("From /otpSend from UPDATE otp SET otp_code = ?, created_at = ?, expires_at = ?, is_used = 0 WHERE email = ?");
                   console.log("Database update failed");
                   console.log("Error:", err);
                   return res.status(500).json({
@@ -530,9 +538,7 @@ router.post("/otpSend", (req, res) => {
               (err) => {
                 if (err) {
                   console.log("in NOT result.length > 0");
-                  console.log(
-                    "From /otpSend from INSERT INTO otp (email, otp_code, created_at, expires_at) VALUES (?, ?, ?, ?)"
-                  );
+                  console.log("From /otpSend from INSERT INTO otp (email, otp_code, created_at, expires_at) VALUES (?, ?, ?, ?)");
                   console.log("Database insert failed");
                   console.log("Error:", err);
                   return res.status(500).json({
@@ -543,10 +549,9 @@ router.post("/otpSend", (req, res) => {
                 }
 
                 console.log("OTP create and sent successfully");
-                return res.status(200).json({
-                  message: "OTP create and sent successfully",
-                  success: true,
-                });
+                return res
+                  .status(200)
+                  .json({ message: "OTP create and sent successfully", success: true });
               }
             );
           }
@@ -558,9 +563,9 @@ router.post("/otpSend", (req, res) => {
             .json({ message: "Failed to send OTP email", success: false });
         }
       } catch (error) {
-        console.log("In Catch Block");
+        console.log("In Catch Block")
         console.log("Error sending OTP email");
-        console.error("Error sending OTP email:", error);
+        console.log("Error:", error);
         return res.status(500).json({
           message: "Failed to send OTP email",
           error: error.message,
@@ -599,9 +604,7 @@ router.post("/otpVerify", (req, res) => {
           [email],
           (err, result) => {
             if (err) {
-              console.log(
-                "From /otpVerify from UPDATE otp SET is_used = 1 where email = ?"
-              );
+              console.log("From /otpVerify from UPDATE otp SET is_used = 1 where email = ?");
               console.log("Database query failed");
               console.log("Error:", err);
               return res.status(500).json({
@@ -635,9 +638,7 @@ router.put("/createpin", jwtValidate, async (req, res) => {
     console.log("DATA:", user_id, pin);
 
     if (req.user.UserID !== parseInt(user_id, 10)) {
-      console.log(
-        "From /createpin from req.user.UserID !== parseInt(user_id, 10)"
-      );
+      console.log("From /createpin from req.user.UserID !== parseInt(user_id, 10)");
       console.log("Unauthorized user");
       return res
         .status(403)
@@ -677,9 +678,9 @@ router.put("/createpin", jwtValidate, async (req, res) => {
     console.log("Pin created");
     return res.status(200).json({ message: "Pin updated", success: true });
   } catch (error) {
-    console.log("In Catch Block");
+    console.log("In Catch Block")
     console.log("Error updating PIN");
-    console.error("Error updating PIN:", error);
+    console.log("Error:", error);
     return res.status(500).json({
       message: "Database query failed",
       error: error.message,
@@ -693,152 +694,37 @@ router.get("/getpin/:userID", jwtValidate, async (req, res) => {
 
   console.log("User ID from getPin: ", userID);
 
-  if (req.user.UserID !== parseInt(userID)) {
-    //user_id
+  if (req.user.UserID !== parseInt(userID)) { //user_id
     console.log("From /getpin from req.user.UserID !== parseInt(userID)");
     console.log("Unauthorized user");
-    return res
-      .status(403)
-      .json({ message: "Unauthorized user", success: false });
+    return res.status(403).json({ message: 'Unauthorized user', success: false });
   }
 
   try {
     const result = await new Promise((resolve, reject) => {
-      db.query(
-        "SELECT pin FROM users WHERE id = ?",
-        [userID],
-        (err, result) => {
-          if (err) reject(err);
-          else resolve(result);
-        }
-      );
+      db.query("SELECT pin FROM users WHERE id = ?", [userID], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
     });
     console.log("Result: ", result);
 
     if (result.length === 0) {
       console.log("From /getpin from result.length === 0");
       console.log("User not found");
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     console.log("Pin retrieved");
-    return res.json({
-      success: true,
-      pin: result[0].pin,
-      message: "Pin retrieved",
-    });
+    return res.json({ success: true, pin: result[0].pin, message: "Pin retrieved" });
   } catch (err) {
-    console.log("In Catch Block");
+    console.log("In Catch Block")
     console.log("Error retrieving PIN");
     console.log("Erorr: ", err);
-    console.error("Error retrieving PIN:", err);
     return res.status(500).json({
       success: false,
       message: "Database error",
       error: err.message,
-    });
-  }
-});
-
-// Check if the email exists
-router.post("/checkemail", async (req, res) => {
-  const { email } = req.body;
-
-  console.log("Email:", email);
-
-  // Validate email parameter
-  if (!email) {
-    return res
-      .status(400)
-      .json({ message: "Email is required", success: false });
-  }
-
-  const emailCheckQuery = "SELECT COUNT(*) AS count FROM users WHERE email = ?";
-
-  try {
-    db.query(emailCheckQuery, [email], (err, result) => {
-      if (err) {
-        console.log("Data query fail");
-        return res
-          .status(500)
-          .json({ result, message: "Data query fail", success: false });
-      }
-      const emailResult = result[0];
-      console.log(emailResult);
-
-      // Check if email exists
-      if (emailResult.count > 0) {
-        return res.status(400).json({
-          success: false,
-          message: "Email already exists.",
-        });
-      }
-
-      console.log("Email is available.");
-      return res.status(200).json({
-        success: true,
-        message: "Email is available.",
-      });
-    });
-  } catch (error) {
-    console.error("Database query failed:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error.",
-      error: error.message,
-    });
-  }
-});
-
-// Check if the username exists
-router.post("/checkusername", async (req, res) => {
-  const { username } = req.body;
-
-  console.log("Username:", username);
-
-  // Validate username parameter
-  if (!username) {
-    return res
-      .status(400)
-      .json({ message: "Username is required", success: false });
-  }
-
-  const usernameCheckQuery =
-    "SELECT COUNT(*) AS count FROM users WHERE username = ?";
-
-  try {
-    db.query(usernameCheckQuery, [username], (err, result) => {
-      if (err) {
-        console.log("Data query fail");
-        return res
-          .status(500)
-          .json({ result, message: "Data query fail", success: false });
-      }
-      const usernameResult = result[0];
-      console.log(usernameResult);
-
-      // Check if username exists
-      if (usernameResult.count > 0) {
-        return res.status(400).json({
-          success: false,
-          message: "Username already exists.",
-        });
-      }
-
-      console.log("Username is available.");
-      return res.status(200).json({
-        success: true,
-        message: "Username is available.",
-      });
-    });
-  } catch (error) {
-    console.error("Database query failed:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error.",
-      error: error.message,
     });
   }
 });

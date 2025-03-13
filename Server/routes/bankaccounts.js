@@ -200,7 +200,6 @@ router.delete('/:id', jwtValidate, (req, res) => {
                     console.log("Error from .delete/:id from DELETE FROM transactions WHERE user_id = ?");
                     console.log("Database query failed");
                     console.log("Error:", err)
-                    console.error("Error deleting transactions:", err);
                     return res.status(500).json({ error: "Failed to delete transactions" });
                 }
 
@@ -209,7 +208,6 @@ router.delete('/:id', jwtValidate, (req, res) => {
                         console.log("Error from .delete/:id from DELETE FROM splitpayments WHERE account_id = ?");
                         console.log("Database query failed");
                         console.log("Error:", err)
-                        console.error("Error deleting splitpayments:", err);
                         return res.status(500).json({ error: "Failed to delete splitpayments" });
                     }
 
