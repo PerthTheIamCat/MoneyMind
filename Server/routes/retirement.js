@@ -260,15 +260,21 @@ function calculateFutureValueGPF(fundsArray, retirementAge, annualSalary, rateOf
  * Future Value ของ Life Insurance (สมมุติแบบสะสมทรัพย์)
  */
 function calculateFutureValueLifeInsurance(lifeInsuranceArray, rateOfReturn, yearsToRetirement) {
-  if (!Array.isArray(lifeInsuranceArray) || lifeInsuranceArray.length === 0) return 0;
-  if (yearsToRetirement <= 0) return 0;
+  if (!Array.isArray(lifeInsuranceArray) || lifeInsuranceArray.length === 0) {
+    console.log("No life insurance array or empty array");
+    return 0
+  };
+  if (yearsToRetirement <= 0) {
+    console.log("Years to retirement is 0 or negative");
+    return 0
+  };
 
   let total = 0;
   lifeInsuranceArray.forEach((policy) => {
     const { currentValue = 0 } = policy;
     total += currentValue * Math.pow(1 + rateOfReturn, yearsToRetirement);
+    console.log("total =", total);
   });
-
   return total;
 }
 
@@ -319,6 +325,7 @@ router.post('/', jwtValidate, (req, res) => {
     gpfFunds = [],
     lifeInsurance = []
   } = req.body;
+  console.log("POST / called with body:", req.body);
 
   // =====================
   // 1) Basic Validation
@@ -361,18 +368,21 @@ router.post('/', jwtValidate, (req, res) => {
     monthlyExpensePostRetirement * Math.pow(1 + inflationRate, yearsToRetirement);
   const annualExpenseAtRetirement = futureMonthlyExpenseAtRetirement * 12;
   const yearsInRetirement = lifeExpectancy - retirementAge;
+  console.log("futureMonthlyExpenseAtRetirement =", futureMonthlyExpenseAtRetirement, "annualExpenseAtRetirement =", annualExpenseAtRetirement, "yearsInRetirement =", yearsInRetirement);
 
   const totalNeededAtRetirement = calculateTargetRetirementFund(
     annualExpenseAtRetirement,
     expectedPostRetirementReturn,
     yearsInRetirement
   );
+  console.log("totalNeededAtRetirement =", totalNeededAtRetirement);
 
   // =====================
   // 3) รวม Future Value ของกองทุนต่าง ๆ
   // =====================
   // สมมติ currentIncome = รายปี
   const currentIncome = monthlySalary * 12;
+  console.log("currentIncome =", currentIncome);
 
   const fvSocialSecurity = calculateFutureValueSocialSecurityFunds(
     socialSecurityFunds,
@@ -380,19 +390,24 @@ router.post('/', jwtValidate, (req, res) => {
     currentIncome,
     0.035
   );
+  console.log("fvSocialSecurity =", fvSocialSecurity);
   const fvNsf = calculateFutureValueNSF(
     nsfFunds,
     currentAge,
     retirementAge,
     0.035
   );
+  console.log("fvNsf =", fvNsf);
   const fvPvd = calculateFutureValuePvdFunds(
     pvdFunds,
     currentIncome,
     yearsToRetirement
   );
+  console.log("fvPvd =", fvPvd);
   const fvRmf = calculateFutureValueRMF(rmfFunds, yearsToRetirement);
+  console.log("fvRmf =", fvRmf);
   const fvSsf = calculateFutureValueSsfFunds(ssfFunds, yearsToRetirement);
+  console.log("fvSsf =", fvSsf);
 
   // สมมติ GPF ใช้ expectedReturn เป็น rateOfReturn
   const fvGpf = calculateFutureValueGPF(
@@ -401,14 +416,17 @@ router.post('/', jwtValidate, (req, res) => {
     currentIncome,
     expectedReturn
   );
+  console.log("fvGpf =", fvGpf);
   const fvLifeIns = calculateFutureValueLifeInsurance(
     lifeInsurance,
     0.035,
     yearsToRetirement
   );
+  console.log("fvLifeIns =", fvLifeIns);
 
   const totalFundFV =
     fvSocialSecurity + fvNsf + fvPvd + fvRmf + fvSsf + fvGpf + fvLifeIns;
+  console.log("totalFundFV =", totalFundFV);
 
   // ตัวอย่าง: ไม่มี futureSavings อื่น => = 0
   const futureSavings = 0;
@@ -417,6 +435,7 @@ router.post('/', jwtValidate, (req, res) => {
   // 4) เงินที่ขาด (Net Shortfall)
   // =====================
   const netShortfallAtRetirement = totalNeededAtRetirement - (totalFundFV + futureSavings);
+  console.log("netShortfallAtRetirement =", netShortfallAtRetirement);
 
   // =====================
   // 5) อยากให้ Monthly Saving มาจาก netShortfall ล้วน ๆ

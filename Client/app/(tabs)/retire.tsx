@@ -62,7 +62,7 @@ export default function Index() {
                   maximumFractionDigits: 0,
                 })}
               </ThemedText>
-              <ThemedText className="pb-1 text-xl font-bold">BATH</ThemedText>
+              <ThemedText className="pb-1 text-xl font-bold">Baht</ThemedText>
             </ThemedView>
             <ThemedView className="">
               <SemiCircleProgress
@@ -88,9 +88,14 @@ export default function Index() {
             <ThemedView className="w-[80%] gap-5">
               <ThemedView className="flex-row w-full !justify-between !items-start">
                 <ThemedText className="max-w-[60%]">
-                  Amount of money use after retirement
+                  Already saved money
                 </ThemedText>
-                <ThemedText className="font-bold ">100 Bath</ThemedText>
+                <ThemedText className="font-bold ">
+                  {retire[0].current_savings.toLocaleString("en-EN", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  Baht
+                </ThemedText>
               </ThemedView>
               <ThemedView className="flex-row w-full !justify-between !items-start">
                 <ThemedText className="max-w-[60%]">
@@ -100,7 +105,7 @@ export default function Index() {
                   {retire[0].total_savings_goal.toLocaleString("en-EN", {
                     maximumFractionDigits: 0,
                   })}{" "}
-                  Bath
+                  Baht
                 </ThemedText>
               </ThemedView>
               <ThemedView className="flex-row w-full !justify-between !items-start">
@@ -111,7 +116,7 @@ export default function Index() {
                   ).toLocaleString("en-EN", {
                     maximumFractionDigits: 0,
                   })}{" "}
-                  Bath
+                  Baht
                 </ThemedText>
               </ThemedView>
               <ThemedView className="flex-row w-full !justify-between !items-start">
@@ -122,7 +127,7 @@ export default function Index() {
                   {retire[0].monthly_savings_goal.toLocaleString("en-EN", {
                     maximumFractionDigits: 0,
                   })}{" "}
-                  Bath
+                  Baht
                 </ThemedText>
               </ThemedView>
             </ThemedView>
