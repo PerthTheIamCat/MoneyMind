@@ -90,7 +90,8 @@ export default function TransactionPage() {
     null
   );
   const [filltermode, setFilltermode] = useState("All");
-  const [fillterType,setFillerType ] = useState("income");
+  const [fillterType,setCateFillerType ] = useState("income");
+  const [CateFillerName,setCateFillerName ] = useState("");
 
   const theme = useColorScheme() || "light";
   const isDarkMode = theme === "dark";
@@ -368,6 +369,7 @@ export default function TransactionPage() {
               data={data}
               onChange={(item) => {
                 console.log(item.label); // ตรวจสอบค่าเมื่อเลือก
+                setFilltermode(item.label)
                 setDropdownSelection(item.label); // เปลี่ยนชื่อจาก filltermode เป็น dropdownSelection
                 if (item.label === "Category") {
                   setShowModal(true); // แสดง modal เมื่อเลือก "Category"
@@ -420,32 +422,28 @@ export default function TransactionPage() {
                         </ThemedText>
                       );
                     } else if (
-                      filltermode === "Income" &&
-                      filteredTransactions?.length !== 0
+                      filltermode === "Income"
                     ) {
                       filteredTransactions = filteredTransactions?.filter(
                         (t) => t.transaction_type === "income"
                       );
                     } else if (
-                      filltermode === "Expense" &&
-                      filteredTransactions?.length !== 0
+                      filltermode === "Expense"
                     ) {
                       filteredTransactions = filteredTransactions?.filter(
                         (t) => t.transaction_type === "expense"
                       );
-                    // } else if (
-                    //   filltermode === "Category" &&
-                    //   filteredTransactions?.length !== 0
-                    // ) {
-                    //   filteredTransactions = filteredTransactions?.filter(
-                    //     (t) => t.transaction_name === filltermode && t.transaction_type===fillterType
-                    //   );
+                    } else if (
+                      filltermode === "Category"
+                    ) {
+                      filteredTransactions = filteredTransactions?.filter(
+                        (t) => t.transaction_name === CateFillerName && t.transaction_type===fillterType
+                      );
                     } else {
                       filteredTransactions = filteredTransactions?.filter(
                         (t) => t.transaction_type
                       );
                     }
-
                     return filteredTransactions.map(
                       (transaction, index, sortedArray) => {
                         const formattedDate = moment(
@@ -500,7 +498,21 @@ export default function TransactionPage() {
           </TouchableWithoutFeedback>
           {/* </ScrollView> */}
 
-          {showModal && (
+          {loading && (
+            <View className="absolute inset-0 flex items-center justify-center bg-transparent">
+              <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">
+                <ThemedText className="font-bold mb-2">
+                  Uploading Image...
+                </ThemedText>
+                <ActivityIndicator size="large" color="#AACC00" />
+              </ThemedView>
+            </View>
+          )}
+        </ThemedSafeAreaView>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
+    
+    {showModal && (
             <TouchableOpacity
               activeOpacity={1}
               onPress={() => setShowModal(false)} // ปิด modal เมื่อคลิกที่พื้นหลัง
@@ -587,8 +599,8 @@ export default function TransactionPage() {
                             key={transaction.id}
                             className={`flex-row items-center justify-between p-2 rounded-lg w-[80%] mx-auto mt-2 ${backgroundColor}`}
                             onPress={() => {
-                              setFilltermode(transaction.transaction_name);
-                              setFillerType(transaction.transaction_type);
+                              setCateFillerName(transaction.transaction_name);
+                              setCateFillerType(transaction.transaction_type);
                               console.log("Transaction Name:", transaction.transaction_name);  // log transaction_name
                               console.log("Transaction Type:", transaction.transaction_type);  // log transaction_type
                               setShowModal(false);
@@ -624,20 +636,7 @@ export default function TransactionPage() {
               </TouchableWithoutFeedback>
             </TouchableOpacity>
           )}
-          {loading && (
-            <View className="absolute inset-0 flex items-center justify-center bg-transparent">
-              <ThemedView className="bg-white dark:bg-gray-800 p-4 rounded-lg items-center">
-                <ThemedText className="font-bold mb-2">
-                  Uploading Image...
-                </ThemedText>
-                <ActivityIndicator size="large" color="#AACC00" />
-              </ThemedView>
-            </View>
-          )}
-        </ThemedSafeAreaView>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
-    
+
     {isOverlayVisible && (
             <TouchableWithoutFeedback
               onPress={() => {
