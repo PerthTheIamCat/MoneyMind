@@ -150,6 +150,10 @@ export default function SplitPay() {
     });
   };
 
+  useEffect(() => {
+    console.log("Bank:", bank);
+  }, [page]);
+
   // ✅ ตรวจจับ Card ที่อยู่กลางหน้าจอ
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollX = event.nativeEvent.contentOffset.x;

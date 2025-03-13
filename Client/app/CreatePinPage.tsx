@@ -143,19 +143,8 @@ export default function CreatePinPage() {
             />
           ))}
         </ThemedView>
-        <ThemedView
-          style={styles.numbersView}
-          className="flex-row justify-center gap-5 my-5"
-        >
-          <ThemedText
-            style={[styles.underline, styles.forgot]}
-            onPress={() => router.replace("/PinPage")}
-          >
-            Forgot PIN?
-          </ThemedText>
-        </ThemedView>
         <ThemedNumPad
-          haveBiometric={true} // Ensure biometric is available
+          haveBiometric={false} // Ensure biometric is available
           onPress={handlePress}
           onPressBack={handlePressBack}
           onPressBiometric={handleBiometricAuth} // Assign biometric function

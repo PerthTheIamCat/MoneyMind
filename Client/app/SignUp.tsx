@@ -56,6 +56,9 @@ export default function Index() {
       if (!username!.trim()) {
         setErrorUsername("Username is required");
         return;
+      } else if (username!.includes(" ")) {
+        setErrorUsername("Username cannot contain spaces");
+        return;
       } else {
         setErrorUsername("");
         console.log(username);
@@ -164,10 +167,10 @@ export default function Index() {
       } else {
         clearTimeout(timeoutId);
         setIsSending(false);
-        console.error(otpResponse.message);
+        console.log(otpResponse.message);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
