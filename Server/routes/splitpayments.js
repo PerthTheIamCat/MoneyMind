@@ -235,11 +235,11 @@ router.put('/:id', jwtValidate, (req, res) => { //splitpayment_id
             console.log("Remaining Balance Old:", remaining_balance_old)
 
             db.query(
-                'SELECT ba.balance, SUM(sp.amount_allocated) AS sumAmount FROM bankaccounts ba LEFT JOIN splitpayments sp ON ba.id = sp.account_id WHERE ba.id = ? and ba.user_id = ? GROUP BY ba.id, ba.balance',
+                'SELECT ba.balance, SUM(sp.remaining_balance) AS sumAmount FROM bankaccounts ba LEFT JOIN splitpayments sp ON ba.id = sp.account_id WHERE ba.id = ? and ba.user_id = ? GROUP BY ba.id, ba.balance',
                 [bankId, req.user.UserID],
                 (err, result) => {
                     if (err) {
-                        console.log("Error from .put/:id from SELECT ba.balance, SUM(sp.amount_allocated) AS sumAmount FROM bankaccounts ba LEFT JOIN splitpayments sp ON ba.id = sp.account_id WHERE ba.id = ? and ba.user_id = ? GROUP BY ba.id, ba.balance");
+                        console.log("Error from .put/:id from SELECT ba.balance, SUM(sp.remaining_balance) AS sumAmount FROM bankaccounts ba LEFT JOIN splitpayments sp ON ba.id = sp.account_id WHERE ba.id = ? and ba.user_id = ? GROUP BY ba.id, ba.balance");
                         console.log("Database query failed");
                         console.log("Error:", err);
                         return res.status(500).json({ message: 'Database query failed', error: err.message, success: false });
