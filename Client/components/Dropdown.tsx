@@ -90,6 +90,7 @@ const SelectBudgetPlanScreen = ({
           ]);
         } else {
           setBudgetPlanSelected(response.result[0].id);
+          onChange(response.result[0].id);
         }
       }
     }
