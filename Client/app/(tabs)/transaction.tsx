@@ -99,16 +99,16 @@ export default function TransactionPage() {
   ];
 
   const [activeCardID, setActiveCardID] = useState<number | null>(null); // เก็บเมนูที่เปิดอยู่
-  const [selectedCardID, setSelectedCardID] = useState<number | null>(null); // ✅ เก็บค่าการ์ดที่ถูกเลือก
+  const [selectedCardID, setSelectedCardID] = useState<number | null>(null); //  เก็บค่าการ์ดที่ถูกเลือก
 
-  // ✅ ฟังก์ชันสำหรับเลือกการ์ด (ไม่เกี่ยวกับเมนู)
+  //  ฟังก์ชันสำหรับเลือกการ์ด (ไม่เกี่ยวกับเมนู)
   const handleSelectCard = (cardID: number) => {
     if (selectedCardID === cardID) {
       console.log(`🔻 Unselecting Card ID: ${cardID}`);
-      setSelectedCardID(null); // ✅ ยกเลิกการเลือกถ้ากดซ้ำ
+      setSelectedCardID(null); //  ยกเลิกการเลือกถ้ากดซ้ำ
     } else {
       console.log(`✅ Selecting Card ID: ${cardID}`);
-      setSelectedCardID(cardID); // ✅ เลือกการ์ดใหม่
+      setSelectedCardID(cardID); //  เลือกการ์ดใหม่
     }
   };
 
@@ -119,9 +119,9 @@ export default function TransactionPage() {
 
   const handleToggleOptions = (type: "card" | "transaction", id: number) => {
     if (activeOptionID?.id === id && activeOptionID?.type === type) {
-      setActiveOptionID(null); // ✅ ปิดเมนูถ้ากดซ้ำ
+      setActiveOptionID(null); //  ปิดเมนูถ้ากดซ้ำ
     } else {
-      setActiveOptionID({ type, id }); // ✅ เปิดเมนูใหม่ และปิดเมนูอื่น
+      setActiveOptionID({ type, id }); //  เปิดเมนูใหม่ และปิดเมนูอื่น
     }
   };
 
@@ -193,7 +193,7 @@ export default function TransactionPage() {
     }
   };
 
-  // 📌 ฟังก์ชันอัปโหลดภาพไปยัง `ocr.js`
+  //  ฟังก์ชันอัปโหลดภาพไปยัง `ocr.js`
   const uploadImage = async (imageUri: string, retryCount = 1) => {
     setLoading(true);
     let formData = new FormData();
@@ -347,8 +347,8 @@ export default function TransactionPage() {
 
           {/* <ScrollView
             className="max-h-screen-safe "
-            // keyboardShouldPersistTaps="away" // ✅ ให้สามารถกดที่อื่นเพื่อปิดเมนู
-            onStartShouldSetResponder={() => true} // ✅ บังคับให้ ScrollView รับการสัมผัส
+            // keyboardShouldPersistTaps="away" //  ให้สามารถกดที่อื่นเพื่อปิดเมนู
+            onStartShouldSetResponder={() => true} //  บังคับให้ ScrollView รับการสัมผัส
             nestedScrollEnabled={false}
           > */}
           <TouchableWithoutFeedback
@@ -360,7 +360,6 @@ export default function TransactionPage() {
           >
             <ThemedView className=" !justify-start h-fit py-2 pb-36">
               <View className="w-full h-[400px] !items-center">
-                {/* กำหนดความสูงให้เป็น 400px และให้ ScrollView เลื่อนในกรอบนี้ */}
                 <ScrollView
                   className="w-full"
                   contentContainerStyle={{ paddingBottom: 20 }}
@@ -368,9 +367,9 @@ export default function TransactionPage() {
                     height: "100%", // กำหนดความสูงเต็มกรอบ
                     overflowY: "scroll", // เพิ่มการเลื่อนในแนวตั้ง
                   }}
-                  onStartShouldSetResponder={() => true} // ✅ ให้ ScrollView รับการสัมผัส
-                  nestedScrollEnabled={true} // ✅ เลื่อนภายในได้
-                  keyboardShouldPersistTaps="handled" // ✅ เลื่อนโดยไม่กระทบกับการสัมผัส
+                  onStartShouldSetResponder={() => true} //ให้ ScrollView รับการสัมผัส
+                  nestedScrollEnabled={true} // เลื่อนภายในได้
+                  keyboardShouldPersistTaps="handled" // เลื่อนโดยไม่กระทบกับการสัมผัส
                 >
                   {(() => {
                     const filteredTransactions =
