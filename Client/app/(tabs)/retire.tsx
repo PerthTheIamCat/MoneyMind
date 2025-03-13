@@ -56,9 +56,7 @@ export default function Index() {
             </ThemedView>
             <ThemedView className="flex-row gap-5 !items-end py-5">
               <ThemedText className="text-5xl font-bold">
-                {(
-                  retire[0].total_savings_goal - retire?.[0].current_savings
-                ).toLocaleString("en-EN", {
+                {retire[0].netShortfallAtRetirement.toLocaleString("en-EN", {
                   maximumFractionDigits: 0,
                 })}
               </ThemedText>
@@ -102,7 +100,7 @@ export default function Index() {
                   Money you need for retirement
                 </ThemedText>
                 <ThemedText className="font-bold ">
-                  {retire[0].total_savings_goal.toLocaleString("en-EN", {
+                  {retire[0].netShortfallAtRetirement.toLocaleString("en-EN", {
                     maximumFractionDigits: 0,
                   })}{" "}
                   Baht

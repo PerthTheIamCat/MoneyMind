@@ -193,7 +193,7 @@ router.post('/create', jwtValidate, (req, res) => {
                                                         return res.status(500).json({ message: 'Failed to update split payment', error: err.message, success: false });
                                                     }
 
-                                                    console.log("Transaction and split payment created successfully")
+                                                    console.log("Transaction and split payment created successfully");
                                                     return res.status(200).json({ message: 'Transaction and split payment created successfully', success: true });
                                                 }
                                             );
@@ -201,21 +201,6 @@ router.post('/create', jwtValidate, (req, res) => {
 
                                     }
                                 )
-                                let splitUpdateQuery = transaction_type === 'expense'
-                                    ? 'UPDATE splitpayments SET remaining_balance = remaining_balance - ? WHERE id = ?'
-                                    : 'UPDATE splitpayments SET remaining_balance = remaining_balance + ? WHERE id = ?';
-
-                                db.query(splitUpdateQuery, [amount, split_payment_id], (err) => {
-                                    if (err) {
-                                        console.log("Error from /create from splitUpdateQuery");
-                                        console.log("Failed to update split payment");
-                                        console.log("Error:", err);
-                                        return res.status(500).json({ message: 'Failed to update split payment', error: err.message, success: false });
-                                    }
-
-                                    console.log("Transaction and split payment updated successfully")
-                                    return res.status(200).json({ message: 'Transaction and split payment updated successfully', success: true });
-                                });
                             } else {
                                 console.log("Transaction created successfully")
                                 return res.status(200).json({ message: 'Transaction created successfully', success: true });

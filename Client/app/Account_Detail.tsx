@@ -25,7 +25,7 @@ import {
 import { ThemedButton } from "@/components/ThemedButton";
 import { DeleteAccountHandler } from "@/hooks/auth/DeleteAccountHandler";
 import Foundation from "@expo/vector-icons/Foundation";
-import router from "expo-router";
+import { router } from "expo-router";
 
 export default function Account_Detail() {
   const { URL } = useContext(ServerContext);
@@ -80,12 +80,15 @@ export default function Account_Detail() {
     try {
       const response = await DeleteAccountHandler(URL, auth?.token!, userID!);
 
-      if (response.success) {
+      if ("success" in response && response.success) {
         Alert.alert("Success", "Your account has been deleted.");
         auth?.logout(); // Log the user out
-        router.replace("/Welcome"); // Redirect to welcome page
+        router.replace("/Welcome");
       } else {
-        Alert.alert("Error", response.message || "Failed to delete account.");
+        Alert.alert(
+          "Error",
+          "message" in response ? response.message : "Failed to delete account."
+        );
       }
     } catch (error) {
       console.error("Error deleting account:", error);

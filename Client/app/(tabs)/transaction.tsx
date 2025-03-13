@@ -330,7 +330,7 @@ export default function TransactionPage() {
                     />
                   ))
                 ) : (
-                  <ThemedView></ThemedView>
+                  <ThemedView className="min-h-40"></ThemedView>
                 )}
               </View>
             </ThemedScrollView>
@@ -343,7 +343,6 @@ export default function TransactionPage() {
             <Dropdownfiller
               data={data}
               onChange={(item) => setFilltermode(item.label)}
-
             />
           </ThemedView>
 
@@ -375,21 +374,39 @@ export default function TransactionPage() {
                 >
                   {(() => {
                     let filteredTransactions =
-                      selectedCardID !== null ? transaction?.filter((t) => t.account_id === selectedCardID)
+                      selectedCardID !== null
+                        ? transaction?.filter(
+                            (t) => t.account_id === selectedCardID
+                          )
                         : transaction;
 
-                        if(!filteredTransactions ||filteredTransactions.length === 0) {
-                          return (
-                            <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
+                    if (
+                      !filteredTransactions ||
+                      filteredTransactions.length === 0
+                    ) {
+                      return (
+                        <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
                           No transactions available
                         </ThemedText>
                       );
-                    }else if (filtermode==="Income"&& filteredTransactions?.length!==0){
-                      filteredTransactions=filteredTransactions?.filter((t)=> t.transaction_type==="income");
-                    }else if(filtermode==="Expense"&& filteredTransactions?.length!==0){
-                      filteredTransactions=filteredTransactions?.filter((t)=> t.transaction_type==="expense");
-                    }else{
-                      filteredTransactions=filteredTransactions?.filter((t)=> t.transaction_type);
+                    } else if (
+                      filtermode === "Income" &&
+                      filteredTransactions?.length !== 0
+                    ) {
+                      filteredTransactions = filteredTransactions?.filter(
+                        (t) => t.transaction_type === "income"
+                      );
+                    } else if (
+                      filtermode === "Expense" &&
+                      filteredTransactions?.length !== 0
+                    ) {
+                      filteredTransactions = filteredTransactions?.filter(
+                        (t) => t.transaction_type === "expense"
+                      );
+                    } else {
+                      filteredTransactions = filteredTransactions?.filter(
+                        (t) => t.transaction_type
+                      );
                     }
 
                     return filteredTransactions.map(
