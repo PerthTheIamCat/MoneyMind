@@ -38,8 +38,11 @@ import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import { DeleteUserTransaction } from "@/hooks/auth/DeleteTransaction";
 import { AuthContext } from "@/hooks/conText/AuthContext";
+import { UpdateUserBank } from "@/hooks/auth/GetUserBank";
+import { GetUserBank } from "@/hooks/auth/GetUserBank";
 import { Item } from "react-native-paper/lib/typescript/components/Drawer/Drawer";
 import { ThemedButton } from "@/components/ThemedButton";
+
 
 export default function TransactionPage() {
   const handleEditTransaction = (transactionId: number) => {
@@ -49,7 +52,7 @@ export default function TransactionPage() {
     });
   };
 
-  const { bank, transaction, notification, setTransaction } = useContext(
+  const { bank,userID,setBank, transaction, notification, setTransaction } = useContext(
     UserContext
   ) ?? {
     bank: [],
@@ -61,6 +64,13 @@ export default function TransactionPage() {
   const [isExpenses, setIsExpenses] = useState(true);
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
+  const reloadBank = () => {
+    GetUserBank(URL, userID!, auth?.token!).then((res) => {
+      if (res.success) {
+        setBank(res.result);
+      }
+    });
+  };
   const handleDeleteTransaction = (transaction_id: number) => {
     DeleteUserTransaction(URL, transaction_id, auth?.token!).then((res) => {
       if (res.success) {
@@ -68,6 +78,9 @@ export default function TransactionPage() {
         setTransaction?.(
           transaction ? transaction.filter((t) => t.id !== transaction_id) : []
         );
+
+        reloadBank();
+
       } else {
         Alert.alert("Error", res.message);
       }
