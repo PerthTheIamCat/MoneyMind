@@ -23,7 +23,6 @@ export default function PinRecovery() {
   const [isSending, setIsSending] = useState<
     "success" | "sending" | "fail" | null
   >(null);
-  const { email } = useContext(UserContext);
 
   const handleSendOTP = () => {
     setIsSending("sending");
