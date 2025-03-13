@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
 import { Alert, StyleSheet, TextInput, useColorScheme } from "react-native";
-import { useRouter, SearchParams } from "expo-router";
+import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -9,11 +9,10 @@ import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ThemedButton } from "@/components/ThemedButton";
 import { Image } from "expo-image";
 import { TouchableOpacity } from "react-native";
-import { SignUpHandler } from "@/hooks/auth/SignUpHandler";
-import { ServerContext } from "@/hooks/conText/ServerConText";
 import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
-import { useSearchParams } from "expo-router/build/hooks";
+import { ServerContext } from "@/hooks/conText/ServerConText";
 import { VerifyOTPHandler } from "@/hooks/auth/VerifyOTP";
+import { UserContext } from "@/hooks/conText/UserContext";
 
 const OTP_LENGTH = 6;
 
@@ -22,14 +21,36 @@ export default function PinRecovery2() {
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
   const router = useRouter();
-  const email = useSearchParams().get("email");
+  const { email } = useContext(UserContext);
 
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const inputRefs = useRef<TextInput[]>([]);
   const [resendTimeout, setResendTimeout] = useState<number | null>(null);
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
-  const [isSending, setIsSending] = useState<"success" | "sending" | "fail" | null>(null);
+  const [isSending, setIsSending] = useState<
+    "success" | "sending" | "fail" | null
+  >(null);
+
+  const handleSendOTP = () => {
+    setIsSending("sending");
+    SendOTPHandler(URL, { email })
+      .then((response) => {
+        if (response.success) {
+          setIsSending("success");
+          Alert.alert("Success", "OTP sent to your email address.");
+        } else {
+          setIsSending("fail");
+          Alert.alert("Error", "Failed to send OTP. Please try again.");
+          console.error(response.message);
+        }
+      })
+      .catch((error) => {
+        setIsSending("fail");
+        Alert.alert("Error", "Failed to send OTP. Please try again.");
+        console.error(error);
+      });
+  };
 
   const handleChange = (text: string, index: number) => {
     if (/^\d$/.test(text)) {
@@ -81,7 +102,7 @@ export default function PinRecovery2() {
     setIsVerifying(true);
     VerifyOTPHandler(URL, {
       email: email!,
-      otp: otp.join("")
+      otp: otp.join(""),
     }).then((response) => {
       if (response.success) {
         setIsVerifying(false);
@@ -110,12 +131,19 @@ export default function PinRecovery2() {
     if (resendTimeout === null) {
       setTimer();
     }
-  }, []);
+    // Call handleSendOTP when the page is opened
+    handleSendOTP();
+  }, []); // Empty dependency array means this runs only once when the component mounts
 
   return (
     <ThemedSafeAreaView>
       <ThemedView className="!justify-start !items-start w-full px-5 mt-5">
-        <Ionicons name="arrow-back-outline" size={32} color="black" onPress={() => router.back()} />
+        <Ionicons
+          name="arrow-back-outline"
+          size={32}
+          color="black"
+          onPress={() => router.back()}
+        />
       </ThemedView>
       <ThemedView className="my-5">
         <Image
@@ -127,11 +155,10 @@ export default function PinRecovery2() {
           }}
         />
         <ThemedView className="flex-column mt-5 w-[75%]">
-          <ThemedText style={styles.greetings}>
-            Email Verification
-          </ThemedText>
+          <ThemedText style={styles.greetings}>Email Verification</ThemedText>
           <ThemedText style={styles.explain} className="justify-center">
-            OTP will be sent to your email address. Please check your email to proceed.
+            OTP will be sent to your email address. Please check your email to
+            proceed.
           </ThemedText>
         </ThemedView>
         <ThemedView className="w-[80%] mt-5 px-5 gap-5">
@@ -142,7 +169,12 @@ export default function PinRecovery2() {
                 ref={(ref) => (inputRefs.current[index] = ref!)}
                 style={[
                   styles.otpInput,
-                  { borderBottomColor: focusedIndex === index || otp[index] !== "" ? "#4CAF50" : "grey" },
+                  {
+                    borderBottomColor:
+                      focusedIndex === index || otp[index] !== ""
+                        ? "#4CAF50"
+                        : "grey",
+                  },
                 ]}
                 keyboardType="numeric"
                 maxLength={1}
@@ -171,9 +203,13 @@ export default function PinRecovery2() {
             </TouchableOpacity>
           </ThemedText>
           <ThemedText>
-            <TouchableOpacity onPress={resendOTPHandler} disabled={(resendTimeout ?? 0) > 0}>
+            <TouchableOpacity
+              onPress={resendOTPHandler}
+              disabled={(resendTimeout ?? 0) > 0}
+            >
               <ThemedText style={[styles.resend]}>
-                Resend OTP {(resendTimeout ?? 0) > 0 ? `in ${resendTimeout} seconds` : ""}
+                Resend OTP{" "}
+                {(resendTimeout ?? 0) > 0 ? `in ${resendTimeout} seconds` : ""}
               </ThemedText>
             </TouchableOpacity>
           </ThemedText>

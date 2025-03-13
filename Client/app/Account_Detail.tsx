@@ -167,15 +167,8 @@ export default function Account_Detail() {
         {/* Username */}
         <View style={styles.fieldContainer}>
           <ThemedText style={styles.label}>Username</ThemedText>
-          {isEditing ? (
-            <ThemedInput
-              value={editedUsername}
-              onChangeText={setEditedUsername}
-              style={styles.inputField}
-            />
-          ) : (
-            <ThemedText style={styles.value}>{username}</ThemedText>
-          )}
+
+          <ThemedText style={styles.value}>{username}</ThemedText>
         </View>
 
         {/* Full Name */}
@@ -194,18 +187,9 @@ export default function Account_Detail() {
         {/* Email */}
         <View style={styles.fieldContainer}>
           <ThemedText style={styles.label}>Email</ThemedText>
-          {isEditing ? (
-            <ThemedInput
-              value={editedEmail}
-              onChangeText={setEditedEmail}
-              keyboardType="email-address"
-              style={styles.inputField}
-            />
-          ) : (
-            <ThemedText style={styles.value}>
-              {email || "No Email Available"}
-            </ThemedText>
-          )}
+          <ThemedText style={styles.value}>
+            {email || "No Email Available"}
+          </ThemedText>
         </View>
         {/* Date of Birth - Replaced with CustomDateTimePicker */}
         <View style={styles.fieldContainer}>
@@ -455,6 +439,6 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: wp("90%"),
-    marginTop: 20,
+    marginTop: 5,
   },
 });
