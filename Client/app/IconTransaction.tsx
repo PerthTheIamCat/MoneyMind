@@ -20,6 +20,7 @@ import { useContext } from "react";
 import { UserContext } from "@/hooks/conText/UserContext";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ServerContext } from "@/hooks/conText/ServerConText";
+import { deleteCategory } from "@/hooks/auth/CategoryHandler";
 
 // กำหนด Type ของ Transaction
 type Transaction = {
@@ -150,7 +151,16 @@ export default function IconTransaction() {
       const updatedData = transactions.filter(
         (item) => item.id !== selectedTransaction.id
       );
-
+      console.log("delete id:", selectedTransaction.id);
+      deleteCategory(URL, selectedTransaction.id, userID!, auth?.token!).then(
+        (response) => {
+          if (response.success) {
+            console.log("Category deleted successfully");
+          } else {
+            console.log("Failed to delete category");
+          }
+        }
+      );
       if (isExpenses) {
         setExpensesData(updatedData);
       } else {
@@ -163,6 +173,11 @@ export default function IconTransaction() {
 
   // ✅ เพิ่ม transaction ใหม่
   const addTransaction = () => {
+    if (!newName || !newIcon) {
+      alert("Please fill in all fields");
+      return;
+    }
+
     const newTransaction: Transaction = {
       id: transactions.length + 1,
       icon_name: newName,
