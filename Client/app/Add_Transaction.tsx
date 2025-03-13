@@ -359,6 +359,23 @@ export default function Index() {
   }, []);
 
   const saveTransaction = () => {
+    if (!selectedCard) {
+      alert("⚠️ Please select an account.");
+      return;
+    }
+  
+    if (
+      (isIncome && !selectedIncomeCategory) ||
+      (!isIncome && !selectedExpenseCategory)
+    ) {
+      alert("⚠️ Please select a category.");
+      return;
+    }
+  
+    if (Amount <= 0) {
+      alert("⚠️ Please enter a valid amount.");
+      return;
+    }
     console.log(userID!);
     console.log(selectedCard?.id);
     console.log(isIncome ? selectedIncomeCategory : selectedExpenseCategory);
