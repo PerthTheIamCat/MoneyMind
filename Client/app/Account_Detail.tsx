@@ -1,231 +1,258 @@
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Image } from "expo-image";
-import { useContext, useState } from "react";
-import { Pressable } from "react-native";
-import Foundation from "@expo/vector-icons/Foundation";
-import { TextInput } from "react-native-paper";
-import { useColorScheme } from "react-native";
-import ExpandableDeviceCard from "@/components/Expandable_Card";
-import { TouchableOpacity } from "react-native";
-import { View, Text } from "react-native";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { Modal } from "react-native";
-import { TouchableWithoutFeedback } from "react-native";
-import { ThemedInput } from "@/components/ThemedInput";
-import { router } from "expo-router";
-import { SendOTPHandler } from "@/hooks/auth/SendOTPHandler";
+import React, { useContext, useState, useEffect } from "react";
+import {
+  Pressable,
+  View,
+  Text,
+  Alert,
+  StyleSheet,
+  useColorScheme,
+  Modal,
+} from "react-native";
+import { UpdateUserDetailHandler } from "@/hooks/auth/PutUserDetail";
 import { ServerContext } from "@/hooks/conText/ServerConText";
-import { Alert } from "react-native";
-
-interface Device {
-  device_id: number;
-  deviceType: string;
-  location: string;
-  ipAddress: string;
-  lastSeen: string;
-}
-
-interface Account {
-  user_name: string;
-  full_name: string;
-  birth_day: string;
-  gender: "female" | "male" | null;
-  note: string;
-  email: string;
-  password: string;
-  device: Device[];
-}
-
-const mockAccount: Account = {
-  user_name: "PS",
-  full_name: "Pawarit",
-  birth_day: "2022-01-01",
-  gender: null,
-  note: "Bankai",
-  email: "PS@gmail.com",
-  password: "123456789",
-  device: [
-    {
-      device_id: 1,
-      deviceType: "iPhone 13 Pro",
-      location: "Bangkok, Thailand",
-      ipAddress: "192.168.1.10",
-      lastSeen: "10 minutes ago",
-    },
-    {
-      device_id: 2,
-      deviceType: "MacBook Pro M2",
-      location: "Chiang Mai, Thailand",
-      ipAddress: "192.168.1.20",
-      lastSeen: "3 hours ago",
-    },
-    {
-      device_id: 3,
-      deviceType: "iPad Air 5",
-      location: "Pattaya, Thailand",
-      ipAddress: "192.168.1.30",
-      lastSeen: "1 day ago",
-    },
-    {
-      device_id: 4,
-      deviceType: "Samsung Galaxy S22 Ultra",
-      location: "Phuket, Thailand",
-      ipAddress: "192.168.1.40",
-      lastSeen: "2 weeks ago",
-    },
-  ],
-};
+import { UserContext } from "@/hooks/conText/UserContext";
+import { AuthContext } from "@/hooks/conText/AuthContext";
+import { ThemedInput } from "@/components/ThemedInput";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import { ThemedButton } from "@/components/ThemedButton";
+import { DeleteAccountHandler } from "@/hooks/auth/DeleteAccountHandler";
+import Foundation from "@expo/vector-icons/Foundation";
+import router from "expo-router";
 
 export default function Account_Detail() {
-  const {URL} = useContext(ServerContext);
-  const [Devices, setDevices] = useState(mockAccount.device);
-  const [bioText, setBioText] = useState("");
-  const theme = useColorScheme();
+  const { URL } = useContext(ServerContext);
+  const {
+    fullname,
+    username,
+    userID,
+    email,
+    bio,
+    gender,
+    birthdate,
+    profile_URL,
+    setFullname,
+    setUsername,
+    setBirthdate,
+    setGender,
+    setEmail,
+    setBio,
+    setProfile_URL,
+  } = useContext(UserContext);
+
+  const [bioText, setBioText] = useState(bio || "");
   const [isEditing, setIsEditing] = useState(false);
-  const [editField, setEditField] = useState("");
-  const [modalVisible, setModalVisible] = useState(false);
-  const [tempValue, setTempValue] = useState("");
-  const [account, setAccount] = useState<Account>(mockAccount);
-  const [email, setEmail] = useState<string>("");
-  const [isSending, setIsSending] = useState<"success" | "sending" | "fail" | null>(null);
-
-  const [gender, setGender] = useState<"male" | "female" | null>(
-    mockAccount.gender
+  const [isLoading, setIsLoading] = useState(false);
+  const [editedUsername, setEditedUsername] = useState(username);
+  const [editedFullname, setEditedFullname] = useState(fullname);
+  const [editedEmail, setEditedEmail] = useState(email);
+  const [editedProfileURL, setEditedProfileURL] = useState(profile_URL);
+  const [selectedDate, setSelectedDate] = useState<Date>(
+    birthdate ? new Date(birthdate) : new Date()
   );
+  const [isEditingDate, setIsEditingDate] = useState(false);
+  const [isEditingPicture, setIsEditingPicture] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [confirmDelete, setconfirmDelete] = useState("");
 
-  const handleEditPress = (field: keyof Account) => {
-    if (isEditing) {
-      setModalVisible(true);
-      setEditField(field);
-      setTempValue(String(account[field]));
+  const themed = useColorScheme();
+  const auth = useContext(AuthContext);
+
+  useEffect(() => {
+    if (birthdate) {
+      setSelectedDate(new Date(birthdate));
+    }
+  }, [birthdate]);
+
+  const HandleDeleteAccount = async () => {
+    if (!confirmDelete || confirmDelete !== username) {
+      Alert.alert("Error", "Please type your username to confirm deletion.");
+      return;
+    }
+
+    try {
+      const response = await DeleteAccountHandler(URL, auth?.token!, userID!);
+
+      if (response.success) {
+        Alert.alert("Success", "Your account has been deleted.");
+        auth?.logout(); // Log the user out
+        router.replace("/Welcome"); // Redirect to welcome page
+      } else {
+        Alert.alert("Error", response.message || "Failed to delete account.");
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
     }
   };
 
-  const handleSave = () => {
-    setAccount({ ...account, [editField]: tempValue });
-    setModalVisible(false);
-  };
+  const saveChanges = async () => {
+    if (!userID) return;
+    setIsLoading(true);
 
-  const getTextColor = () => {
-    return theme === "dark" ? "#FFF" : "#2F2F2F"; // สีข้อความเปลี่ยนตามธีม
-  };
-
-  const getPlaceholderColor = () => {
-    return theme === "dark" ? "#888" : "#fff"; // สีของ placeholder เปลี่ยนตามธีม
-  };
-
-  const handleSignOutAll = () => {
-    setDevices([]);
-    console.log("All devices have been signed out.");
-  };
-
-  const handleSignOut = (deviceId: number) => {
-    setDevices(Devices.filter((device) => device.device_id !== deviceId)); // ใช้ `devices` ที่มาจาก useState
-    console.log(`Signing out from device ID: ${deviceId}`);
-  };
-
-  const handleSendOTP = () => {
-      setIsSending("sending");
-      SendOTPHandler(URL, { email })
-        .then((response) => {
-          if (response.success) {
-            setIsSending("success");
-            Alert.alert("Success", "OTP sent to your email address.");
-            router.push({
-              pathname: "/OTPpasswordVerify",
-              params: { email },
-            });
-          } else {
-            setIsSending("fail");
-            Alert.alert("Error", "Failed to send OTP. Please try again.");
-            console.error(response.message);
-          }
-        })
-        .catch((error) => {
-          setIsSending("fail");
-          Alert.alert("Error", "Failed to send OTP. Please try again.");
-          console.error(error);
-        });
+    const updatedUserDetails = {
+      user_name: editedUsername || "",
+      name: editedFullname || "",
+      email: editedEmail || "",
+      birth_date: selectedDate.toISOString().split("T")[0],
+      gender: gender || "",
+      bio: bioText,
+      profile_url: editedProfileURL || "",
     };
+    console.log("Updated User Details:", updatedUserDetails);
+
+    try {
+      const response = await UpdateUserDetailHandler(
+        URL,
+        auth?.token!,
+        userID,
+        updatedUserDetails
+      );
+      if (response.success) {
+        setUsername(updatedUserDetails.user_name);
+        setFullname(updatedUserDetails.name);
+        setBirthdate(updatedUserDetails.birth_date);
+        setEmail(updatedUserDetails.email);
+        setBio(updatedUserDetails.bio);
+        setProfile_URL(updatedUserDetails.profile_url);
+
+        Alert.alert("Success", "User details updated successfully.");
+      } else {
+        Alert.alert("Error", "Failed to update user details.");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    }
+    setIsLoading(false);
+    setIsEditing(false);
+  };
 
   return (
-    <>
-      <ThemedSafeAreaView>
-        <ThemedView className="justify-start !items-start pl-8 pt-3">
-          <ThemedText className=" text-3xl font-bold ">Profile</ThemedText>
-        </ThemedView>
+    <ThemedSafeAreaView>
+      <ThemedView className="justify-start !items-start pl-8 pt-3">
+        <ThemedText className=" text-3xl font-bold ">Profile</ThemedText>
+      </ThemedView>
 
-        <ThemedView className="items-center justify-center">
-          <Image
-            source={require("@/assets/logos/LOGO.png")}
-            style={{
-              width: 100,
-              height: 100,
-              margin: "2%",
-              borderRadius: 999,
-              backgroundColor: "#123561",
-            }}
+      <ThemedView className="items-center justify-center">
+        <Pressable
+          onPress={() => {
+            setIsEditingPicture(true);
+          }}
+          disabled={!isEditing}
+        >
+          {profile_URL ? (
+            <Image source={{ uri: profile_URL }} style={styles.profileImage} />
+          ) : (
+            <Image
+              source={require("@/assets/logos/LOGO.png")}
+              style={styles.profileImage}
+            />
+          )}
+        </Pressable>
+      </ThemedView>
+
+      <ThemedView
+        style={themed === "dark" ? styles.sectionDark : styles.section}
+      >
+        {/* Username */}
+        <View style={styles.fieldContainer}>
+          <ThemedText style={styles.label}>Username</ThemedText>
+          {isEditing ? (
+            <ThemedInput
+              value={editedUsername}
+              onChangeText={setEditedUsername}
+              style={styles.inputField}
+            />
+          ) : (
+            <ThemedText style={styles.value}>{username}</ThemedText>
+          )}
+        </View>
+
+        {/* Full Name */}
+        <View style={styles.fieldContainer}>
+          <ThemedText style={styles.label}>Full Name</ThemedText>
+          {isEditing ? (
+            <ThemedInput
+              value={editedFullname}
+              onChangeText={setEditedFullname}
+              style={styles.inputField}
+            />
+          ) : (
+            <ThemedText style={styles.value}>{fullname}</ThemedText>
+          )}
+        </View>
+        {/* Email */}
+        <View style={styles.fieldContainer}>
+          <ThemedText style={styles.label}>Email</ThemedText>
+          {isEditing ? (
+            <ThemedInput
+              value={editedEmail}
+              onChangeText={setEditedEmail}
+              keyboardType="email-address"
+              style={styles.inputField}
+            />
+          ) : (
+            <ThemedText style={styles.value}>
+              {email || "No Email Available"}
+            </ThemedText>
+          )}
+        </View>
+        {/* Date of Birth - Replaced with CustomDateTimePicker */}
+        <View style={styles.fieldContainer}>
+          <ThemedText style={styles.label}>Date of Birth</ThemedText>
+          {isEditing ? (
+            <ThemedView>
+              <Pressable
+                onPress={() => setIsEditingDate(true)}
+                style={styles.label}
+              >
+                <ThemedText style={styles.value}>
+                  {selectedDate.toLocaleDateString("th-TH", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </ThemedText>
+              </Pressable>
+            </ThemedView>
+          ) : (
+            <ThemedText style={styles.value}>
+              {selectedDate.toLocaleDateString("th-TH", {
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+              })}
+            </ThemedText>
+          )}
+        </View>
+        {/* Bio */}
+        <View style={styles.fieldContainer}>
+          <ThemedText style={styles.label}>Bio</ThemedText>
+          <ThemedInput
+            placeholder="About me..."
+            value={bioText}
+            onChangeText={setBioText}
+            editable={isEditing}
+            style={[
+              styles.inputField,
+              { backgroundColor: isEditing ? "#bdbdbd" : "#fff" },
+            ]}
           />
-        </ThemedView>
-        <ThemedView className="justify-start !items-start pl-8 pt-2 ">
-          <ThemedText className=" text-2xl font-bold ">Username</ThemedText>
+        </View>
 
-          <ThemedView className="flex-row justify-between items-center w-full pr-8">
-            <ThemedText className=" text-xl font-bold pl-3 ">
-              {mockAccount.user_name}{" "}
-            </ThemedText>
+        {/* Gender */}
+        <View>
+          <ThemedText style={styles.label}>Gender</ThemedText>
+          <ThemedView className="flex flex-row items-center w-full mt-2 border rounded-lg overflow-hidden">
             <Pressable
-              onPress={() => handleEditPress("user_name")}
-              disabled={!isEditing}
-            >
-              <ThemedText style={{ opacity: isEditing ? 1 : 0.5 }}>
-                <FontAwesome6 name="edit" size={24} />
-              </ThemedText>
-            </Pressable>
-          </ThemedView>
-        </ThemedView>
-
-        <ThemedView className="justify-start !items-start pl-8 pt-2">
-          <ThemedText className=" text-2xl font-bold ">Full Name</ThemedText>
-          <ThemedView className="flex-row justify-between items-center w-full pr-8">
-            <ThemedText className=" text-xl font-bold pl-3 ">
-              {mockAccount.full_name}{" "}
-            </ThemedText>
-            <Pressable
-              onPress={() => handleEditPress("full_name")}
-              disabled={!isEditing}
-            >
-              <ThemedText style={{ opacity: isEditing ? 1 : 0.5 }}>
-                <FontAwesome6 name="edit" size={24} />
-              </ThemedText>
-            </Pressable>
-          </ThemedView>
-        </ThemedView>
-
-        <ThemedView className="justify-start !items-start pl-8 pt-2">
-          <ThemedText className=" text-2xl font-bold ">
-            Date of Birth
-          </ThemedText>
-          <ThemedView className="flex-row justify-between items-center w-full pr-8">
-            <ThemedText className=" text-xl font-bold pl-3">
-              {mockAccount.birth_day}
-            </ThemedText>
-            <Pressable
-              onPress={() => handleEditPress("birth_day")}
-              disabled={!isEditing}
-            >
-              <ThemedText style={{ opacity: isEditing ? 1 : 0.5 }}>
-                <FontAwesome6 name="edit" size={24} />
-              </ThemedText>
-            </Pressable>
-          </ThemedView>
-        </ThemedView>
-        <ThemedView className="justify-start !items-start pl-8 pt-2">
-          <ThemedText className=" text-2xl font-bold ">Gender</ThemedText>
-          <ThemedView className="flex flex-row items-center ml-3 mt-2 border rounded-lg overflow-hidden w-96">
-            <Pressable
+              style={styles.label}
               className={`flex-1 p-2 flex items-center border justify-center transition ${
                 gender === "male" ? "bg-blue-500 " : "bg-gray-100"
               }`}
@@ -242,164 +269,189 @@ export default function Account_Detail() {
               <Foundation name="female-symbol" size={24} color="black" />
             </Pressable>
           </ThemedView>
-        </ThemedView>
-        <ThemedView className="justify-start !items-start pl-8 pt-2 flex-col gap-2">
-          <ThemedText className=" text-2xl font-bold ">Bio</ThemedText>
-          <ThemedView className="w-96 flex-row pl-0 mt-0 ml-3 rounded-3xl bg-transparent">
-            <ThemedInput
-              placeholder="About me..."
-              keyboardType="default"
-              multiline={true}
-              textAlignVertical="top"
-              style={{
-                flex: 1,
-                backgroundColor: theme === "dark" ? "#121212" : "#f2f2f2",
-                color: getTextColor(),
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: theme === "dark" ? "#2F2F2F" : "#ffffff",
-                padding: 3,
-                minHeight: 60,
-                maxsssHeight: 100,
-              }}
-              placeholderTextColor={getPlaceholderColor()}
-              value={bioText} // ค่าข้อความที่พิมพ์
-              onChangeText={(newText) => setBioText(newText)}
-              editable={isEditing}
-            />
-          </ThemedView>
-        </ThemedView>
-        <ThemedView className="!items-start pl-8 pt-2">
-          <ThemedText className="text-3xl font-bold">Account</ThemedText>
-        </ThemedView>
-        <ThemedView className="justify-start !items-start pl-8 pt-2">
-          <ThemedText className=" text-2xl font-bold ">Email</ThemedText>
+        </View>
+      </ThemedView>
 
-          <ThemedView className="flex-row justify-between items-center w-full pr-8">
-            <ThemedText className=" text-xl font-bold pl-3 ">
-              {mockAccount.email}{" "}
+      {/* Delete Account*/}
+
+      <View className="flex-1 justify-center items-center">
+        {!isEditing ? (
+          // 🟢 Disabled Button (Not Clickable)
+          <View
+            className="bg-gray-300 rounded-lg w-72 h-20 flex items-center justify-center opacity-50"
+            style={styles.buttonContainer}
+          >
+            <ThemedText className="text-center text-xl font-semibold text-gray-500">
+              Delete Account
             </ThemedText>
-          </ThemedView>
-        </ThemedView>
-
-        <ThemedView className="justify-start !items-start pl-8 pt-2">
-          <ThemedText className=" text-2xl font-bold ">Password</ThemedText>
-
-          <ThemedView className="flex-row justify-between items-center w-full pr-8">
-            <ThemedText className=" text-xl font-bold pl-3">
-              {"*".repeat(mockAccount.password.length)}
+          </View>
+        ) : (
+          // 🔴 Enabled Button (Opens Modal)
+          <Pressable
+            className="bg-red-500 rounded-lg w-72 h-20 flex items-center justify-center"
+            onPress={() => setShowModal(true)}
+            style={styles.buttonContainer}
+          >
+            <ThemedText className="text-center text-xl font-semibold text-white">
+              Delete Account
             </ThemedText>
-            <Pressable
-              onPress={() => {handleSendOTP} }
-              disabled={!isEditing}
-            >
-              <ThemedText style={{ opacity: isEditing ? 1 : 0.5 }}>
-                <FontAwesome6 name="edit" size={24} />
+          </Pressable>
+        )}
+
+        {/* Modal for Delete Confirmation */}
+        <Modal
+          visible={showModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowModal(false)}
+        >
+          <View className="flex-1 justify-center items-center bg-black/50">
+            <ThemedView className=" p-6 rounded-lg w-80 shadow-lg">
+              <ThemedText className="text-center text-xl font-bold mb-4">
+                Confirm Account Deletion
               </ThemedText>
-            </Pressable>
-          </ThemedView>
-        </ThemedView>
-        <ThemedView className="justify-start !items-start pl-8 pt-2">
-          <ThemedText className=" text-2xl font-bold ">
-            Device Management
-          </ThemedText>
-          <ThemedView className=" text-xl font-bold pl-3 mt-2 flex-col gap-2">
-            {mockAccount.device.map((device) => (
-              <ExpandableDeviceCard
-                key={device.device_id}
-                deviceDetails={device}
-                onSignOut={() => handleSignOut(device.device_id)}
-                onSignOutAll={handleSignOutAll}
+              <ThemedText className="text-center mb-2">
+                Type your username to confirm
+              </ThemedText>
+              <ThemedInput
+                className="border border-gray-400 rounded-xl p-3 w-full"
+                placeholder="Type here..."
+                onChangeText={setconfirmDelete}
+                value={confirmDelete}
               />
-            ))}
-            {mockAccount.device.length > 0 && (
-              <TouchableOpacity
-                onPress={handleSignOutAll}
-                style={{
-                  alignSelf: "flex-end",
-                  marginRight: 10,
-                  marginTop: 0,
-                  paddingVertical: 0,
-                  paddingHorizontal: 5,
-                  // backgroundColor: "red",
-                  borderRadius: 5,
-                }}
+              <ThemedButton
+                className="w-full mt-4 h-10"
+                mode="cancel"
+                onPress={HandleDeleteAccount}
               >
-                <ThemedText className="text-xl font-bold">
-                  Sign Out All
-                </ThemedText>
-              </TouchableOpacity>
-            )}
-          </ThemedView>
-        </ThemedView>
+                Confirm
+              </ThemedButton>
+              <ThemedButton
+                className="w-full mt-2 h-10"
+                mode="confirm"
+                onPress={() => setShowModal(false)}
+              >
+                Cancel
+              </ThemedButton>
+            </ThemedView>
+          </View>
+        </Modal>
+      </View>
 
-        <Pressable className="!items-center mb-10">
-          <ThemedView className="!justify-center !items-center flex pt-2 mt-5 rounded-2xl border-2 w-96">
-            <ThemedText className="text-3xl">Delete Account</ThemedText>
-          </ThemedView>
-        </Pressable>
-      </ThemedSafeAreaView>
-
+      {/* Edit / Save Button */}
       <Pressable
-        onPress={() => setIsEditing(!isEditing)}
+        onPress={isEditing ? saveChanges : () => setIsEditing(true)}
         className="absolute top-3 right-3 bg-amber-500 px-4 py-2 rounded-lg shadow-lg"
       >
         <Text className="text-white font-bold">
           {isEditing ? "Save" : "Edit"}
         </Text>
       </Pressable>
-
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
+      <DateTimePickerModal
+        isVisible={isEditingDate}
+        mode="date"
+        onConfirm={(date) => {
+          setSelectedDate(date);
+          setIsEditingDate(false);
+        }}
+        onCancel={() => setIsEditingDate(false)}
+        is24Hour={true}
+        date={selectedDate}
+        maximumDate={new Date()}
+        timeZoneName="Asia/Bangkok"
+        locale="th-TH"
+      />
+      {isEditingPicture && (
+        <ThemedView className="absolute top-0 left-0 w-full h-full bg-transparent">
+          <ThemedView
+            className="h-[30%] w-full !bg-transparent "
+            onTouchEnd={() => {
+              setIsEditingPicture(false);
             }}
-          >
-            <ThemedView
-              className="w-96 h-64 p-4 rounded-2xl"
-              style={{
-                backgroundColor: "red",
-                borderRadius: 10,
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={{ fontSize: 18, fontWeight: "bold", top: 50, left: 50 }}
-              >
-                Edit {editField.replace("_", " ")}
-              </Text>
-              <TextInput
-                style={{
-                  borderBottomWidth: 1,
-                  width: "100%",
-                  marginVertical: 10,
-                  padding: 5,
-                }}
-                value={tempValue}
-                onChangeText={setTempValue}
+          ></ThemedView>
+          <ThemedView className="h-[40%] w-[80%] border-black/30 border-8 rounded-xl">
+            <ThemedView className="w-[80%]">
+              <ThemedInput
+                title="Image URL"
+                className="w-full mb-10"
+                onChangeText={setEditedProfileURL}
               />
-              <Pressable onPress={handleSave} style={{ marginTop: 10 }}>
-                <Text style={{ color: "blue", fontWeight: "bold" }}>Save</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setModalVisible(false)}
-                style={{ marginTop: 10 }}
+              <ThemedButton
+                className="w-40 h-10"
+                onPress={() => {
+                  setIsEditingPicture(false);
+                }}
+                mode="confirm"
               >
-                <Text style={{ color: "red" }}>Cancel</Text>
-              </Pressable>
+                <ThemedText>Save</ThemedText>
+              </ThemedButton>
             </ThemedView>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-    </>
+          </ThemedView>
+          <ThemedView
+            className="h-[30%] w-full !bg-transparent "
+            onTouchEnd={() => {
+              setIsEditingPicture(false);
+            }}
+          ></ThemedView>
+        </ThemedView>
+      )}
+    </ThemedSafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  section: {
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    alignSelf: "center",
+    width: "90%",
+  },
+  sectionDark: {
+    backgroundColor: "#181818",
+    borderRadius: 15,
+    padding: 20,
+    marginTop: hp("5%"),
+    marginBottom: 20,
+    marginHorizontal: 20,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    margin: "2%",
+    borderRadius: 999,
+    backgroundColor: "#123561",
+  },
+  fieldContainer: {
+    marginBottom: 10,
+    alignItems: "flex-start",
+  },
+  label: {
+    fontSize: 22,
+    fontWeight: "bold",
+    width: wp("80%"),
+    color: "#2e7d32",
+  },
+  value: {
+    fontSize: 18,
+    marginTop: 2,
+  },
+  inputField: {
+    width: "100%",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    backgroundColor: "#bdbdbd",
+    padding: 7,
+    minHeight: 50,
+  },
+  buttonContainer: {
+    width: wp("90%"),
+    marginTop: 20,
+  },
+});

@@ -26,15 +26,24 @@ const formatBalance = (balance: string): string => {
   const num = parseFloat(balance);
   if (isNaN(num)) return balance; // ถ้าไม่ใช่ตัวเลข ให้คืนค่าเดิม
 
-  // ฟังก์ชันสำหรับตัดเลขให้เหลือทศนิยมสองตำแหน่งโดยไม่ปัดเศษ
+  // ฟังก์ชันสำหรับตัดเลขให้เหลือทศนิยม 2 ตำแหน่งโดยไม่ปัดเศษ
   const truncateTwoDecimal = (value: number) => Math.floor(value * 100) / 100;
 
   if (num >= 1_000_000_000) {
-    return `${truncateTwoDecimal(num / 1_000_000_000).toFixed(2)} B฿`;
+    return `${truncateTwoDecimal(num / 1_000_000_000).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} B฿`;
   } else if (num >= 1_000_000) {
-    return `${truncateTwoDecimal(num / 1_000_000).toFixed(2)} M฿`;
+    return `${truncateTwoDecimal(num / 1_000_000).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} M฿`;
   } else {
-    return `${truncateTwoDecimal(num).toFixed(2)} ฿`;
+    return `${num.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} ฿`;
   }
 };
 
@@ -54,6 +63,8 @@ type ThemedCardProps = {
   className?: string;
   isOptionsVisible?: boolean; // Controlled by parent
   setOptionsVisible?: (visible: boolean) => void; // Controlled by parent
+  isSelected?: boolean; // ✅ บอกว่าการ์ดนี้ถูกเลือกหรือไม่
+  onSelectCard?: () => void; // ✅ ฟังก์ชันเลือกการ์ด
 };
 
 export function ThemedCard({
@@ -66,6 +77,8 @@ export function ThemedCard({
   className,
   isOptionsVisible,
   setOptionsVisible,
+  onSelectCard,
+  isSelected,
 }: ThemedCardProps) {
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
   const [countdown, setCountdown] = useState(5);
@@ -132,180 +145,192 @@ export function ThemedCard({
       if (deleteRes.success) {
         console.log("✅ Deleted successfully");
       } else {
-        console.error("❌ Failed to delete account:", deleteRes.message);
+        console.log("❌ Failed to delete account:", deleteRes.message);
       }
     } catch (error) {
-      console.error("❌ Error deleting bank:", error);
+      console.log("❌ Error deleting bank:", error);
     }
     reloadBank();
     reloadTransaction();
   };
 
   return (
-    <ThemedView
-      className={`!rounded-2xl !flex-row !justify-start !items-start mr-3 ${
-        mode === "small"
-          ? "w-[125px] h-[125px]"
-          : "w-[280px] h-[180px] mx-[8px]"
-      } ${className}`}
-      style={{
-        backgroundColor: color || "#f2f2f2",
-      }}
-    >
-      <Image
-        source={images[imageIndex]}
-        className={`!rounded-full absolute top-4 left-4 ${
-          mode === "small" ? "w-10 h-10" : "w-16 h-16"
-        }`}
-      />
-
-      {mode === "small" && (
-        <Pressable
-          onPress={() => setOptionsVisible?.(!isOptionsVisible)}
-          className="absolute top-4 right-4 p-2 rounded-md"
-        >
-          <FontAwesome name="pencil" size={16} color="#f2f2f2" />
-        </Pressable>
-      )}
-
-      {isOptionsVisible && (
-        <TouchableOpacity
-          activeOpacity={1}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 5,
-          }}
-        />
-      )}
-
-      {isOptionsVisible && (
-        <ThemedView
-          className="absolute z-10 rounded-lg shadow-lg"
-          style={{
-            top: 40,
-            right: 4,
-            width: 75,
-          }}
-        >
-          <Pressable
-            className="w-full !justify-center !items-center "
-            onPress={() => {
-              router.push({ pathname: "/Edit_Account", params: { CardID } });
-              setOptionsVisible?.(!isOptionsVisible);
-            }}
-          >
-            <ThemedText className="text-center text-[16px] text-blue-600 w-full mb-2">
-              Edit
-            </ThemedText>
-          </Pressable>
-          <Pressable
-            className="w-full justify-center items-center"
-            onPress={() => {
-              setOptionsVisible?.(!isOptionsVisible);
-              handleDelete();
-            }}
-          >
-            <ThemedText className="text-center text-[16px] text-red-600">
-              Delete
-            </ThemedText>
-          </Pressable>
-        </ThemedView>
-      )}
-
-      {mode === "small" ? (
-        <ThemedView className="absolute top-16 ml-4 items-start bg-transparent w-[85%]">
-          <ThemedText
-            className="ml-4 text-[16px] !text-[#f2f2f2] w-full font-bold"
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            style={{ textAlign: "left" }}
-          >
-            {name.trim()}
-          </ThemedText>
-        </ThemedView>
-      ) : (
-        <ThemedView className="absolute top-8 left-24 bg-transparent">
-          <ThemedText
-            className="text-[24px] !text-[#f2f2f2] font-bold w-full"
-            numberOfLines={2}
-            ellipsizeMode="tail"
-            style={{ textAlign: "left" }}
-          >
-            {name.trim()}
-          </ThemedText>
-        </ThemedView>
-      )}
-
-      {mode === "small" ? (
-        <ThemedView className="absolute bottom-4 right-4 bg-transparent">
-          <ThemedText className="text-[18px] !text-[#f2f2f2] font-semibold">
-            {formatBalance(balance)}
-          </ThemedText>
-        </ThemedView>
-      ) : (
-        <ThemedView className="absolute bottom-4 right-4 bg-transparent">
-          <ThemedText className="text-[26px] !text-[#f2f2f2] font-semibold">
-            {formatBalance(balance)}
-          </ThemedText>
-        </ThemedView>
-      )}
-
-      <Modal
-        transparent={true}
-        visible={isDeleteModalVisible}
-        animationType="fade"
-        onRequestClose={() => setDeleteModalVisible(false)}
+    <Pressable onPress={onSelectCard} className="relative">
+      <ThemedView
+        className={`!rounded-2xl !flex-row !justify-start !items-start mr-3 ${
+          mode === "small"
+            ? "w-[125px] h-[125px]"
+            : "w-[280px] h-[180px] mx-[8px]"
+        } ${className}
+      ${
+        isSelected ? "border-2 border-blue-500" : ""
+      } // ✅ เปลี่ยนสไตล์ถ้าการ์ดถูกเลือก`}
+        style={{
+          backgroundColor: color || "#f2f2f2",
+        }}
       >
-        <TouchableWithoutFeedback onPress={() => setDeleteModalVisible(false)}>
-          <ThemedView
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
+        <Image
+          source={images[imageIndex]}
+          className={`!rounded-full absolute top-4 left-4 ${
+            mode === "small" ? "w-10 h-10" : "w-16 h-16"
+          }`}
+        />
+
+        {mode === "small" && (
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation(); // ✅ ป้องกันการเลือกการ์ดซ้ำเมื่อกด Edit
+              setOptionsVisible?.(!isOptionsVisible);
             }}
+            className="absolute top-4 right-4 p-2 rounded-md"
           >
-            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-              <ThemedView
-                className="w-96 h-64 p-4 rounded-2xl"
-                style={{ alignItems: "center", justifyContent: "center" }}
-              >
-                <ThemedText className="text-xl font-bold mb-4">
-                  Are you sure you want to delete?
-                </ThemedText>
-                <ThemedText className="text-lg mb-4">
-                  You can cancel or confirm the action.
-                </ThemedText>
-                <ThemedView className="flex-row bg-transparent mt-14">
-                  <ThemedButton
-                    className="w-32 h-12 mr-6"
-                    title={
-                      countdown === 0 ? "Confirm" : `Confirm (${countdown}s)`
-                    }
-                    onPress={confirmDelete}
-                    disabled={countdown > 0}
-                    mode={countdown === 0 ? "cancel" : "normal"}
+            <FontAwesome name="pencil" size={16} color="#f2f2f2" />
+          </Pressable>
+        )}
+
+        {isOptionsVisible && (
+          <TouchableWithoutFeedback onPress={() => setOptionsVisible?.(false)}>
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "rgba(0,0,0,0.1)",
+                zIndex: 99,
+                borderRadius: 10,
+              }}
+            >
+              <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+                <ThemedView
+                  className="absolute z-10 rounded-lg shadow-lg"
+                  style={{
+                    top: 40,
+                    right: 4,
+                    width: 75,
+                    backgroundColor: "white",
+                  }}
+                >
+                  <Pressable
+                    onPress={() => {
+                      router.push({
+                        pathname: "/Edit_Account",
+                        params: { CardID },
+                      });
+                      setOptionsVisible?.(false);
+                    }}
                   >
-                    {countdown === 0 ? "Confirm" : `Confirm (${countdown}s)`}
-                  </ThemedButton>
-                  <ThemedButton
-                    className="w-32 h-12"
-                    title="Cancel"
-                    onPress={() => setDeleteModalVisible(false)}
-                    mode="normal"
+                    <ThemedText className="text-blue-600">Edit</ThemedText>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => {
+                      setOptionsVisible?.(false);
+                      handleDelete();
+                    }}
+                    className="p-2"
                   >
-                    Cancel
-                  </ThemedButton>
+                    <ThemedText className="text-red-600">Delete</ThemedText>
+                  </Pressable>
                 </ThemedView>
-              </ThemedView>
-            </TouchableWithoutFeedback>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        )}
+
+        {mode === "small" ? (
+          <ThemedView className="absolute top-16 ml-4 items-start bg-transparent w-[85%]">
+            <ThemedText
+              className="ml-4 text-[16px] !text-[#f2f2f2] w-full font-bold"
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={{ textAlign: "left" }}
+            >
+              {name.trim()}
+            </ThemedText>
           </ThemedView>
-        </TouchableWithoutFeedback>
-      </Modal>
-    </ThemedView>
+        ) : (
+          <ThemedView className="absolute top-8 left-24 bg-transparent">
+            <ThemedText
+              className="text-[24px] !text-[#f2f2f2] font-bold w-full"
+              numberOfLines={2}
+              ellipsizeMode="tail"
+              style={{ textAlign: "left" }}
+            >
+              {name.trim()}
+            </ThemedText>
+          </ThemedView>
+        )}
+
+        {mode === "small" ? (
+          <ThemedView className="absolute bottom-4 right-2 bg-transparent">
+            <ThemedText className="text-[16px] !text-[#f2f2f2] font-semibold">
+              {formatBalance(balance)}
+            </ThemedText>
+          </ThemedView>
+        ) : (
+          <ThemedView className="absolute bottom-4 right-4 bg-transparent">
+            <ThemedText className="text-[26px] !text-[#f2f2f2] font-semibold">
+              {formatBalance(balance)}
+            </ThemedText>
+          </ThemedView>
+        )}
+
+        <Modal
+          transparent={true}
+          visible={isDeleteModalVisible}
+          animationType="fade"
+          onRequestClose={() => setDeleteModalVisible(false)}
+        >
+          <TouchableWithoutFeedback
+            onPress={() => setDeleteModalVisible(false)}
+          >
+            <ThemedView
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+              }}
+            >
+              <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+                <ThemedView
+                  className="w-96 h-64 p-4 rounded-2xl"
+                  style={{ alignItems: "center", justifyContent: "center" }}
+                >
+                  <ThemedText className="text-xl font-bold mb-4">
+                    Are you sure you want to delete?
+                  </ThemedText>
+                  <ThemedText className="text-lg mb-4">
+                    You can cancel or confirm the action.
+                  </ThemedText>
+                  <ThemedView className="flex-row bg-transparent mt-14">
+                    <ThemedButton
+                      className="w-32 h-12 mr-6"
+                      title={
+                        countdown === 0 ? "Confirm" : `Confirm (${countdown}s)`
+                      }
+                      onPress={confirmDelete}
+                      disabled={countdown > 0}
+                      mode={countdown === 0 ? "cancel" : "normal"}
+                    >
+                      {countdown === 0 ? "Confirm" : `Confirm (${countdown}s)`}
+                    </ThemedButton>
+                    <ThemedButton
+                      className="w-32 h-12"
+                      title="Cancel"
+                      onPress={() => setDeleteModalVisible(false)}
+                      mode="normal"
+                    >
+                      Cancel
+                    </ThemedButton>
+                  </ThemedView>
+                </ThemedView>
+              </TouchableWithoutFeedback>
+            </ThemedView>
+          </TouchableWithoutFeedback>
+        </Modal>
+      </ThemedView>
+    </Pressable>
   );
 }

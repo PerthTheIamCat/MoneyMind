@@ -8,16 +8,22 @@ export default function Index() {
   const auth = useContext(AuthContext);
 
   useEffect(() => {
-    if (!auth?.authLoading && !auth?.token) {
-      setTimeout(() => {
+    setTimeout(() => {
+      if (!auth?.authLoading && !auth?.token) {
         router.replace("/Welcome");
-      }, 1000);
-    } else if (!auth?.authLoading && auth?.token) {
-      setTimeout(() => {
+      } else if (
+        !auth?.authLoading &&
+        auth?.token &&
+        auth?.isPinSet &&
+        auth?.pin !== null
+      ) {
         router.replace("/PinPage");
-      }, 1000);
-    }
-  }, [auth?.authLoading]);
+      } else if (!auth?.authLoading && auth?.token && auth?.pin === null) {
+        console.log("Pin is not set");
+        router.replace("/CreatePinPage");
+      }
+    }, 1000);
+  }, [auth?.authLoading, auth?.token, auth?.isPinSet, auth?.pin]);
   return (
     <ThemedView className="flex-1 h-full">
       <ThemedView className="animate-pulse z-10 bg-transparent">

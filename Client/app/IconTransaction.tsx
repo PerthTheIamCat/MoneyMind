@@ -8,6 +8,14 @@ import { useColorScheme } from "react-native";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { ThemedButton } from "@/components/ThemedButton";
+
+// ✅ กำหนด Type ของ Transaction
+type Transaction = {
+  id: number;
+  name: string;
+  icon: keyof typeof Ionicons.glyphMap;
+};
 
 // ✅ กำหนด Type ของ Transaction
 type Transaction = {
@@ -165,39 +173,37 @@ export default function IconTransaction() {
     <>
       <ThemedSafeAreaView>
         {/* ปุ่มสลับ Income / Outcome */}
-        <ThemedView className="flex-row justify-center p-1 mt-6 mb-4">
-          <ThemedView className="flex-row w-[50%] rounded-full bg-gray-300">
-            <Pressable
-              onPress={() => setIsExpenses(true)}
-              className={`px-6 py-2 rounded-lg mx-2 ${
-                isExpenses ? "bg-red-500" : "bg-gray-300"
+        <View className="flex-row w-full justify-center p-3">
+          <Pressable
+            onPress={() => setIsExpenses(true)}
+            className={`px-6 py-2 rounded-lg mx-2 ${
+              isExpenses ? "bg-red-500" : "bg-gray-300"
+            }`}
+          >
+            <ThemedText
+              className={`font-bold ${
+                isExpenses ? "text-white" : "text-black"
               }`}
             >
-              <ThemedText
-                className={`font-bold ${
-                  isExpenses ? "text-white" : "text-black"
-                }`}
-              >
-                OUTCOME
-              </ThemedText>
-            </Pressable>
+              EXPENSES
+            </ThemedText>
+          </Pressable>
 
-            <Pressable
-              onPress={() => setIsExpenses(false)}
-              className={`px-6 py-2 rounded-lg mx-2 ${
-                !isExpenses ? "bg-red-500" : "bg-gray-300"
+          <Pressable
+            onPress={() => setIsExpenses(false)}
+            className={`px-6 py-2 rounded-lg mx-2 ${
+              !isExpenses ? "bg-green-500" : "bg-gray-300"
+            }`}
+          >
+            <ThemedText
+              className={`font-bold ${
+                !isExpenses ? "text-white" : "text-black"
               }`}
             >
-              <ThemedText
-                className={`font-bold ${
-                  !isExpenses ? "text-white" : "text-black"
-                }`}
-              >
-                INCOME
-              </ThemedText>
-            </Pressable>
-          </ThemedView>
-        </ThemedView>
+              INCOME
+            </ThemedText>
+          </Pressable>
+        </View>
 
         {/* รายการ Transactions */}
         <View className="mt-1">
@@ -229,14 +235,15 @@ export default function IconTransaction() {
             </View>
           ))}
         </View>
-
         {/* ปุ่มเพิ่มรายการใหม่ */}
         <Pressable
           onPress={() => setIsAddModalVisible(true)}
-          className="mt-4 w-[80%] mx-auto p-3 rounded-full items-center"
+          className="mt-4 w-[80%] mx-auto p-3 rounded-full"
           style={{ backgroundColor: componentcolor }}
         >
-          <Ionicons name="add" size={26} color="white" />
+          <ThemedText className="text-center text-white font-bold">
+            Add New Category
+          </ThemedText>
         </Pressable>
       </ThemedSafeAreaView>
 
@@ -270,7 +277,6 @@ export default function IconTransaction() {
                   <ThemedText className="text-white">Delete</ThemedText>
                 </View>
               </Pressable>
-
               <TextInput
                 value={editedName}
                 onChangeText={setEditedName}

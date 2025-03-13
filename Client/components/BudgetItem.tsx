@@ -49,17 +49,19 @@ const BudgetItem: React.FC<BudgetItemProps> = ({
   }, [isOpen, contentHeight]);
 
   return (
-    <ThemedView className="w-[90%] flex-col !items-start rounded-xl p-5">
+    <ThemedView className="w-full flex-col !items-start rounded-xl p-5">
       {/* Header */}
       <ThemedView className="w-full flex-row !items-start">
         <ThemedView
           className="w-20 h-20 rounded-xl"
           style={{ backgroundColor: budget.color_code }}
         >
-          {React.cloneElement(icons[budget.icon_id], {
-            size: 24,
-            style: { marginVertical: 5 },
-          })}
+          {budget.icon_id != null && icons[budget.icon_id]
+            ? React.cloneElement(icons[budget.icon_id], {
+                size: 24,
+                style: { marginVertical: 5 },
+              })
+            : null}
         </ThemedView>
         <ThemedView className="gap-2 ml-4 w-[60%] !items-start bg-transparent">
           <ThemedView className="w-full flex flex-row justify-between">
@@ -84,14 +86,13 @@ const BudgetItem: React.FC<BudgetItemProps> = ({
                   (budget.remaining_balance / budget.amount_allocated) * 100
                 }%`,
               }}
-            >
-              <ThemedText className="text-xs pl-1 font-bold text-white">
-                {Math.round(
-                  (budget.remaining_balance / budget.amount_allocated) * 100
-                )}
-                %
-              </ThemedText>
-            </View>
+            ></View>
+            <ThemedText className="absolute text-xs pl-1 font-bold text-white">
+              {Math.round(
+                (budget.remaining_balance / budget.amount_allocated) * 100
+              )}
+              %
+            </ThemedText>
           </View>
           <ThemedView className="!items-end w-full">
             <AntDesign

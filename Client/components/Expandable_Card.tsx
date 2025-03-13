@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { MotiView } from "moti";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity,Dimensions } from "react-native";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useColorScheme } from "react-native";
+import { Modal } from "react-native";
 
 interface DeviceProps {
     deviceDetails: {
@@ -19,6 +20,7 @@ interface DeviceProps {
 
 const ExpandableDeviceCard: React.FC<DeviceProps> = ({ deviceDetails, onSignOut}) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    // const [showConfirm, setShowConfirm] = useState(false);
 
       const theme = useColorScheme();
       const componentcolor = theme === "dark" ? "#181818" : "#d8d8d8";
@@ -47,7 +49,7 @@ const ExpandableDeviceCard: React.FC<DeviceProps> = ({ deviceDetails, onSignOut}
                     </View>
 
                     <TouchableOpacity
-                        onPress={onSignOut}
+                        onPress={() => onSignOut()} 
                         style={{
                             position: "absolute",
                             right: 0, // ชิดขวา
