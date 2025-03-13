@@ -41,6 +41,14 @@ import { GetUserTransaction } from "@/hooks/auth/GetAllTransaction";
 import { transform } from "@babel/core";
 import AddCategory from "@/components/AddCategory"; // ✅ นำเข้าไฟล์ที่แยกไว้
 // import DatePicker from "react-native-date-picker";
+import { getCategory } from "@/hooks/auth/CategoryHandler";
+
+interface Category {
+  user_id: number;
+  icon_name: string;
+  icon_id: string;
+  category_type: "income" | "expense";
+}
 
 type ThemedInputProps = {
   className?: string;
@@ -162,7 +170,6 @@ export default function Index() {
     { name: "Passive Income", icon: "trending-up" },
     { name: "Side Hustle", icon: "briefcase" },
     { name: "Part-time Job", icon: "clock" },
-    { name: "add", icon: "plus" },
   ]);
 
   const [expenseCategories, setExpenseCategories] = useState([
@@ -180,12 +187,11 @@ export default function Index() {
     { name: "Fitness", icon: "dumbbell" },
     { name: "Groceries", icon: "shopping-cart" },
     { name: "Other", icon: "more-horizontal" },
-    { name: "add", icon: "plus" },
   ]);
 
   const [categories, setCategories] = useState(incomeCategories);
 
-  const [budgetPlan, setBudgetPlan] = useState<number|null>(null);
+  const [budgetPlan, setBudgetPlan] = useState<number | null>(null);
   const [selectedBudget, setSelectedBudget] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
@@ -210,6 +216,37 @@ export default function Index() {
       );
     }
   }, [isIncome, incomeCategories, expenseCategories]);
+
+  useEffect(() => {
+    getCategory(URL, userID!, auth?.token!).then((response) => {
+      if (response && response.success) {
+        const incomeCategories = Array.isArray(response.result)
+          ? response.result.filter(
+              (category: Category) => category.category_type === "income"
+            )
+          : [];
+        setIncomeCategories((prev) => [
+          ...prev,
+          ...incomeCategories.map((category) => {
+            return { name: category.icon_name, icon: category.icon_id };
+          }),
+          { name: "add", icon: "plus" },
+        ]);
+        const expenseCategories = Array.isArray(response.result)
+          ? response.result.filter(
+              (category: Category) => category.category_type === "expense"
+            )
+          : [];
+        setExpenseCategories((prev) => [
+          ...prev,
+          ...expenseCategories.map((category) => {
+            return { name: category.icon_name, icon: category.icon_id };
+          }),
+          { name: "add", icon: "plus" },
+        ]);
+      }
+    });
+  }, []);
 
   // ฟังก์ชันแบ่งหมวดหมู่เป็น 2 แถวเสมอ
   const splitIntoTwoRows = (arr: any[]) => {
@@ -506,24 +543,26 @@ export default function Index() {
                     Income
                   </ThemedText>
                 </Pressable>
-                <Pressable
-                  onPress={() => setIsIncome(false)}
-                  className={`w-32 h-full flex items-center justify-center rounded-2xl ${
-                    !isIncome ? "bg-red-500" : "bg-transparent"
-                  }`}
-                >
-                  <ThemedText
-                    className={`font-bold ${
-                      !isIncome
-                        ? "text-white"
-                        : theme === "dark"
-                        ? "text-white"
-                        : "text-black"
+                {selectedCard?.account_name !== "Retirement" && (
+                  <Pressable
+                    onPress={() => setIsIncome(false)}
+                    className={`w-32 h-full flex items-center justify-center rounded-2xl ${
+                      !isIncome ? "bg-red-500" : "bg-transparent"
                     }`}
                   >
-                    Expense
-                  </ThemedText>
-                </Pressable>
+                    <ThemedText
+                      className={`font-bold ${
+                        !isIncome
+                          ? "text-white"
+                          : theme === "dark"
+                          ? "text-white"
+                          : "text-black"
+                      }`}
+                    >
+                      Expense
+                    </ThemedText>
+                  </Pressable>
+                )}
               </ThemedView>
             </ThemedView>
 

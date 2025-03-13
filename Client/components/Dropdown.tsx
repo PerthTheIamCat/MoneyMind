@@ -72,7 +72,7 @@ const SelectBudgetPlanScreen = ({
   useEffect(() => {
     async function fetchData() {
       const response = await getSplitpay(URL, account_id, auth?.token!);
-      if (response.success) {
+      if (response.success && "result" in response) {
         setBudgetPlanData(response.result);
         setBudgetPlanData((prev) => [
           {
@@ -87,6 +87,12 @@ const SelectBudgetPlanScreen = ({
           },
           ...prev,
         ]);
+      }
+      if (
+        response.result.length > 0 &&
+        response.result[0].split_name === "Retirement"
+      ) {
+        setBudgetPlanSelected([response.result[0]]);
       }
     }
     fetchData();
