@@ -1,59 +1,63 @@
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import {
-    View,
-    Text,
-    TouchableOpacity,
-    StyleSheet,
-    FlatList,
-    Modal,
-    TouchableWithoutFeedback,
-  } from "react-native";
-  import React, { useCallback, useState , useMemo ,useRef } from "react";
-  import { AntDesign } from "@expo/vector-icons";
-  import { useColorScheme } from "react-native";
-  type OptionItem = {
-    value: string;
-    label: string;
-  };
-  
-  interface DropDownProps {
-    data: OptionItem[];
-    onChange: (item: OptionItem) => void;
-  }
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  Modal,
+  TouchableWithoutFeedback,
+} from "react-native";
+import { AntDesign } from "@expo/vector-icons";
+import { useColorScheme } from "react-native";
 
-  
-  export default function Dropdownfiller({
-    data,
-    onChange,
-  }: DropDownProps) {
-    const [expanded, setExpanded] = useState(false);
-    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
-    const [value, setValue] = useState("ALL");
-    // const [colortext, setColor] = useState(0);
-    const theme = useColorScheme() || "light";
-    const componentColor = theme === "dark" ? "#383838" : "#e8e8e8";
-    const componentIcon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
-    const onSelect = useCallback((item: OptionItem) => {
-      onChange(item);
-      setValue(item.label);
+type OptionItem = {
+  value: string;
+  label: string;
+};
+
+interface DropDownProps {
+  data: OptionItem[];
+  onChange: (item: OptionItem) => void;
+}
+
+export default function Dropdownfiller({ data, onChange }: DropDownProps) {
+  const [expanded, setExpanded] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+  });
+  const [value, setValue] = useState("ALL");
+
+  const theme = useColorScheme() || "light";
+  const componentColor = theme === "dark" ? "#383838" : "#e8e8e8";
+  const componentIcon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
+
+  const onSelect = useCallback((item: OptionItem) => {
+    onChange(item);
+    setValue(item.label);
+    setExpanded(false); // Close dropdown after selecting
+  }, []);
+
+  const buttonRef = useRef<TouchableOpacity>(null);
+
+  const toggleExpanded = () => {
+    if (!expanded && buttonRef.current) {
+      buttonRef.current.measureInWindow((x, y, width, height) => {
+        setDropdownPosition({ top: y + height, left: x, width });
+        setExpanded(true);
+      });
+    } else {
       setExpanded(false);
-    }, []);
-    
-    const buttonRef = useRef<View | null>(null);
-    const toggleExpanded = () => {
-      if (!expanded && buttonRef.current) {
-        buttonRef.current.measureInWindow((x, y, width, height) => {
-          setDropdownPosition({ top: y + height, left: x, width });
-          setExpanded(true);
-        });
-      } else {
-        setExpanded(false);
-      }
-    };
+    }
+  };
+
   const colortext = useMemo(() => {
-      if (value.toLowerCase() === "income") return "green";
-      if (value.toLowerCase() === "expense") return "red";
-      return componentIcon;
-      }, [value, componentIcon]);
+    if (value.toLowerCase() === "income") return "green";
+    if (value.toLowerCase() === "expense") return "red";
+    return componentIcon;
+  }, [value, componentIcon]);
 
   const styles = StyleSheet.create({
     backdrop: {
@@ -61,72 +65,75 @@ import {
       top: dropdownPosition.top,
       left: dropdownPosition.left,
       width: dropdownPosition.width,
-      // backgroundColor: "white",
-      // padding: 10,
-      borderRadius: 5,
-      // marginEnd:10,
+      zIndex: 10, // Ensure dropdown appears above other elements
+      backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
     },
     optionItem: {
       justifyContent: "flex-end",
-      alignItems:"flex-end",
-      
-      marginTop:10,
-      // marginEnd:10,
-      // padding:9,
+      alignItems: "flex-end",
+      marginTop: 10,
     },
     separator: {
       height: 4,
     },
     options: {
       backgroundColor: componentColor,
-      // marginEnd:20,
-      paddingEnd:15,
+      paddingEnd: 15,
       borderRadius: 9,
     },
     text: {
-      fontWeight:"bold",
+      fontWeight: "bold",
       fontSize: 17,
       opacity: 0.8,
-      paddingBottom:10,
+      paddingBottom: 10,
       color: componentIcon,
     },
     textselect: {
-        fontWeight:"bold",
-        fontSize: 17,
-        opacity: 0.8,
-        color: colortext,
-      },
+      fontWeight: "bold",
+      fontSize: 17,
+      opacity: 0.8,
+      color: colortext,
+    },
     button: {
       height: 50,
-      gap:10,
-      paddingTop:4,
-      paddingEnd:10,
+      gap: 10,
+      paddingTop: 4,
+      paddingEnd: 10,
       justifyContent: "flex-end",
-    //   backgroundColor: componentColor,
       flexDirection: "row",
       width: "55%",
       alignItems: "center",
       borderRadius: 8,
+      zIndex: 20, // Ensure button is above other elements
     },
   });
 
-    return (
-      <View>
-        <TouchableOpacity
-          ref={buttonRef}
-          style={styles.button}
-          activeOpacity={0.8}
-          onPress={toggleExpanded}
-        >
-          <Text style={styles.textselect}>{value}</Text>
-          <AntDesign name={expanded ? "caretup" : "caretdown"} color={componentIcon}/>
-        </TouchableOpacity>
-        {expanded ? (
-          <Modal visible={expanded} transparent>
-            <TouchableWithoutFeedback onPress={() => setExpanded(false)}>
+  return (
+    <View>
+      {/* Dropdown Button */}
+      <TouchableOpacity
+        ref={buttonRef}
+        style={styles.button}
+        activeOpacity={0.8}
+        onPress={toggleExpanded}
+      >
+        <Text style={styles.textselect}>{value}</Text>
+        <AntDesign
+          name={expanded ? "caretup" : "caretdown"}
+          color={componentIcon}
+        />
+      </TouchableOpacity>
+
+      {/* Dropdown Modal */}
+      {expanded ? (
+        <Modal visible={expanded} transparent animationType="fade">
+          {/* Wrap the entire Modal with TouchableWithoutFeedback to close when clicked outside */}
+          <TouchableWithoutFeedback onPress={() => setExpanded(false)}>
+            <View style={{ flex: 1 }}>
+              {/* Backdrop Area */}
               <View style={styles.backdrop}>
-                <View
-                  style={styles.options}>
+                {/* Dropdown Options */}
+                <View style={styles.options}>
                   <FlatList
                     keyExtractor={(item) => item.value}
                     data={data}
@@ -145,9 +152,10 @@ import {
                   />
                 </View>
               </View>
-            </TouchableWithoutFeedback>
-          </Modal>
-        ) : null}
-      </View>
-    );
-  }
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+      ) : null}
+    </View>
+  );
+}

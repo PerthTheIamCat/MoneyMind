@@ -14,8 +14,6 @@ import {
   Keyboard,
   Alert,
   ActivityIndicator,
-  Modal,
-  TouchableOpacity,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
@@ -38,11 +36,7 @@ import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import { DeleteUserTransaction } from "@/hooks/auth/DeleteTransaction";
 import { AuthContext } from "@/hooks/conText/AuthContext";
-import { UpdateUserBank } from "@/hooks/auth/GetUserBank";
-import { GetUserBank } from "@/hooks/auth/GetUserBank";
 import { Item } from "react-native-paper/lib/typescript/components/Drawer/Drawer";
-import { ThemedButton } from "@/components/ThemedButton";
-
 
 export default function TransactionPage() {
   const handleEditTransaction = (transactionId: number) => {
@@ -52,7 +46,7 @@ export default function TransactionPage() {
     });
   };
 
-  const { bank,userID,setBank, transaction, notification, setTransaction } = useContext(
+  const { bank, transaction, notification, setTransaction } = useContext(
     UserContext
   ) ?? {
     bank: [],
@@ -61,16 +55,8 @@ export default function TransactionPage() {
   const { URL } = useContext(ServerContext);
   const auth = useContext(AuthContext);
 
-  const [isExpenses, setIsExpenses] = useState(true);
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const [isButtonVisible, setIsButtonVisible] = useState(true);
-  const reloadBank = () => {
-    GetUserBank(URL, userID!, auth?.token!).then((res) => {
-      if (res.success) {
-        setBank(res.result);
-      }
-    });
-  };
   const handleDeleteTransaction = (transaction_id: number) => {
     DeleteUserTransaction(URL, transaction_id, auth?.token!).then((res) => {
       if (res.success) {
@@ -78,9 +64,6 @@ export default function TransactionPage() {
         setTransaction?.(
           transaction ? transaction.filter((t) => t.id !== transaction_id) : []
         );
-
-        reloadBank();
-
       } else {
         Alert.alert("Error", res.message);
       }
@@ -92,10 +75,8 @@ export default function TransactionPage() {
   const [filtermode, setFilltermode] = useState("All");
 
   const theme = useColorScheme() || "light";
-  const isDarkMode = theme === "dark";
   const componentcolor = theme === "dark" ? "!bg-[#242424]" : "!bg-[#d8d8d8]";
   const componenticon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
-  const backgroundColor = isDarkMode ? "bg-[#181818]" : "bg-[#d8d8d8]";
   console.log(bank);
   const [slideAnim] = useState(new Animated.Value(300));
 
@@ -117,9 +98,6 @@ export default function TransactionPage() {
     { value: "3", label: "Income" },
     { value: "4", label: "Expense" },
   ];
-
-  const [showModal, setShowModal] = useState(false); // สำหรับเปิด/ปิด modal
-  const [dropdownSelection, setDropdownSelection] = useState("");
 
   const [activeCardID, setActiveCardID] = useState<number | null>(null); // เก็บเมนูที่เปิดอยู่
   const [selectedCardID, setSelectedCardID] = useState<number | null>(null); //  เก็บค่าการ์ดที่ถูกเลือก
@@ -273,8 +251,6 @@ export default function TransactionPage() {
     <TouchableWithoutFeedback
       onPress={() => {
         setActiveOptionID(null);
-        setSelectedCardID(null);
-        console.log("🔵 Clearing active option ID and selected card ID");
       }}
       accessible={false}
     >
@@ -352,7 +328,7 @@ export default function TransactionPage() {
                     />
                   ))
                 ) : (
-                  <ThemedView></ThemedView>
+                  <ThemedView className="min-h-40"></ThemedView>
                 )}
               </View>
             </ThemedScrollView>
@@ -364,13 +340,7 @@ export default function TransactionPage() {
 
             <Dropdownfiller
               data={data}
-              onChange={(item) => {
-                console.log(item.label); // ตรวจสอบค่าเมื่อเลือก
-                setDropdownSelection(item.label); // เปลี่ยนชื่อจาก filltermode เป็น dropdownSelection
-                if (item.label === "Category") {
-                  setShowModal(true); // แสดง modal เมื่อเลือก "Category"
-                }
-              }}
+              onChange={(item) => setFilltermode(item.label)}
             />
           </ThemedView>
 
@@ -383,7 +353,6 @@ export default function TransactionPage() {
           <TouchableWithoutFeedback
             onPress={() => {
               setActiveOptionID(null);
-              console.log("🔵 Clearing active option ID and selected card ID");
             }}
             accessible={false}
           >
@@ -490,129 +459,6 @@ export default function TransactionPage() {
             </ThemedView>
           </TouchableWithoutFeedback>
           {/* </ScrollView> */}
-
-          {showModal && (
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={() => setShowModal(false)} // ปิด modal เมื่อคลิกที่พื้นหลัง
-              style={{
-                width: "100%",
-                height: "100%",
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: "rgba(0, 0, 0, 0.7)", // พื้นหลังเบลอ
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-                <ThemedView
-                  activeOpacity={1}
-                  style={{
-                    padding: 20,
-                    borderRadius: 10,
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 3 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 4,
-                    elevation: 5,
-                  }}
-                >
-                  <ThemedText className="text-xl font-bold mb-2">
-                    Select the desired category
-                  </ThemedText>
-                  <View className="flex-row items-center justify-center p-3">
-                    <Pressable
-                      onPress={() => setIsExpenses(true)}
-                      className={`px-6 py-2 rounded-lg mx-2 ${
-                        isExpenses ? "bg-red-500" : "bg-gray-300"
-                      }`}
-                    >
-                      <ThemedText
-                        className={`font-bold ${
-                          isExpenses ? "text-white" : "text-black"
-                        }`}
-                      >
-                        EXPENSES
-                      </ThemedText>
-                    </Pressable>
-
-                    <Pressable
-                      onPress={() => setIsExpenses(false)}
-                      className={`px-6 py-2 rounded-lg mx-2 ${
-                        !isExpenses ? "bg-green-500" : "bg-gray-300"
-                      }`}
-                    >
-                      <ThemedText
-                        className={`font-bold ${
-                          !isExpenses ? "text-white" : "text-black"
-                        }`}
-                      >
-                        INCOME
-                      </ThemedText>
-                    </Pressable>
-                  </View>
-                  {/* แสดงรายการตามประเภท (Income หรือ Expense) */}
-                    <ThemedView>
-                      {/* กรองข้อมูล transaction โดยเลือกประเภทที่ตรงกับ isExpenses */}
-                      {transaction
-                        ?.filter(
-                          (t) =>
-                            t.transaction_type ===
-                            (isExpenses ? "expense" : "income")
-                        )
-                        .filter(
-                          // กรองให้แสดงรายการที่ไม่ซ้ำ (ใช้ Set เพื่อไม่ให้ซ้ำ)
-                          (value, index, self) =>
-                            index ===
-                            self.findIndex(
-                              (t) =>
-                                t.transaction_name === value.transaction_name
-                            )
-                        )
-                        .map((transaction) => (
-                          <Pressable
-                            key={transaction.id}
-                            className={`flex-row items-center justify-between p-2 rounded-lg w-[80%] mx-auto mt-2 ${backgroundColor}`}
-                            onPress={() => {
-                              console.log("Transaction Name:", transaction.transaction_name);  // log transaction_name
-                              console.log("Transaction Type:", transaction.transaction_type);  // log transaction_type
-                              setShowModal(false);
-                            }}
-                          >
-                            {/* ไอคอน + ชื่อรายการ */}
-                            <View className="flex-row items-center space-x-3">
-                              {/* <Ionicons name={transaction.} size={24} /> */}
-                              <ThemedText className="text-[16px] font-bold w-full ml-3">
-                                {transaction.transaction_name}
-                              </ThemedText>
-                            </View>
-                          </Pressable>
-                        ))}
-                    </ThemedView>
-
-                  <View style={{ flexDirection: "row", marginTop: 20 }}>
-                    <TouchableOpacity
-                      onPress={() => setShowModal(false)} // ปิด modal เมื่อกดปุ่ม "Close"
-                      style={{
-                        marginRight: 15,
-                        padding: 10,
-                        backgroundColor: "red",
-                        borderRadius: 8,
-                      }}
-                    >
-                      <ThemedText className="text-white font-bold">
-                        Close
-                      </ThemedText>
-                    </TouchableOpacity>
-                  </View>
-                </ThemedView>
-              </TouchableWithoutFeedback>
-            </TouchableOpacity>
-          )}
 
           {isOverlayVisible && (
             <TouchableWithoutFeedback
