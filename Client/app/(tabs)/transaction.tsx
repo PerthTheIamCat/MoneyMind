@@ -368,19 +368,18 @@ export default function TransactionPage() {
                       selectedCardID !== null ? transaction?.filter((t) => t.account_id === selectedCardID)
                         : transaction;
 
-                    if (filtermode==="Income"&& filteredTransactions?.length!==0){
-                      filteredTransactions=filteredTransactions?.filter((t)=> t.transaction_type==="income");
-                    }else if(filtermode==="Expense"&& filteredTransactions?.length!==0){
-                      filteredTransactions=filteredTransactions?.filter((t)=> t.transaction_type==="expense");
-                    }
-                    
-                    if(!filteredTransactions ||filteredTransactions.length === 0) {
-                      return (
-                        <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
+                        if(!filteredTransactions ||filteredTransactions.length === 0) {
+                          return (
+                            <ThemedText className="text-center items-center !justify-center text-xl mt-20 text-neutral-500 py-4">
                           No transactions available
                         </ThemedText>
                       );
-                      
+                    }else if (filtermode==="Income"&& filteredTransactions?.length!==0){
+                      filteredTransactions=filteredTransactions?.filter((t)=> t.transaction_type==="income");
+                    }else if(filtermode==="Expense"&& filteredTransactions?.length!==0){
+                      filteredTransactions=filteredTransactions?.filter((t)=> t.transaction_type==="expense");
+                    }else{
+                      filteredTransactions=filteredTransactions?.filter((t)=> t.transaction_type);
                     }
 
                     return filteredTransactions.map(
