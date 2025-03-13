@@ -54,7 +54,9 @@ export interface RetirementRequest {
     compensationBenefits: number;
     initialBenefits: number;
   }[];
-  lifeInsurance: number;
+  lifeInsurance: {
+    currentValue: number;
+  }[];
 }
 
 export interface RetirementResponse {

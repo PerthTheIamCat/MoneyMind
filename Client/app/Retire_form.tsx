@@ -17,9 +17,8 @@ import Entypo from "@expo/vector-icons/Entypo";
 
 import {
   CalculateRetirement,
-  RetirementRequest,
+  GetRetirement,
 } from "@/hooks/auth/retirementHandler";
-import { SplitpaymentsPostHandler } from "@/hooks/auth/SplitpaymentsHandler";
 
 import { ServerContext } from "@/hooks/conText/ServerConText";
 import { AuthContext } from "@/hooks/conText/AuthContext";
@@ -56,7 +55,7 @@ export default function Retire_form() {
   const [currentIncome, setCurrentIncome] = useState<number>(10000);
   const [currentExpenses, setCurrentExpenses] = useState<number>(8000);
   const [expectedRateFromSaving, setExpectedRateFromSaving] =
-    useState<number>(10);
+    useState<number>(5);
   const [monthlySalary, setMonthlySalary] = useState<number>(8000);
   const [inflationRate, setInflationRate] = useState<number>(3);
   const [expectedRateFromSaving2, setExpectedRateFromSaving2] =
@@ -124,21 +123,12 @@ export default function Retire_form() {
   const [monthlySavingNeeded, setMonthlySavingNeeded] = useState<number>(0);
 
   const handleFinish = async () => {
-    setRetire([
-      {
-        id: 1,
-        current_savings: 0,
-        monthly_savings_goal: monthlySavingNeeded,
-        total_savings_goal: totalNeededAtRetirement,
-        user_id: userID!,
-      },
-    ]);
     await axios
       .post(
         `${URL}/splitpayments/retirement`,
         {
           user_id: userID,
-          amount_allocated: totalNeededAtRetirement,
+          amount_allocated: monthlySavingNeeded,
         },
         {
           headers: {
@@ -146,8 +136,13 @@ export default function Retire_form() {
           },
         }
       )
-      .then((response) => {
+      .then(async (response) => {
         if (response.data.success) {
+          await GetRetirement(URL, auth?.token!).then((res) => {
+            if (res.success && "result" in res) {
+              setRetire([res.result]);
+            }
+          });
           console.log("Split payment success:", response.data);
           router.back();
         } else {
@@ -237,7 +232,13 @@ export default function Retire_form() {
               },
             ]
           : [],
-        lifeInsurance: isLifeInsurance ? lifeInsuranceFund : 0,
+        lifeInsurance: isLifeInsurance
+          ? [
+              {
+                currentValue: lifeInsuranceFund,
+              },
+            ]
+          : [],
       },
       auth?.token!
     ).then((res) => {
@@ -445,7 +446,7 @@ export default function Retire_form() {
                   />
                 </ThemedView>
                 <ThemedText className="text-2xl font-bold mt-5">
-                  Bath/Month
+                  Baht/Month
                 </ThemedText>
               </ThemedView>
               <ThemedView className="w-[80%] flex-row !justify-between">
@@ -461,7 +462,7 @@ export default function Retire_form() {
                   />
                 </ThemedView>
                 <ThemedText className="text-2xl font-bold mt-6">
-                  Bath/Month
+                  Baht/Month
                 </ThemedText>
               </ThemedView>
               <ThemedView className="w-[80%] flex-row !justify-between">
@@ -494,7 +495,7 @@ export default function Retire_form() {
                   />
                 </ThemedView>
                 <ThemedText className="text-2xl font-bold mt-5">
-                  Bath/Month
+                  Baht/Month
                 </ThemedText>
               </ThemedView>
               <ThemedView className="w-[80%] flex-row !justify-between">
@@ -643,7 +644,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Accumulated money"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={accumulatedMoney.toString()}
                   onChangeText={(text) => setAccumulatedMoney(safeNumber(text))}
@@ -651,7 +652,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Employee contributions"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={employeeContributions.toString()}
                   onChangeText={(text) =>
@@ -661,7 +662,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Accumulated benefits"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={accumulatedBenefits.toString()}
                   onChangeText={(text) =>
@@ -671,7 +672,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Contribution benefits"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={contributionBenefits.toString()}
                   onChangeText={(text) =>
@@ -686,7 +687,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Current balance RMF"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={currentBalanceRMF.toString()}
                   onChangeText={(text) =>
@@ -696,7 +697,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="RMF investment amount"
                   className="w-full"
-                  unit="Bath/year"
+                  unit="Baht/year"
                   keyboardType="numeric"
                   value={RMFInvestmentAmount.toString()}
                   onChangeText={(text) =>
@@ -719,7 +720,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Current balance SSF"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={currentBalanceSSF.toString()}
                   onChangeText={(text) =>
@@ -729,7 +730,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="SSF investment amount"
                   className="w-full"
-                  unit="Bath/Month"
+                  unit="Baht/Month"
                   keyboardType="numeric"
                   value={SSFInvestmentAmount.toString()}
                   onChangeText={(text) =>
@@ -800,7 +801,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Accumulated money"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={accumulatedMoney2.toString()}
                   onChangeText={(text) =>
@@ -810,7 +811,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Employee contributions"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={employeeContributions2.toString()}
                   onChangeText={(text) =>
@@ -820,7 +821,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Compensation"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={compensation.toString()}
                   onChangeText={(text) => setCompensation(safeNumber(text))}
@@ -828,7 +829,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Initial money (if any)"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={initialMoney.toString()}
                   onChangeText={(text) => setInitialMoney(safeNumber(text))}
@@ -836,7 +837,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Accumulated benefits"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={accumulatedBenefits2.toString()}
                   onChangeText={(text) =>
@@ -846,7 +847,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Contribution benefits"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={contributionBenefits2.toString()}
                   onChangeText={(text) =>
@@ -856,7 +857,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Compensation benefits"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={compensationBenefits.toString()}
                   onChangeText={(text) =>
@@ -866,7 +867,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Initial benefits (if any)"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={initialBenefits.toString()}
                   onChangeText={(text) => setInitialBenefits(safeNumber(text))}
@@ -879,7 +880,7 @@ export default function Retire_form() {
                 <ThemedInputHorizontal
                   title="Life insurance fund"
                   className="w-full"
-                  unit="Bath"
+                  unit="Baht"
                   keyboardType="numeric"
                   value={lifeInsuranceFund.toString()}
                   onChangeText={(text) =>
@@ -904,7 +905,7 @@ export default function Retire_form() {
                     })}
                   </ThemedText>
                   <ThemedText className="pb-1 text-xl !text-[#36CE85] font-bold">
-                    BATH
+                    BAht
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
@@ -957,7 +958,7 @@ export default function Retire_form() {
                     ).toLocaleString("en-EN", {
                       maximumFractionDigits: 0,
                     })}{" "}
-                    Bath
+                    Baht
                   </ThemedText>
                 </ThemedView>
                 <ThemedView className="flex-row w-full !justify-between !items-start">
@@ -968,7 +969,7 @@ export default function Retire_form() {
                     {totalNeededAtRetirement.toLocaleString("en-EN", {
                       maximumFractionDigits: 0,
                     })}{" "}
-                    Bath
+                    Baht
                   </ThemedText>
                 </ThemedView>
                 <ThemedView className="flex-row w-full !justify-between !items-start">
@@ -980,7 +981,7 @@ export default function Retire_form() {
                     {totalFundFV.toLocaleString("en-EN", {
                       maximumFractionDigits: 0,
                     })}{" "}
-                    Bath
+                    Baht
                   </ThemedText>
                 </ThemedView>
                 <ThemedView className="flex-row w-full !justify-between !items-start">
@@ -991,7 +992,7 @@ export default function Retire_form() {
                     ).toLocaleString("en-EN", {
                       maximumFractionDigits: 0,
                     })}{" "}
-                    Bath
+                    Baht
                   </ThemedText>
                 </ThemedView>
                 <ThemedView className="flex-row w-full !justify-between !items-start">
@@ -999,10 +1000,10 @@ export default function Retire_form() {
                     Must save to retire according to plan per month
                   </ThemedText>
                   <ThemedText className="font-bold">
-                    {Number(netShortfallAtRetirement).toLocaleString("en-EN", {
+                    {Number(monthlySavingNeeded).toLocaleString("en-EN", {
                       maximumFractionDigits: 0,
                     })}{" "}
-                    Bath
+                    Baht
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
