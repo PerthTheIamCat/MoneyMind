@@ -56,7 +56,7 @@ export default function TransactionItem({
   return (
     <>
       <View
-        className={`flex-row items-center justify-center w-10/12 ${componentcolor} p-4 rounded-lg mb-2 shadow-md`}
+        className={`flex-row items-center justify-center w-[85%] ${componentcolor} p-4 rounded-lg mb-2 shadow-md`}
       >
         <Image
           source={require("@/assets/logos/LOGO.png")}
@@ -81,7 +81,7 @@ export default function TransactionItem({
           <ThemedText>
             {new Date(transaction.transaction_date)
               .toLocaleString("th-TH")
-              .slice(9, 14)}
+              .slice(9, 15)}
           </ThemedText>
         </View>
         {checkpage === "transactions" ? (
