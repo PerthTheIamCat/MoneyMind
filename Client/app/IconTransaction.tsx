@@ -33,7 +33,7 @@ export default function IconTransaction() {
   const [editedName, setEditedName] = useState("");
   const [selectedIcon, setSelectedIcon] =
     useState<keyof typeof Ionicons.glyphMap>("restaurant-outline");
-    const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] =
+  const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] =
     useState(false); // State สำหรับ modal ยืนยันการลบ
 
   const [newName, setNewName] = useState(""); // New state for adding transaction
@@ -133,22 +133,22 @@ export default function IconTransaction() {
     setIsEditModalVisible(false);
   };
 
-    // ✅ ลบรายการ
-    const deleteTransaction = () => {
-      if (selectedTransaction) {
-        const updatedData = transactions.filter(
-          (item) => item.id !== selectedTransaction.id
-        );
-  
-        if (isExpenses) {
-          setExpensesData(updatedData);
-        } else {
-          setIncomeData(updatedData);
-        }
+  // ✅ ลบรายการ
+  const deleteTransaction = () => {
+    if (selectedTransaction) {
+      const updatedData = transactions.filter(
+        (item) => item.id !== selectedTransaction.id
+      );
+
+      if (isExpenses) {
+        setExpensesData(updatedData);
+      } else {
+        setIncomeData(updatedData);
       }
-      setIsDeleteConfirmationVisible(false);
-      setIsEditModalVisible(false);
-    };
+    }
+    setIsDeleteConfirmationVisible(false);
+    setIsEditModalVisible(false);
+  };
 
   // ✅ เพิ่ม transaction ใหม่
   const addTransaction = () => {
@@ -241,14 +241,18 @@ export default function IconTransaction() {
           style={{ backgroundColor: componentcolor }}
         >
           <ThemedText className="text-center text-white font-bold">
-            Add New Catagory
+            Add New Category
           </ThemedText>
         </Pressable>
       </ThemedSafeAreaView>
 
       {/* Modal แก้ไขรายการ */}
       <Modal transparent visible={isEditModalVisible} animationType="fade">
-        <TouchableWithoutFeedback onPress={() =>{ setIsEditModalVisible(false);}}>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            setIsEditModalVisible(false);
+          }}
+        >
           <View className="flex-1 items-center justify-center bg-black/50">
             <View
               className={`w-4/5 p-6 rounded-3xl shadow-lg ${
@@ -257,19 +261,19 @@ export default function IconTransaction() {
               onStartShouldSetResponder={() => true}
             >
               <ThemedText className="text-xl font-bold">
-                Edit Catagory
+                Edit Category
               </ThemedText>
               {/* ปุ่มลบที่มุมขวาบน */}
               <Pressable
                 onPress={() => {
-                  setIsDeleteConfirmationVisible(true)
+                  setIsDeleteConfirmationVisible(true);
                   // ต้องเพิ่มฟังก์ชันการลบรายการตามที่คุณต้องการ
                   // เช่น การลบจาก `expensesData` หรือ `incomeData`
                 }}
                 className="absolute top-4 right-4 p-2"
               >
                 <View className="bg-red-500 p-1 px-2 rounded-xl">
-                <ThemedText className="text-white">Delete</ThemedText>
+                  <ThemedText className="text-white">Delete</ThemedText>
                 </View>
               </Pressable>
 
@@ -325,9 +329,15 @@ export default function IconTransaction() {
         </TouchableWithoutFeedback>
       </Modal>
 
-       {/* Modal ยืนยันการลบ */}
-       <Modal transparent visible={isDeleteConfirmationVisible} animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setIsDeleteConfirmationVisible(false)}>
+      {/* Modal ยืนยันการลบ */}
+      <Modal
+        transparent
+        visible={isDeleteConfirmationVisible}
+        animationType="fade"
+      >
+        <TouchableWithoutFeedback
+          onPress={() => setIsDeleteConfirmationVisible(false)}
+        >
           <View className="flex-1 items-center justify-center bg-black/50">
             <View
               className={`w-4/5 p-6 rounded-3xl shadow-lg ${
@@ -335,7 +345,9 @@ export default function IconTransaction() {
               }`}
               onStartShouldSetResponder={() => true}
             >
-              <ThemedText className="text-xl font-bold">Confirm Delete</ThemedText>
+              <ThemedText className="text-xl font-bold">
+                Confirm Delete
+              </ThemedText>
 
               <ThemedText className="mt-4">
                 Are you sure you want to delete this category?
@@ -350,11 +362,13 @@ export default function IconTransaction() {
                 </ThemedButton>
                 <ThemedButton
                   className="bg-gray-400 h-11 w-28"
-                  onPress={() => {setIsEditModalVisible(false);setIsDeleteConfirmationVisible(false);}}
+                  onPress={() => {
+                    setIsEditModalVisible(false);
+                    setIsDeleteConfirmationVisible(false);
+                  }}
                 >
                   <ThemedText>Cancel</ThemedText>
                 </ThemedButton>
-                
               </View>
             </View>
           </View>

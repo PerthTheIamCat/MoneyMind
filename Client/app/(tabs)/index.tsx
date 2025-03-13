@@ -117,7 +117,7 @@ export default function Index() {
               </ThemedText>
               <ThemedView className="mt-5 bg-transparent pb-4">
                 <SemiCircleProgress
-                  savings_goal={retire[0].total_savings_goal}
+                  savings_goal={retire[0].monthly_savings_goal}
                   current_savings={retire[0].current_savings}
                 />
               </ThemedView>
@@ -127,7 +127,7 @@ export default function Index() {
                     maximumFractionDigits: 0,
                   })}
                   /
-                  {retire[0].total_savings_goal.toLocaleString("en-EN", {
+                  {retire[0].monthly_savings_goal.toLocaleString("en-EN", {
                     maximumFractionDigits: 0,
                   })}
                 </ThemedText>

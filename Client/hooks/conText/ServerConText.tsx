@@ -14,7 +14,7 @@ type ServerContextType = {
   setOtp: (value: string) => void;
 };
 export const ServerContext = createContext<ServerContextType>({
-  URL: "http://192.168.51.190:3000",
+  URL: "http://192.168.104.190:3000",
   setUsername: () => {},
   setEmail: () => {},
   setPassword: () => {},
