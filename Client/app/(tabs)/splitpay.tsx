@@ -878,14 +878,16 @@ export default function SplitPay() {
           </ThemedButton>
         </ThemedView>
       </Animated.View>
-      {page === 0 && (
-        <ThemedView
-          className="w-16 h-16 !bg-[#AACC00] absolute right-6 bottom-36 rounded-full"
-          onTouchEnd={() => setModalVisible(true)}
-        >
-          <MaterialCommunityIcons name="plus" size={40} color="white" />
-        </ThemedView>
-      )}
+      {page === 0 &&
+        (bank?.filter((account) => account.account_name !== "Retirement") ?? [])
+          .length > 0 && (
+          <ThemedView
+            className="w-16 h-16 !bg-[#AACC00] absolute right-6 bottom-36 rounded-full"
+            onTouchEnd={() => setModalVisible(true)}
+          >
+            <MaterialCommunityIcons name="plus" size={40} color="white" />
+          </ThemedView>
+        )}
       <Animated.View
         style={{
           position: "absolute",

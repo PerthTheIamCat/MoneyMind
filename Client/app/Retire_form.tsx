@@ -1007,9 +1007,9 @@ export default function Retire_form() {
                     Amount of money use after retirement per month
                   </ThemedText>
                   <ThemedText className="font-bold ">
-                    {Number(
-                      totalNeededAtRetirement /
-                        ((ageAfterRetire - ageToRetire) * 12)
+                    {(
+                      Number(totalNeededAtRetirement) /
+                      ((Number(ageAfterRetire) - Number(ageToRetire)) * 12)
                     ).toLocaleString("en-EN", {
                       maximumFractionDigits: 0,
                     })}{" "}
@@ -1042,8 +1042,8 @@ export default function Retire_form() {
                 <ThemedView className="flex-row w-full !justify-between !items-start">
                   <ThemedText className="max-w-[60%]">Still need</ThemedText>
                   <ThemedText className="font-bold ">
-                    {Number(
-                      totalNeededAtRetirement - totalFundFV
+                    {(
+                      Number(totalNeededAtRetirement) - Number(totalFundFV)
                     ).toLocaleString("en-EN", {
                       maximumFractionDigits: 0,
                     })}{" "}
