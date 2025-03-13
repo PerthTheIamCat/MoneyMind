@@ -169,7 +169,8 @@ export default function Index() {
       setCategories((prev) =>
         prev !== expenseCategories ? [...expenseCategories] : prev
       );
-    }}, [isIncome, incomeCategories, expenseCategories]);
+    }
+  }, [isIncome, incomeCategories, expenseCategories]);
 
   useEffect(() => {
     if (!transaction || !transactionId) return;
@@ -229,7 +230,6 @@ export default function Index() {
         }, 500);
       }
     }
-
   }, [transaction, bank]);
 
   // ฟังก์ชันแบ่งหมวดหมู่เป็น 2 แถวเสมอ
@@ -255,7 +255,9 @@ export default function Index() {
 
   const scrollViewRef = useRef<ScrollView>(null);
   const [selectedCard, setSelectedCard] = useState<resultObject | null>(null);
-  const [cardPositions, setCardPositions] = useState<{ id: number; x: number }[]>([]);
+  const [cardPositions, setCardPositions] = useState<
+    { id: number; x: number }[]
+  >([]);
 
   // ✅ เก็บตำแหน่ง X ของแต่ละ Card
   const storeCardPosition = (id: number, x: number) => {
@@ -287,6 +289,14 @@ export default function Index() {
       console.log("🎯 Selected Card:", closestCard);
     }
   };
+  function safeNumber(text: string): number | string {
+    // Allow empty input, a single dot, or numbers that end with a dot, so that the user can type decimals.
+    if (text === "" || text === "." || /^[0-9]+\.$/.test(text)) {
+      return text;
+    }
+    const n = parseFloat(text);
+    return isNaN(n) ? 0 : n;
+  }
 
   // ✅ เก็บวันที่และเวลาที่เลือกไว้ใน State
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -298,7 +308,14 @@ export default function Index() {
     console.log(isIncome ? selectedIncomeCategory : selectedExpenseCategory);
     console.log(Amount);
     console.log(isIncome ? "income" : "expense");
-    console.log(selectedDate.toISOString().split("T")[0] +" " +selectedTime.toLocaleTimeString("en-GB", {hour: "2-digit",minute: "2-digit",}));
+    console.log(
+      selectedDate.toISOString().split("T")[0] +
+        " " +
+        selectedTime.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+    );
     console.log(Note);
     if (!selectedCard) {
       console.log("⚠️ No selectedCard, using default account");
@@ -309,26 +326,42 @@ export default function Index() {
         user_id: userID!,
         account_id: selectedCard?.id,
         split_payment_id: budgetPlan,
-        transaction_name: isIncome ? selectedIncomeCategory: selectedExpenseCategory,
+        transaction_name: isIncome
+          ? selectedIncomeCategory
+          : selectedExpenseCategory,
         amount: Amount,
         transaction_type: isIncome ? "income" : "expense",
         transaction_date:
-        selectedDate.toISOString().split("T")[0] +" " +selectedTime.toLocaleTimeString("en-GB", {hour: "2-digit",minute: "2-digit",}),
+          selectedDate.toISOString().split("T")[0] +
+          " " +
+          selectedTime.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
         note: Note,
         color_code: "#FFFFFF",
       };
 
       console.log("🔄 Updating account with data:", updatedTransaction);
       const response = await EditIDTransaction(
-        URL,Number(transactionId),
+        URL,
+        Number(transactionId),
         {
           user_id: userID!,
           account_id: selectedCard?.id,
           split_payment_id: budgetPlan,
-          transaction_name: isIncome ? selectedIncomeCategory : selectedExpenseCategory,
+          transaction_name: isIncome
+            ? selectedIncomeCategory
+            : selectedExpenseCategory,
           amount: Amount,
           transaction_type: isIncome ? "income" : "expense",
-          transaction_date: selectedDate.toISOString().split("T")[0] + " " + selectedTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", }),
+          transaction_date:
+            selectedDate.toISOString().split("T")[0] +
+            " " +
+            selectedTime.toLocaleTimeString("en-GB", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
           note: Note,
           color_code: "#FFFFFF",
         },
@@ -367,7 +400,8 @@ export default function Index() {
             decelerationRate="fast"
             onScroll={handleScroll}
             scrollEventThrottle={16} // ✅ ตรวจจับ scroll อย่างละเอียด
-            className="w-full">
+            className="w-full"
+          >
             <ThemedView className="w-full px-16">
               <ThemedView className="mt-0.5 mb-1 flex-row space-x-1 gap-5">
                 {bank?.map((account: resultObject, index: number) => (
@@ -379,7 +413,8 @@ export default function Index() {
                         10 +
                         event.nativeEvent.layout.width / 2;
                       storeCardPosition(account.id, x);
-                    }}>
+                    }}
+                  >
                     <ThemedView>
                       <ThemedCard
                         key={account.id}
@@ -414,14 +449,19 @@ export default function Index() {
           scrollEventThrottle={16} // ควบคุมอัตราการอัปเดต scroll event
           decelerationRate={0.95} // ทำให้ scroll ช้าลง (ค่าปกติคือ 0.998, ยิ่งต่ำยิ่งช้าลง)
         >
-          <ThemedView className={`${ theme === "dark" ? "bg-[#1f1f1f]" : "bg-[#ffffff]" } mt-2  !justify-start !items-start w-full  rounded-t-[30px] `}>
+          <ThemedView
+            className={`${
+              theme === "dark" ? "bg-[#1f1f1f]" : "bg-[#ffffff]"
+            } mt-2  !justify-start !items-start w-full  rounded-t-[30px] `}
+          >
             <ThemedView className="w-full bg-transparent">
               <ThemedView className="flex-row px-10 w-fit h-12 rounded-sm p-1 mt-5 mb-4 bg-transparent">
                 <Pressable
                   onPress={() => setIsIncome(true)}
                   className={`w-32 h-full flex items-center justify-center rounded-2xl ${
                     isIncome ? "bg-green-500" : "bg-transparent"
-                  }`}>
+                  }`}
+                >
                   <ThemedText
                     className={`font-bold ${
                       isIncome
@@ -429,7 +469,8 @@ export default function Index() {
                         : theme === "dark"
                         ? "text-white"
                         : "text-black"
-                    }`}>
+                    }`}
+                  >
                     Income
                   </ThemedText>
                 </Pressable>
@@ -437,7 +478,8 @@ export default function Index() {
                   onPress={() => setIsIncome(false)}
                   className={`w-32 h-full flex items-center justify-center rounded-2xl ${
                     !isIncome ? "bg-red-500" : "bg-transparent"
-                  }`}>
+                  }`}
+                >
                   <ThemedText
                     className={`font-bold ${
                       !isIncome
@@ -445,7 +487,8 @@ export default function Index() {
                         : theme === "dark"
                         ? "text-white"
                         : "text-black"
-                    }`}>
+                    }`}
+                  >
                     Expense
                   </ThemedText>
                 </Pressable>
@@ -478,11 +521,13 @@ export default function Index() {
                   flexDirection: "column",
                   rowGap: 4, // ลดช่องว่างระหว่างแถว
                   alignItems: "center", // จัดให้แถว 1 และ 2 เริ่มใกล้กันมากขึ้น
-                }}>
+                }}
+              >
                 {categoryRows.map((row, rowIndex) => (
                   <ThemedView
                     key={rowIndex}
-                    className="flex-row mr-4 ml-10 mb-2 gap-4 bg-transparent">
+                    className="flex-row mr-4 ml-10 mb-2 gap-4 bg-transparent"
+                  >
                     {row.map((category, index) => (
                       <Pressable
                         key={`${category.name}-${index}`}
@@ -519,7 +564,8 @@ export default function Index() {
                           flexBasis: "auto",
                           minWidth: 90,
                           paddingHorizontal: 12,
-                        }}>
+                        }}
+                      >
                         {category.name === "add" ? (
                           <Icon
                             name={category.icon}
@@ -552,7 +598,8 @@ export default function Index() {
                                   : theme === "dark"
                                   ? "text-white"
                                   : "black"
-                              }`}>
+                              }`}
+                            >
                               {category.name}
                             </ThemedText>
                           </>
@@ -598,7 +645,8 @@ export default function Index() {
             <ThemedView className="w-full px-10 mt-5 justify-center !items-start bg-transparent">
               <ThemedText
                 className="font-bold text-[16px] mb-2"
-                style={{ color: theme === "dark" ? "#FFF" : "#333" }}>
+                style={{ color: theme === "dark" ? "#FFF" : "#333" }}
+              >
                 Amount
               </ThemedText>
               <ThemedView className="w-full flex-row">
@@ -613,8 +661,7 @@ export default function Index() {
                   }}
                   value={Amount === 0 ? "" : Amount.toString()} // ✅ ป้องกัน NaN
                   onChangeText={(text) => {
-                    let numericValue = text.replace(/[^0-9]/g, ""); // ✅ รับเฉพาะตัวเลข 0-9
-                    setAmount(numericValue === "" ? 0 : parseInt(numericValue)); // ✅ ป้องกัน NaN
+                    setAmount(safeNumber(text) as number);
                   }}
                   placeholderTextColor={theme === "dark" ? "#888" : "#555"} // ✅ รองรับ Dark Mode
                   className="w-full"
@@ -625,7 +672,8 @@ export default function Index() {
             <ThemedView className="w-full px-10 mt-5 mb-10 justify-center !items-start bg-transparent">
               <ThemedText
                 className="font-bold text-[16px] mb-7"
-                style={{ color: theme === "dark" ? "#FFF" : "#333" }}>
+                style={{ color: theme === "dark" ? "#FFF" : "#333" }}
+              >
                 Note
               </ThemedText>
               <ThemedView className="w-full h-20 flex-row">
@@ -652,7 +700,8 @@ export default function Index() {
                   className=" px-10 w-56 h-12 bg-green-500"
                   onPress={async () => {
                     updateTransaction();
-                  }}>
+                  }}
+                >
                   Update Transaction
                 </ThemedButton>
               </ThemedView>
