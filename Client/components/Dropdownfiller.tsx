@@ -1,3 +1,4 @@
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import {
   View,
   Text,
@@ -7,9 +8,9 @@ import {
   Modal,
   TouchableWithoutFeedback,
 } from "react-native";
-import React, { useCallback, useState, useMemo, useRef } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import { useColorScheme } from "react-native";
+
 type OptionItem = {
   value: string;
   label: string;
@@ -28,17 +29,18 @@ export default function Dropdownfiller({ data, onChange }: DropDownProps) {
     width: 0,
   });
   const [value, setValue] = useState("ALL");
-  // const [colortext, setColor] = useState(0);
+
   const theme = useColorScheme() || "light";
   const componentColor = theme === "dark" ? "#383838" : "#e8e8e8";
   const componentIcon = theme === "dark" ? "#f2f2f2" : "#2f2f2f";
+
   const onSelect = useCallback((item: OptionItem) => {
     onChange(item);
     setValue(item.label);
-    setExpanded(false);
+    setExpanded(false); // Close dropdown after selecting
   }, []);
 
-  const buttonRef = useRef<View | null>(null);
+  const buttonRef = useRef<TouchableOpacity>(null);
   const toggleExpanded = () => {
     if (!expanded && buttonRef.current) {
       buttonRef.current.measureInWindow((x, y, width, height) => {
@@ -61,25 +63,19 @@ export default function Dropdownfiller({ data, onChange }: DropDownProps) {
       top: dropdownPosition.top,
       left: dropdownPosition.left,
       width: dropdownPosition.width,
-      // backgroundColor: "white",
-      // padding: 10,
-      borderRadius: 5,
-      // marginEnd:10,
+      zIndex: 10, // Ensure dropdown appears above other elements
+      backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
     },
     optionItem: {
       justifyContent: "flex-end",
       alignItems: "flex-end",
-
       marginTop: 10,
-      // marginEnd:10,
-      // padding:9,
     },
     separator: {
       height: 4,
     },
     options: {
       backgroundColor: componentColor,
-      // marginEnd:20,
       paddingEnd: 15,
       borderRadius: 9,
     },
@@ -102,16 +98,17 @@ export default function Dropdownfiller({ data, onChange }: DropDownProps) {
       paddingTop: 4,
       paddingEnd: 10,
       justifyContent: "flex-end",
-      //   backgroundColor: componentColor,
       flexDirection: "row",
       width: "55%",
       alignItems: "center",
       borderRadius: 8,
+      zIndex: 20, // Ensure button is above other elements
     },
   });
 
   return (
     <View>
+      {/* Dropdown Button */}
       <TouchableOpacity
         ref={buttonRef}
         style={styles.button}
@@ -124,27 +121,33 @@ export default function Dropdownfiller({ data, onChange }: DropDownProps) {
           color={componentIcon}
         />
       </TouchableOpacity>
+      {/* Dropdown Modal */}
       {expanded ? (
-        <Modal visible={expanded} transparent>
+        <Modal visible={expanded} transparent animationType="fade">
+          {/* Wrap the entire Modal with TouchableWithoutFeedback to close when clicked outside */}
           <TouchableWithoutFeedback onPress={() => setExpanded(false)}>
-            <View style={styles.backdrop}>
-              <View style={styles.options}>
-                <FlatList
-                  keyExtractor={(item) => item.value}
-                  data={data}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      style={styles.optionItem}
-                      onPress={() => onSelect(item)}
-                    >
-                      <Text style={styles.text}>{item.label}</Text>
-                    </TouchableOpacity>
-                  )}
-                  ItemSeparatorComponent={() => (
-                    <View style={styles.separator} />
-                  )}
-                />
+            <View style={{ flex: 1 }}>
+              {/* Backdrop Area */}
+              <View style={styles.backdrop}>
+                {/* Dropdown Options */}
+                <View style={styles.options}>
+                  <FlatList
+                    keyExtractor={(item) => item.value}
+                    data={data}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        style={styles.optionItem}
+                        onPress={() => onSelect(item)}
+                      >
+                        <Text style={styles.text}>{item.label}</Text>
+                      </TouchableOpacity>
+                    )}
+                    ItemSeparatorComponent={() => (
+                      <View style={styles.separator} />
+                    )}
+                  />
+                </View>
               </View>
             </View>
           </TouchableWithoutFeedback>

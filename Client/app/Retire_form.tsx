@@ -51,18 +51,18 @@ export default function Retire_form() {
   const [step, setStep] = useState<number>(0);
 
   // Form 1
-  const [currentAge, setCurrentAge] = useState<number | string>(21);
-  const [ageToRetire, setAgeToRetire] = useState<number | string>(60);
-  const [ageAfterRetire, setAgeAfterRetire] = useState<number | string>(80);
+  const [currentAge, setCurrentAge] = useState<number | string>(0);
+  const [ageToRetire, setAgeToRetire] = useState<number | string>(0);
+  const [ageAfterRetire, setAgeAfterRetire] = useState<number | string>(0);
 
   // Form 2
-  const [currentIncome, setCurrentIncome] = useState<number | string>(10000);
-  const [currentExpenses, setCurrentExpenses] = useState<number | string>(8000);
+  const [currentIncome, setCurrentIncome] = useState<number | string>(0);
+  const [currentExpenses, setCurrentExpenses] = useState<number | string>(0);
   const [expectedRateFromSaving, setExpectedRateFromSaving] = useState<
     number | string
   >(5);
-  const [monthlySalary, setMonthlySalary] = useState<number | string>(8000);
-  const [inflationRate, setInflationRate] = useState<number | string>(3);
+  const [monthlySalary, setMonthlySalary] = useState<number | string>(0);
+  const [inflationRate, setInflationRate] = useState<number | string>(0);
   const [expectedRateFromSaving2, setExpectedRateFromSaving2] = useState<
     number | string
   >(5);
