@@ -205,6 +205,14 @@ export default function Index() {
       { name: "add", icon: "plus" },
     ]);
   };
+  function safeNumber(text: string): number | string {
+    // Allow empty input, a single dot, or numbers that end with a dot, so that the user can type decimals.
+    if (text === "" || text === "." || /^[0-9]+\.$/.test(text)) {
+      return text;
+    }
+    const n = parseFloat(text);
+    return isNaN(n) ? 0 : n;
+  }
 
   useEffect(() => {
     if (isIncome) {
@@ -369,7 +377,7 @@ export default function Index() {
       alert("⚠️ Please select an account.");
       return;
     }
-  
+
     if (
       (isIncome && !selectedIncomeCategory) ||
       (!isIncome && !selectedExpenseCategory)
@@ -377,7 +385,7 @@ export default function Index() {
       alert("⚠️ Please select a category.");
       return;
     }
-  
+
     if (Amount <= 0) {
       alert("⚠️ Please enter a valid amount.");
       return;
@@ -763,8 +771,7 @@ export default function Index() {
                   }}
                   value={Amount === 0 ? "" : Amount.toString()} // ✅ ป้องกัน NaN
                   onChangeText={(text) => {
-                    let numericValue = text.replace(/[^0-9]/g, ""); // ✅ รับเฉพาะตัวเลข 0-9
-                    setAmount(numericValue === "" ? 0 : parseInt(numericValue)); // ✅ ป้องกัน NaN
+                    setAmount(safeNumber(text) as number);
                   }}
                   placeholderTextColor={theme === "dark" ? "#888" : "#555"} // ✅ รองรับ Dark Mode
                   className="w-full"
