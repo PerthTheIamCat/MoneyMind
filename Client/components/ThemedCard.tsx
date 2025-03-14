@@ -176,17 +176,18 @@ export function ThemedCard({
           }`}
         />
 
-        {mode === "small" && (
-          <Pressable
-            onPress={(e) => {
-              e.stopPropagation(); // ✅ ป้องกันการเลือกการ์ดซ้ำเมื่อกด Edit
-              setOptionsVisible?.(!isOptionsVisible);
-            }}
-            className="absolute top-4 right-4 p-2 rounded-md"
-          >
-            <FontAwesome name="pencil" size={16} color="#f2f2f2" />
-          </Pressable>
-        )}
+      {mode === "small" && name !== "Retirement" && (
+        <Pressable
+          onPress={(e) => {
+            e.stopPropagation(); // ✅ ป้องกันการเลือกการ์ดซ้ำเมื่อกด Edit
+            setOptionsVisible?.(!isOptionsVisible);
+          }}
+          className="absolute top-4 right-4 p-2 rounded-md"
+        >
+          <FontAwesome name="pencil" size={16} color="#f2f2f2" />
+        </Pressable>
+      )}
+
 
         {isOptionsVisible && (
           <TouchableWithoutFeedback onPress={() => setOptionsVisible?.(false)}>

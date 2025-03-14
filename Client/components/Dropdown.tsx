@@ -103,7 +103,7 @@ const SelectBudgetPlanScreen = ({
         containerStyle={{
           width: 340,
           height: "auto",
-          marginTop: 115,
+          marginTop: 110,
           zIndex: 9999,
           elevation: 10,
           borderRadius: 15,
