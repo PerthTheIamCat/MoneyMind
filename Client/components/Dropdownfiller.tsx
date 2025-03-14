@@ -64,7 +64,7 @@ export default function Dropdownfiller({ data, onChange }: DropDownProps) {
       left: dropdownPosition.left,
       width: dropdownPosition.width,
       zIndex: 10, // Ensure dropdown appears above other elements
-      backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+      backgroundColor: "transparent", // Semi-transparent background
     },
     optionItem: {
       justifyContent: "flex-end",
