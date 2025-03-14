@@ -59,12 +59,14 @@ export default function TransactionItem({
       <View
         className={`flex-row items-center justify-center w-[85%] ${componentcolor} p-4 rounded-lg mb-2 shadow-md`}
       >
+        <ThemedView className={`w-12 h-12 rounded-full ${theme === "dark" ? "!bg-[#252525]" : "!bg-[#c7c7c7]"} mr-3 p-1`}>
         <Ionicons
           name={transaction.icon_id}
           size={24}
           color={componenticon}
           className="mx-3"
         />
+        </ThemedView>
         <View className="flex-1">
           <ThemedText className="font-bold text-lg">
             {transaction.transaction_name}

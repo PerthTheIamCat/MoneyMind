@@ -301,7 +301,7 @@ export default function Account_Detail() {
                 Type your username to confirm
               </ThemedText>
               <ThemedInput
-                className="border border-gray-400 rounded-xl p-3 w-full"
+                className="border border-gray-400 rounded-xl p-3 h-full w-full"
                 placeholder="Type here..."
                 onChangeText={setconfirmDelete}
                 value={confirmDelete}
@@ -436,6 +436,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#bdbdbd",
     padding: 7,
     minHeight: 50,
+  },
+  confirmField: {
+    width: "100%",
+    height: "100%"
   },
   buttonContainer: {
     width: wp("90%"),
