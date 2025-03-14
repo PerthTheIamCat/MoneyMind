@@ -169,20 +169,37 @@ export default function SplitPay() {
     });
 
     if (closestCard && (closestCard as resultObject).id !== selectedCard?.id) {
-      setSelectedCard(closestCard);
-      setIsLoading(true);
-      getSplitpay(URL, (closestCard as resultObject).id, auth?.token!).then(
-        (res) => {
-          if (res.success) {
-            console.log("🚀 Splitpay Fetched:", res);
-            setBudgets(res.result);
-          } else {
-            setBudgets(null);
+      if (page === 0) {
+        setSelectedCard(closestCard);
+        setIsLoading(true);
+        getSplitpay(URL, (closestCard as resultObject).id, auth?.token!).then(
+          (res) => {
+            if (res.success) {
+              console.log("🚀 Splitpay Fetched:", res);
+              setBudgets(res.result);
+            } else {
+              setBudgets(null);
+            }
+            setIsLoading(false);
           }
-          setIsLoading(false);
+        );
+        console.log("🎯 Selected Card:", closestCard);
+      } else {
+        if (bank && bank.length > 0) {
+          setSelectedCard(bank[0]);
+          setIsLoading(true);
+          getSplitpay(URL, bank[0].id, auth?.token!).then((res) => {
+            if (res.success) {
+              console.log("🚀 Splitpay Fetched:", res);
+              setBudgets(res.result);
+            } else {
+              setBudgets(null);
+            }
+            setIsLoading(false);
+          });
+          console.log("🎯 Selected Card:", bank[0]);
         }
-      );
-      console.log("🎯 Selected Card:", closestCard);
+      }
     }
   };
 
