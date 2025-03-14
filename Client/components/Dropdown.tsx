@@ -5,6 +5,7 @@ import { ThemedView } from "./ThemedView";
 import { getSplitpay } from "@/hooks/auth/SplitpayHandler";
 import { AuthContext } from "@/hooks/conText/AuthContext";
 import { ServerContext } from "@/hooks/conText/ServerConText";
+import { on } from "events";
 
 const BudgetPlan_data = [
   {
@@ -92,6 +93,22 @@ const SelectBudgetPlanScreen = ({
           setBudgetPlanSelected(response.result[0].id);
           onChange(response.result[0].id);
         }
+      } else {
+        setBudgetPlanData((prev) => [
+          {
+            id: null,
+            user_id: 0,
+            account_id: 0,
+            split_name: "Select Budget Plan",
+            amount_allocated: 0,
+            remaining_balance: 0,
+            color_code: "0",
+            icon_id: -1,
+          },
+          ...prev,
+        ]);
+        setBudgetPlanData([]);
+        onChange(0);
       }
     }
     fetchData();
