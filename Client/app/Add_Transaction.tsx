@@ -42,6 +42,7 @@ import { transform } from "@babel/core";
 import AddCategory from "@/components/AddCategory"; // ✅ นำเข้าไฟล์ที่แยกไว้
 // import DatePicker from "react-native-date-picker";
 import { getCategory } from "@/hooks/auth/CategoryHandler";
+import { GetRetirement } from "@/hooks/auth/retirementHandler";
 
 interface Category {
   user_id: number;
@@ -83,7 +84,7 @@ export default function Index() {
 
   console.log("Extracted Data:", extractedData);
 
-  const { bank, setTransaction, setBank, transaction, userID } =
+  const { bank, setTransaction, setBank, transaction, userID, setRetire } =
     useContext(UserContext);
   const theme = useColorScheme();
   const [isIncome, setIsIncome] = useState(true);
@@ -420,6 +421,21 @@ export default function Index() {
       GetUserBank(URL, userID!, auth?.token!).then((res) => {
         if (res.success) {
           setBank(res.result);
+        }
+      });
+      GetRetirement(URL, auth?.token!).then((res) => {
+        if (res.success && "result" in res) {
+          setRetire([
+            {
+              id: res.result.id,
+              user_id: res.result.user_id,
+              current_savings: res.result.current_savings,
+              monthly_savings_goal: res.result.monthly_savings_goal,
+              netShortfallAtRetirement: res.result.netShortfallAtRetirement,
+              total_fund_fv: res.result.total_fund_fv,
+              total_savings_goal: res.result.total_savings_goal,
+            },
+          ]);
         }
       });
     };
