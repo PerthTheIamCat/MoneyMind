@@ -302,15 +302,22 @@ export default function IconTransaction() {
       </ThemedSafeAreaView>
 
       {/* Modal แก้ไขรายการ */}
-      <Modal transparent visible={isEditModalVisible} animationType="fade">
+      {isEditModalVisible && (
         <TouchableWithoutFeedback
           onPress={() => {
             setIsEditModalVisible(false);
           }}
         >
-          <View className="flex-1 items-center justify-center bg-black/50">
+          <View className="flex-1 items-center justify-center bg-black/50"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                }}>
             <View
-              className={`w-4/5 p-6 rounded-3xl shadow-lg ${
+              className={`w-4/5 p-6 rounded-3xl shadow-lg mb-36 ${
                 isDarkMode ? "bg-[#282828]" : "bg-white"
               }`}
               onStartShouldSetResponder={() => true}
@@ -381,119 +388,134 @@ export default function IconTransaction() {
             </View>
           </View>
         </TouchableWithoutFeedback>
-      </Modal>
+      )}
 
       {/* Modal ยืนยันการลบ */}
-      <Modal
-        transparent
-        visible={isDeleteConfirmationVisible}
-        animationType="fade"
-      >
-        <TouchableWithoutFeedback
-          onPress={() => setIsDeleteConfirmationVisible(false)}
+      {isDeleteConfirmationVisible && (
+  <TouchableWithoutFeedback
+    onPress={() => setIsDeleteConfirmationVisible(false)} // ปิด modal เมื่อคลิกที่พื้นหลัง
+  >
+    <View
+      className="flex-1 items-center justify-center bg-black/50"
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}
+    >
+      <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+        <View
+          className={`w-4/5 p-6 rounded-3xl shadow-lg mb-36 ${
+            isDarkMode ? "bg-[#282828]" : "bg-white"
+          }`}
+          onStartShouldSetResponder={() => true} // ป้องกันการคลิกที่ View ภายใน
         >
-          <View className="flex-1 items-center justify-center bg-black/50">
-            <View
-              className={`w-4/5 p-6 rounded-3xl shadow-lg ${
-                isDarkMode ? "bg-[#282828]" : "bg-white"
-              }`}
-              onStartShouldSetResponder={() => true}
+          <ThemedText className="text-xl font-bold">Confirm Delete</ThemedText>
+          <ThemedText className="mt-4">
+            Are you sure you want to delete this category?
+          </ThemedText>
+
+          <View className="flex-row justify-between mt-10">
+            <ThemedButton
+              className="bg-red-500 h-11 w-28"
+              onPress={deleteTransaction} // ฟังก์ชันที่ใช้ลบรายการ
             >
-              <ThemedText className="text-xl font-bold">
-                Confirm Delete
-              </ThemedText>
-
-              <ThemedText className="mt-4">
-                Are you sure you want to delete this category?
-              </ThemedText>
-
-              <View className="flex-row justify-between mt-10 ">
-                <ThemedButton
-                  className="bg-red-500 h-11 w-28"
-                  onPress={deleteTransaction}
-                >
-                  <ThemedText>Delete</ThemedText>
-                </ThemedButton>
-                <ThemedButton
-                  className="bg-gray-400 h-11 w-28"
-                  onPress={() => {
-                    setIsEditModalVisible(false);
-                    setIsDeleteConfirmationVisible(false);
-                  }}
-                >
-                  <ThemedText>Cancel</ThemedText>
-                </ThemedButton>
-              </View>
-            </View>
+              <ThemedText>Delete</ThemedText>
+            </ThemedButton>
+            <ThemedButton
+              className="bg-gray-400 h-11 w-28"
+              onPress={() => {
+                setIsEditModalVisible(false);
+                setIsDeleteConfirmationVisible(false);
+              }}
+            >
+              <ThemedText>Cancel</ThemedText>
+            </ThemedButton>
           </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+        </View>
+      </TouchableWithoutFeedback>
+    </View>
+  </TouchableWithoutFeedback>
+)}
 
       {/* Modal สำหรับเพิ่มรายการใหม่ */}
-      <Modal transparent visible={isAddModalVisible} animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setIsAddModalVisible(false)}>
-          <View className="flex-1 items-center justify-center bg-black/50">
-            <View
-              className={`w-4/5 p-6 rounded-3xl shadow-lg ${
-                isDarkMode ? "bg-[#282828]" : "bg-white"
-              }`}
-              onStartShouldSetResponder={() => true}
+      {isAddModalVisible && (
+  <TouchableWithoutFeedback
+    onPress={() => setIsAddModalVisible(false)} // ปิด modal เมื่อคลิกที่พื้นหลัง
+  >
+    <View
+      className="flex-1 items-center justify-center bg-black/50"
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}
+    >
+      <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+        <View
+          className={`w-4/5 p-6 rounded-3xl shadow-lg mb-36 ${
+            isDarkMode ? "bg-[#282828]" : "bg-white"
+          }`}
+          onStartShouldSetResponder={() => true} // ป้องกันการคลิกที่ View ภายใน
+        >
+          <ThemedText className="text-xl font-bold">Add New Transaction</ThemedText>
+
+          <TextInput
+            value={newName}
+            onChangeText={setNewName}
+            className="border rounded-lg p-3 mb-4 w-full mt-3"
+            placeholderTextColor={isDarkMode ? "#BBB" : "#777"}
+            style={{
+              backgroundColor: isDarkMode ? "#222" : "#FFF",
+              color: isDarkMode ? "#FFF" : "#222",
+            }}
+          />
+
+          <ScrollView horizontal className="flex-row gap-2">
+            {iconList.map((icon) => (
+              <Pressable
+                key={icon}
+                onPress={() => setNewIcon(icon)}
+                className={`p-3 m-1 rounded-full ${
+                  newIcon === icon
+                    ? isExpenses
+                      ? "bg-red-500"
+                      : "bg-green-500"
+                    : "bg-gray-200"
+                }`}
+              >
+                <Ionicons
+                  name={icon}
+                  size={24}
+                  color={newIcon === icon ? "white" : "black"}
+                />
+              </Pressable>
+            ))}
+          </ScrollView>
+
+          <View className="flex-row justify-between mt-10 gap-8">
+            <ThemedButton
+              className="bg-gray-400 h-11 w-28"
+              onPress={() => setIsAddModalVisible(false)} // ปิด Modal เมื่อกด Cancel
             >
-              <ThemedText className="text-xl font-bold">
-                Add New Transaction
-              </ThemedText>
-
-              <TextInput
-                value={newName}
-                onChangeText={setNewName}
-                className="border rounded-lg p-3 mb-4 w-full mt-3"
-                placeholderTextColor={isDarkMode ? "#BBB" : "#777"}
-                style={{
-                  backgroundColor: isDarkMode ? "#222" : "#FFF",
-                  color: isDarkMode ? "#FFF" : "#222",
-                }}
-              />
-
-              <ScrollView horizontal className="flex-row gap-2">
-                {iconList.map((icon) => (
-                  <Pressable
-                    key={icon}
-                    onPress={() => setNewIcon(icon)}
-                    className={`p-3 m-1 rounded-full ${
-                      newIcon === icon
-                        ? isExpenses
-                          ? "bg-red-500"
-                          : "bg-green-500"
-                        : "bg-gray-200"
-                    }`}
-                  >
-                    <Ionicons
-                      name={icon}
-                      size={24}
-                      color={newIcon === icon ? "white" : "black"}
-                    />
-                  </Pressable>
-                ))}
-              </ScrollView>
-
-              <View className="flex-row justify-between mt-10 gap-8">
-                <ThemedButton
-                  className="bg-gray-400 h-11 w-28"
-                  onPress={() => setIsAddModalVisible(false)}
-                >
-                  <ThemedText>Cancel</ThemedText>
-                </ThemedButton>
-                <ThemedButton
-                  className="bg-green-500 h-11 w-28"
-                  onPress={addTransaction}
-                >
-                  <ThemedText>Save</ThemedText>
-                </ThemedButton>
-              </View>
-            </View>
+              <ThemedText>Cancel</ThemedText>
+            </ThemedButton>
+            <ThemedButton
+              className="bg-green-500 h-11 w-28"
+              onPress={addTransaction} // บันทึกการเพิ่มรายการ
+            >
+              <ThemedText>Save</ThemedText>
+            </ThemedButton>
           </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+        </View>
+      </TouchableWithoutFeedback>
+    </View>
+  </TouchableWithoutFeedback>
+)}
     </>
   );
 }
